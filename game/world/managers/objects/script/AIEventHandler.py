@@ -1,8 +1,6 @@
-import random
-import time
 from dataclasses import dataclass
 from functools import lru_cache
-from random import randint, choice
+from random import randint
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptAIEvent import ScriptAIEvent
@@ -34,14 +32,12 @@ class AIEventHandler:
         self.update_diff_secs = 0
         self.event_locks.clear()
 
-    def ai_update(self, elapsed_secs: float):
+    def ai_update(self, elapsed_secs: float, now: float):
         self.update_diff_secs += elapsed_secs
         if self.update_diff_secs < self.update_interval_secs:
             return
         self.update_diff_secs = 0
 
-        # TODO: Update all type of events that are bound to AI update calls time diff (No on-action triggering).
-        now = time.time()
         self.update_timer_in_combat_events(now)
         self.update_timer_out_of_combat_events(now)
         self.update_hp_events(now)
@@ -63,13 +59,14 @@ class AIEventHandler:
 
         script_event = ScriptAIEvent(event, self.creature)
         scripts = script_event.pick_scripts()
+        event_delay_seconds = script_event.get_delay_seconds()
 
         if now:
             self._lock_event(script_event, now)
 
         for script in scripts:
             map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script,
-                                delay=script_event.get_delay_seconds(), event=script_event)
+                                delay=event_delay_seconds, event=script_event)
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
@@ -279,7 +276,7 @@ class AIEventHandler:
         for event in events:
             if not self._validate_event(event, target=self.creature, now=now):
                 continue
-            self._enqueue_creature_ai_event(map_, event, target=target, now=now)
+            self._enqueue_creature_ai_event(map_, event, target=self.creature, now=now)
 
     def update_missing_aura_events(self, now):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MISSING_AURA)
@@ -506,8 +503,8 @@ class AIEventHandler:
 
     def _lock_event(self, script_event, now):
         self.event_locks[script_event.id] = EventLock(event_id=script_event.id, time_added=now,
-                                                        repeat=script_event.get_repeat_seconds(),
-                                                        can_repeat=script_event.can_repeat())
+                                                      repeat=script_event.get_repeat_seconds(),
+                                                      can_repeat=script_event.can_repeat())
 
     def _is_event_locked(self, event, now):
         event_lock = self.event_locks.get(event.id)

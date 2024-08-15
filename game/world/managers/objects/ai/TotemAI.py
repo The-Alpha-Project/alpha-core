@@ -7,8 +7,8 @@ class TotemAI(CreatureAI):
         super().__init__(creature)
 
     # override
-    def update_ai(self, elapsed):
-        super().update_ai(elapsed)
+    def update_ai(self, elapsed, now):
+        super().update_ai(elapsed, now)
         if not self.creature:
             return
 

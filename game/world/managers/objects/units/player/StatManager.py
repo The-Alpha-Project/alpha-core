@@ -240,9 +240,9 @@ class StatManager(object):
         cls = self.unit_mgr.get_creature_class_level_stats()
         if not self.unit_mgr.is_pet():
             base_dmg_min, base_dmg_max = CreatureFormulas.calculate_min_max_damage(
-            cls.melee_damage,
-            creature_template.damage_multiplier,
-            creature_template.damage_variance
+                cls.melee_damage,
+                creature_template.damage_multiplier,
+                creature_template.damage_variance
             )
 
             ranged_dmg_min, ranged_dmg_max = CreatureFormulas.calculate_min_max_damage(

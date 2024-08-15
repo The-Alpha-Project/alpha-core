@@ -21,7 +21,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
-    MoveType
+    MoveType, Emotes, EmoteUnitState
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
@@ -54,7 +54,6 @@ class CreatureManager(UnitManager):
         self.react_state = CreatureReactStates.REACT_PASSIVE
         self.npc_flags = 0
         self.static_flags = 0
-        self.emote_state = 0
         self.spell_list_id = 0
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
@@ -96,7 +95,6 @@ class CreatureManager(UnitManager):
         self.base_attack_time = self.creature_template.base_attack_time
         self.ranged_attack_time = self.creature_template.ranged_attack_time
         self.unit_flags = self.creature_template.unit_flags
-        self.emote_state = 0
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
@@ -190,7 +188,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
+        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_unit_state)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
@@ -220,20 +218,26 @@ class CreatureManager(UnitManager):
         display_id = self.current_display_id
         creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)
         if creature_model_info:
-            self.bounding_radius = creature_model_info.bounding_radius
-            self.combat_reach = creature_model_info.combat_reach
+            self.set_bounding_radius(creature_model_info.bounding_radius)
+            self.set_combat_reach(creature_model_info.combat_reach)
             self.gender = creature_model_info.gender
 
+        display_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
         # No scale or creature was summoned, look for scale according to display id.
         if self.creature_template.scale == 0 or self.summoner:
-            display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
-            if display_scale and display_scale.CreatureModelScale > 0:
-                self.native_scale = display_scale.CreatureModelScale
+            if display_info and display_info.CreatureModelScale > 0:
+                self.native_scale = display_info.CreatureModelScale
             else:
                 self.native_scale = 1
         else:
             self.native_scale = self.creature_template.scale
-        self.current_scale = self.native_scale
+        self.set_scale(self.native_scale)
+
+        if display_info and display_info.ModelID:
+            mdx_info = DbcDatabaseManager.MdxModelsDataHolder.get_mdx_model_info_by_id(display_info.ModelID)
+            if mdx_info:
+                self.set_bounding_radius(mdx_info.BoundingRadius * self.native_scale)
+                self.model_height = mdx_info.Height * self.native_scale
 
         # Creature group.
         creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
@@ -266,7 +270,7 @@ class CreatureManager(UnitManager):
 
             # Set emote state if available.
             if self.addon.emote_state:
-                self.set_emote_state(self.addon.emote_state)
+                self.set_emote_unit_state(self.addon.emote_state)
 
             # Update display id if available.
             if self.addon.display_id:
@@ -390,13 +394,13 @@ class CreatureManager(UnitManager):
     def is_at_home(self):
         return self.location == self.spawn_position and not self.is_moving()
 
-    def on_at_home(self):
+    def on_at_home(self, was_at_home=False):
         self.apply_default_auras()
-        self.object_ai.ai_event_handler.reset()
         self.movement_manager.face_angle(self.spawn_position.o)
         # Scan surrounding for enemies.
         self._on_relocation()
-        if self.object_ai:
+        if self.object_ai and not was_at_home:
+            self.object_ai.ai_event_handler.reset()
             self.object_ai.just_reached_home()
 
     # override
@@ -465,10 +469,11 @@ class CreatureManager(UnitManager):
             self.replenish_powers()
 
         # Pets should return to owner on evading, not to spawn position.
-        if self.is_controlled() or self.is_at_home():
+        at_home = self.is_at_home()
+        if self.is_controlled() or at_home:
             # Should turn off flag since we are not sending move packets.
             self.is_evading = False
-            self.on_at_home()
+            self.on_at_home(was_at_home=at_home)
             return
 
         # Get the path we are using to get back to spawn location.
@@ -547,7 +552,7 @@ class CreatureManager(UnitManager):
                 self.update_sanctuary(elapsed)
                 # AI.
                 if self.object_ai:
-                    self.object_ai.update_ai(elapsed)
+                    self.object_ai.update_ai(elapsed, now)
                 # Movement Updates, order matters.
                 self.movement_manager.update(now, elapsed)
                 # Attack Update.
@@ -615,8 +620,8 @@ class CreatureManager(UnitManager):
         if self.stand_state != StandState.UNIT_STANDING:
             self.set_stand_state(StandState.UNIT_STANDING)
         # Remove emote.
-        if self.emote_state:
-            self.set_emote_state(0)
+        if self.emote_unit_state:
+            self.set_emote_unit_state(EmoteUnitState.NONE)
         self.object_ai.attack_start(victim)
 
     # override
@@ -747,10 +752,6 @@ class CreatureManager(UnitManager):
         if mana > 0:
             self.max_power_1 = mana
             self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
-
-    def set_emote_state(self, emote_state):
-        self.emote_state = emote_state
-        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
 
     def set_lootable(self, flag=True):
         if flag:
@@ -941,8 +942,8 @@ class CreatureManager(UnitManager):
 
     def get_creature_class_level_stats(self):
         constraint_level = min(self.level, 255)
-        creature_class_level_stats = WorldDatabaseManager.CreatureClassLevelStatsHolder.creature_class_level_stats_get_by_class_and_level(
-            self.class_,
-            constraint_level,
-        )
+        creature_class_level_stats = (
+            WorldDatabaseManager.CreatureClassLevelStatsHolder.creature_class_level_stats_get_by_class_and_level(
+                self.class_, constraint_level
+            ))
         return creature_class_level_stats

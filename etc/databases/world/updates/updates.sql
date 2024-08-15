@@ -1376,7 +1376,107 @@ begin not atomic
 
         insert into applied_updates values ('260720241');
     end if;
-    
 
+    -- 14/08/2024 1
+    if (select count(*) from `applied_updates` where id='140820241') = 0 then 
+        -- Archmage Arugal level.
+        UPDATE `creature_template` SET `level_min` = '27', `level_max` = '27' WHERE (`entry` = '4275');
+        
+        -- Theresa - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Undercity/000904.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '1634.044', `position_y` = '334.555', `position_z` = '-45.477', `orientation` = '4.365' WHERE (`spawn_id` = '41840');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '1');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '2');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '3');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '4');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '5');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '6');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '7');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '8');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '9');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '10');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '11');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '12');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '13');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '14');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '15');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '16');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '17');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '18');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '19');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '20');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '21');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '22');
+
+        -- Gerard Abernathy - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Undercity/000904.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '1632.023', `position_y` = '333.582', `position_z` = '-45.483', `orientation` = '4.518' WHERE (`spawn_id` = '38425');
+        
+        -- Undercity Malach event spawns that should be spawned by scripts.
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45212');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45221');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45222');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45223');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45211');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45224');
+        
+        -- Adjust undercity Malach event delays, this event timing is all damage based, and since we have different damage (less), the event should take longer.
+        -- Events list for Brother Malach
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5661;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (566101, 5661, 0, 1, 0, 100, 1, 401000, 401000, 401000, 401000, 566101, 0, 0, 'Brother Malach - Start Event OOC');
+
+        DELETE FROM `generic_scripts` WHERE `id`=566101;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (566101,0,0,0,0,0,0,0,0,0,0,0,1978,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,6,0,0,0,0,0,0,0,0,0,0,1977,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,8,0,10,5680,0,0,0,0,0,0,0,0,568001,0,2,1734.36,379.952,-62.2058,3.92699,0,'Brother Malach - Summon Creature'),
+        (566101,8,0,10,5681,0,0,0,0,0,0,0,0,568001,0,2,1736.19,379.807,-62.2078,3.83972,0,'Brother Malach - Summon Creature'),
+        (566101,8,0,10,5680,0,0,0,0,0,0,0,0,568001,0,2,1735.93,378.124,-62.2055,3.71755,0,'Brother Malach - Summon Creature'),
+        (566101,24,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.88974,0,'Brother Malach - Set Orientation'),
+        (566101,25,0,15,7162,0,0,0,38130,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,29,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
+        (566101,30,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,33,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
+        (566101,64,0,0,0,0,0,0,0,0,0,0,1980,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,67,0,0,0,0,0,0,0,0,0,0,8306,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,69,0,10,5685,0,0,0,0,0,0,0,0,568001,0,2,1735.24,380.689,-62.2077,3.85718,0,'Brother Malach - Summon Creature'),
+        (566101,69,0,10,5686,0,0,0,0,0,0,0,0,568001,0,2,1734.68,378.533,-62.1315,3.85718,0,'Brother Malach - Summon Creature'),
+        (566101,86,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.88974,0,'Brother Malach - Set Orientation'),
+        (566101,87,0,15,7162,0,0,0,38130,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,93,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
+        (566101,94,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,97,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
+        (566101,128,0,0,0,0,0,0,0,0,0,0,1984,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,131,0,0,0,0,0,0,0,0,0,0,8307,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,134,0,10,5687,0,0,0,0,0,0,0,0,568001,0,2,1735.33,379.152,-62.206,3.82227,0,'Brother Malach - Summon Creature'),
+        (566101,189,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.88974,0,'Brother Malach - Set Orientation'),
+        (566101,190,0,15,7162,0,0,0,38130,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,194,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
+        (566101,195,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,198,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
+        (566101,249,0,0,0,0,0,0,0,0,0,0,1985,0,0,0,0,0,0,0,0,'Brother Malach - Talk')
+        
+        -- Hearthstone
+        DELETE FROM `playercreateinfo_item` where itemid = 6948
+        -- Dwarf warrior sword.
+        UPDATE `playercreateinfo_item` SET `itemid` = '25' WHERE (`id` = '18');
+        -- Orc warrior sword.
+        UPDATE `playercreateinfo_item` SET `itemid` = '25' WHERE (`id` = '38');
+        
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Hinterlands/AwesomePlaceholder.jpg
+        INSERT INTO `npc_trainer_greeting` (`entry`, `content_default`) VALUES ('2688', 'Everyone wants to be able to vanish sometimes. Like when people');
+        UPDATE `creature_template` SET `npc_flags` = '8', `trainer_id` = '516', `trainer_type` = '0' WHERE (`entry` = '2688');
+        UPDATE `spawns_creatures` SET `position_z` = '164.92' WHERE (`spawn_id` = '92877');
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('516', '4025', '3971', '0', '0', '0', '202', '200', '0');
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/PinkTroll.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12344.438', `position_y` = '162.575', `position_z` = '2.95', `orientation` = '2.99' WHERE (`spawn_id` = '722');
+        UPDATE `spawns_creatures` SET `position_x` = '-12349.35', `position_y` = '153.973', `position_z` = '3.56', `orientation` = '1.76' WHERE (`spawn_id` = '316');
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/mobs_from_allakhazam/Grom'gol_Guard.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12374.951', `position_y` = '216.968', `position_z` = '3.11', `orientation` = '4.410' WHERE (`spawn_id` = '611');
+        -- Wind Rider
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/19%20april%2004%20-%2093.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12412.399', `position_y` = '148.013', `position_z` = '3.25', `orientation` = '0.364' WHERE (`spawn_id` = '361');
+
+        insert into applied_updates values ('140820241');
+    end if;
+    
 end $
 delimiter ;

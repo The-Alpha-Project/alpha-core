@@ -2,7 +2,7 @@ from random import randint
 
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags
+from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags, EmoteUnitState
 from utils.constants.SpellCodes import SpellTargetMask, AuraState
 from utils.constants.UnitCodes import StandState
 
@@ -33,12 +33,9 @@ class AuraEffectDummyHandler:
 
     @staticmethod
     def handle_party_fever(aura, effect_target, remove):
-        if remove or effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
-
-        # TODO: This does not play the emote.
-        if not effect_target.in_combat:
-            effect_target.play_emote(Emotes.DANCE)
+        effect_target.set_emote_unit_state(EmoteUnitState.DANCE if not remove
+                                           else EmoteUnitState.NONE,
+                                           is_temporary=True)
 
     @staticmethod
     def handle_haunting_spirit(aura, effect_target, remove):

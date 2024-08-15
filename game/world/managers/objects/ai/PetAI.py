@@ -22,7 +22,7 @@ class PetAI(CreatureAI):
             self.update_allies()
 
     # override
-    def update_ai(self, elapsed):
+    def update_ai(self, elapsed, now):
         owner = self.creature.get_charmer_or_summoner()
         if not self.creature or not owner:
             return

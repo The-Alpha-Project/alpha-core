@@ -397,6 +397,19 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return res
 
+    # MdxModelsData
+
+    class MdxModelsDataHolder:
+        MDX_MODELS_INFOS: dict[int, t_mdx_models_data] = {}
+
+        @staticmethod
+        def load_mdx_model_info(mdx_model_info):
+            DbcDatabaseManager.MdxModelsDataHolder.MDX_MODELS_INFOS[mdx_model_info.ID] = mdx_model_info
+
+        @staticmethod
+        def get_mdx_model_info_by_id(mdx_model_id):
+            return DbcDatabaseManager.MdxModelsDataHolder.MDX_MODELS_INFOS.get(mdx_model_id)
+
     # CreatureDisplayInfo
 
     class CreatureDisplayInfoHolder:
@@ -415,6 +428,13 @@ class DbcDatabaseManager:
     def creature_display_info_get_all():
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(CreatureDisplayInfo).all()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def mdx_models_info_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(t_mdx_models_data).all()
         dbc_db_session.close()
         return res
 

@@ -196,32 +196,20 @@ class PlayerManager(UnitManager):
         # Initialize power type
         self.update_power_type()
 
-        if self.race == Races.RACE_HUMAN:
-            self.bounding_radius = 0.306 if is_male else 0.208
-            self.combat_reach = 1.5
-        elif self.race == Races.RACE_ORC:
-            self.bounding_radius = 0.372 if is_male else 0.236
-            self.combat_reach = 1.5
-        elif self.race == Races.RACE_DWARF:
-            self.bounding_radius = 0.347
-            self.combat_reach = 1.5
-        elif self.race == Races.RACE_NIGHT_ELF:
-            self.bounding_radius = 0.389 if is_male else 0.306
-            self.combat_reach = 1.5
-        elif self.race == Races.RACE_UNDEAD:
-            self.bounding_radius = 0.383
-            self.combat_reach = 1.5
-        elif self.race == Races.RACE_TAUREN:
-            self.bounding_radius = 0.9747 if is_male else 0.8725
+        # Default combat reach.
+        self.combat_reach = 1.5
+
+        if self.race == Races.RACE_TAUREN:
             self.combat_reach = 4.05 if is_male else 3.75
             self.native_scale = 1.35 if is_male else 1.25
         elif self.race == Races.RACE_GNOME:
-            self.bounding_radius = 0.3519
             self.combat_reach = 1.725
             self.native_scale = 1.15
-        elif self.race == Races.RACE_TROLL:
-            self.bounding_radius = 0.306
-            self.combat_reach = 1.5
+
+        disp_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.native_display_id)
+        mdx_info = DbcDatabaseManager.MdxModelsDataHolder.get_mdx_model_info_by_id(disp_info.ModelID)
+        self.bounding_radius = self.native_scale * mdx_info.BoundingRadius
+        self.model_height = self.native_scale * mdx_info.Height
 
         self.current_scale = self.native_scale
         self.race_mask = 1 << self.race - 1
@@ -1101,7 +1089,7 @@ class PlayerManager(UnitManager):
     def is_under_water(self):
         if not self.liquid_information or not self.is_swimming():
             return False
-        return self.location.z + (self.current_scale * 2) < self.liquid_information.get_height()
+        return (self.location.z + self.model_height) < self.liquid_information.get_height()
 
     # override
     def is_in_deep_water(self):

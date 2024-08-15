@@ -13,7 +13,8 @@ class Script:
         self.script_handler = script_handler
         self.event = event
         self.delay: float = delay
-        self.time_added: float = time.time()
+        self.time_added: float = time.time()  # Time start reference for this script execution.
+        self.start_time: float = 0.0  # Time start reference for embedded ScriptCommands execution.
         self.started = False
         self.aborted = False
 
@@ -21,10 +22,12 @@ class Script:
         return self.id
 
     def update(self, now):
-        # Check initial delay for command sequence.
-        if self.delay and now - self.time_added < self.delay:
-            return
-        self.started = True
+        if not self.started:
+            # Check initial delay for command sequence.
+            if self.delay and now - self.time_added < self.delay:
+                return
+            self.start_time = now
+            self.started = True
 
         for script_command in list(self.commands):
             # Stop looping if script has been aborted externally.
@@ -32,7 +35,7 @@ class Script:
                 return
 
             # Check if it's time to execute the command action.
-            if script_command.delay and now - self.time_added < script_command.delay:
+            if script_command.delay and now - self.start_time < script_command.delay:
                 continue
 
             self.commands.remove(script_command)

@@ -8,7 +8,7 @@ class CritterAI(CreatureAI):
         self.combat_timer = 0
 
     # override
-    def update_ai(self, elapsed):
+    def update_ai(self, elapsed, now):
         pass
 
     # override

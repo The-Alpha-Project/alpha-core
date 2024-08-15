@@ -49,6 +49,7 @@ class ObjectManager:
         self.unit_flags = unit_flags
         self.dynamic_flags = dynamic_flags
         self.static_flags = static_flags
+        self.model_height = 1.8
         self.native_scale = native_scale
         self.current_scale = native_scale
         self.native_display_id = native_display_id  # Native display ID
@@ -434,6 +435,7 @@ class ObjectManager:
         from game.world.managers.maps.MapManager import MapManager
         return MapManager.get_map(self.map_id, self.instance_id)
 
+    # override
     def get_location(self):
         return self.location
 

@@ -21,7 +21,8 @@ from utils.Formulas import UnitFormulas
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid, Emotes, \
+    EmoteUnitState
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState
@@ -149,6 +150,7 @@ class UnitManager(ObjectManager):
         self.resistances = [resistance_0, resistance_1, resistance_2, resistance_3, resistance_4, resistance_5]
         self.stand_state = stand_state
         self.sheath_state = sheath_state
+        self.emote_unit_state = EmoteUnitState.NONE
         self.shapeshift_form = shapeshift_form
         self.bytes_1 = bytes_1  # stand state, shapeshift form, sheathstate
         self.dynamic_flags = dynamic_flags
@@ -607,7 +609,7 @@ class UnitManager(ObjectManager):
                 subclass = equipped_weapon.item_template.subclass
             rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
 
-        return max(0, int(rolled_damage))
+        return max(1, int(rolled_damage))
 
     def get_current_weapon_for_attack_type(self, attack_type: AttackTypes) -> Optional[ItemManager]:
         return None
@@ -1342,6 +1344,18 @@ class UnitManager(ObjectManager):
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_PET_CAN_ABANDON
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
+    # Emote state is set given the EmoteID over dbc.
+    def set_emote_unit_state(self, emote_state, is_temporary=False):
+        if not is_temporary:
+            self.emote_unit_state = emote_state
+
+        if is_temporary and not emote_state:
+            # Restore original.
+            self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_unit_state)
+            return
+
+        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, emote_state)
+
     def set_can_rename(self, state: bool):
         if state:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PET_CAN_RENAME
@@ -1653,6 +1667,14 @@ class UnitManager(ObjectManager):
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
         self.aura_manager.reset_aura_states()
+
+    def set_combat_reach(self, combat_reach):
+        self.combat_reach = combat_reach
+        self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, combat_reach)
+
+    def set_bounding_radius(self, bounding_radius):
+        self.bounding_radius = bounding_radius
+        self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
 
     # Implemented by CreatureManager
     def has_melee(self):
