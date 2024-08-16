@@ -293,12 +293,11 @@ class CreatureManager(UnitManager):
 
     def reset_virtual_equipment(self):
         if self.creature_template.equipment_id > 0:
-            creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
                 self.creature_template.equipment_id
             )
-            if creature_equip_template:
-                [VirtualItemsUtils.set_virtual_item(self, x,
-                                                    eval(f'creature_equip_template.equipentry{x+1}')) for x in range(3)]
+            if equip_template:
+                [VirtualItemsUtils.set_virtual_item(self, x, eval(f'equip_template.equipentry{x+1}')) for x in range(3)]
                 return
         # Make sure its cleared if creature was morphed.
         [VirtualItemsUtils.set_virtual_item(self, x, 0) for x in range(3)]
