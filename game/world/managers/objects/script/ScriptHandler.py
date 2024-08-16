@@ -884,7 +884,16 @@ class ScriptHandler:
     def handle_script_command_update_entry(command):
         # source = Creature
         # datalong = creature_entry
-        Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
+            return command.should_abort()
+
+        creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(command.datalong)
+        if not creature_template:
+            Logger.warning(f'ScriptHandler: Invalid creature template, {command.get_info()}.')
+            return command.should_abort()
+
+        command.source.initialize_from_creature_template(creature_template)
 
         return command.should_abort()
 

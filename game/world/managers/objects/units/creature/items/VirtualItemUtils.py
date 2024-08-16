@@ -1,6 +1,7 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.items.VirtualItemInfoHolder import VirtualItemInfoHolder
 from utils.ByteUtils import ByteUtils
+from utils.Formulas import UnitFormulas
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -10,6 +11,7 @@ class VirtualItemsUtils:
     @staticmethod
     def set_virtual_item(creature_mgr, slot, item_entry):
         item_template = None
+        weapon_reach = 0
         if item_entry > 0:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
 
@@ -35,6 +37,7 @@ class VirtualItemsUtils:
                 creature_mgr.wearing_mainhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
                                                         item_template.inventory_type == InventoryTypes.WEAPONMAINHAND or
                                                         item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON)
+                weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
 
             # Offhand.
             if slot == 1:
@@ -47,4 +50,10 @@ class VirtualItemsUtils:
         else:
             creature_mgr.virtual_item_info[slot] = VirtualItemInfoHolder()
 
-        creature_mgr.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, creature_mgr.weapon_reach)
+        virtual_info = creature_mgr.virtual_item_info[slot]
+        creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_info.display_id)
+        creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_info.info_packed)
+        creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_info.info_packed_2)
+
+        if slot == 0:
+            creature_mgr.set_weapon_reach(weapon_reach)
