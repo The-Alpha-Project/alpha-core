@@ -1537,6 +1537,21 @@ begin not atomic
         -- Cooking Table.
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '9995');
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '9996');
+        -- Lazlow Ashby
+        UPDATE `creature_template` SET `level_min` = '20', `level_max` = '20', `faction` = '71' WHERE (`entry` = '5745');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400463', '5745', '0', '0', '0', '0', '1559.16', '253.565', '-43.1024', '3.20', '300', '300', '0', '100', '100', '2', '0', '0', '0');
+        DELETE FROM `creature_movement` WHERE (`id` = '400463');
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,1,1625.94,264.302,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,2,1631.9,253.834,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,3,1633.34,232.976,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,4,1627.39,220.356,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,5,1609.31,204.057,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,6,1580.48,203.975,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,7,1559.76,224.784,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,8,1559.16,253.565,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,9,1578.67,273.992,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,10,1592.9,276.839,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,11,1610.85,274.916,-43.1024,0,0,0,0);
 
         insert into applied_updates values ('140820241');
     end if;
