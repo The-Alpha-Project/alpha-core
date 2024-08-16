@@ -1552,6 +1552,8 @@ begin not atomic
         INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,9,1578.67,273.992,-43.1024,0,0,0,0);
         INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,10,1592.9,276.839,-43.1024,0,0,0,0);
         INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,11,1610.85,274.916,-43.1024,0,0,0,0);
+        -- Comar Villard - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Wetlands/shyso_5.13_18.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-3281.561', `position_y` = '-1523.049', `position_z` = '9.146', `orientation` = '2.184' WHERE (`spawn_id` = '9955');
 
         insert into applied_updates values ('140820241');
     end if;
