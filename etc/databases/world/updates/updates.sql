@@ -1477,6 +1477,68 @@ begin not atomic
 
         insert into applied_updates values ('140820241');
     end if;
-    
+   
+    -- 16/08/2024 1
+    if (select count(*) from `applied_updates` where id='160820241') = 0 then    
+        -- Urthok - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/WoWScrnShot_052104_071025.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12348.639', `position_y` = '207.703', `position_z` = '4.86', `orientation` = '3.38' WHERE (`spawn_id` = '605');
+        -- Rogvar <Superior Alchemist> - Swamp of Sorrows -> Grom'gol
+        UPDATE `spawns_creatures` SET `position_x` = '-12356.132', `position_y` = '213.063', `position_z` = '4.307', `orientation` = '4.30' WHERE (`spawn_id` = '31950');
+        -- Hragran <Superior Clothier and Leathercrafter> - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/images_6531.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12410.909', `position_y` = '159.231', `position_z` = '3.327', `orientation` = '6.156' WHERE (`spawn_id` = '691');
+        -- Krakk <Superior Armorer>
+        UPDATE `spawns_creatures` SET `position_x` = '-12419.729', `position_y` = '163.785', `position_z` = '3.142', `orientation` = '0.726' WHERE (`spawn_id` = '663');
+        -- Vharr <Superior Weaponsmith>
+        UPDATE `spawns_creatures` SET `position_x` = '-12404.036', `position_y` = '190.761', `position_z` = '2.462', `orientation` = '5.193' WHERE (`spawn_id` = '316');
+        -- Brawn <Superior Leatherworker>
+        UPDATE `spawns_creatures` SET `position_x` = '-12398.970', `position_y` = '193.751', `position_z` = '2.381', `orientation` = '4.79' WHERE (`spawn_id` = '662');
+        -- Commander Aggro'gosh
+        UPDATE `spawns_creatures` SET `position_x` = '-12399.748', `position_y` = '167.729', `position_z` = '3.488', `orientation` = '4.925' WHERE (`spawn_id` = '721');
+        -- Nerrist <Trade Goods>
+        UPDATE `spawns_creatures` SET `position_x` = '-12422.470', `position_y` = '177.593', `position_z` = '2.670', `orientation` = '5.254' WHERE (`spawn_id` = '360');
+        -- Angrun <Superior Herbalist>
+        UPDATE `spawns_creatures` SET `position_x` = '-12348.671', `position_y` = '156.187', `position_z` = ' 3.359', `orientation` = '1.751' WHERE (`spawn_id` = '666');
+        -- Thund <Superior Engineer> Orgrimmar -> Grom'gol
+        UPDATE `spawns_creatures` SET `map` = '0', `position_x` = '-12409.958', `position_y` = '154.991', `position_z` = '3.251', `orientation` = '6.216' WHERE (`spawn_id` = '4676');
+        -- Grom'gol guard.
+        UPDATE `spawns_creatures` SET `position_x` = '-12343.695', `position_y` = '133.519', `position_z` = '4.221', `orientation` = '4.76' WHERE (`spawn_id` = '603');
+        -- Snang <Superior Tailor> Orgrimmar -> Grom'gol
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40' WHERE (`entry` = '2855');
+        UPDATE `spawns_creatures` SET `map` = '0', `position_x` = '-12416.183', `position_y` = '162.813', `position_z` = '3.254', `orientation` = '1.673', `ignored` = '0' WHERE (`spawn_id` = '4680');
+        -- Z'tark <Superior Miner>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400458', '1384', '0', '0', '0', '0', '-12396.3', '184.977', '2.215', '2.056', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `equipment_id` = '1701', `faction` = '29', `npc_flags` = '10', `trainer_type` = '2', `type_flags` = '102', `trainer_id` = '504' WHERE (`entry` = '1384');
+        -- Snarl <Superior Blacksmith>
+        UPDATE `spawns_creatures` SET `map` = '0', `position_x` = '-12410.232', `position_y` = '172.967', `position_z` = '3.272', `orientation` = '5.564', `ignored` = '0' WHERE (`spawn_id` = '7970');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40' WHERE (`entry` = '1383');
+        -- Anvil
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-12411.49', `spawn_positionY` = '183.266', `spawn_positionZ` = '2.901', `spawn_orientation` = '4.66' WHERE (`spawn_id` = '10718');
+        -- Forge
+        UPDATE `spawns_gameobjects` SET `spawn_entry` = '1745', `spawn_positionX` = '-12411.162', `spawn_positionY` = '180.547', `spawn_positionZ` = '3', `spawn_orientation` = '0.53' WHERE (`spawn_id` = '10720');  
+        -- Ghok <Shaman Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400459', '1406', '0', '0', '0', '0', '-12398.739', '213.507', '2.324', '5.410', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `faction` = '29', `npc_flags` = '10', `trainer_class` = '7', `trainer_id` = '11' WHERE (`entry` = '1406');
+        -- Moorah Stormhoof <Druid Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400460', '1409', '0', '0', '0', '0', '-12403.821', '205.455', '2.38', '0.036', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '59', `level_min` = '40', `level_max` = '40', `faction` = '104', `npc_flags` = '10', `trainer_class` = '11', `trainer_id` = '17' WHERE (`entry` = '1409');
+        -- Thragg <Warlock Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400461', '1408', '0', '0', '0', '0', '-12401.607', '222.667', '1.894', '5.235', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `faction` = '29', `npc_flags` = '10', `trainer_class` = '9', `trainer_id` = '14', `flags_extra` = '524298' WHERE (`entry` = '1408');
+        -- Sranda <Rogue Trainer>
+        UPDATE `spawns_creatures` SET `position_x` = '-12404.224', `position_y` = '214.994', `position_z` = '2.138', `orientation` = '5.910' WHERE (`spawn_id` = '6868');
+        -- Mogwah <Warrior Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400462', '1403', '0', '0', '0', '0', '-12394.280', '225.455', '1.936', '4.343', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `faction` = '29', `npc_flags` = '10', `trainer_class` = '1', `trainer_id` = '23' WHERE (`entry` = '1403');
+        -- Anvil.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10721');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7016');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7029');
+        -- Cooking Table.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '9995');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '9996');
+
+        insert into applied_updates values ('140820241');
+    end if;
 end $
 delimiter ;

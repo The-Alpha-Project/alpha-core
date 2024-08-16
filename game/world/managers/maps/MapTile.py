@@ -97,7 +97,7 @@ class MapTile(object):
         return False
 
     def load_maps_data(self):
-        if not config.Server.Settings.use_map_tiles:
+        if not config.Server.Settings.use_map_tiles or self.map_.is_dungeon():  # No .map for dungeons.
             return False
         filename = f'{self.map_id:03}{self.adt_x:02}{self.adt_y:02}.map'
         maps_path = PathManager.get_map_file_path(filename)
