@@ -1554,6 +1554,78 @@ begin not atomic
         INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,11,1610.85,274.916,-43.1024,0,0,0,0);
         -- Comar Villard - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Wetlands/shyso_5.13_18.jpg
         UPDATE `spawns_creatures` SET `position_x` = '-3281.561', `position_y` = '-1523.049', `position_z` = '9.146', `orientation` = '2.184' WHERE (`spawn_id` = '9955');
+        -- Ignore Go's.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26656');
+        -- Food Crate
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26554');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26561');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26562');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26563');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26564');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26565');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26572');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26573');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26560');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26566');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26575');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26582');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26585');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26588');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26569');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26570');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26574');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26576');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26577');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26578');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26579');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26580');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26581');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26584');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26586');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26587');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26589');
+        -- Food Crate
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26554');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26561');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26562');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26563');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26564');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26565');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26572');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26573');
 
         insert into applied_updates values ('140820241');
     end if;
