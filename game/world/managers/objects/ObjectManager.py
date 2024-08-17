@@ -481,6 +481,10 @@ class ObjectManager:
     def is_player_controlled_pet(self):
         return False
 
+    # override
+    def is_charmed(self):
+        return self.charmer is not None
+
     def can_attack_target(self, target):
         if not target.is_alive:
             return False
