@@ -226,7 +226,7 @@ class CreatureManager(UnitManager):
 
         display_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
         # No scale or creature was summoned, look for scale according to display id.
-        if self.creature_template.scale == 0 or self.summoner:
+        if self.creature_template.scale == 0 or self.is_pet():
             if display_info and display_info.CreatureModelScale > 0:
                 self.native_scale = display_info.CreatureModelScale
             else:

@@ -238,7 +238,7 @@ class StatManager(object):
     def _get_creature_base_stats(self) -> tuple[dict[UnitStats, float], tuple[int, int], tuple[int, int]]:
         creature_template = self.unit_mgr.creature_template
         cls = self.unit_mgr.get_creature_class_level_stats()
-        if not self.unit_mgr.is_pet():
+        if not self.unit_mgr.is_pet() or self.unit_mgr.is_guardian():
             base_dmg_min, base_dmg_max = CreatureFormulas.calculate_min_max_damage(
                 cls.melee_damage,
                 creature_template.damage_multiplier,
