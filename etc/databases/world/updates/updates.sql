@@ -1674,6 +1674,30 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6791');
         -- Campfire Damage
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5429');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6315');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6774');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5997');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6007');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6131');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6228');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6063');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6119');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5484');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5882');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6063');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6119');
 
         insert into applied_updates values ('140820241');
     end if;
