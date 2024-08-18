@@ -114,9 +114,6 @@ class VendorUtils:
         if not succeed:
             return
 
-        if player_mgr.inventory.update_locked:
-            player_mgr.inventory.update_locked = False
-
         player_mgr.mod_money(total_cost * -1)
         if not vendor_data.is_limited_item(item_id):
             return
