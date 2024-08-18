@@ -70,7 +70,7 @@ class UpdateManager:
                 continue
             self.pending_object_types_updates[type_id] = True
 
-    def update_self_temp_summon_creation(self, world_object):
+    def update_self_summon_creation(self, world_object):
         query_packet = world_object.get_query_details_packet()
         create_packet = world_object.generate_create_packet(requester=self.player_mgr)
         movement_packet = world_object.movement_manager.try_build_movement_packet()

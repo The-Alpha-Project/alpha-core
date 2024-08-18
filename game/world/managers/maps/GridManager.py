@@ -125,7 +125,7 @@ class GridManager:
             # Handle pet/guardian player summons, they need to be notified to owner immediately.
             owner = world_object.get_charmer_or_summoner()
             if owner and owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                owner.update_manager.update_self_temp_summon_creation(world_object)
+                owner.update_manager.update_self_summon_creation(world_object)
 
             self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
