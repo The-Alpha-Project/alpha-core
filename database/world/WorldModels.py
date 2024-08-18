@@ -1398,3 +1398,63 @@ class Condition(Base):
     value3 = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='data field three for the condition')
     value4 = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='data field four for the condition')
     flags = Column(TINYINT, nullable=False, server_default=text("'0'"), comment='general condition flags')
+
+
+class PoolCreature(Base):
+    __tablename__ = 'pool_creature'
+
+    guid = Column(INTEGER(10), primary_key=True, server_default=text("0"))
+    pool_entry = Column(MEDIUMINT(8), nullable=False, index=True, server_default=text("0"))
+    chance = Column(Float, nullable=False, server_default=text("0"))
+    description = Column(String(255), nullable=False)
+    flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
+
+
+class PoolCreatureTemplate(Base):
+    __tablename__ = 'pool_creature_template'
+
+    id = Column(INTEGER(10), primary_key=True, server_default=text("0"))
+    pool_entry = Column(MEDIUMINT(8), nullable=False, index=True, server_default=text("0"))
+    chance = Column(Float, nullable=False, server_default=text("0"))
+    description = Column(String(255), nullable=False)
+    flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
+
+
+class PoolGameobject(Base):
+    __tablename__ = 'pool_gameobject'
+
+    guid = Column(INTEGER(10), primary_key=True, server_default=text("0"))
+    pool_entry = Column(MEDIUMINT(8), nullable=False, index=True, server_default=text("0"))
+    chance = Column(Float, nullable=False, server_default=text("0"))
+    description = Column(String(255), nullable=False)
+    flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
+
+
+class PoolGameobjectTemplate(Base):
+    __tablename__ = 'pool_gameobject_template'
+
+    id = Column(INTEGER(10), primary_key=True, server_default=text("0"))
+    pool_entry = Column(MEDIUMINT(8), nullable=False, index=True, server_default=text("0"))
+    chance = Column(Float, nullable=False, server_default=text("0"))
+    description = Column(String(255), nullable=False)
+    flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
+
+
+class PoolPool(Base):
+    __tablename__ = 'pool_pool'
+
+    pool_id = Column(MEDIUMINT(8), primary_key=True, server_default=text("0"))
+    mother_pool = Column(MEDIUMINT(8), nullable=False, index=True, server_default=text("0"))
+    chance = Column(Float, nullable=False, server_default=text("0"))
+    description = Column(String(255), nullable=False)
+    flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
+
+
+class PoolTemplate(Base):
+    __tablename__ = 'pool_template'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("0"), comment='Pool entry')
+    max_limit = Column(INTEGER(10), nullable=False, server_default=text("0"), comment='Max number of objects (0) is no limit')
+    description = Column(String(255), nullable=False)
+    flags = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    instance = Column(MEDIUMINT(8), nullable=False, server_default=text("0"))

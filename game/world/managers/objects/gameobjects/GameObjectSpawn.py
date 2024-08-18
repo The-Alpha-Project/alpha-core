@@ -1,9 +1,9 @@
 from random import randint
 from typing import Optional
 
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from utils.Logger import Logger
@@ -21,6 +21,7 @@ class GameObjectSpawn:
         self.respawn_time = 0
         self.last_tick = 0
         self.is_default = self._is_default()
+        self.pool_manager = None
 
     def update(self, now):
         if now > self.last_tick > 0:
@@ -57,6 +58,21 @@ class GameObjectSpawn:
             self.respawn_timer = 0
             self.respawn_time = ttl
         self.gameobject_instance.despawn(ttl=ttl)
+
+    def initialize_pool_manager(self):
+        pool_template = WorldDatabaseManager.PoolsHolder.get_gameobject_spawn_pool_template_by_template_entry(
+            self._get_gameobject_entry())
+        if not pool_template:
+            pool = WorldDatabaseManager.PoolsHolder.get_gameobject_pool_by_spawn_id(self.spawn_id)
+            if pool:
+                pool_template = WorldDatabaseManager.PoolsHolder.get_spawn_pool_template_by_pool(pool)
+
+        if not pool_template:
+            return
+
+        pool_pool = WorldDatabaseManager.PoolsHolder.get_pool_pool_by_entry(pool_template.entry)
+        if pool_pool:
+            print('POOL!')
 
     def _generate_gameobject_instance(self, ttl=0):
         gameobject_template_id = self._generate_gameobject_template()

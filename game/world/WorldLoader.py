@@ -69,6 +69,14 @@ class WorldLoader:
         else:
             Logger.info('Skipped creature loading.')
 
+        # Pools.
+        WorldLoader.load_pool_pool()
+        WorldLoader.load_pool_templates()
+        WorldLoader.load_pool_creatures()
+        WorldLoader.load_pool_creature_templates()
+        WorldLoader.load_pool_gameobjects()
+        WorldLoader.load_pool_gameobject_templates()
+
         # Gossip/Text related.
         WorldLoader.load_gossip_menus()
         WorldLoader.load_npc_gossip()
@@ -229,6 +237,78 @@ class WorldLoader:
             DbcDatabaseManager.TransportAnimationHolder.load_transport_animation(transport_animation)
             count += 1
             Logger.progress('Loading transport animations...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_pool_pool():
+        pool_pools = WorldDatabaseManager.pool_pool_get_all()
+        length = len(pool_pools)
+        count = 0
+        for pool_pool in pool_pools:
+            WorldDatabaseManager.PoolsHolder.load_pool_pool(pool_pool)
+            count += 1
+            Logger.progress('Loading pool pools...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_pool_templates():
+        pool_templates = WorldDatabaseManager.pool_template_get_all()
+        length = len(pool_templates)
+        count = 0
+        for pool_template in pool_templates:
+            WorldDatabaseManager.PoolsHolder.load_pool_template(pool_template)
+            count += 1
+            Logger.progress('Loading pool templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_pool_creatures():
+        pool_creatures = WorldDatabaseManager.pool_creature_get_all()
+        length = len(pool_creatures)
+        count = 0
+        for pool_creature in pool_creatures:
+            WorldDatabaseManager.PoolsHolder.load_pool_creature(pool_creature)
+            count += 1
+            Logger.progress('Loading pool creatures...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_pool_creature_templates():
+        pool_creature_templates = WorldDatabaseManager.pool_creature_template_get_all()
+        length = len(pool_creature_templates)
+        count = 0
+        for pool_creature_template in pool_creature_templates:
+            WorldDatabaseManager.PoolsHolder.load_pool_creature_template(pool_creature_template)
+            count += 1
+            Logger.progress('Loading pool creature templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_pool_gameobjects():
+        pool_gameobjects = WorldDatabaseManager.pool_gameobject_get_all()
+        length = len(pool_gameobjects)
+        count = 0
+        for pool_gameobject in pool_gameobjects:
+            WorldDatabaseManager.PoolsHolder.load_pool_gameobject(pool_gameobject)
+            count += 1
+            Logger.progress('Loading pool gameobjects...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_pool_gameobject_templates():
+        pool_gameobject_templates = WorldDatabaseManager.pool_gameobject_template_get_all()
+        length = len(pool_gameobject_templates)
+        count = 0
+        for pool_gameobject_template in pool_gameobject_templates:
+            WorldDatabaseManager.PoolsHolder.load_pool_gameobject_template(pool_gameobject_template)
+            count += 1
+            Logger.progress('Loading pool gameobject templates...', count, length)
 
         return length
 

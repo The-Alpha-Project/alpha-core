@@ -429,6 +429,124 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Pools.
+    class PoolsHolder:
+        POOL_POOL: [int, PoolPool] = {}
+        POOL_TEMPLATES: [int, PoolTemplate] = {}
+        POOL_CREATURES: [int, PoolCreature] = {}
+        POOL_CREATURES_TEMPLATES: [int, list[PoolCreatureTemplate]] = {}
+        POOL_GAMEOBJECTS: [int, list[PoolGameobject]] = {}
+        POOL_GAMEOBJECTS_TEMPLATES: [int, list[PoolGameobjectTemplate]] = {}
+
+        @staticmethod
+        def get_pool_pool_by_entry(entry):
+            if entry in WorldDatabaseManager.PoolsHolder.POOL_POOL:
+                return WorldDatabaseManager.PoolsHolder.POOL_POOL[entry]
+
+        @staticmethod
+        def get_gameobject_pool_by_spawn_id(spawn_id):
+            if spawn_id in WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS:
+                return WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS.get(spawn_id)
+            return None
+
+        @staticmethod
+        def get_creature_pool_by_spawn_id(spawn_id):
+            if spawn_id in WorldDatabaseManager.PoolsHolder.POOL_CREATURES:
+                return WorldDatabaseManager.PoolsHolder.POOL_CREATURES.get(spawn_id)
+            return None
+
+        @staticmethod
+        def get_spawn_pool_template_by_pool(pool):
+            if pool.pool_entry in WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES:
+                return WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES.get(pool.pool_entry)
+            return None
+
+        @staticmethod
+        def get_gameobject_spawn_pool_template_by_template_entry(entry):
+            if entry in WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS_TEMPLATES:
+                return WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS_TEMPLATES.get(entry)
+            return None
+
+        @staticmethod
+        def get_creature_spawn_pool_template_by_template_entry(entry):
+            if entry in WorldDatabaseManager.PoolsHolder.POOL_CREATURES_TEMPLATES:
+                return WorldDatabaseManager.PoolsHolder.POOL_CREATURES_TEMPLATES.get(entry)
+            return None
+
+        @staticmethod
+        def load_pool_pool(pool_pool):
+            if pool_pool.pool_id not in WorldDatabaseManager.PoolsHolder.POOL_POOL:
+                WorldDatabaseManager.PoolsHolder.POOL_POOL[pool_pool.pool_id] = pool_pool
+
+        @staticmethod
+        def load_pool_template(pool_template):
+            if pool_template.entry not in WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES:
+                WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES[pool_template.entry] = pool_template
+
+        @staticmethod
+        def load_pool_creature(pool_creature):
+            if pool_creature.guid not in WorldDatabaseManager.PoolsHolder.POOL_CREATURES:
+                WorldDatabaseManager.PoolsHolder.POOL_CREATURES[pool_creature.guid] = pool_creature
+
+        @staticmethod
+        def load_pool_creature_template(pool_creature_template):
+            if pool_creature_template.id not in WorldDatabaseManager.PoolsHolder.POOL_CREATURES_TEMPLATES:
+                WorldDatabaseManager.PoolsHolder.POOL_CREATURES_TEMPLATES[pool_creature_template.id] \
+                    = pool_creature_template
+
+        @staticmethod
+        def load_pool_gameobject(pool_gameobject):
+            if pool_gameobject.guid not in WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS:
+                WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS[pool_gameobject.guid] = pool_gameobject
+
+        @staticmethod
+        def load_pool_gameobject_template(pool_gameobject_template):
+            if pool_gameobject_template.id not in WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS_TEMPLATES:
+                WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS_TEMPLATES[pool_gameobject_template.id] \
+                    = pool_gameobject_template
+
+    @staticmethod
+    def pool_creature_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PoolCreature).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def pool_creature_template_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PoolCreatureTemplate).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def pool_gameobject_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PoolGameobject).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def pool_gameobject_template_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PoolGameobjectTemplate).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def pool_pool_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PoolPool).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def pool_template_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PoolTemplate).all()
+        world_db_session.close()
+        return res
+
     # Creature.
 
     @staticmethod
