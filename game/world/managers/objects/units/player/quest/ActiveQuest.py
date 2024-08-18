@@ -220,15 +220,15 @@ class ActiveQuest:
 
         # Check for required kills / gameobjects.
         required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
-        for i in range(1, 5):
-            current_value = getattr(self.db_state, f'mobcount{i}')
+        for i in range(4):
+            current_value = getattr(self.db_state, f'mobcount{i + 1}')
             if current_value < required_creature_go[i]:
                 return False
 
         # Check for required items.
         required_items_count = QuestHelpers.generate_req_item_count_list(self.quest)
-        for i in range(1, 5):
-            current_value = getattr(self.db_state, f'itemcount{i}')
+        for i in range(4):
+            current_value = getattr(self.db_state, f'itemcount{i + 1}')
             if current_value < required_items_count[i]:
                 return False
 

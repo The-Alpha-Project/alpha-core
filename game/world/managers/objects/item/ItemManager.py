@@ -348,8 +348,8 @@ class ItemManager(ObjectManager):
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
 
             # Spell charges.
-            for slot in range(1, 6):
-                charges = getattr(self.item_instance, f'SpellCharges{slot}')
+            for slot in range(5):
+                charges = getattr(self.item_instance, f'SpellCharges{slot + 1}')
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, charges if self.has_charges() else -1)
             
             # Enchantments.
