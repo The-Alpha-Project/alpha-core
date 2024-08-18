@@ -1477,6 +1477,662 @@ begin not atomic
 
         insert into applied_updates values ('140820241');
     end if;
-    
+   
+    -- 16/08/2024 1
+    if (select count(*) from `applied_updates` where id='160820241') = 0 then    
+        -- Urthok - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/WoWScrnShot_052104_071025.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12348.639', `position_y` = '207.703', `position_z` = '4.86', `orientation` = '3.38' WHERE (`spawn_id` = '605');
+        -- Rogvar <Superior Alchemist> - Swamp of Sorrows -> Grom'gol
+        UPDATE `spawns_creatures` SET `position_x` = '-12356.132', `position_y` = '213.063', `position_z` = '4.307', `orientation` = '4.30' WHERE (`spawn_id` = '31950');
+        -- Hragran <Superior Clothier and Leathercrafter> - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/images_6531.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12410.909', `position_y` = '159.231', `position_z` = '3.327', `orientation` = '6.156' WHERE (`spawn_id` = '691');
+        -- Krakk <Superior Armorer>
+        UPDATE `spawns_creatures` SET `position_x` = '-12419.729', `position_y` = '163.785', `position_z` = '3.142', `orientation` = '0.726' WHERE (`spawn_id` = '663');
+        -- Vharr <Superior Weaponsmith>
+        UPDATE `spawns_creatures` SET `position_x` = '-12404.036', `position_y` = '190.761', `position_z` = '2.462', `orientation` = '5.193' WHERE (`spawn_id` = '316');
+        -- Brawn <Superior Leatherworker>
+        UPDATE `spawns_creatures` SET `position_x` = '-12398.970', `position_y` = '193.751', `position_z` = '2.381', `orientation` = '4.79' WHERE (`spawn_id` = '662');
+        -- Commander Aggro'gosh
+        UPDATE `spawns_creatures` SET `position_x` = '-12399.748', `position_y` = '167.729', `position_z` = '3.488', `orientation` = '4.925' WHERE (`spawn_id` = '721');
+        -- Nerrist <Trade Goods>
+        UPDATE `spawns_creatures` SET `position_x` = '-12422.470', `position_y` = '177.593', `position_z` = '2.670', `orientation` = '5.254' WHERE (`spawn_id` = '360');
+        -- Angrun <Superior Herbalist>
+        UPDATE `spawns_creatures` SET `position_x` = '-12348.671', `position_y` = '156.187', `position_z` = ' 3.359', `orientation` = '1.751' WHERE (`spawn_id` = '666');
+        -- Thund <Superior Engineer> Orgrimmar -> Grom'gol
+        UPDATE `spawns_creatures` SET `map` = '0', `position_x` = '-12409.958', `position_y` = '154.991', `position_z` = '3.251', `orientation` = '6.216' WHERE (`spawn_id` = '4676');
+        -- Grom'gol guard.
+        UPDATE `spawns_creatures` SET `position_x` = '-12343.695', `position_y` = '133.519', `position_z` = '4.221', `orientation` = '4.76' WHERE (`spawn_id` = '603');
+        -- Snang <Superior Tailor> Orgrimmar -> Grom'gol
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40' WHERE (`entry` = '2855');
+        UPDATE `spawns_creatures` SET `map` = '0', `position_x` = '-12416.183', `position_y` = '162.813', `position_z` = '3.254', `orientation` = '1.673', `ignored` = '0' WHERE (`spawn_id` = '4680');
+        -- Z'tark <Superior Miner>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400458', '1384', '0', '0', '0', '0', '-12396.3', '184.977', '2.215', '2.056', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `equipment_id` = '1701', `faction` = '29', `npc_flags` = '10', `trainer_type` = '2', `type_flags` = '102', `trainer_id` = '504' WHERE (`entry` = '1384');
+        -- Snarl <Superior Blacksmith>
+        UPDATE `spawns_creatures` SET `map` = '0', `position_x` = '-12410.232', `position_y` = '172.967', `position_z` = '3.272', `orientation` = '5.564', `ignored` = '0' WHERE (`spawn_id` = '7970');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40' WHERE (`entry` = '1383');
+        -- Anvil
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-12411.49', `spawn_positionY` = '183.266', `spawn_positionZ` = '2.901', `spawn_orientation` = '4.66' WHERE (`spawn_id` = '10718');
+        -- Forge
+        UPDATE `spawns_gameobjects` SET `spawn_entry` = '1745', `spawn_positionX` = '-12411.162', `spawn_positionY` = '180.547', `spawn_positionZ` = '3', `spawn_orientation` = '0.53' WHERE (`spawn_id` = '10720');  
+        -- Ghok <Shaman Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400459', '1406', '0', '0', '0', '0', '-12398.739', '213.507', '2.324', '5.410', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `faction` = '29', `npc_flags` = '10', `trainer_class` = '7', `trainer_id` = '11' WHERE (`entry` = '1406');
+        -- Moorah Stormhoof <Druid Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400460', '1409', '0', '0', '0', '0', '-12403.821', '205.455', '2.38', '0.036', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '59', `level_min` = '40', `level_max` = '40', `faction` = '104', `npc_flags` = '10', `trainer_class` = '11', `trainer_id` = '17' WHERE (`entry` = '1409');
+        -- Thragg <Warlock Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400461', '1408', '0', '0', '0', '0', '-12401.607', '222.667', '1.894', '5.235', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `faction` = '29', `npc_flags` = '10', `trainer_class` = '9', `trainer_id` = '14', `flags_extra` = '524298' WHERE (`entry` = '1408');
+        -- Sranda <Rogue Trainer>
+        UPDATE `spawns_creatures` SET `position_x` = '-12404.224', `position_y` = '214.994', `position_z` = '2.138', `orientation` = '5.910' WHERE (`spawn_id` = '6868');
+        -- Mogwah <Warrior Trainer>
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400462', '1403', '0', '0', '0', '0', '-12394.280', '225.455', '1.936', '4.343', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `creature_template` SET `display_id1` = '1139', `level_min` = '40', `level_max` = '40', `faction` = '29', `npc_flags` = '10', `trainer_class` = '1', `trainer_id` = '23' WHERE (`entry` = '1403');
+        -- Anvil.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10721');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7016');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7029');
+        -- Cooking Table.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '9995');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '9996');
+        -- Lazlow Ashby
+        UPDATE `creature_template` SET `level_min` = '20', `level_max` = '20', `faction` = '71' WHERE (`entry` = '5745');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400463', '5745', '0', '0', '0', '0', '1559.16', '253.565', '-43.1024', '3.20', '300', '300', '0', '100', '100', '2', '0', '0', '0');
+        DELETE FROM `creature_movement` WHERE (`id` = '400463');
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,1,1625.94,264.302,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,2,1631.9,253.834,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,3,1633.34,232.976,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,4,1627.39,220.356,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,5,1609.31,204.057,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,6,1580.48,203.975,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,7,1559.76,224.784,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,8,1559.16,253.565,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,9,1578.67,273.992,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,10,1592.9,276.839,-43.1024,0,0,0,0);
+        INSERT INTO `creature_movement` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`waittime`,`wander_distance`,`script_id`) VALUES (400463,11,1610.85,274.916,-43.1024,0,0,0,0);
+        -- Comar Villard - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Wetlands/shyso_5.13_18.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-3281.561', `position_y` = '-1523.049', `position_z` = '9.146', `orientation` = '2.184' WHERE (`spawn_id` = '9955');
+        -- Ignore Go's.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26656');
+        -- Food Crate
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26554');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26561');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26562');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26563');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26564');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26565');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26572');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26573');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26560');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26566');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26575');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26582');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26585');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26588');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26569');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26570');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26574');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26576');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26577');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26578');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26579');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26580');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26581');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26584');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26586');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26587');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26589');
+        -- Food Crate
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26554');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26561');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26562');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26563');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26564');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26565');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26572');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26573');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '856');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '859');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '673');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '717');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '718');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '719');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '673');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '92');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '527');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '535');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '545');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '548');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '556');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '558');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '565');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '567');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '570');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '573');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '574');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '575');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '45');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '92');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6791');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5429');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6315');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6774');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5997');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6007');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6131');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6228');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6063');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6119');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5484');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5882');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6063');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6119');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5234');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5056');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5049');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5050');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4935');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4951');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5007');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5010');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5011');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4939');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4947');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4957');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5003');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5004');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5008');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5009');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4960');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5016');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5017');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5056');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5234');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4935');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4951');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4960');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5007');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5010');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5011');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4939');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4947');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4957');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4660');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4666');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4672');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4673');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4676');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4678');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4917');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5058');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5060');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4924');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4928');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5049');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5050');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4738');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4739');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4924');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4928');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4660');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4666');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4672');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4673');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4676');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4678');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4744');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4753');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4704');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4707');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4789');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4790');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4814');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4683');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4743');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4917');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5058');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5060');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4823');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4827');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6877');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6878');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4792');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4793');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4683');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4743');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4820');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4821');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4837');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4838');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4738');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4739');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4744');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4753');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4924');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4928');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4835');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4660');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4666');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4672');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4673');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4676');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4678');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4792');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4793');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4835');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4660');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4666');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4672');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4673');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4676');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4678');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4655');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4777');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4795');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4798');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2039');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4651');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4654');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2039');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2049');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2056');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2057');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4142');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4228');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4651');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4654');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1916');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1938');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1939');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3982');
+        -- Dwarven High Back Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1801');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1680');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1682');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1664');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1673');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1716');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1683');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1684');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1685');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1687');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1689');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1694');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1701');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1703');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1707');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1708');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6893');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6894');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6950');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6962');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '853');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6860');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6861');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6863');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6963');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6972');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6905');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6919');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6978');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6984');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5234');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5056');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5016');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5017');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5049');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5050');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4917');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5058');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5060');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6877');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6878');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4660');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4666');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4672');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4673');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4676');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4678');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6877');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6878');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5003');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5004');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6963');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6972');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1689');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1694');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1701');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1703');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6893');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6894');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6905');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6919');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6950');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6962');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1716');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6860');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6861');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6863');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1683');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1684');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1685');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1687');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1707');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1708');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6978');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6984');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5016');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5017');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4917');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5058');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5060');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6860');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6861');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6863');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5056');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '5234');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '853');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1683');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1684');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6893');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6894');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6905');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6919');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6950');
+        -- Wooden Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6962');
+        -- Dwarven Brazier
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6978');
+        -- Campfire Damage
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6984');
+
+        -- Silithid Harvester - spell lists. Harvest Swarm
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (32530, 'Barrens - Silithid Harvester', 7278, 100, 0, 0, 0, 0, 12, 18, 25, 35, 0, 7277, 100, 1, 0, 0, 0, 20, 24, 35, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        INSERT INTO `spell_script_target` (`entry`, `target_type`, `target_entry`) VALUES ('7277', '1', '5409');
+        UPDATE `creature_template` SET `scale` = '0.4', `display_id1` = '91', `health_multiplier` = '1.1' WHERE (`entry` = '5409');
+
+        insert into applied_updates values ('140820241');
+    end if;
 end $
 delimiter ;

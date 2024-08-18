@@ -75,8 +75,13 @@ class ScriptedEvent:
     def set_target(self, _target):
         self.target = _target
 
-    def get_target(self):
-        return self.target
+    def get_target(self, entry=0):
+        if not entry:
+            return self.target
+        for event_target in self.event_targets:
+            if event_target.target.entry == entry:
+                return event_target.target
+        return None
 
     def get_source(self):
         return self.source

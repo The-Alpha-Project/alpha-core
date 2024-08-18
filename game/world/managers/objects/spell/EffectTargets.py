@@ -544,7 +544,12 @@ class EffectTargets:
 
     @staticmethod
     def resolve_script(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        caster = casting_spell.spell_caster
+        surrounding_units = [u for u in caster.get_map().get_surrounding_units(caster, include_players=False).values()]
+        script_targets = WorldDatabaseManager.SpellScriptTargetHolder. \
+            spell_script_targets_get_by_spell(target_effect.casting_spell.spell_entry.ID)
+        target_entries = [t.target_entry for t in script_targets]
+        return [u for u in surrounding_units if u.entry in target_entries]
 
     # Only used by warlock class quest summoning spells (7728, 7729).
     @staticmethod
@@ -553,7 +558,8 @@ class EffectTargets:
         surrounding_gos = [go for go in caster.get_map().get_surrounding_gameobjects(caster).values()]
         script_targets = WorldDatabaseManager.SpellScriptTargetHolder.\
             spell_script_targets_get_by_spell(target_effect.casting_spell.spell_entry.ID)
-        return [go for go in surrounding_gos if go.entry in script_targets]
+        target_entries = [t.target_entry for t in script_targets]
+        return [go for go in surrounding_gos if go.entry in target_entries]
 
     # Used by is_area_of_effect_spell.
     AREA_TARGETS = {

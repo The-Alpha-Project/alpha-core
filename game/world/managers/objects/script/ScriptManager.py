@@ -237,7 +237,23 @@ class ScriptManager:
 
     @staticmethod
     def resolve_friendly_cc(caster, target=None, param1=None, param2=None, spell_template=None):
-        Logger.warning(f'Unimplemented script target: handle_friendly_cc.')
+        search_range: Optional[float] = param1
+        # Set range if not provided.
+        search_range = ScriptManager._get_search_range(search_range, spell_template)
+        surrounding_units = ScriptManager._get_surrounding_units(caster,
+                                                                 search_range,
+                                                                 alive=True,
+                                                                 friends_only=True,
+                                                                 exclude_unit=caster)
+        # No surrounding units found.
+        if not surrounding_units:
+            return None
+
+        for friendly_unit in surrounding_units:
+            if friendly_unit.is_charmed():
+                return friendly_unit
+
+        # No suitable target found.
         return None
 
     @staticmethod
@@ -282,8 +298,23 @@ class ScriptManager:
 
     @staticmethod
     def resolve_map_event_extra_target(caster, target=None, param1=None, param2=None, spell_template=None):
-        Logger.warning(f'Unimplemented script target: handle_map_event_extra_target.')
-        return None
+        target = caster if caster else target
+        if not target:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve target for event {param1}.')
+            return None
+        map_ = target.get_map()
+        if not map_:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve map for event {param1}.')
+            return None
+        scripted_event = map_.get_map_event_data(param1)
+        if not scripted_event:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve scripted_event {param1}.')
+            return None
+        extra_target = scripted_event.get_target(entry=param2)
+        if not extra_target:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve scripted_event extra target {param2}.')
+            return None
+        return extra_target
 
     @staticmethod
     def resolve_nearest_player(caster, target=None, param1=None, param2=None, spell_template=None):
@@ -444,6 +475,7 @@ SCRIPT_TARGETS = {
     ScriptTarget.TARGET_T_FRIENDLY_INJURED: ScriptManager.resolve_friendly_injured,
     ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT: ScriptManager.resolve_friendly_injured_except,
     ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF: ScriptManager.resolve_friendly_missing_buf,
+    ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF_EXCEPT: ScriptManager.resolve_friendly_missing_buf_except,
     ScriptTarget.TARGET_T_FRIENDLY_CC: ScriptManager.resolve_friendly_cc,
     ScriptTarget.TARGET_T_MAP_EVENT_SOURCE: ScriptManager.resolve_map_event_source,
     ScriptTarget.TARGET_T_MAP_EVENT_TARGET: ScriptManager.resolve_map_event_target,

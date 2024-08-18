@@ -64,7 +64,6 @@ class WorldLoader:
             WorldLoader.load_creature_on_kill_reputation()
             WorldLoader.load_creature_quest_starters()
             WorldLoader.load_creature_quest_finishers()
-            WorldLoader.load_creature_display_info()
             WorldLoader.load_creature_model_info()
             WorldLoader.load_creature_families()
         else:
@@ -92,6 +91,7 @@ class WorldLoader:
         WorldLoader.load_conditions()
         WorldLoader.load_quest_conditions_items()
         WorldLoader.load_mdx_models_data()
+        WorldLoader.load_creature_display_info()
 
         # Character related data
         WorldLoader.load_groups()

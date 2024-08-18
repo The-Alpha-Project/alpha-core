@@ -84,6 +84,8 @@ class CreatureManager(UnitManager):
         if not creature_template:
             return
 
+        is_morph = self.fully_loaded
+
         self.entry = creature_template.entry
         self.creature_template = creature_template
         self.entry = self.creature_template.entry
@@ -141,6 +143,11 @@ class CreatureManager(UnitManager):
         # Creature AI.
         self.object_ai = AIFactory.build_ai(self)
 
+        if is_morph:
+            self.aura_manager.remove_all_auras()
+            self.initialize_field_values()
+            self.get_map().update_object(self, has_changes=True)
+
     # override
     def initialize_field_values(self):
         # Lazy loading first.
@@ -196,11 +203,6 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
-        for slot, virtual_item in self.virtual_item_info.items():
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_item.display_id)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)
-            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_item.info_packed_2)
-
         self.initialized = True
 
         # Trigger respawned event.
@@ -224,7 +226,7 @@ class CreatureManager(UnitManager):
 
         display_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
         # No scale or creature was summoned, look for scale according to display id.
-        if self.creature_template.scale == 0 or self.summoner:
+        if self.creature_template.scale == 0 or self.is_pet():
             if display_info and display_info.CreatureModelScale > 0:
                 self.native_scale = display_info.CreatureModelScale
             else:
@@ -247,14 +249,7 @@ class CreatureManager(UnitManager):
                                            angle=creature_group.angle, flags=creature_group.flags)
 
         # Equipment.
-        if self.creature_template.equipment_id > 0:
-            creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                self.creature_template.equipment_id
-            )
-            if creature_equip_template:
-                VirtualItemsUtils.set_virtual_item(self, 0, creature_equip_template.equipentry1)
-                VirtualItemsUtils.set_virtual_item(self, 1, creature_equip_template.equipentry2)
-                VirtualItemsUtils.set_virtual_item(self, 2, creature_equip_template.equipentry3)
+        self.reset_virtual_equipment()
 
         # Mount this creature, will be overriden if defined in creature_addon.
         if self.creature_template.mount_display_id > 0:
@@ -297,13 +292,15 @@ class CreatureManager(UnitManager):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
 
     def reset_virtual_equipment(self):
-        creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-            self.creature_template.equipment_id
-        )
-        if creature_equip_template:
-            VirtualItemsUtils.set_virtual_item(self, 0, creature_equip_template.equipentry1)
-            VirtualItemsUtils.set_virtual_item(self, 1, creature_equip_template.equipentry2)
-            VirtualItemsUtils.set_virtual_item(self, 2, creature_equip_template.equipentry3)
+        if self.creature_template.equipment_id > 0:
+            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+                self.creature_template.equipment_id
+            )
+            if equip_template:
+                [VirtualItemsUtils.set_virtual_item(self, x, eval(f'equip_template.equipentry{x+1}')) for x in range(3)]
+                return
+        # Make sure its cleared if creature was morphed.
+        [VirtualItemsUtils.set_virtual_item(self, x, 0) for x in range(3)]
 
     def set_faction(self, faction_id):
         self.faction = faction_id

@@ -71,15 +71,20 @@ class WanderingMovement(BaseMovement):
             return False, start_point
 
         # Client can crash with short movements.
-        if self.unit.location.distance(random_point) < 0.2:
+        if self.unit.location.distance(random_point) < 0.1:
             return False, start_point
 
         # Do not wander into inactive cells.
         if not map_.is_active_cell_for_location(random_point):
             return False, start_point
 
+        # Unable to calculate height.
+        z, z_locked = map_.calculate_z(random_point.x, random_point.y, current_z=random_point.z, is_rand_point=True)
+        if z_locked:
+            return False, start_point
+
         # Check line of sight.
-        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True), doodads=True):
+        if not map_.los_check(self.unit.get_ray_position(), random_point.get_ray_vector(is_terrain=True), doodads=True):
             return False, start_point
 
         # Validate a path to the wandering point, just be length 1.

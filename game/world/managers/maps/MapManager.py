@@ -236,7 +236,7 @@ class MapManager:
                                           world_object.location.z)
 
     @staticmethod
-    def calculate_nav_z(map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map/nav files Z)
+    def calculate_nav_z(map_id, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, bool result negation
         # If nav tiles disabled or unable to load Namigator, return current Z as locked.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return current_z, True
@@ -261,7 +261,8 @@ class MapManager:
             heights.append(query_z)
 
         if len(heights) == 0:
-            Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] {x} {y} {current_z}')
+            if not is_rand_point:
+                Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] {x} {y} {current_z}')
             return current_z, True
 
         # We are only interested in the resulting Z near to the Z we know.
@@ -429,7 +430,7 @@ class MapManager:
 
             # Always prioritize Namigator if enabled.
             if config.Server.Settings.use_nav_tiles:
-                nav_z, z_locked = MapManager.calculate_nav_z(map_id, x, y, current_z)
+                nav_z, z_locked = MapManager.calculate_nav_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
                 if not z_locked:
                     return nav_z, False
 

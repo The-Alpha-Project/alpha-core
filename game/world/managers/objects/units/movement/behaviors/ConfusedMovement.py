@@ -81,7 +81,7 @@ class ConfusedMovement(BaseMovement):
         random_point = start_point.get_random_point_in_radius(self.confused_distance, self.unit.map_id)
         map_ = self.unit.get_map()
         # Check line of sight.
-        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):
+        if not map_.los_check(self.unit.get_ray_position(), random_point.get_ray_vector(is_terrain=True)):
             return False, start_point
 
         # Validate a path to the random point.
