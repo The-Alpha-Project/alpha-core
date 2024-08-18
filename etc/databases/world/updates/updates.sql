@@ -1455,7 +1455,7 @@ begin not atomic
         (566101,249,0,0,0,0,0,0,0,0,0,0,1985,0,0,0,0,0,0,0,0,'Brother Malach - Talk')
         
         -- Hearthstone
-        DELETE FROM `playercreateinfo_item` where itemid = 6948
+        DELETE FROM `playercreateinfo_item` where itemid = 6948;
         -- Dwarf warrior sword.
         UPDATE `playercreateinfo_item` SET `itemid` = '25' WHERE (`id` = '18');
         -- Orc warrior sword.
