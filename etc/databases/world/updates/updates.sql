@@ -2132,7 +2132,7 @@ begin not atomic
         INSERT INTO `spell_script_target` (`entry`, `target_type`, `target_entry`) VALUES ('7277', '1', '5409');
         UPDATE `creature_template` SET `scale` = '0.4', `display_id1` = '91', `health_multiplier` = '1.1' WHERE (`entry` = '5409');
 
-        insert into applied_updates values ('140820241');
+        insert into applied_updates values ('160820241');
     end if;
 end $
 delimiter ;
