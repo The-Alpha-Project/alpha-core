@@ -587,8 +587,8 @@ class QuestManager(object):
         # Emotes
         data.extend(pack('<I', 4))
         for index in range(1, 5):
-            detail_emote = int(eval(f'quest_template.DetailsEmote{index}'))
-            detail_emote_delay = eval(f'quest_template.DetailsEmoteDelay{index}')
+            detail_emote = int(getattr(quest_template, f'DetailsEmote{index}'))
+            detail_emote_delay = getattr(quest_template, f'DetailsEmoteDelay{index}')
             data.extend(pack('<2I', detail_emote, detail_emote_delay))
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
@@ -741,8 +741,8 @@ class QuestManager(object):
         # Emote count, always 4.
         data.extend(pack('<I', 4))
         for i in range(1, 5):
-            offer_emote = eval(f'quest.OfferRewardEmote{i}')
-            offer_emote_delay = eval(f'quest.OfferRewardEmoteDelay{i}')
+            offer_emote = getattr(quest, f'OfferRewardEmote{i}')
+            offer_emote_delay = getattr(quest, f'OfferRewardEmoteDelay{i}')
             data.extend(pack('<2I', offer_emote, offer_emote_delay))
 
         if QuestHelpers.has_pick_reward(quest):

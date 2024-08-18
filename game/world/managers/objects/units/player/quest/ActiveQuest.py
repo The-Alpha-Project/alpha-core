@@ -179,16 +179,16 @@ class ActiveQuest:
 
         # Make sure we clamp between 0 and required.
         new_count = max(0, min(value, required_count))
-        exec(f'self.db_state.itemcount{index + 1} = {new_count}')
+        setattr(self.db_state, f'itemcount{index + 1}', new_count)
         self.save(is_new=False)
 
     # noinspection PyMethodMayBeStatic
     def _get_db_item_count(self, index):
-        return eval(f'self.db_state.itemcount{index + 1}')
+        return getattr(self.db_state, f'itemcount{index + 1}')
 
     # noinspection PyMethodMayBeStatic
     def _get_db_mob_or_go_count(self, index):
-        return eval(f'self.db_state.mobcount{index + 1}')
+        return getattr(self.db_state, f'mobcount{index + 1}')
 
     def get_quest_state(self):
         return self.db_state.state
@@ -220,15 +220,15 @@ class ActiveQuest:
 
         # Check for required kills / gameobjects.
         required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
-        for i in range(4):
-            current_value = eval(f'self.db_state.mobcount{i + 1}')
+        for i in range(1, 5):
+            current_value = getattr(self.db_state, f'mobcount{i}')
             if current_value < required_creature_go[i]:
                 return False
 
         # Check for required items.
         required_items_count = QuestHelpers.generate_req_item_count_list(self.quest)
-        for i in range(4):
-            current_value = eval(f'self.db_state.itemcount{i + 1}')
+        for i in range(1, 5):
+            current_value = getattr(self.db_state, f'itemcount{i}')
             if current_value < required_items_count[i]:
                 return False
 
@@ -251,7 +251,7 @@ class ActiveQuest:
         if required:
             index = req_creatures_or_gos.index(entry)
             required_qty = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[index]
-            current_qty = eval(f'self.db_state.mobcount{index + 1}')
+            current_qty = getattr(self.db_state, f'mobcount{index + 1}')
             return current_qty < required_qty
         return False
 
@@ -333,7 +333,7 @@ class ActiveQuest:
         for index, creature_or_go in enumerate(req_creature_or_go):
             if req_creature_or_go[index] == 0:
                 continue
-            current_count = eval(f'self.db_state.mobcount{index + 1}')
+            current_count = getattr(self.db_state, f'mobcount{index + 1}')
             required = req_creature_or_go_count[index]
             # Consider how many bits the previous creature required.
             offset += req_creature_or_go_count[index - 1] if index > 0 else 0

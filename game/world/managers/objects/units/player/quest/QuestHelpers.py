@@ -49,8 +49,8 @@ class QuestHelpers:
     # noinspection PyUnusedLocal
     def has_required_items_for_quest(player_mgr, quest_template):
         for index in range(1, 5):
-            req_item = eval(f'quest_template.ReqItemId{index}')
-            req_item_count = eval(f'quest_template.ReqItemCount{index}')
+            req_item = getattr(quest_template, f'ReqItemId{index}')
+            req_item_count = getattr(quest_template, f'ReqItemCount{index}')
             if req_item and not player_mgr.inventory.get_item_count(req_item) >= req_item_count:
                 return False
         return True
@@ -60,7 +60,7 @@ class QuestHelpers:
     # noinspection PyUnusedLocal
     def has_item_reward(quest_template):
         for index in range(1, 5):
-            if eval(f'quest_template.RewItemId{index}') > 0:
+            if getattr(quest_template, f'RewItemId{index}') > 0:
                 return True
         return False
 
@@ -69,9 +69,9 @@ class QuestHelpers:
     # noinspection PyUnusedLocal
     def requires_items_creatures_or_gos(quest_template):
         for index in range(1, 5):
-            if eval(f'quest_template.ReqItemId{index}') > 0:
+            if getattr(quest_template, f'ReqItemId{index}') > 0:
                 return True
-            if eval(f'quest_template.ReqCreatureOrGOId{index}') > 0:
+            if getattr(quest_template, f'ReqCreatureOrGOId{index}') > 0:
                 return True
         return False
 
@@ -80,7 +80,7 @@ class QuestHelpers:
     # noinspection PyUnusedLocal
     def requires_creatures_or_gos(quest_template):
         for index in range(1, 5):
-            if eval(f'quest_template.ReqCreatureOrGOId{index}') > 0:
+            if getattr(quest_template, f'ReqCreatureOrGOId{index}') > 0:
                 return True
         return False
 
@@ -89,7 +89,7 @@ class QuestHelpers:
     # noinspection PyUnusedLocal
     def has_pick_reward(quest_template):
         for index in range(1, 5):
-            if eval(f'quest_template.RewChoiceItemId{index}') > 0:
+            if getattr(quest_template, f'RewChoiceItemId{index}') > 0:
                 return True
         return False
 

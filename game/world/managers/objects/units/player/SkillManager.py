@@ -251,12 +251,12 @@ class SkillManager(object):
 
         chr_proficiency = base_info.proficiency
         for x in range(1, 17):
-            acquire_method = eval(f'chr_proficiency.Proficiency_AcquireMethod_{x}')
+            acquire_method = getattr(chr_proficiency, f'Proficiency_AcquireMethod_{x}')
             if acquire_method == -1:
                 break
 
-            item_class = eval(f'chr_proficiency.Proficiency_ItemClass_{x}')
-            item_subclass_mask = eval(f'chr_proficiency.Proficiency_ItemSubClassMask_{x}')
+            item_class = getattr(chr_proficiency, f'Proficiency_ItemClass_{x}')
+            item_subclass_mask = getattr(chr_proficiency, f'Proficiency_ItemSubClassMask_{x}')
 
             curr_mask = self.full_proficiency_masks.get(item_class, 0)
             curr_mask |= item_subclass_mask

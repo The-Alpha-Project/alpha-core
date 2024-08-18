@@ -243,22 +243,22 @@ class SpellEffect:
 
     # noinspection PyUnusedLocal
     def load_effect(self, spell, index):
-        self.effect_type = eval(f'spell.Effect_{index+1}')
-        self.die_sides = eval(f'spell.EffectDieSides_{index+1}')
-        self.base_dice = eval(f'spell.EffectBaseDice_{index+1}')
-        self.dice_per_level = eval(f'spell.EffectDicePerLevel_{index+1}')
-        self.real_points_per_level = eval(f'spell.EffectRealPointsPerLevel_{index+1}')
-        self.base_points = eval(f'spell.EffectBasePoints_{index+1}')
-        self.implicit_target_a = eval(f'spell.ImplicitTargetA_{index+1}')
-        self.implicit_target_b = eval(f'spell.ImplicitTargetB_{index+1}')
-        self.radius_index = eval(f'spell.EffectRadiusIndex_{index+1}')
-        self.aura_type = eval(f'spell.EffectAura_{index+1}')
-        self.aura_period = eval(f'spell.EffectAuraPeriod_{index+1}')
-        self.amplitude = eval(f'spell.EffectAmplitude_{index+1}')
-        self.chain_targets = eval(f'spell.EffectChainTargets_{index+1}')
-        self.item_type = eval(f'spell.EffectItemType_{index+1}')
-        self.misc_value = eval(f'spell.EffectMiscValue_{index+1}')
-        self.trigger_spell_id = eval(f'spell.EffectTriggerSpell_{index+1}')
+        self.effect_type = getattr(spell, f'Effect_{index+1}')
+        self.die_sides = getattr(spell, f'EffectDieSides_{index+1}')
+        self.base_dice = getattr(spell, f'EffectBaseDice_{index+1}')
+        self.dice_per_level = getattr(spell, f'EffectDicePerLevel_{index+1}')
+        self.real_points_per_level = getattr(spell, f'EffectRealPointsPerLevel_{index+1}')
+        self.base_points = getattr(spell, f'EffectBasePoints_{index+1}')
+        self.implicit_target_a = getattr(spell, f'ImplicitTargetA_{index+1}')
+        self.implicit_target_b = getattr(spell, f'ImplicitTargetB_{index+1}')
+        self.radius_index = getattr(spell, f'EffectRadiusIndex_{index+1}')
+        self.aura_type = getattr(spell, f'EffectAura_{index+1}')
+        self.aura_period = getattr(spell, f'EffectAuraPeriod_{index+1}')
+        self.amplitude = getattr(spell, f'EffectAmplitude_{index+1}')
+        self.chain_targets = getattr(spell, f'EffectChainTargets_{index+1}')
+        self.item_type = getattr(spell, f'EffectItemType_{index+1}')
+        self.misc_value = getattr(spell, f'EffectMiscValue_{index+1}')
+        self.trigger_spell_id = getattr(spell, f'EffectTriggerSpell_{index+1}')
 
         # Handle dummy aura effects custom periods.
         if not self.aura_period and AuraEffectDummyHandler.is_periodic(spell.ID):

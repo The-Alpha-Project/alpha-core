@@ -297,7 +297,7 @@ class CreatureManager(UnitManager):
                 self.creature_template.equipment_id
             )
             if equip_template:
-                [VirtualItemsUtils.set_virtual_item(self, x, eval(f'equip_template.equipentry{x+1}')) for x in range(3)]
+                [VirtualItemsUtils.set_virtual_item(self, x, getattr(equip_template, f'equipentry{x + 1}')) for x in range(3)]
                 return
         # Make sure its cleared if creature was morphed.
         [VirtualItemsUtils.set_virtual_item(self, x, 0) for x in range(3)]
