@@ -1452,7 +1452,7 @@ begin not atomic
         (566101,194,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
         (566101,195,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
         (566101,198,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
-        (566101,249,0,0,0,0,0,0,0,0,0,0,1985,0,0,0,0,0,0,0,0,'Brother Malach - Talk')
+        (566101,249,0,0,0,0,0,0,0,0,0,0,1985,0,0,0,0,0,0,0,0,'Brother Malach - Talk');
         
         -- Hearthstone
         DELETE FROM `playercreateinfo_item` where itemid = 6948;
