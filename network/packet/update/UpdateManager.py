@@ -78,6 +78,7 @@ class UpdateManager:
         self.player_mgr.enqueue_packet(create_packet)
         if movement_packet:
             self.player_mgr.enqueue_packets(movement_packet)
+        world_object.known_players[self.player_mgr.guid] = self.player_mgr
         self.player_mgr.known_objects[world_object.guid] = world_object
 
     # Player update, packets are sent immediately.
