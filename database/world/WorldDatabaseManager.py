@@ -444,6 +444,11 @@ class WorldDatabaseManager(object):
                 return WorldDatabaseManager.PoolsHolder.POOL_POOL[entry]
 
         @staticmethod
+        def get_pool_template_by_entry(entry):
+            if entry in WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES:
+                return WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES[entry]
+
+        @staticmethod
         def get_gameobject_pool_by_spawn_id(spawn_id):
             if spawn_id in WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS:
                 return WorldDatabaseManager.PoolsHolder.POOL_GAMEOBJECTS.get(spawn_id)
@@ -453,12 +458,6 @@ class WorldDatabaseManager(object):
         def get_creature_pool_by_spawn_id(spawn_id):
             if spawn_id in WorldDatabaseManager.PoolsHolder.POOL_CREATURES:
                 return WorldDatabaseManager.PoolsHolder.POOL_CREATURES.get(spawn_id)
-            return None
-
-        @staticmethod
-        def get_spawn_pool_template_by_pool(pool):
-            if pool.pool_entry in WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES:
-                return WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES.get(pool.pool_entry)
             return None
 
         @staticmethod
@@ -480,8 +479,8 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_pool_template(pool_template):
-            if pool_template.entry not in WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES:
-                WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES[pool_template.entry] = pool_template
+            if pool_template.pool_entry not in WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES:
+                WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES[pool_template.pool_entry] = pool_template
 
         @staticmethod
         def load_pool_creature(pool_creature):

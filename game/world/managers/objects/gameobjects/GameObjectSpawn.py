@@ -6,6 +6,7 @@ from database.world.WorldModels import SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.pools.PoolObject import PoolObject
 from utils.Logger import Logger
 
 
@@ -59,20 +60,28 @@ class GameObjectSpawn:
             self.respawn_time = ttl
         self.gameobject_instance.despawn(ttl=ttl)
 
-    def initialize_pool_manager(self):
-        pool_template = WorldDatabaseManager.PoolsHolder.get_gameobject_spawn_pool_template_by_template_entry(
+    def initialize_pool_manager(self, pool_manager):
+        # By self guid.
+        pool = WorldDatabaseManager.PoolsHolder.get_gameobject_spawn_pool_template_by_template_entry(
             self._get_gameobject_entry())
-        if not pool_template:
+        # By gameobject template entry.
+        if not pool:
             pool = WorldDatabaseManager.PoolsHolder.get_gameobject_pool_by_spawn_id(self.spawn_id)
-            if pool:
-                pool_template = WorldDatabaseManager.PoolsHolder.get_spawn_pool_template_by_pool(pool)
 
-        if not pool_template:
+        if not pool:
             return
 
-        pool_pool = WorldDatabaseManager.PoolsHolder.get_pool_pool_by_entry(pool_template.entry)
-        if pool_pool:
-            print('POOL!')
+        pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool.pool_entry)
+        if not pool_template:
+            Logger.warning(f'Unable to locate pool template for entry {pool.pool_entry}, {pool.description}.')
+            return
+
+        pool_of_pool = WorldDatabaseManager.PoolsHolder.get_pool_pool_by_entry(pool.pool_entry)
+        if pool_of_pool:
+            master_pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool_of_pool.mother_pool)
+            pool_manager.add_pool(self, pool, pool_template, master_pool_template)
+        else:
+            pool_manager.add_pool(self, pool, pool_template)
 
     def _generate_gameobject_instance(self, ttl=0):
         gameobject_template_id = self._generate_gameobject_template()

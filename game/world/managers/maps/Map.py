@@ -1,3 +1,4 @@
+from game.world.managers.objects.pools.PoolManager import PoolManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
@@ -19,6 +20,7 @@ class Map:
         self.grid_manager = GridManager(map_id, instance_id, active_cell_callback)
         self.script_handler = ScriptHandler(self)
         self.map_event_manager = MapEventManager()
+        self.pool_manager = PoolManager()
 
     def initialize(self):
         # Load creatures and gameobjects.
@@ -51,11 +53,13 @@ class Map:
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
             gameobject_spawn = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
-            gameobject_spawn.initialize_pool_manager()
+            gameobject_spawn.initialize_pool_manager(self.pool_manager)
 
             # gameobject_spawn.spawn()
             count += 1
             Logger.progress(f'Loading gameobjects Map {self.name}, Instance {self.instance_id}...', count, length)
+
+        print('Here')
 
     def is_dungeon(self):
         return self.dbc_map.IsInMap == MapType.INSTANCE

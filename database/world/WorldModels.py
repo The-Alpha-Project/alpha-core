@@ -1453,7 +1453,7 @@ class PoolPool(Base):
 class PoolTemplate(Base):
     __tablename__ = 'pool_template'
 
-    entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("0"), comment='Pool entry')
+    pool_entry = Column(MEDIUMINT(8), primary_key=True, server_default=text("0"), comment='Pool entry')
     max_limit = Column(INTEGER(10), nullable=False, server_default=text("0"), comment='Max number of objects (0) is no limit')
     description = Column(String(255), nullable=False)
     flags = Column(INTEGER(11), nullable=False, server_default=text("0"))
