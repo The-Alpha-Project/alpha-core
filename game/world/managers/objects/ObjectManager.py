@@ -512,11 +512,13 @@ class ObjectManager:
         dst_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
 
         if not src_faction:
-            Logger.warning(f'Invalid faction template: {self.faction}.')
+            if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+                Logger.warning(f'Invalid src faction template: {self.faction} for {self.get_name()}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
         if not dst_faction:
-            Logger.warning(f'Invalid faction template: {target.faction}.')
+            if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+                Logger.warning(f'Invalid src faction template: {target.faction} for {target.get_name()}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
         # TODO: Reputation standing checks first.
