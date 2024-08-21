@@ -2134,5 +2134,20 @@ begin not atomic
 
         insert into applied_updates values ('160820241');
     end if;
+    
+    -- 21/08/2024 1
+    if (select count(*) from `applied_updates` where id='210820241') = 0 then   
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (367102);
+
+        -- Events list for Lady Anacondra
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3671;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (367101, 3671, 0, 4, 0, 100, 0, 0, 0, 0, 0, 367101, 0, 0, 'Lady Anacondra - Yell on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (367103, 3671, 0, 7, 0, 100, 0, 0, 0, 0, 0, 367103, 0, 0, 'Lady Anacondra - Data Type 0 on Evade');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (367104, 3671, 0, 1, 0, 100, 0, 2000, 2000, 0, 0, 367104, 0, 0, 'Lady Anacondra - Data Type 0 OOC');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (367105, 3671, 0, 6, 0, 100, 0, 0, 0, 0, 0, 367105, 0, 0, 'Lady Anacondra - Data Type 2 on Death');
+        
+        insert into applied_updates values ('210820241');
+    end if;
 end $
 delimiter ;
