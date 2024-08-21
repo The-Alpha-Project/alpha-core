@@ -1166,7 +1166,7 @@ class SpellManager:
                                       spell_focus_type)
                 return False
             if spell_focus_object[0].spell_focus_manager:
-                spell_focus_object[0].spell_focus_manager.spell_focus_use(self.caster)
+                spell_focus_object[0].spell_focus_manager.use_spell_focus(self.caster)
 
         # Target validation.
         validation_target = casting_spell.initial_target

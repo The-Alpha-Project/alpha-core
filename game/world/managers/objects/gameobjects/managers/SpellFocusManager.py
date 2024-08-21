@@ -8,7 +8,7 @@ class SpellFocusManager:
         self.radius = gameobject.gobject_template.data1 / 2.0
         self.linked_trap = gameobject.gobject_template.data2
 
-    def spell_focus_use(self, who):
+    def use_spell_focus(self, who):
         if self.linked_trap:
             self.gameobject.trigger_linked_trap(self.linked_trap, who, self.radius)
         return True
