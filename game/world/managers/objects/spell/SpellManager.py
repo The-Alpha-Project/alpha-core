@@ -1156,16 +1156,17 @@ class SpellManager:
         # Required nearby spell focus GO.
         spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
         if spell_focus_type:
-            surrounding_gos = [go for go in self.caster.get_map().get_surrounding_gameobjects(self.caster).values()]
+            spell_focus_object = [go for go in self.caster.get_map().get_surrounding_gameobjects(self.caster).values()
+                                  if go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS
+                                  and go.gobject_template.data0 == spell_focus_type
+                                  and self.caster.location.distance(go.location) <= go.gobject_template.data1]
 
-            # Check if any nearby GO is the required spell focus.
-            if not any([go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and
-                        go.gobject_template.data0 == spell_focus_type and
-                        self.caster.location.distance(go.location) <= go.gobject_template.data1
-                        for go in surrounding_gos]):
+            if not spell_focus_object:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS,
                                       spell_focus_type)
                 return False
+            if spell_focus_object[0].spell_focus_manager:
+                spell_focus_object[0].spell_focus_manager.spell_focus_use(self.caster)
 
         # Target validation.
         validation_target = casting_spell.initial_target

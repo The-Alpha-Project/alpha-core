@@ -17,13 +17,14 @@ from game.world.managers.objects.gameobjects.managers.TrapManager import TrapMan
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates, ScriptTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason
-from utils.constants.UnitCodes import StandState, UnitFlags
-from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFields
+from utils.constants.UnitCodes import StandState
+from utils.constants.UpdateFields import ObjectFields, GameObjectFields
 
 
 # TODO: Trigger scripts / events on cooldown restart.
@@ -118,9 +119,7 @@ class GameObjectManager(ObjectManager):
             self.ritual_manager = RitualManager(self)
 
         # Spell focus objects.
-        # TODO: Need to figure the proper link between Traps and SpellFocus objects.
-        #  For now, only summoned go's will use SpellFocusManager, e.g. Basic Campfire.
-        if self.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and self.summoner:
+        if self.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS:
             self.spell_focus_manager = SpellFocusManager(self)
 
         # Trap initializations.
@@ -384,6 +383,17 @@ class GameObjectManager(ObjectManager):
                 continue
             go_object.trap_manager.trigger(who=unit)
 
+    def cast_spell(self, spell_id, target):
+        spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+        if spell_template:
+            spell_target_mask = spell_template.Targets
+            casting_spell = self.spell_manager.try_initialize_spell(spell_template, target,
+                                                                    spell_target_mask, validate=True)
+            self.spell_manager.start_spell_cast(initialized_spell=casting_spell)
+
+        else:
+            Logger.warning(f'Invalid spell id for GameObject trap {self.spawn_id}, spell {spell_id}')
+
     def generate_dynamic_field_value(self, requester):
         go_handled_types = {GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER, GameObjectTypes.TYPE_CHEST}
         if self.gobject_template.type in go_handled_types:
@@ -453,6 +463,7 @@ class GameObjectManager(ObjectManager):
             self.time_to_live_timer -= elapsed
             # Time to live expired, destroy.
             if self.time_to_live_timer <= 0:
+                print('Despawn')
                 self.despawn()
                 return False
         return True
@@ -477,8 +488,6 @@ class GameObjectManager(ObjectManager):
                         self.trap_manager.update(elapsed)
                     if self.fishing_node_manager:
                         self.fishing_node_manager.update(elapsed)
-                    if self.spell_focus_manager:
-                        self.spell_focus_manager.update(elapsed)
                     if self.transport_manager:
                         self.transport_manager.update()
 

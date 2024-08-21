@@ -1,32 +1,34 @@
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from utils.Logger import Logger
-
-
 class TrapManager:
     TRIGGERED_BY_CREATURES = {
-        3355  # zzOldSnare Trap Effect
+        3355  # zzOldSnare Trap Effect (Snare Trap 1499)
     }
 
     def __init__(self, trap_object):
         self.trap_object = trap_object
+        self.lock = trap_object.gobject_template.data0
+        self.level_min = trap_object.gobject_template.data1
+        self.radius = trap_object.gobject_template.data2 / 2.0
         self.spell_id = trap_object.gobject_template.data3
-        # Can only be 0 (infinite triggering) or 1 (should despawn after the trigger).
+        # Can only be 0 (Infinite Trigger) or 1 (Should despawn after trigger).
         self.charges = trap_object.gobject_template.data4
-        self.infinite_trigger = not self.charges
-        self.cooldown = trap_object.gobject_template.data5
+        self.cooldown = 1 if not trap_object.gobject_template.data5 else trap_object.gobject_template.data5
         self.start_delay = trap_object.gobject_template.data7
         self.remaining_cooldown = self.start_delay
-        self.radius = trap_object.gobject_template.data2 / 2.0
 
     def is_ready(self):
         return self.remaining_cooldown == 0
 
+    def _is_triggered_by_proximity(self):
+        return self.radius > 0
+
     def update(self, elapsed):
-        # Triggered by use action.
-        if not self.radius or not self.cooldown:
+        if not self._is_triggered_by_proximity():
             return
 
         if not self.is_ready():
+            # Infinite trigger, set go as ready until triggered.
+            if not self.charges:
+                self.trap_object.set_ready()
             self.remaining_cooldown = max(0, self.remaining_cooldown - elapsed)
             return
 
@@ -45,25 +47,13 @@ class TrapManager:
             # Keep looping until we find a valid unit.
             if not self.trap_object.can_attack_target(unit):
                 continue
-
             self.trigger(unit)
             break
 
+        self.remaining_cooldown = self.cooldown
+
     def trigger(self, who):
         self.trap_object.set_active()
-        self.charges = max(0, self.charges - 1)
-
-        spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.spell_id)
-        if spell_template:
-            spell_target_mask = spell_template.Targets
-            target = self.trap_object if not spell_target_mask else who
-            self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, target, spell_target_mask, validate=True)
-        else:
-            Logger.warning(f'Invalid spell id for GameObject trap {self.trap_object.spawn_id}, spell {self.spell_id}')
-
-        self.remaining_cooldown = self.cooldown
-        if self.charges <= 0 and not self.infinite_trigger:
+        self.trap_object.cast_spell(self.spell_id, who)
+        if self.charges == 1:
             self.trap_object.despawn()
-
-    def reset(self):
-        self.remaining_cooldown = self.start_delay
