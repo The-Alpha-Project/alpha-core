@@ -7,7 +7,7 @@ from game.world.managers.objects.units.player.EnchantmentManager import Enchantm
 from utils.Formulas import UnitFormulas, CreatureFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
-from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, SkillCategories
+from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, SkillCategories, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellSchools, SpellImmunity, SpellHitFlags, SpellMissReason
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields
@@ -1039,8 +1039,12 @@ class StatManager(object):
         spell_school = casting_spell.spell_entry.School
 
         attack_type = casting_spell.get_attack_type() if casting_spell.is_weapon_attack() else -1
-        attacker_combat_rating = caster.stat_manager.get_combat_rating_for_attack(attack_type=attack_type,
+        if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            attacker_combat_rating = caster.stat_manager.get_combat_rating_for_attack(attack_type=attack_type,
                                                                                   casting_spell=casting_spell)
+        else:
+            attacker_combat_rating = self.unit_mgr.level * 5  # Gameobjects? @Flug.
+
         rating_difference = self.unit_mgr.level * 5 - attacker_combat_rating
         rating_mod = rating_difference / 5 / 100
 

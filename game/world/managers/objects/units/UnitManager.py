@@ -248,6 +248,9 @@ class UnitManager(ObjectManager):
         if not target.initialized or not self.initialized:
             return False
 
+        if target.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT:
+            return False
+
         if not target.is_alive:
             return False
 
