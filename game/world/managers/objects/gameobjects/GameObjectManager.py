@@ -463,7 +463,6 @@ class GameObjectManager(ObjectManager):
             self.time_to_live_timer -= elapsed
             # Time to live expired, destroy.
             if self.time_to_live_timer <= 0:
-                print('Despawn')
                 self.despawn()
                 return False
         return True
