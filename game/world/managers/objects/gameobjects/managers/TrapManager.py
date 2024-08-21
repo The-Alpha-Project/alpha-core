@@ -1,4 +1,5 @@
-from utils.constants.SpellCodes import SpellTargetMask
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from utils.Logger import Logger
 
 
 class TrapManager:
@@ -11,20 +12,20 @@ class TrapManager:
         self.spell_id = trap_object.gobject_template.data3
         # Can only be 0 (infinite triggering) or 1 (should despawn after the trigger).
         self.charges = trap_object.gobject_template.data4
+        self.infinite_trigger = not self.charges
         self.cooldown = trap_object.gobject_template.data5
-        # If cooldown was 0, initialize to 1.
-        self.cooldown = 1 if not self.cooldown else self.cooldown
         self.start_delay = trap_object.gobject_template.data7
         self.remaining_cooldown = self.start_delay
         self.radius = trap_object.gobject_template.data2 / 2.0
-        # If no diameter is defined, use 2.5 yd as radius by default as it seems to be the most common value among traps
-        # that have one defined.
-        self.radius = 2.5 if not self.radius else self.radius  # If radius was 0, initialize to 2.5.
 
     def is_ready(self):
         return self.remaining_cooldown == 0
 
     def update(self, elapsed):
+        # Triggered by use action.
+        if not self.radius or not self.cooldown:
+            return
+
         if not self.is_ready():
             self.remaining_cooldown = max(0, self.remaining_cooldown - elapsed)
             return
@@ -45,16 +46,24 @@ class TrapManager:
             if not self.trap_object.can_attack_target(unit):
                 continue
 
-            # Valid target found, trigger the trap. In case charges = 1, despawn the trap.
-            if self.trigger(unit) and self.charges == 1:
-                self.trap_object.set_active()
-                self.trap_object.despawn()
+            self.trigger(unit)
             break
 
     def trigger(self, who):
-        self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, who, SpellTargetMask.UNIT, validate=True)
+        self.trap_object.set_active()
+        self.charges = max(0, self.charges - 1)
+
+        spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.spell_id)
+        if spell_template:
+            spell_target_mask = spell_template.Targets
+            target = self.trap_object if not spell_target_mask else who
+            self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, target, spell_target_mask, validate=True)
+        else:
+            Logger.warning(f'Invalid spell id for GameObject trap {self.trap_object.spawn_id}, spell {self.spell_id}')
+
         self.remaining_cooldown = self.cooldown
-        return True
+        if self.charges <= 0 and not self.infinite_trigger:
+            self.trap_object.despawn()
 
     def reset(self):
         self.remaining_cooldown = self.start_delay

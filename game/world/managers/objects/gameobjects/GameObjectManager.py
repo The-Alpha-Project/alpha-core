@@ -4,6 +4,8 @@ from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
+from game.world.managers.objects.gameobjects.managers.ChestMananger import ChestManager
 from game.world.managers.objects.gameobjects.managers.TransportManager import TransportManager
 from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
@@ -24,6 +26,8 @@ from utils.constants.UnitCodes import StandState, UnitFlags
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFields
 
 
+# TODO: Trigger scripts / events on cooldown restart.
+# TODO: Check locks etc.
 class GameObjectManager(ObjectManager):
     GUID_MANAGER = GuidManager()
 
@@ -57,6 +61,8 @@ class GameObjectManager(ObjectManager):
 
         self.time_to_live_timer = 0
         self.loot_manager = None  # Optional.
+        self.button_manager = None  # Optional.
+        self.chest_manager = None  # Optional.
         self.trap_manager = None  # Optional.
         self.fishing_node_manager = None  # Optional.
         self.transport_manager = None  # Optional.
@@ -87,9 +93,17 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
             self.loot_manager = GameObjectLootManager(self)
 
+        # Chest initialization.
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
+            self.chest_manager = ChestManager(self)
+
         # Mining node initializations.
         if self._is_mining_node():
             self.mining_node_manager = MiningNodeManager(self)
+
+        # Button initialization.
+        if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+            self.button_manager = ButtonManager(self)
 
         # Fishing node initialization.
         if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
@@ -184,12 +198,10 @@ class GameObjectManager(ObjectManager):
                 self.mining_node_manager.handle_looted(player)
 
     def _handle_use_door(self, player):
-        # TODO: Check locks etc.
         self.set_active()
 
     def _handle_use_button(self, player):
-        # TODO: Trigger scripts / events on cooldown restart.
-        self.set_active()
+        self.button_manager.use_button(player)
 
     def _handle_use_camera(self, player):
         cinematic_id = self.gobject_template.data1
@@ -220,25 +232,13 @@ class GameObjectManager(ObjectManager):
             player.teleport(player.map_id, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
-    def _handle_use_chest(self, player):
-        # Activate chest open animation, while active, it won't let any other player loot.
-        if self.state == GameObjectStates.GO_STATE_READY:
-            self.set_state(GameObjectStates.GO_STATE_ACTIVE)
-
-        # Player kneel loot.
-        player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
-        player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
-
-        # Generate loot if it's empty.
-        if not self.loot_manager.has_loot():
-            self.loot_manager.generate_loot(player)
-
-        player.send_loot(self.loot_manager)
-
     # noinspection PyMethodMayBeStatic
     def _handle_use_quest_giver(self, player, target):
         if target:
             player.quest_manager.handle_quest_giver_hello(target, target.guid)
+
+    def _handle_use_chest(self, player):
+        self.chest_manager.chest_use(player)
 
     def _handle_fishing_node(self, player):
         self.fishing_node_manager.fishing_node_use(player)
@@ -373,7 +373,17 @@ class GameObjectManager(ObjectManager):
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_PAGETEXT, pack('<Q', self.guid))
         player_mgr.enqueue_packet(packet)
 
-    # TODO: Handle more dynamic cases if needed.
+    def trigger_linked_trap(self, trap_entry, unit, radius=2.5):
+        go_objects = self.get_map().get_surrounding_gameobjects(self).values()
+        if not go_objects:
+            return
+        for go_object in go_objects:
+            if go_object.entry != trap_entry:
+                continue
+            if self.location.distance(go_object.location) >= radius:
+                continue
+            go_object.trap_manager.trigger(who=unit)
+
     def generate_dynamic_field_value(self, requester):
         go_handled_types = {GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER, GameObjectTypes.TYPE_CHEST}
         if self.gobject_template.type in go_handled_types:

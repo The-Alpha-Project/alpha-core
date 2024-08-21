@@ -1,5 +1,6 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from utils.Logger import Logger
 from utils.constants.SpellCodes import SpellTargetMask
 
 
@@ -35,7 +36,14 @@ class SpellFocusManager:
                 self.trigger(unit)
 
     def trigger(self, who):
-        self.gameobject.spell_manager.handle_cast_attempt(self.spell_id, who, SpellTargetMask.UNIT, validate=True)
+        spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.spell_id)
+        if spell_template:
+            spell_target_mask = spell_template.Targets
+            target = self.gameobject if not spell_target_mask else who
+            self.gameobject.spell_manager.handle_cast_attempt(self.spell_id, target, spell_target_mask, validate=True)
+        else:
+            Logger.warning(f'Invalid spell id for GameObject focus {self.gameobject.spawn_id}, spell {self.spell_id}')
+
         self.remaining_cooldown = self.cooldown
         return True
 

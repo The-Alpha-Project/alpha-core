@@ -350,8 +350,7 @@ class CreatureManager(UnitManager):
 
     def is_controlled(self):
         owner = self.get_charmer_or_summoner()
-        # Handle 2 cases in which non units summon creatures, Serpentbloom and Deepmoss Eggs trap.
-        if not owner or not owner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not owner:
             return False
 
         owner_controlled_pet = owner.pet_manager.get_active_controlled_pet()

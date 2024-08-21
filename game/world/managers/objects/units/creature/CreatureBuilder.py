@@ -1,6 +1,7 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.GuidManager import GuidManager
 from utils.constants import CustomCodes
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.UnitCodes import MovementTypes, UnitFlags, UnitStates
 
 
@@ -19,6 +20,10 @@ class CreatureBuilder:
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
         if not creature_template:
             return None
+
+        # Do not link creatures <-> gos.
+        if summoner and summoner.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            summoner = None
 
         # If no spawn_id is provided (for creatures spawned on runtime), generate a new unique one.
         is_dynamic_spawn = False
