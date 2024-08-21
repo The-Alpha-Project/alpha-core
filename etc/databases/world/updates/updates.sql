@@ -2147,6 +2147,9 @@ begin not atomic
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (367104, 3671, 0, 1, 0, 100, 0, 2000, 2000, 0, 0, 367104, 0, 0, 'Lady Anacondra - Data Type 0 OOC');
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (367105, 3671, 0, 6, 0, 100, 0, 0, 0, 0, 0, 367105, 0, 0, 'Lady Anacondra - Data Type 2 on Death');
         
+        -- Serpentbloom Snake
+        UPDATE `creature_template` SET `display_id1` = '1206' WHERE (`entry` = '3680');
+
         insert into applied_updates values ('210820241');
     end if;
 end $
