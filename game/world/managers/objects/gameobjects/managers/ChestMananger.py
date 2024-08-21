@@ -15,7 +15,7 @@ class ChestManager:
         self.quest_id = chest_object.gobject_template.data8
         self.level_min = chest_object.gobject_template.data9
 
-    def chest_use(self, player):
+    def use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.chest_object.state == GameObjectStates.GO_STATE_READY:
             self.chest_object.set_state(GameObjectStates.GO_STATE_ACTIVE)

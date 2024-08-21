@@ -238,7 +238,7 @@ class GameObjectManager(ObjectManager):
             player.quest_manager.handle_quest_giver_hello(target, target.guid)
 
     def _handle_use_chest(self, player):
-        self.chest_manager.chest_use(player)
+        self.chest_manager.use_chest(player)
 
     def _handle_fishing_node(self, player):
         self.fishing_node_manager.fishing_node_use(player)
