@@ -1452,10 +1452,10 @@ begin not atomic
         (566101,194,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
         (566101,195,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
         (566101,198,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
-        (566101,249,0,0,0,0,0,0,0,0,0,0,1985,0,0,0,0,0,0,0,0,'Brother Malach - Talk')
+        (566101,249,0,0,0,0,0,0,0,0,0,0,1985,0,0,0,0,0,0,0,0,'Brother Malach - Talk');
         
         -- Hearthstone
-        DELETE FROM `playercreateinfo_item` where itemid = 6948
+        DELETE FROM `playercreateinfo_item` where itemid = 6948;
         -- Dwarf warrior sword.
         UPDATE `playercreateinfo_item` SET `itemid` = '25' WHERE (`id` = '18');
         -- Orc warrior sword.
@@ -2132,7 +2132,7 @@ begin not atomic
         INSERT INTO `spell_script_target` (`entry`, `target_type`, `target_entry`) VALUES ('7277', '1', '5409');
         UPDATE `creature_template` SET `scale` = '0.4', `display_id1` = '91', `health_multiplier` = '1.1' WHERE (`entry` = '5409');
 
-        insert into applied_updates values ('140820241');
+        insert into applied_updates values ('160820241');
     end if;
 end $
 delimiter ;

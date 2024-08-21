@@ -349,7 +349,7 @@ class ItemManager(ObjectManager):
 
             # Spell charges.
             for slot in range(5):
-                charges = eval(f'self.item_instance.SpellCharges{slot + 1}')
+                charges = getattr(self.item_instance, f'SpellCharges{slot + 1}')
                 self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, charges if self.has_charges() else -1)
             
             # Enchantments.
@@ -374,8 +374,8 @@ class ItemManager(ObjectManager):
 
     # noinspection PyMethodMayBeStatic
     def has_charges(self):
-        for index in range(5):
-            charges = eval(f'self.item_instance.SpellCharges{index + 1}')
+        for index in range(1, 6):
+            charges = getattr(self.item_instance, f'SpellCharges{index}')
             if charges:
                 return True
         return False
@@ -385,7 +385,7 @@ class ItemManager(ObjectManager):
             if spell_stats.spell_id == spell_id:
                 if self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)[0] and self.item_instance:
                     # Update our item_instance, else charges wont serialize properly.
-                    exec(f'self.item_instance.SpellCharges{index + 1} = {charges}')
+                    setattr(self.item_instance, f'SpellCharges{index + 1}', charges)
                     self.save()
                 break
 
@@ -393,13 +393,13 @@ class ItemManager(ObjectManager):
         if self.item_instance:
             for index, spell_stats in enumerate(self.spell_stats):
                 if spell_stats.spell_id == spell_id:
-                    return eval(f'self.item_instance.SpellCharges{index + 1}')
+                    return getattr(self.item_instance, f'SpellCharges{index + 1}')
         return 0
 
     def charges_removes_item(self, spell_id):
         for index, spell_stats in enumerate(self.spell_stats):
             if spell_stats.spell_id == spell_id:
-                return eval(f'self.item_template.spellcharges_{index + 1}') == -1
+                return getattr(self.item_template, f'spellcharges_{index + 1}') == -1
         return False
 
     def set_unlocked(self):

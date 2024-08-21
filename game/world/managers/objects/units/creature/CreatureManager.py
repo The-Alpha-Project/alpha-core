@@ -297,7 +297,7 @@ class CreatureManager(UnitManager):
                 self.creature_template.equipment_id
             )
             if equip_template:
-                [VirtualItemsUtils.set_virtual_item(self, x, eval(f'equip_template.equipentry{x+1}')) for x in range(3)]
+                [VirtualItemsUtils.set_virtual_item(self, x, getattr(equip_template, f'equipentry{x + 1}')) for x in range(3)]
                 return
         # Make sure its cleared if creature was morphed.
         [VirtualItemsUtils.set_virtual_item(self, x, 0) for x in range(3)]
@@ -350,7 +350,8 @@ class CreatureManager(UnitManager):
 
     def is_controlled(self):
         owner = self.get_charmer_or_summoner()
-        if not owner:
+        # Handle 2 cases in which non units summon creatures, Serpentbloom and Deepmoss Eggs trap.
+        if not owner or not owner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
 
         owner_controlled_pet = owner.pet_manager.get_active_controlled_pet()

@@ -9,17 +9,17 @@ class CreatureSpellsEntry:
         self.spell = None
         self.finished_loading = False
         self.has_valid_spell = False
-        self.spell_id = eval(f'creature_spell.spellId_{index}')
-        self.chance = eval(f'creature_spell.probability_{index}')
-        self.cast_target = eval(f'creature_spell.castTarget_{index}')
-        self.target_param1 = eval(f'creature_spell.targetParam1_{index}')
-        self.target_param2 = eval(f'creature_spell.targetParam2_{index}')
-        self.cast_flags = eval(f'creature_spell.castFlags_{index}')
-        self.delay_init_min = eval(f'creature_spell.delayInitialMin_{index}')
-        self.delay_init_max = eval(f'creature_spell.delayInitialMax_{index}')
-        self.delay_repeat_min = eval(f'creature_spell.delayRepeatMin_{index}')
-        self.delay_repeat_max = eval(f'creature_spell.delayRepeatMax_{index}')
-        self.script_id = eval(f'creature_spell.scriptId_{index}')
+        self.spell_id = getattr(creature_spell, f'spellId_{index}')
+        self.chance = getattr(creature_spell, f'probability_{index}')
+        self.cast_target = getattr(creature_spell, f'castTarget_{index}')
+        self.target_param1 = getattr(creature_spell, f'targetParam1_{index}')
+        self.target_param2 = getattr(creature_spell, f'targetParam2_{index}')
+        self.cast_flags = getattr(creature_spell, f'castFlags_{index}')
+        self.delay_init_min = getattr(creature_spell, f'delayInitialMin_{index}')
+        self.delay_init_max = getattr(creature_spell, f'delayInitialMax_{index}')
+        self.delay_repeat_min = getattr(creature_spell, f'delayRepeatMin_{index}')
+        self.delay_repeat_max = getattr(creature_spell, f'delayRepeatMax_{index}')
+        self.script_id = getattr(creature_spell, f'scriptId_{index}')
 
     # Creature spell templates can be shared across multiple creatures.
     # Make sure we only fully load them once.
