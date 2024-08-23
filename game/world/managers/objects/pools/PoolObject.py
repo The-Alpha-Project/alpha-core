@@ -59,7 +59,7 @@ class PoolObject:
             for choice in choices:
                 spawned += 1
                 max_limit -= 1
-                choice.spawn.spawn()
+                choice.spawn.spawn(from_pool=True)
                 if limit and spawned >= limit:
                     return spawned
 
@@ -68,7 +68,7 @@ class PoolObject:
             choices = random.choices(available_to_spawn_equal, k=count)
             for choice in choices:
                 spawned += 1
-                choice.spawn.spawn()
+                choice.spawn.spawn(from_pool=True)
                 if limit and spawned >= limit:
                     break
 
