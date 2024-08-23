@@ -45,21 +45,46 @@ class Map:
     def _load_map_gameobjects(self):
         if not config.Server.Settings.load_gameobjects:
             return
-        from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
+
         gobject_spawns = WorldDatabaseManager.gameobject_get_all_spawns_by_map_id(self.dbc_map.ID)
         if not gobject_spawns:
             return
+
+        # Create spawn instances and fill this map pool manager.
+        gobject_spawns_instances = self._load_gameobjects_pools_data(gobject_spawns)
+
+        # Spawn orphan objects.
+        count = 0
+        length = len(gobject_spawns_instances)
+        for gobject_spawn_instance in gobject_spawns_instances:
+            if not gobject_spawn_instance.pool:
+                gobject_spawn_instance.spawn()
+            count += 1
+            Logger.progress(f'Spawning gameobjects Map {self.name}, Instance {self.instance_id}...', count, length)
+
+        count = 0
+        length = len(self.pool_manager.pools)
+        for pool_entry, goobject_pool in self.pool_manager.pools.items():
+            goobject_pool.spawn()
+            count += 1
+            Logger.progress(f'Spawning gameobjects pool Map {self.name}, Instance {self.instance_id}...', count, length)
+
+        print('Here')
+
+    def _load_gameobjects_pools_data(self, gobject_spawns):
+        from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
+        go_spawn_instances = []
+
         count = 0
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
-            gameobject_spawn = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
-            gameobject_spawn.initialize_pool_manager(self.pool_manager)
-
-            # gameobject_spawn.spawn()
+            go_spawn_instance = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
+            go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
+            go_spawn_instances.append(go_spawn_instance)
             count += 1
-            Logger.progress(f'Loading gameobjects Map {self.name}, Instance {self.instance_id}...', count, length)
+            Logger.progress(f'Loading gameobject pools, Map {self.name}, Instance {self.instance_id}...', count, length)
 
-        print('Here')
+        return go_spawn_instances
 
     def is_dungeon(self):
         return self.dbc_map.IsInMap == MapType.INSTANCE

@@ -6,7 +6,6 @@ from database.world.WorldModels import SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.pools.PoolObject import PoolObject
 from utils.Logger import Logger
 
 
@@ -22,7 +21,7 @@ class GameObjectSpawn:
         self.respawn_time = 0
         self.last_tick = 0
         self.is_default = self._is_default()
-        self.pool_manager = None
+        self.pool = None
 
     def update(self, now):
         if now > self.last_tick > 0:
@@ -60,15 +59,18 @@ class GameObjectSpawn:
             self.respawn_time = ttl
         self.gameobject_instance.despawn(ttl=ttl)
 
-    def initialize_pool_manager(self, pool_manager):
-        # By self guid.
+    def is_spawned(self):
+        return self.gameobject_instance and self.gameobject_instance.is_spawned
+
+    def generate_or_add_to_pool_if_needed(self, pool_manager):
+        # By template entry.
         pool = WorldDatabaseManager.PoolsHolder.get_gameobject_spawn_pool_template_by_template_entry(
             self._get_gameobject_entry())
-        # By gameobject template entry.
-        if not pool:
+
+        if not pool:  # By spawn guid.
             pool = WorldDatabaseManager.PoolsHolder.get_gameobject_pool_by_spawn_id(self.spawn_id)
 
-        if not pool:
+        if not pool:  # Orphan spawn.
             return
 
         pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool.pool_entry)
@@ -77,11 +79,11 @@ class GameObjectSpawn:
             return
 
         pool_of_pool = WorldDatabaseManager.PoolsHolder.get_pool_pool_by_entry(pool.pool_entry)
-        if pool_of_pool:
+        if pool_of_pool:  # Is part of a mother pool.
             master_pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool_of_pool.mother_pool)
-            pool_manager.add_pool(self, pool, pool_template, master_pool_template)
+            self.pool = pool_manager.add_pool(self, pool, pool_template, master_pool_template)
         else:
-            pool_manager.add_pool(self, pool, pool_template)
+            self.pool = pool_manager.add_pool(self, pool, pool_template)
 
     def _generate_gameobject_instance(self, ttl=0):
         gameobject_template_id = self._generate_gameobject_template()
