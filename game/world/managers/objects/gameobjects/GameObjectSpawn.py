@@ -36,6 +36,11 @@ class GameObjectSpawn:
         self.last_tick = now
 
     def spawn(self, ttl=0):
+        if self.pool:
+            print('Calling pool spawn')
+            self.pool.spawn(caller=self)
+            return
+
         # New instance for default objects.
         if self.is_default:
             self.gameobject_instance = self._generate_gameobject_instance()

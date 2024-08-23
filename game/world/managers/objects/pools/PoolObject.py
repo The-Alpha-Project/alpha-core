@@ -9,7 +9,7 @@ class ChancedEntry(NamedTuple):
 
 
 class PoolObject:
-    def __init__(self, pool_entry, chance, description, flags, max_limit=1, is_master=False):
+    def __init__(self, pool_entry, chance, description, flags, max_limit=1, is_master=False, master_pool=None):
         self.pool_entry = pool_entry
         self.chance = chance
         self.description = description
@@ -19,11 +19,12 @@ class PoolObject:
         self.explicit_chanced: list[ChancedEntry] = list()
         self.max_limit = max_limit
         self.is_master = is_master
+        self.master_pool = master_pool
 
-    def get_or_create_pool(self, pool_entry, chance, description, flags, max_limit=1, is_master=False):
+    def get_or_create_pool(self, pool_entry, chance, description, flags, max_limit=1, is_master=False, master_pool=None):
         if pool_entry not in self.pools:
             self.pools[pool_entry] = PoolObject(pool_entry, chance, description, flags, max_limit=max_limit,
-                                                is_master=is_master)
+                                                is_master=is_master, master_pool=master_pool)
         return self.pools[pool_entry]
 
     def add_spawn(self, spawn, chance):
@@ -32,9 +33,12 @@ class PoolObject:
         else:
             self.explicit_chanced.append(ChancedEntry(spawn, chance))
 
-    def spawn(self, limit=0):
+    def spawn(self, limit=0, caller=None):
         if self.is_master:
             return self._spawn_master()
+
+        if caller and self.master_pool:
+            return self.master_pool.spawn()
 
         spawned = 0
 
