@@ -7,6 +7,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from utils.Logger import Logger
+from utils.constants.MiscCodes import PoolType
 
 
 class GameObjectSpawn:
@@ -37,7 +38,6 @@ class GameObjectSpawn:
 
     def spawn(self, ttl=0, from_pool=False):
         if self.pool and not from_pool:
-            print('Calling pool spawn')
             self.pool.spawn(caller=self)
             return
 
@@ -84,11 +84,11 @@ class GameObjectSpawn:
             return
 
         pool_of_pool = WorldDatabaseManager.PoolsHolder.get_pool_pool_by_entry(pool.pool_entry)
-        if pool_of_pool:  # Is part of a mother pool.
+        if pool_of_pool:  # Is part of a master pool.
             master_pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool_of_pool.mother_pool)
-            self.pool = pool_manager.add_pool(self, pool, pool_template, master_pool_template)
+            self.pool = pool_manager.add_pool(PoolType.GameObject, self, pool, pool_template, master_pool_template)
         else:
-            self.pool = pool_manager.add_pool(self, pool, pool_template)
+            self.pool = pool_manager.add_pool(PoolType.GameObject, self, pool, pool_template)
 
     def _generate_gameobject_instance(self, ttl=0):
         gameobject_template_id = self._generate_gameobject_template()

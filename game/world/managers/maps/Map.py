@@ -8,6 +8,7 @@ from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapEventManager import MapEventManager
 from game.world.managers.maps.helpers.Constants import MapType
 from game.world.managers.objects.script.ScriptHandler import ScriptHandler
+from utils.constants.MiscCodes import PoolType
 
 
 class Map:
@@ -24,23 +25,37 @@ class Map:
 
     def initialize(self):
         # Load creatures and gameobjects.
-        # self._load_map_creatures()
+        self._load_map_creatures()
         self._load_map_gameobjects()
 
     def _load_map_creatures(self):
         if not config.Server.Settings.load_creatures:
             return
+
         from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
         creature_spawns = WorldDatabaseManager.creature_spawn_get_by_map_id(self.dbc_map.ID)
         if not creature_spawns:
             return
+
+        # Create spawn instances and fill this map pool manager.
+        creature_spawns_instances = self._load_creatures_pools_data(creature_spawns)
+
+        # Spawn orphan creatures.
         count = 0
-        length = len(creature_spawns)
-        for creature_spawn in creature_spawns:
-            creature_spawn = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
-            creature_spawn.spawn_creature()
+        length = len(creature_spawns_instances)
+        for creature_spawn_instance in creature_spawns_instances:
+            if not creature_spawn_instance.pool:
+                creature_spawn_instance.spawn_creature(from_pool=True)
             count += 1
-            Logger.progress(f'Loading creatures for Map {self.name}, Instance {self.instance_id}...', count, length)
+            Logger.progress(f'Spawning creatures Map {self.name}, Instance {self.instance_id}...', count, length)
+
+        count = 0
+        creature_pools = self.pool_manager.get_pools_for_type(PoolType.Creature)
+        length = len(creature_pools)
+        for creature_pool in creature_pools:
+            creature_pool.spawn()
+            count += 1
+            Logger.progress(f'Spawning creature pool Map {self.name}, Instance {self.instance_id}...', count, length)
 
     def _load_map_gameobjects(self):
         if not config.Server.Settings.load_gameobjects:
@@ -69,8 +84,6 @@ class Map:
             count += 1
             Logger.progress(f'Spawning gameobjects pool Map {self.name}, Instance {self.instance_id}...', count, length)
 
-        print('Here')
-
     def _load_gameobjects_pools_data(self, gobject_spawns):
         from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
         go_spawn_instances = []
@@ -85,6 +98,21 @@ class Map:
             Logger.progress(f'Loading gameobject pools, Map {self.name}, Instance {self.instance_id}...', count, length)
 
         return go_spawn_instances
+
+    def _load_creatures_pools_data(self, creature_spawns):
+        from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
+        creature_spawn_instances = []
+
+        count = 0
+        length = len(creature_spawns)
+        for creature_spawn in creature_spawns:
+            creature_spawn_instance = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
+            creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
+            creature_spawn_instances.append(creature_spawn_instance)
+            count += 1
+            Logger.progress(f'Loading creature pools, Map {self.name}, Instance {self.instance_id}...', count, length)
+
+        return creature_spawn_instances
 
     def is_dungeon(self):
         return self.dbc_map.IsInMap == MapType.INSTANCE

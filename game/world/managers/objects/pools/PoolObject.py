@@ -1,37 +1,33 @@
 import random
-from typing import NamedTuple
-
-
-class ChancedEntry(NamedTuple):
-    from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
-    spawn: GameObjectSpawn
-    chance: float
+from game.world.managers.objects.pools.PoolChancedEntry import PoolChancedEntry
 
 
 class PoolObject:
-    def __init__(self, pool_entry, chance, description, flags, max_limit=1, is_master=False, master_pool=None):
+    def __init__(self, pool_type, pool_entry, chance, description, flags, max_limit=1, is_master=False, master_pool=None):
+        self.pool_type = pool_type
         self.pool_entry = pool_entry
         self.chance = chance
         self.description = description
         self.flags = flags
         self.pools = dict()
-        self.equal_chanced: list[ChancedEntry] = list()
-        self.explicit_chanced: list[ChancedEntry] = list()
+        self.equal_chanced: list[PoolChancedEntry] = list()
+        self.explicit_chanced: list[PoolChancedEntry] = list()
         self.max_limit = max_limit
         self.is_master = is_master
         self.master_pool = master_pool
 
-    def get_or_create_pool(self, pool_entry, chance, description, flags, max_limit=1, is_master=False, master_pool=None):
+    def get_or_create_pool(self, pool_type, pool_entry, chance, description, flags, max_limit=1, is_master=False,
+                           master_pool=None):
         if pool_entry not in self.pools:
-            self.pools[pool_entry] = PoolObject(pool_entry, chance, description, flags, max_limit=max_limit,
+            self.pools[pool_entry] = PoolObject(pool_type, pool_entry, chance, description, flags, max_limit=max_limit,
                                                 is_master=is_master, master_pool=master_pool)
         return self.pools[pool_entry]
 
     def add_spawn(self, spawn, chance):
         if not chance:
-            self.equal_chanced.append(ChancedEntry(spawn, chance))
+            self.equal_chanced.append(PoolChancedEntry(spawn, chance))
         else:
-            self.explicit_chanced.append(ChancedEntry(spawn, chance))
+            self.explicit_chanced.append(PoolChancedEntry(spawn, chance))
 
     def spawn(self, limit=0, caller=None):
         if self.is_master:

@@ -1,11 +1,13 @@
 from random import choice, randint
 from typing import Optional
 
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import SpawnsCreatures
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from utils.Logger import Logger
+from utils.constants.MiscCodes import PoolType
 
 
 class CreatureSpawn:
@@ -25,6 +27,7 @@ class CreatureSpawn:
         self.respawn_time = 0
         self.last_tick = 0
         self.borrowed = False
+        self.pool = None
 
     def update(self, now):
         if now > self.last_tick > 0:
@@ -48,6 +51,29 @@ class CreatureSpawn:
                 return True
         return False
 
+    def generate_or_add_to_pool_if_needed(self, pool_manager):
+        # By template entry.
+        pool = WorldDatabaseManager.PoolsHolder.get_creature_spawn_pool_template_by_template_entry(
+            self._get_creature_entry())
+
+        if not pool:  # By spawn guid.
+            pool = WorldDatabaseManager.PoolsHolder.get_creature_pool_by_spawn_id(self.spawn_id)
+
+        if not pool:  # Orphan spawn.
+            return
+
+        pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool.pool_entry)
+        if not pool_template:
+            Logger.warning(f'Unable to locate pool template for entry {pool.pool_entry}, {pool.description}.')
+            return
+
+        pool_of_pool = WorldDatabaseManager.PoolsHolder.get_pool_pool_by_entry(pool.pool_entry)
+        if pool_of_pool:  # Is part of a master pool.
+            master_pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool_of_pool.mother_pool)
+            self.pool = pool_manager.add_pool(PoolType.Creature, self, pool, pool_template, master_pool_template)
+        else:
+            self.pool = pool_manager.add_pool(PoolType.Creature, self, pool, pool_template)
+
     def lend_creature_instance(self, creature):
         if self.creature_instance:
             if creature.guid == self.creature_instance.guid:
@@ -62,7 +88,11 @@ class CreatureSpawn:
                 return True
         return False
 
-    def spawn_creature(self):
+    def spawn_creature(self, from_pool=False):
+        if self.pool and not from_pool:
+            self.pool.spawn(caller=self)
+            return
+
         creature_template_id = self._get_creature_entry()
 
         if not creature_template_id:
