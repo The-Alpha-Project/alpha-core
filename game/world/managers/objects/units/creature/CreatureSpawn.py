@@ -81,6 +81,9 @@ class CreatureSpawn:
                 return True
         return False
 
+    def is_spawned(self):
+        return self.creature_instance and self.creature_instance.is_spawned
+
     def restore_creature_instance(self, creature):
         if self.creature_instance:
             if creature.guid == self.creature_instance.guid:
@@ -88,7 +91,10 @@ class CreatureSpawn:
                 return True
         return False
 
-    def spawn_creature(self, from_pool=False):
+    def spawn(self, from_pool=False):
+        self.respawn_timer = 0
+
+        # Delegate spawning of new creature to pool.
         if self.pool and not from_pool:
             self.pool.spawn(caller=self)
             return
@@ -101,7 +107,6 @@ class CreatureSpawn:
             return False
 
         creature_location = self.get_default_location()
-        self.respawn_timer = 0
         self.respawn_time = randint(self.creature_spawn.spawntimesecsmin, self.creature_spawn.spawntimesecsmax)
         self.creature_instance = CreatureBuilder.create(creature_template_id, creature_location,
                                                         self.map_id, self.instance_id,
@@ -127,7 +132,7 @@ class CreatureSpawn:
 
         # Spawn a new creature instance when needed.
         if self.respawn_timer >= self.respawn_time:
-            self.spawn_creature()
+            self.spawn()
 
     def get_default_location(self):
         return Vector(self.creature_spawn.position_x, self.creature_spawn.position_y,

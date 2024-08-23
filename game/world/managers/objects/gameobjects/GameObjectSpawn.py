@@ -37,6 +37,8 @@ class GameObjectSpawn:
         self.last_tick = now
 
     def spawn(self, ttl=0, from_pool=False):
+        self.respawn_timer = 0
+
         if self.pool and not from_pool:
             self.pool.spawn(caller=self)
             return
