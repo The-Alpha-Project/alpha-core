@@ -33,6 +33,7 @@ class PoolObject:
         if self.is_master:
             return self._spawn_master()
 
+        # Child pool spawn calls spawn(), delegate the action to its master pool.
         if caller and self.master_pool:
             return self.master_pool.spawn()
 

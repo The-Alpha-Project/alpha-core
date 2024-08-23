@@ -43,11 +43,11 @@ class Map:
         count = 0
         length = len(creature_spawns_instances)
         for creature_spawn_instance in creature_spawns_instances:
-            if not creature_spawn_instance.pool:
-                creature_spawn_instance.spawn(from_pool=True)
+            creature_spawn_instance.spawn()
             count += 1
             Logger.progress(f'Spawning creatures, Map {self.name}, Instance {self.instance_id}...', count, length)
 
+        # Spawn pools.
         count = 0
         creature_pools = self.pool_manager.get_pools_for_type(PoolType.Creature)
         length = len(creature_pools)
@@ -71,17 +71,18 @@ class Map:
         count = 0
         length = len(gobject_spawns_instances)
         for gobject_spawn_instance in gobject_spawns_instances:
-            if not gobject_spawn_instance.pool:
-                gobject_spawn_instance.spawn()
+            gobject_spawn_instance.spawn()
             count += 1
             Logger.progress(f'Spawning gameobjects, Map {self.name}, Instance {self.instance_id}...', count, length)
 
+        # Spawn pools.
         count = 0
-        length = len(self.pool_manager.pools)
-        for pool_entry, goobject_pool in self.pool_manager.pools.items():
-            goobject_pool.spawn()
+        go_pools = self.pool_manager.get_pools_for_type(PoolType.GameObject)
+        length = len(go_pools)
+        for gobject_pool in go_pools:
+            gobject_pool.spawn()
             count += 1
-            Logger.progress(f'Spawning gameobjects pool, Map {self.name}, Instance {self.instance_id}...', count, length)
+            Logger.progress(f'Spawning gameobjects pools, Map {self.name}, Instance {self.instance_id}...', count, length)
 
     def _load_gameobjects_pools_data(self, gobject_spawns):
         from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
@@ -92,9 +93,10 @@ class Map:
         for gobject_spawn in gobject_spawns:
             go_spawn_instance = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
             go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
-            go_spawn_instances.append(go_spawn_instance)
+            if not go_spawn_instance.pool:
+                go_spawn_instances.append(go_spawn_instance)
             count += 1
-            Logger.progress(f'Loading gameobject pools, Map {self.name}, Instance {self.instance_id}...', count, length)
+            Logger.progress(f'Loading gameobjects, Map {self.name}, Instance {self.instance_id}...', count, length)
 
         return go_spawn_instances
 
@@ -107,9 +109,10 @@ class Map:
         for creature_spawn in creature_spawns:
             creature_spawn_instance = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
             creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
-            creature_spawn_instances.append(creature_spawn_instance)
+            if not creature_spawn_instance.pool:
+                creature_spawn_instances.append(creature_spawn_instance)
             count += 1
-            Logger.progress(f'Loading creature pools, Map {self.name}, Instance {self.instance_id}...', count, length)
+            Logger.progress(f'Loading creatures, Map {self.name}, Instance {self.instance_id}...', count, length)
 
         return creature_spawn_instances
 
