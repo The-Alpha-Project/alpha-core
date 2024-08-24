@@ -82,7 +82,7 @@ class CastingSpell:
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
         if self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
+            self.caster_effective_level = self.calculate_effective_level()
         else:
             self.caster_effective_level = 0
 
@@ -481,7 +481,66 @@ class CastingSpell:
     def requires_aura_state(self):
         return self.spell_entry.CasterAuraState != 0
 
-    def calculate_effective_level(self, level):
+    '''
+    TODO: Figure out this for proper spell min max damage calculation.
+    void __fastcall Spell_C_GetMinMaxPoints(int effectIndex, int a2, int *min, int *max, unsigned int level, int isPet)
+    {
+      signed int SpellLevel; // edi
+      int v10; // eax
+      double v11; // st7
+      char v13; // c0
+      double v14; // st7
+      int v15; // ecx
+      int v16; // ecx
+      int v17; // edi
+      double v18; // [esp+0h] [ebp-18h]
+      int dieSides; // [esp+14h] [ebp-4h]
+      int maxBonus; // [esp+28h] [ebp+10h]
+      float maxBonusa; // [esp+28h] [ebp+10h]
+      int minBonus; // [esp+2Ch] [ebp+14h]
+    
+      *min = 0;
+      *max = 0;
+      if ( effectIndex )
+      {
+        SpellLevel = level;
+        dieSides = *(_DWORD *)(effectIndex + 4 * a2 + 224);
+        if ( !level )
+          SpellLevel = Spell_C_GetSpellLevel(*(_DWORD *)effectIndex, isPet);
+        v10 = *(_DWORD *)(effectIndex + 88);
+        maxBonus = SpellLevel;
+        if ( v10 > 0 )
+        {
+          SpellLevel -= v10;
+          maxBonus = SpellLevel;
+        }
+        if ( SpellLevel < 0 )
+        {
+          SpellLevel = 0;
+          maxBonus = 0;
+        }
+        v11 = (double)maxBonus * *(float *)(effectIndex + 4 * a2 + 260);
+        maxBonusa = v11;
+        minBonus = (__int64)v11;
+        _floor(maxBonusa);
+        v18 = maxBonusa;
+        if ( v13 )
+          v14 = _floor(v18);
+        else
+          v14 = _ceil(v18);
+        v15 = SpellLevel * *(_DWORD *)(effectIndex + 4 * a2 + 248) + *(_DWORD *)(effectIndex + 4 * a2 + 236);
+        *min = v15;
+        *min = *(_DWORD *)(effectIndex + 4 * a2 + 272) + minBonus + v15;
+        v16 = dieSides * *(_DWORD *)(effectIndex + 4 * a2 + 236);
+        *max = v16;
+        v17 = v16 + *(_DWORD *)(effectIndex + 4 * a2 + 248) * dieSides * SpellLevel;
+        *max = v17;
+        *max = *(_DWORD *)(effectIndex + 4 * a2 + 272) + (__int64)v14 + v17;
+      }
+    }
+    '''
+    def calculate_effective_level(self):
+        level = self.spell_caster.level
         if level > self.spell_entry.MaxLevel > 0:
             level = self.spell_entry.MaxLevel
         elif level < self.spell_entry.BaseLevel:
