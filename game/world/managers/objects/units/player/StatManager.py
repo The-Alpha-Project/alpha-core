@@ -853,21 +853,21 @@ class StatManager(object):
         # Dodge/parry/block receive a 0.04% bonus/penalty for each skill point difference.
         dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
         roll = random.random()
-        if self.unit_mgr.can_dodge(attacker.location) and roll < dodge_chance:
+        if self.unit_mgr.can_dodge(attacker.location, in_combat=True) and roll < dodge_chance:
             return HitInfo.DODGE | HitInfo.SUCCESS
 
         if allow_parry:
             parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
             roll = random.random()
-            if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
+            if self.unit_mgr.can_parry(attacker.location, in_combat=True) and roll < parry_chance:
                 return HitInfo.PARRY | HitInfo.SUCCESS
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, combat_rating,
-                                                                     use_block=self.unit_mgr.can_block())
+                                                                     use_block=self.unit_mgr.can_block(in_combat=True))
 
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
         roll = random.random()
-        if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
+        if self.unit_mgr.can_block(attacker.location, in_combat=True) and roll < block_chance:
             return HitInfo.BLOCK | HitInfo.SUCCESS
 
         if allow_crit:
@@ -1210,7 +1210,7 @@ class StatManager(object):
     def send_block_percentage(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
-        if not self.unit_mgr.can_block():
+        if not self.unit_mgr.can_block(in_combat=False):
             self.unit_mgr.set_block_chance(0)
             return
 
@@ -1226,7 +1226,7 @@ class StatManager(object):
     def send_parry_percentage(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
-        if not self.unit_mgr.can_parry():
+        if not self.unit_mgr.can_parry(in_combat=False):
             self.unit_mgr.set_parry_chance(0)
             return
 
@@ -1240,7 +1240,7 @@ class StatManager(object):
     def send_dodge_percentage(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
-        if not self.unit_mgr.can_dodge():
+        if not self.unit_mgr.can_dodge(in_combat=False):
             self.unit_mgr.set_dodge_chance(0)
             return
 

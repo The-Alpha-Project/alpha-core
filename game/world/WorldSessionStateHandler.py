@@ -1,7 +1,7 @@
 import time
 from database.realm.RealmDatabaseManager import *
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds
+
 
 WORLD_SESSIONS = []
 

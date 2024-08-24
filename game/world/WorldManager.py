@@ -17,7 +17,6 @@ from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
-from utils.constants.MiscCodes import ObjectTypeIds
 
 STARTUP_TIME = time()
 WORLD_ON = True
