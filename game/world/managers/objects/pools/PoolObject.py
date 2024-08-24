@@ -38,16 +38,16 @@ class PoolObject:
             return self.master_pool.spawn()
 
         spawned = 0
-
         max_limit = self.max_limit - len([chanced_entry for chanced_entry in self.equal_chanced + self.explicit_chanced
                                           if chanced_entry.spawn.is_spawned()])
+
+        if not max_limit:
+            return 0
+
         available_to_spawn_equal = [chanced_entry for chanced_entry in self.equal_chanced
                                     if not chanced_entry.spawn.is_spawned()]
         available_to_spawn_explicit = [chanced_entry for chanced_entry in self.explicit_chanced
                                        if not chanced_entry.spawn.is_spawned()]
-
-        if not max_limit:
-            return 0
 
         if available_to_spawn_explicit:
             weights = [chanced_entry.chance for chanced_entry in available_to_spawn_explicit]
