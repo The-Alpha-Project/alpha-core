@@ -49,7 +49,7 @@ class Map:
 
         # Spawn pools.
         count = 0
-        creature_pools = self.pool_manager.get_pools_for_type(PoolType.Creature)
+        creature_pools = self.pool_manager.get_pools_for_type(PoolType.CREATURE)
         length = len(creature_pools)
         for creature_pool in creature_pools:
             creature_pool.spawn()
@@ -77,7 +77,7 @@ class Map:
 
         # Spawn pools.
         count = 0
-        go_pools = self.pool_manager.get_pools_for_type(PoolType.GameObject)
+        go_pools = self.pool_manager.get_pools_for_type(PoolType.GAMEOBJECT)
         length = len(go_pools)
         for gobject_pool in go_pools:
             gobject_pool.spawn()

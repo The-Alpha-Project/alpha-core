@@ -70,9 +70,9 @@ class CreatureSpawn:
         pool_of_pool = WorldDatabaseManager.PoolsHolder.get_pool_pool_by_entry(pool.pool_entry)
         if pool_of_pool:  # Is part of a master pool.
             master_pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool_of_pool.mother_pool)
-            self.pool = pool_manager.add_pool(PoolType.Creature, self, pool, pool_template, master_pool_template)
+            self.pool = pool_manager.add_pool(PoolType.CREATURE, self, pool, pool_template, master_pool_template)
         else:
-            self.pool = pool_manager.add_pool(PoolType.Creature, self, pool, pool_template)
+            self.pool = pool_manager.add_pool(PoolType.CREATURE, self, pool, pool_template)
 
     def lend_creature_instance(self, creature):
         if self.creature_instance:

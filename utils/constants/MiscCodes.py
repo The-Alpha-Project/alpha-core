@@ -1060,8 +1060,8 @@ class UnitInLosReaction(IntEnum):
 
 
 class PoolType(IntEnum):
-    Creature = 0
-    GameObject = 1
+    CREATURE = 0
+    GAMEOBJECT = 1
 
 
 class MapsNoNavs(IntEnum):
