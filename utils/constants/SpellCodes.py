@@ -240,6 +240,7 @@ class SpellSchools(IntEnum):
     SPELL_SCHOOL_NATURE = 3
     SPELL_SCHOOL_FROST = 4
     SPELL_SCHOOL_SHADOW = 5
+    SPELL_SCHOOL_END = 6
 
 
 class SpellSchoolMask(IntEnum):

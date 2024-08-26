@@ -683,11 +683,16 @@ class SkillManager(object):
 
         return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
+    def can_use_equipment_now(self, item_class, item_subclass_mask):
+        if item_class not in self.proficiencies:
+            return False
+        return self.proficiencies[item_class].item_subclass_mask & item_subclass_mask
+
     # Shields and Block do not require an actual block to be gained, randomly pick one upon defense gain.
     # Warriors use the Shield skill, Paladins the Block skill and the rest only the Defense skill.
     def get_defense_skill(self):
         pool = [SkillTypes.DEFENSE]
-        if self.player_mgr.can_block():
+        if self.player_mgr.can_block(in_combat=True):
             if SkillTypes.SHIELDS in self.skills:
                 pool.append(SkillTypes.SHIELDS)
             elif SkillTypes.BLOCK in self.skills:

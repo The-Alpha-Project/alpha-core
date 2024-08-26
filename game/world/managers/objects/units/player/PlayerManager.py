@@ -1294,8 +1294,8 @@ class PlayerManager(UnitManager):
         return self.inventory.has_ranged_weapon()
 
     # override
-    def can_block(self, attacker_location=None):
-        if not super().can_block(attacker_location):
+    def can_block(self, attacker_location=None, in_combat=False):
+        if not super().can_block(attacker_location, in_combat=in_combat):
             return False
 
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
@@ -1305,8 +1305,8 @@ class PlayerManager(UnitManager):
             self.inventory.get_offhand().item_template.inventory_type == InventoryTypes.SHIELD
 
     # override
-    def can_parry(self, attacker_location=None):
-        if not super().can_parry(attacker_location):
+    def can_parry(self, attacker_location=None, in_combat=False):
+        if not super().can_parry(attacker_location, in_combat=in_combat):
             return False
 
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
@@ -1315,8 +1315,8 @@ class PlayerManager(UnitManager):
         return True
 
     # override
-    def can_dodge(self, attacker_location=None):
-        if not super().can_dodge(attacker_location):
+    def can_dodge(self, attacker_location=None, in_combat=False):
+        if not super().can_dodge(attacker_location, in_combat=in_combat):
             return False
 
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):

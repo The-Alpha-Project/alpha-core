@@ -985,17 +985,26 @@ class UnitManager(ObjectManager):
 
     # Location is used by PlayerManager if provided.
     # According to 1.3.0 notes, creatures were able to block/parry from behind.
-    def can_block(self, attacker_location=None):
+    def can_block(self, attacker_location=None, in_combat=False):
+        if not in_combat:
+            return self.has_block_passive
+
         return self.has_block_passive and not self.spell_manager.is_casting() and \
-               not self.unit_state & UnitStates.STUNNED
+            not self.unit_state & UnitStates.STUNNED
 
-    def can_parry(self, attacker_location=None):
+    def can_parry(self, attacker_location=None, in_combat=False):
+        if not in_combat:
+            return self.has_parry_passive
+
         return self.has_parry_passive and not self.spell_manager.is_casting() and \
-               not self.unit_state & UnitStates.STUNNED
+            not self.unit_state & UnitStates.STUNNED
 
-    def can_dodge(self, attacker_location=None):
+    def can_dodge(self, attacker_location=None, in_combat=False):
+        if not in_combat:
+            return self.has_dodge_passive
+
         return self.has_dodge_passive and not self.spell_manager.is_casting() and \
-               not self.unit_state & UnitStates.STUNNED
+            not self.unit_state & UnitStates.STUNNED
 
     def enter_combat(self, source=None):
         if self.in_combat:

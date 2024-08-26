@@ -414,18 +414,18 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.AQUATIC == 0
 
     # override
-    def can_block(self, attacker_location=None):
+    def can_block(self, attacker_location=None, in_combat=False):
         if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_BLOCK:
             return False
 
-        return super().can_block(attacker_location)
+        return super().can_block(attacker_location, in_combat=in_combat)
 
     # override
-    def can_parry(self, attacker_location=None):
+    def can_parry(self, attacker_location=None, in_combat=False):
         if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_PARRY:
             return False
 
-        return super().can_parry(attacker_location)
+        return super().can_parry(attacker_location, in_combat=in_combat)
 
     # override
     def enter_combat(self, source=None):

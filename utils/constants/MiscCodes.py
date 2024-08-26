@@ -1059,6 +1059,11 @@ class UnitInLosReaction(IntEnum):
     ULR_NON_HOSTILE = 2
 
 
+class PoolType(IntEnum):
+    Creature = 0
+    GameObject = 1
+
+
 class MapsNoNavs(IntEnum):
 
     @classmethod
