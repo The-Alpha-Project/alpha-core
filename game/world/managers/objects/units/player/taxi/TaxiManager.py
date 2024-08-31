@@ -51,7 +51,7 @@ class TaxiManager(object):
         # Player is already on the last waypoint, do not trigger flight and just move him there.
         if len(waypoints) == 0:
             self.taxi_resume_info.flush()
-            self.owner.teleport(self.owner.map_id, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ), is_instant=True)
+            self.owner.teleport(self.owner.map_id, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ))
             return False
 
         # Get mount according to Flight Master if this is an initial flight trigger.
@@ -95,7 +95,7 @@ class TaxiManager(object):
 
     def flight_end(self):
         self.owner.set_taxi_flying_state(False)
-        self.owner.teleport(self.owner.map_id, self.owner.pending_taxi_destination, is_instant=True)
+        self.owner.teleport(self.owner.map_id, self.owner.pending_taxi_destination)
         self.owner.pending_taxi_destination = None
         self.taxi_resume_info.flush()
 

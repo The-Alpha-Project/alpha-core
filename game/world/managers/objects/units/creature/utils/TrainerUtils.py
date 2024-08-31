@@ -2,7 +2,7 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import SkillLineAbility, Spell
+from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import TrainerTemplate
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -16,7 +16,6 @@ from utils.constants.SpellCodes import SpellEffects
 
 class TrainerUtils:
 
-    # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
     @staticmethod
     def send_trainer_list(creature_mgr, player_mgr):
         if not TrainerUtils.can_train(creature_mgr, player_mgr):
@@ -25,7 +24,7 @@ class TrainerUtils:
                              f'player\'s class. Possible cheating')
             return
 
-        train_spell_bytes: bytes = b''
+        train_spell_bytes = bytearray()
         train_spell_count: int = 0
 
         trainer_ability_list: list[
@@ -71,14 +70,16 @@ class TrainerUtils:
             # Required spell. Take override from database if available.
             req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
 
-            status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level,
-                                                                 preceded_spell, player_mgr, fulfill_skill_reqs)
+            status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level,player_mgr,
+                                                                 fulfill_skill_reqs, preceded_spell=preceded_spell,
+                                                                 req_spell_2=trainer_spell.req_spell_2,
+                                                                 req_spell_3=trainer_spell.req_spell_3)
 
-            train_spell_bytes += TrainerUtils.get_spell_data(trainer_spell.spell, status, trainer_spell.spellcost,
-                                                             trainer_spell.talentpointcost,
-                                                             trainer_spell.skillpointcost, req_level,
-                                                             trainer_spell.reqskill, trainer_spell.reqskillvalue,
-                                                             skill_step, preceded_spell)
+            train_spell_bytes.extend(TrainerUtils.get_spell_data(trainer_spell.spell, status, trainer_spell.spellcost,
+                                                                 trainer_spell.talentpointcost,
+                                                                 trainer_spell.skillpointcost, req_level,
+                                                                 trainer_spell.reqskill, trainer_spell.reqskillvalue,
+                                                                 skill_step, preceded_spell))
             train_spell_count += 1
 
         placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
@@ -97,13 +98,16 @@ class TrainerUtils:
             player_mgr.enqueue_packets(packets)
 
         data_header = pack('<Q2I', creature_mgr.guid, trainer_type, train_spell_count)
-        data = data_header + train_spell_bytes + greeting_bytes_packed
+        data = data_header + bytes(train_spell_bytes) + greeting_bytes_packed
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
     @staticmethod
-    def get_spell_data(spell_id, status, cost, tp_cost, sp_cost, lvl, skill, req_skill, skill_step, preceded):
+    def get_spell_data(spell_id, status, cost, tp_cost, sp_cost, lvl, skill, req_skill, skill_step, required_spell_1=0,
+                       required_spell_2=0, required_spell_3=0):
+
+        required_spells = list(filter((0).__ne__, [required_spell_1, required_spell_2, required_spell_3]))
         data: bytes = pack(
-            '<IBI3B6I',
+            '<IBI3B3I',
             spell_id,  # Trainer Spell id.
             status,  # Status.
             cost,  # Cost.
@@ -113,15 +117,17 @@ class TrainerUtils:
             skill,  # Required Skill Line.
             req_skill,  # Required Skill Rank.
             skill_step,  # Required Skill Step.
-            preceded,  # Required Ability (1).
-            0,  # Required Ability (2).
-            0  # Required Ability (3).
         )
+
+        for index in range(3):
+            data += pack('<I', required_spells[index] if index < len(required_spells) else 0)
+
         return data
 
     @staticmethod
     def get_training_list_spell_status(spell: Spell, trainer_spell_template: TrainerTemplate, req_level: int,
-                                       preceded_spell: int, player_mgr, fulfills_skill: bool = True):
+                                       player_mgr, fulfills_skill: bool = True,  preceded_spell: int = 0,
+                                       req_spell_2: int = 0, req_spell_3: int = 0):
         trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
         active_pet = player_mgr.pet_manager.get_active_permanent_pet()
@@ -132,12 +138,18 @@ class TrainerUtils:
         if spell.ID in target_spells:
             return TrainerServices.TRAINER_SERVICE_USED
 
-        if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or \
-            trainer_spell_template.reqskill != 0 and \
-                (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or
+        if not fulfills_skill:
+            return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+
+        required_spells = list(filter((0).__ne__, [preceded_spell, req_spell_2, req_spell_3]))
+        if required_spells and not all(req_spell in target_spells for req_spell in required_spells):
+            return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+
+        if trainer_spell_template.reqskill:
+            if (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or
                     player_mgr.skill_manager.get_total_skill_value(trainer_spell_template.reqskill)
                     < trainer_spell_template.reqskillvalue):
-            return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+                return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
         if player_mgr.level >= req_level:
             return TrainerServices.TRAINER_SERVICE_AVAILABLE
@@ -175,8 +187,7 @@ class TrainerUtils:
         return True
 
     @staticmethod
-    def player_can_ever_learn_talent(training_spell: TrainerTemplate, spell: Spell,
-                                     skill_line_ability: SkillLineAbility, player_mgr) -> bool:
+    def player_can_learn_talent(training_spell: TrainerTemplate, spell: Spell, player_mgr, self_talent=False):
         spell_item_class = spell.EquippedItemClass
         spell_item_subclass_mask = spell.EquippedItemSubclass
         # Check for required proficiencies for this talent.
@@ -184,21 +195,25 @@ class TrainerUtils:
             # Don't display talent if the player can never learn the proficiency needed.
             if not player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
                 return False
+            # Player talents require that the player already meets the needed requirements.
+            if self_talent:
+                if not player_mgr.skill_manager.can_use_equipment_now(spell_item_class, spell_item_subclass_mask):
+                    return False
 
         # Get player race/class masks.
         race_mask = 1 << player_mgr.race - 1
         class_mask = 1 << player_mgr.class_ - 1
 
-        # Get skill.
-        required_skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(training_spell.reqskill)
-
-        # Check player race/class masks with skill race/class masks.
-        if required_skill:
-            skill_race_mask = required_skill.RaceMask
-            skill_class_mask = required_skill.ClassMask
+        # Set in trainer template.
+        template_req_skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(training_spell.reqskill)
+        if template_req_skill:
+            # Check player race/class masks with skill race/class masks.
+            skill_race_mask = template_req_skill.RaceMask
+            skill_class_mask = template_req_skill.ClassMask
 
             if skill_race_mask and not race_mask & skill_race_mask:
                 return False
             if skill_class_mask and not class_mask & skill_class_mask:
                 return False
+
         return True

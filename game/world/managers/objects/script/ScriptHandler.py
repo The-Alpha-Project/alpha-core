@@ -370,7 +370,7 @@ class ScriptHandler:
             return command.should_abort()
 
         # Players.
-        command.source.teleport(command.datalong, Vector(command.x, command.y, command.z, command.o), is_instant=True)
+        command.source.teleport(command.datalong, Vector(command.x, command.y, command.z, command.o))
 
         return False
 

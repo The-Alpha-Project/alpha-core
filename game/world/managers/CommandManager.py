@@ -206,8 +206,7 @@ class CommandManager(object):
 
         if location:
             tel_location = Vector(location.x, location.y, location.z, location.o)
-            success = world_session.player_mgr.teleport(location.map, tel_location,
-                                                        is_instant=location.map == world_session.player_mgr.map_id)
+            success = world_session.player_mgr.teleport(location.map, tel_location)
 
             if success:
                 return 0, f'Teleported to "{location.name}".'
@@ -482,6 +481,21 @@ class CommandManager(object):
             return -1, 'please specify one or more valid skill ID(s).'
 
     @staticmethod
+    def setrep(world_session, args):
+        try:
+            factionid, value = args.split()
+            f_id = int(factionid)
+            standing = int(value)
+
+            new_standing = world_session.player_mgr.reputation_manager.modify_reputation(f_id, standing, is_final=True)
+            if not new_standing:
+                return -1, 'Invalid faction.'
+
+            return 0, f'Reputation set to {new_standing}'
+        except ValueError:
+            return -1, 'please specify the faction ID and new value.'
+
+    @staticmethod
     def setskill(world_session, args):
         try:
             skill_id, skill_value = args.split()
@@ -603,8 +617,7 @@ class CommandManager(object):
             effective_spawn.orientation)
 
         success = world_session.player_mgr.teleport(
-            effective_spawn.map, tel_location,
-            is_instant=effective_spawn.map == world_session.player_mgr.map_id)
+            effective_spawn.map, tel_location)
 
         if not success:
             return -1, f'unable to teleport to ({tel_location}, {effective_spawn.map}).'
@@ -1078,6 +1091,7 @@ GM_COMMAND_DEFINITIONS = {
     'lskill': [CommandManager.lskill, 'learn a skill'],
     'lskills': [CommandManager.lskills, 'learn skills'],
     'setskill': [CommandManager.setskill, 'set a skill level'],
+    'setrep': [CommandManager.setrep, 'set reputation value'],
     'port': [CommandManager.port, 'teleport using coordinates'],
     'tickets': [CommandManager.tickets, 'list all tickets'],
     'rticket': [CommandManager.rticket, 'search a ticket'],

@@ -113,9 +113,6 @@ class GridManager:
         cell: Cell = self._get_create_cell(world_object.location, world_object.map_id, world_object.instance_id)
         cell.add_world_object(world_object)
 
-        # TODO: Need to change the way we handle this.
-        #  There must be active/inactive world objects, not cells.
-        #  Do leave maps/navs loading only for players.
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self._activate_cell_by_world_object(world_object)
 
@@ -381,6 +378,12 @@ class GridManager:
             now = time.time()
             for key in list(self.active_cell_keys):
                 self.cells[key].update_gameobjects(now)
+
+    def update_transports(self):
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_transports(now)
 
     def update_dynobjects(self):
         with self.grid_lock:

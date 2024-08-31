@@ -40,6 +40,7 @@ class GameObjectManager(ObjectManager):
         self.guid = 0
         self.gobject_template = None
         self.location = None
+        self.stationary_position = None
         self.rot0 = 0
         self.rot1 = 0
         self.rot2 = 0
@@ -228,7 +229,7 @@ class GameObjectManager(ObjectManager):
                     lowest_distance = player_slot_distance
                     x_lowest = x_i
                     y_lowest = y_i
-            player.teleport(player.map_id, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
+            player.teleport(player.map_id, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
     # noinspection PyMethodMayBeStatic
@@ -412,7 +413,7 @@ class GameObjectManager(ObjectManager):
 
     def get_fall_time(self):
         if self.transport_manager:
-            return self.transport_manager.update()
+            return self.transport_manager.get_path_progress()
         return 0
 
     """
@@ -514,6 +515,10 @@ class GameObjectManager(ObjectManager):
     # override
     def get_name(self):
         return self.gobject_template.name
+
+    # override
+    def get_stationary_position(self):
+        return self.stationary_position if self.stationary_position else self.location
 
     # override
     def get_query_details_packet(self):

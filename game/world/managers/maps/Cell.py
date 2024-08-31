@@ -19,6 +19,7 @@ class Cell:
         self.cell_lock = RLock()
         # Instances.
         self.gameobjects = dict()
+        self.transports = dict()
         self.creatures = dict()
         self.players = dict()
         self.dynamic_objects = dict()
@@ -40,7 +41,7 @@ class Cell:
                 if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
 
     def get_gameobjects(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.gameobjects.items())
+        return {k: v for k, v in list(self.gameobjects.items()) + list(self.transports.items())
                 if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
 
     def get_dynamic_objects(self, caller, visibility_range=True):
@@ -89,7 +90,10 @@ class Cell:
         elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
             self.creatures[world_object.guid] = world_object
         elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            self.gameobjects[world_object.guid] = world_object
+            if world_object.is_transport():
+                self.transports[world_object.guid] = world_object
+            else:
+                self.gameobjects[world_object.guid] = world_object
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
             self.dynamic_objects[world_object.guid] = world_object
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
@@ -116,6 +120,12 @@ class Cell:
             # Update gameobject instances.
             for guid, gameobject in list(self.gameobjects.items()):
                 gameobject.update(now)
+
+    def update_transports(self, now):
+        with self.cell_lock:
+            # Update transport instances.
+            for guid, transport in list(self.transports.items()):
+                transport.update(now)
 
     def update_dynobjects(self, now):
         with self.cell_lock:
@@ -171,7 +181,10 @@ class Cell:
             self.creatures.pop(world_object.guid, None)
             return True
         elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and guid in self.gameobjects:
-            self.gameobjects.pop(world_object.guid, None)
+            if world_object.is_transport():
+                self.transports.pop(world_object.guid, None)
+            else:
+                self.gameobjects.pop(world_object.guid, None)
             return True
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT and guid in self.dynamic_objects:
             self.dynamic_objects.pop(world_object.guid, None)
