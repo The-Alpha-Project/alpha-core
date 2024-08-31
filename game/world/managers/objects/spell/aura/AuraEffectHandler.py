@@ -754,6 +754,8 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DODGE_CHANCE,
                                                          amount_percent, percentual=False)
 
+    # TODO: Need to have separate blocking stats depending on item subclass.
+    #  e.g. 'Increases your chance to block with a Shield (not a Buckler) by 2%.'
     @staticmethod
     def handle_mod_block_chance(aura, effect_target, remove):
         if remove:
