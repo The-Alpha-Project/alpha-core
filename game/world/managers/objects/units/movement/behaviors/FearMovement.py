@@ -33,6 +33,12 @@ class FearMovement(BaseMovement):
         super().initialize(unit)
         unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
 
+        # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.
+        if not config.World.Gameplay.enable_call_for_help:
+            return True
+
+        # TODO: Call for help should be checked several times while the creature is fleeing, not only on init. Also,
+        #  it should call all available units, not just one.
         if not self.seek_assist or not unit.combat_target:
             return True
         # Should search assistance, search for a friendly unit.

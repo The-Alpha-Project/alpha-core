@@ -1,5 +1,5 @@
 Version:
-    current: 16
+    current: 17
 
 Database:
     Connection:
@@ -82,6 +82,7 @@ World:
     Gameplay:
         game_speed: 0.016666668
         update_dist: 200
+        enable_call_for_help: False  # Until 0.5.4, creatures didn't call for help when fleeing.
 
     Chat:
         ChatRange:
