@@ -50,7 +50,7 @@ class GameObjectBuilder:
         gameobject_instance.state = state
         gameobject_instance.time_to_live_timer = ttl
 
-        # if summoner:
-        #     gameobject_instance.flags |= GameObjectFlags.TRIGGERED
+        if gameobject_instance.is_transport():
+            gameobject_instance.stationary_position = location.copy()
 
         return gameobject_instance

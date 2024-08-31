@@ -99,9 +99,10 @@ class ActiveQuest:
         faction_reputation_rewards = QuestHelpers.generate_rew_faction_reputation_list(self.quest)
         faction_reputation_gain = QuestHelpers.generate_rew_faction_reputation_gain_list(self.quest)
         for index, faction in enumerate(faction_reputation_rewards):
-            if faction:
-                gain = faction_reputation_gain[index]
-                self.owner.reputation_manager.modify_reputation(faction, gain)
+            if not faction:
+                continue
+            gain = faction_reputation_gain[index]
+            self.owner.reputation_manager.modify_reputation(faction, gain)
 
     def reward_gold(self):
         if self.quest.RewOrReqMoney > 0:

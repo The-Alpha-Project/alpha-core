@@ -969,11 +969,13 @@ class ItemLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
+
 class DefaultProfessionSpell(Base):
     __tablename__ = 'default_profession_spell'
     
     trainer_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
     default_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+
 
 class TrainerTemplate(Base):
     __tablename__ = 'trainer_template'
@@ -987,6 +989,9 @@ class TrainerTemplate(Base):
     reqskill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     reqskillvalue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     reqlevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    req_spell_1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    req_spell_2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    req_spell_3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
 
 class NpcTrainerGreeting(Base):

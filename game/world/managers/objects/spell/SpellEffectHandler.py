@@ -552,7 +552,7 @@ class SpellEffectHandler:
         # Terrain targeted leaps (ie. blink).
         if casting_spell.initial_target_is_terrain():
             leap_target.set_orientation(leap_target.location.o)
-            leaper.teleport(caster.map_id, leap_target, is_instant=True)
+            leaper.teleport(caster.map_id, leap_target)
             return
 
         # Unit-targeted leap (Charge/heroic leap).
@@ -571,7 +571,7 @@ class SpellEffectHandler:
         target.movement_manager.stop()
 
         # Instant teleport.
-        caster.teleport(caster.map_id, charge_location, is_instant=True)
+        caster.teleport(caster.map_id, charge_location)
 
     @staticmethod
     def handle_tame_creature(casting_spell, effect, caster, target):

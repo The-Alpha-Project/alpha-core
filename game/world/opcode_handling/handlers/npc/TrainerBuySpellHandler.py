@@ -72,12 +72,12 @@ class TrainerBuySpellHandler(object):
                 spell.ID, player_mgr.race, player_mgr.class_)
 
         # Get talent status again to verify that client check was correct.
-        verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, preceded_spell,
-                                                                    player_mgr)
+        verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, player_mgr,
+                                                                    preceded_spell=preceded_spell)
 
         # Check talent status, fail if spell should be unavailable.
         if verify_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE or not \
-                TrainerUtils.player_can_ever_learn_talent(trainer_spell, spell, skill_line_ability, player_mgr):
+                TrainerUtils.player_can_learn_talent(trainer_spell, spell, player_mgr):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             player_mgr.talent_manager.send_talent_list()
 
@@ -156,8 +156,8 @@ class TrainerBuySpellHandler(object):
             req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
 
             # Get spell status again to verify that client check was correct.
-            verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, preceded_spell,
-                                                                        player_mgr)
+            verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, player_mgr,
+                                                                        preceded_spell=preceded_spell)
 
             # Check spell status, fail if spell should be unavailable.
             if verify_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:

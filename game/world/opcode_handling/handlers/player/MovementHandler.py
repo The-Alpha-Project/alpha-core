@@ -34,7 +34,7 @@ class MovementHandler:
                     if world_session.player_mgr.update_lock:
                         return 0
                     Logger.anticheat(f'Preventing desync from player {unit_mover.get_name()} ({unit_mover.guid}).')
-                    unit_mover.teleport(unit_mover.map_id, unit_mover.location, is_instant=True)
+                    unit_mover.teleport(unit_mover.map_id, unit_mover.location)
                     return 0
 
                 # If the player is not controlling another unit.
@@ -49,8 +49,7 @@ class MovementHandler:
                         player_mgr.set_stand_state(StandState.UNIT_STANDING)
 
                 # Broadcast unit mover movement to surroundings.
-                movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), move_info.get_bytes())
-                player_mgr.get_map().send_surrounding(movement_packet, unit_mover, include_self=False)
+                move_info.send_surrounding_update(opcode=OpCode(reader.opcode))
 
             except (AttributeError, error):
                 Logger.error(f'Error while handling {reader.opcode_str()}, skipping. Data: {reader.data}')

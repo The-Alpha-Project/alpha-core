@@ -2245,5 +2245,1719 @@ begin not atomic
 
         insert into applied_updates values ('230820241');
     end if;
+    
+    -- 30/08/2024 1
+    if (select count(*) from `applied_updates` where id='300820241') = 0 then
+    
+        -- Specializations, set talent point cost to 0. (calculate internally)
+        UPDATE `trainer_template` SET `talentpointcost` = 0 WHERE `playerspell` in (2917,4334,4335,4336,4338,4339,4340,4341,4342,4350,4351,4352,4353,4354,4355,4356,4357,4366,4368,4369,4370,4371,4372,4373,4374,4382,4384,4385,4386,4387,4388,4389,4390,4440,4442,4443,4444,4445,4446,4447,4448,4456,4458,4459,4460,4461,4462,4463,4464,4472,4474,4475,4476,4477,4478,4479,4480,4488,4490,4491,4492,4493,4494,4495,4496,4818,4819,4820,4821,4822,4823,4824,4832,4834,4835,4836,4837,4838,4839,4840,4848,4850,4851,4852,4853,4854,4855,4856,4864,4866,4867,4868,4869,4870,4871,4872,4880,4882,4883,4884,4885,4886,4887,4888,5340,5341,5342,5343,5344,5345,5348,5349,5350,5351,5352,5353,5354,5355,5356,5357,5358,5359,5360,5428,5429,5430,5431,5432,5433,5448,5449,5450,5451,5452,5453,5513,5548,5549,5550,5551,5552,5553,5554,5626,5630,5631,5632,5633,5634,5635,5636,5637,5638,5639,5640,5641,5642,5643,5742,5743,5744,5745,5746,5747,5748,5749,5750,5751,5752,5753,5754,5755,5756,5820,5821,5844,5845,5874,5875,5891,5892,5921,5922,5952,5953,5954,5955,5956,5957,5958,5969,5973,5974,5975,5976,5977,5979,6057,6085,6086,6087,6088,6089,6090,6091,6092,6093)
+        
+        -- Specializations, required level.
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4337');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4343');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4344');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4345');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4346');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4347');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4348');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4349');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4358');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4359');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4360');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4361');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4362');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4363');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4364');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4365');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4367');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4375');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4376');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4377');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4378');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4379');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4380');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4381');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4383');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4391');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4392');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4393');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4394');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4395');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4396');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4397');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4441');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4449');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4450');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4451');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4452');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4453');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4454');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4455');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4457');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4465');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4466');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4467');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4468');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4469');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4470');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4471');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4473');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4481');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4482');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4483');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4484');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4485');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4486');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4487');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4489');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4497');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4498');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4499');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4500');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4501');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4502');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4503');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4817');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4825');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4826');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4827');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4828');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4829');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4830');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4831');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4833');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4841');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4842');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4843');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4844');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4845');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4846');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4847');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4849');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4857');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4858');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4859');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4860');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4861');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4862');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4863');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4865');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4873');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4874');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4875');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4876');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4877');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4878');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4879');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4881');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4889');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4890');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4891');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4892');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4893');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4894');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4895');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5457');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5458');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5459');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5460');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5461');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5462');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5470');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5471');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5472');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5473');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5474');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5475');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5489');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5490');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5491');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5492');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5493');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5494');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5516');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5517');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5518');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5519');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5520');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5521');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5522');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5533');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5534');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5535');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5536');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5537');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5538');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5539');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5558');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5559');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5560');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5561');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5562');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5563');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5564');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5650');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5651');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5652');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5653');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5654');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5655');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5656');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5657');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5658');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5659');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5660');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5661');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '5662');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '5663');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '5664');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5765');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5766');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5767');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5769');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5770');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5771');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5772');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5773');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5774');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5775');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5776');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5777');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '5778');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '5779');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '5780');
+        UPDATE `trainer_template` SET `reqlevel` = '0' WHERE (`template_entry` = '1000') and (`spell` = '5823');
+        UPDATE `trainer_template` SET `reqlevel` = '0' WHERE (`template_entry` = '1000') and (`spell` = '5824');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5959');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5960');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5961');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5962');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5963');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5964');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5965');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5981');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5984');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5985');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5986');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5987');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5988');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5989');
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '6101');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '6102');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '6103');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '6104');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '6105');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '6106');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '6107');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '6108');
+        UPDATE `trainer_template` SET `reqlevel` = '45' WHERE (`template_entry` = '1000') and (`spell` = '6109');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '6113');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '5823');
+        UPDATE `trainer_template` SET `reqlevel` = '45' WHERE (`template_entry` = '1000') and (`spell` = '5824');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '5903');
+        UPDATE `trainer_template` SET `reqlevel` = '45' WHERE (`template_entry` = '1000') and (`spell` = '5904');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '5932');
+        UPDATE `trainer_template` SET `reqlevel` = '45' WHERE (`template_entry` = '1000') and (`spell` = '5933');
+        UPDATE `trainer_template` SET `reqlevel` = '45' WHERE (`template_entry` = '1000') and (`spell` = '5876');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '5877');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '5846');
+        UPDATE `trainer_template` SET `reqlevel` = '45' WHERE (`template_entry` = '1000') and (`spell` = '5847');
+
+        -- Perceptive
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '6164');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '6170');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '6171');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '6172');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '6173');
+        
+        -- Dodge Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '2118');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4753');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4754');
+        
+        -- Evade
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5945');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5946');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5947');
+
+        -- Regeneration
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '1146');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '1147');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '1148');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '1149');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '7201');
+
+        -- Shield Blocking
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4761');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4764');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4765');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5797');
+
+        -- Shield Defense
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5800');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5801');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5802');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5803');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5804');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '5805');
+        
+        -- Toughness
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '1163');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '1164');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '1165');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '1166');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4534');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4535');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4536');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '4537');
+
+        -- WandPower
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '6100');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '6111');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '6112');
+
+        -- WandMastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '6099');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '6110');
+
+        -- ShadowResist
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '1189');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4622');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4623');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4624');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4625');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4626');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4627');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '4628');
+
+        -- ShadowPower
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5907');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5910');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5911');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5912');
+
+        -- ShadowFocus
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5908');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5913');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5914');
+        
+        -- Shadow Affinity
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4801');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4803');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5905');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5906');
+
+        -- Nature Resist
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '2119');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4608');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4609');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4610');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4611');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4612');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4613');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '4614');
+
+        -- Nature Power
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5827');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5828');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5829');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5830');
+
+        -- Nature Focus
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5831');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5832');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5833');
+        
+        -- Nature Affinity
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4793');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4795');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5825');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5826');
+
+        -- Meditation
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '2115');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4521');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4522');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4523');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '7199');
+
+        -- Magic Resist
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '2116');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4587');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4588');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4589');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4590');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4591');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4592');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '4593');
+
+        -- Holy Resist
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '1837');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4594');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4595');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4596');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4597');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4598');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4599');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '4600');
+
+        -- Holy Power
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5934');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5938');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5939');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5940');
+
+        -- Holy Focus
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5935');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5936');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5937');
+
+        -- Holy Affinity
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4085');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4787');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5930');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5931');
+
+        -- Frost Resist
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '1299');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4615');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4616');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4617');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4618');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4619');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4620');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '4621');
+
+        -- Frost Power
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5880');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5885');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5886');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5887');
+        
+        -- Frost Focus
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5881');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5882');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5883');
+
+        -- Frost Affinity
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4797');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4799');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5878');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5879');
+
+        -- Fire Resist
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '1599');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4601');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4602');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4603');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4604');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4605');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4606');
+        UPDATE `trainer_template` SET `reqlevel` = '40' WHERE (`template_entry` = '1000') and (`spell` = '4607');
+
+        -- Fire Power
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5848');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5852');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5853');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5854');
+
+        -- Fire Focus
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5849');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5850');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5851');
+
+        -- Fire Affinity
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4789');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4791');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5855');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5856');
+        
+        -- 2H Sword Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4419');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4422');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4423');
+
+        -- Bow Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4916');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4919');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4920');
+
+        -- Gun Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4922');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4925');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4926');
+
+        -- 2H Axe Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5477');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5478');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5479');
+
+        -- Sword Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5496');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5497');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5498');
+
+        -- Aze Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5524');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5525');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5526');
+
+        -- 2H Mace Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5540');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5541');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5542');
+
+        -- Mace Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5555');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5556');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5557');
+
+        -- Dagger Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5594');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5595');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5596');
+
+        -- Staff Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5722');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5724');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5725');
+        
+        -- Crossbow Power
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5980');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5982');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5983');
+        
+        -- Sword Finesse
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4304');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4305');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4306');
+
+        -- Axe Finesse
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4310');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4311');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4313');
+
+        -- Mace Finesse
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4331');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4332');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4333');
+
+        -- 2H Axe Finesse
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4415');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4424');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5469');
+
+        -- 2H Mace Finesse
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4427');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4430');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4431');
+
+        -- Melee Finesse
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4434');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4438');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4439');
+
+        -- 2H Sword Finesse
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '5463');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '5464');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '5465');
+
+        -- Sword Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '1012');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4288');
+        
+        -- Axe Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4291');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4292');
+        
+        -- Mace Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4295');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4296');
+
+        -- Dagger Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4299');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4300');
+
+        -- 2H Axe Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4399');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4401');
+
+        -- 2H Mace Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4403');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4404');
+
+        -- 2H Sword Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4407');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4409');
+        
+        -- Staff Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4411');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4413');
+
+        -- Bow Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4898');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4899');
+
+        -- Gun Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4901');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4903');
+        
+        -- Crossbow Mastery
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5762');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5764');
+        
+        -- Beast Slayer
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '3837');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4638');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4639');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4640');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4641');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4642');
+        UPDATE `trainer_template` SET `reqlevel` = '35' WHERE (`template_entry` = '1000') and (`spell` = '4643');
+
+        -- Demon Slayer
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4653');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4654');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4655');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4656');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4657');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4658');
+
+        -- Dragon Slayer
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4669');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4670');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4671');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4672');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4673');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4674');
+
+        -- Elemental Slayer
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4679');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4689');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4690');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4691');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4692');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4693');
+        
+        -- Giant Slayer
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4707');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4698');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4708');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4709');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4710');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4711');
+
+        -- Undead Slayer
+        UPDATE `trainer_template` SET `reqlevel` = '1' WHERE (`template_entry` = '1000') and (`spell` = '4716');
+        UPDATE `trainer_template` SET `reqlevel` = '5' WHERE (`template_entry` = '1000') and (`spell` = '4724');
+        UPDATE `trainer_template` SET `reqlevel` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4725');
+        UPDATE `trainer_template` SET `reqlevel` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4726');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4727');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '1000') and (`spell` = '4728');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '1000') and (`spell` = '4729');
+
+        -- Tracking (Disabled)
+        UPDATE `trainer_template` SET `reqskill` = '51', `reqskillvalue` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5125');
+        UPDATE `trainer_template` SET `reqskill` = '51', `reqskillvalue` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5126');
+        UPDATE `trainer_template` SET `reqskill` = '51', `reqskillvalue` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5127');
+        UPDATE `trainer_template` SET `reqskill` = '51', `reqskillvalue` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5128');
+        UPDATE `trainer_template` SET `reqskill` = '51', `reqskillvalue` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5129');
+        UPDATE `trainer_template` SET `reqskill` = '51', `reqskillvalue` = '1' WHERE (`template_entry` = '1000') and (`spell` = '5130');
+
+        -- Lightning Relfexes (Needs defense skill)
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '4779');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '4781');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5688');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5689');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5690');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5691');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5692');
+        
+        -- Evade (Needs defense skill)
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5945');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5946');
+        UPDATE `trainer_template` SET `reqskill` = '95' WHERE (`template_entry` = '1000') and (`spell` = '5947');
+
+        -- Sneaky (Needs Stealth skill)
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '6163');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '6165');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '6166');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '6167');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '6169');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '7207');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '7208');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '7209');
+        UPDATE `trainer_template` SET `reqskill` = '239' WHERE (`template_entry` = '1000') and (`spell` = '7210');
+
+        -- Heroic Strength
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '1013');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4123');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4124');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4125');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4126');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4127');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4128');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4129');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5034');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5035');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5036');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5037');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5038');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5039');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5040');
+
+        -- Cat's Agility
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4179');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4180');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4181');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4182');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4183');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4184');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4185');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4186');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5062');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5068');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5063');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5064');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5065');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5066');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5067');
+
+        -- Great Stamina
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4195');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4196');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4197');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4198');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4199');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4200');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4201');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4202');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5048');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5049');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5050');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5054');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5051');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5052');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5053');
+
+        -- Mighty Intellect
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4213');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4214');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4215');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4216');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4217');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4218');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4219');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4220');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5076');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5077');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5078');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5079');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5080');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5081');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5082');
+
+        -- Indomitable Spirit
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4230');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4231');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4232');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4233');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4234');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4235');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4236');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4237');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '5091');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5092');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5093');
+        UPDATE `trainer_template` SET `talentpointcost` = '25' WHERE (`template_entry` = '1000') and (`spell` = '5094');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5095');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5096');
+        UPDATE `trainer_template` SET `talentpointcost` = '30' WHERE (`template_entry` = '1000') and (`spell` = '5097');
+
+        -- Physical Prowess
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4255');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4256');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4257');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4258');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4259');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4260');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4261');
+
+        -- Mental Acuity
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4271');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4272');
+        UPDATE `trainer_template` SET `talentpointcost` = '10' WHERE (`template_entry` = '1000') and (`spell` = '4273');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4274');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4275');
+        UPDATE `trainer_template` SET `talentpointcost` = '15' WHERE (`template_entry` = '1000') and (`spell` = '4276');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4277');
+        UPDATE `trainer_template` SET `talentpointcost` = '20' WHERE (`template_entry` = '1000') and (`spell` = '4278');
+
+        ALTER TABLE `trainer_template` 
+        ADD COLUMN `req_spell_1` MEDIUMINT UNSIGNED NOT NULL DEFAULT '0' AFTER `reqlevel`,
+        ADD COLUMN `req_spell_2` MEDIUMINT UNSIGNED NOT NULL DEFAULT '0' AFTER `req_spell_1`,
+        ADD COLUMN `req_spell_3` MEDIUMINT UNSIGNED NOT NULL DEFAULT '0' AFTER `req_spell_2`;
+
+        UPDATE `trainer_template` SET `req_spell_1` = '601' WHERE (`playerspell` = '4287');
+        UPDATE `trainer_template` SET `req_spell_1` = '2692' WHERE (`playerspell` = '4116');
+        UPDATE `trainer_template` SET `req_spell_1` = '820' WHERE (`playerspell` = '1181');
+        UPDATE `trainer_template` SET `req_spell_1` = '1181' WHERE (`playerspell` = '1182');
+        UPDATE `trainer_template` SET `req_spell_1` = '1182' WHERE (`playerspell` = '1183');
+        UPDATE `trainer_template` SET `req_spell_1` = '1183' WHERE (`playerspell` = '7200');
+        UPDATE `trainer_template` SET `req_spell_1` = '819' WHERE (`playerspell` = '4527');
+        UPDATE `trainer_template` SET `req_spell_1` = '4527' WHERE (`playerspell` = '4528');
+        UPDATE `trainer_template` SET `req_spell_1` = '4528' WHERE (`playerspell` = '4529');
+        UPDATE `trainer_template` SET `req_spell_1` = '4529' WHERE (`playerspell` = '4530');
+        UPDATE `trainer_template` SET `req_spell_1` = '4550' WHERE (`playerspell` = '4572');
+        UPDATE `trainer_template` SET `req_spell_1` = '4549' WHERE (`playerspell` = '4565');
+        UPDATE `trainer_template` SET `req_spell_1` = '4547' WHERE (`playerspell` = '4551');
+        UPDATE `trainer_template` SET `req_spell_1` = '3741' WHERE (`playerspell` = '4540');
+        UPDATE `trainer_template` SET `req_spell_1` = '821' WHERE (`playerspell` = '4517');
+        UPDATE `trainer_template` SET `req_spell_1` = '4579' WHERE (`playerspell` = '4580');
+        UPDATE `trainer_template` SET `req_spell_1` = '1114' WHERE (`playerspell` = '4751');
+        UPDATE `trainer_template` SET `req_spell_1` = '4548' WHERE (`playerspell` = '4558');
+        UPDATE `trainer_template` SET `req_spell_1` = '2635' WHERE (`playerspell` = '4631');
+        UPDATE `trainer_template` SET `req_spell_1` = '2123' WHERE (`playerspell` = '4786');
+        UPDATE `trainer_template` SET `req_spell_1` = '4116' WHERE (`playerspell` = '4117');
+        UPDATE `trainer_template` SET `req_spell_1` = '4117' WHERE (`playerspell` = '4118');
+        UPDATE `trainer_template` SET `req_spell_1` = '4118' WHERE (`playerspell` = '4119');
+        UPDATE `trainer_template` SET `req_spell_1` = '4119' WHERE (`playerspell` = '4120');
+        UPDATE `trainer_template` SET `req_spell_1` = '4120' WHERE (`playerspell` = '4121');
+        UPDATE `trainer_template` SET `req_spell_1` = '4121' WHERE (`playerspell` = '4122');
+        UPDATE `trainer_template` SET `req_spell_1` = '4122' WHERE (`playerspell` = '5027');
+        UPDATE `trainer_template` SET `req_spell_1` = '4171' WHERE (`playerspell` = '4172');
+        UPDATE `trainer_template` SET `req_spell_1` = '4172' WHERE (`playerspell` = '4173');
+        UPDATE `trainer_template` SET `req_spell_1` = '4173' WHERE (`playerspell` = '4174');
+        UPDATE `trainer_template` SET `req_spell_1` = '4174' WHERE (`playerspell` = '4175');
+        UPDATE `trainer_template` SET `req_spell_1` = '4175' WHERE (`playerspell` = '4176');
+        UPDATE `trainer_template` SET `req_spell_1` = '4176' WHERE (`playerspell` = '4177');
+        UPDATE `trainer_template` SET `req_spell_1` = '4177' WHERE (`playerspell` = '4178');
+        UPDATE `trainer_template` SET `req_spell_1` = '4178' WHERE (`playerspell` = '5055');
+        UPDATE `trainer_template` SET `req_spell_1` = '4187' WHERE (`playerspell` = '4188');
+        UPDATE `trainer_template` SET `req_spell_1` = '4188' WHERE (`playerspell` = '4189');
+        UPDATE `trainer_template` SET `req_spell_1` = '4189' WHERE (`playerspell` = '4190');
+        UPDATE `trainer_template` SET `req_spell_1` = '4190' WHERE (`playerspell` = '4191');
+        UPDATE `trainer_template` SET `req_spell_1` = '4191' WHERE (`playerspell` = '4192');
+        UPDATE `trainer_template` SET `req_spell_1` = '4192' WHERE (`playerspell` = '4193');
+        UPDATE `trainer_template` SET `req_spell_1` = '4193' WHERE (`playerspell` = '4194');
+        UPDATE `trainer_template` SET `req_spell_1` = '4194' WHERE (`playerspell` = '5041');
+        UPDATE `trainer_template` SET `req_spell_1` = '4204' WHERE (`playerspell` = '4205');
+        UPDATE `trainer_template` SET `req_spell_1` = '4205' WHERE (`playerspell` = '4206');
+        UPDATE `trainer_template` SET `req_spell_1` = '4206' WHERE (`playerspell` = '4207');
+        UPDATE `trainer_template` SET `req_spell_1` = '4207' WHERE (`playerspell` = '4208');
+        UPDATE `trainer_template` SET `req_spell_1` = '4208' WHERE (`playerspell` = '4210');
+        UPDATE `trainer_template` SET `req_spell_1` = '4210' WHERE (`playerspell` = '4211');
+        UPDATE `trainer_template` SET `req_spell_1` = '4211' WHERE (`playerspell` = '4212');
+        UPDATE `trainer_template` SET `req_spell_1` = '4212' WHERE (`playerspell` = '5069');
+        UPDATE `trainer_template` SET `req_spell_1` = '4222' WHERE (`playerspell` = '4223');
+        UPDATE `trainer_template` SET `req_spell_1` = '4223' WHERE (`playerspell` = '4224');
+        UPDATE `trainer_template` SET `req_spell_1` = '4224' WHERE (`playerspell` = '4225');
+        UPDATE `trainer_template` SET `req_spell_1` = '4225' WHERE (`playerspell` = '4226');
+        UPDATE `trainer_template` SET `req_spell_1` = '4226' WHERE (`playerspell` = '4227');
+        UPDATE `trainer_template` SET `req_spell_1` = '4227' WHERE (`playerspell` = '4228');
+        UPDATE `trainer_template` SET `req_spell_1` = '4228' WHERE (`playerspell` = '4229');
+        UPDATE `trainer_template` SET `req_spell_1` = '4229' WHERE (`playerspell` = '5084');
+        UPDATE `trainer_template` SET `req_spell_1` = '4247' WHERE (`playerspell` = '4248');
+        UPDATE `trainer_template` SET `req_spell_1` = '4248' WHERE (`playerspell` = '4249');
+        UPDATE `trainer_template` SET `req_spell_1` = '4249' WHERE (`playerspell` = '4250');
+        UPDATE `trainer_template` SET `req_spell_1` = '4250' WHERE (`playerspell` = '4251');
+        UPDATE `trainer_template` SET `req_spell_1` = '4251' WHERE (`playerspell` = '4252');
+        UPDATE `trainer_template` SET `req_spell_1` = '4252' WHERE (`playerspell` = '4253');
+        UPDATE `trainer_template` SET `req_spell_1` = '4253' WHERE (`playerspell` = '4254');
+        UPDATE `trainer_template` SET `req_spell_1` = '4263' WHERE (`playerspell` = '4264');
+        UPDATE `trainer_template` SET `req_spell_1` = '4264' WHERE (`playerspell` = '4265');
+        UPDATE `trainer_template` SET `req_spell_1` = '4265' WHERE (`playerspell` = '4266');
+        UPDATE `trainer_template` SET `req_spell_1` = '4266' WHERE (`playerspell` = '4267');
+        UPDATE `trainer_template` SET `req_spell_1` = '4267' WHERE (`playerspell` = '4268');
+        UPDATE `trainer_template` SET `req_spell_1` = '4268' WHERE (`playerspell` = '4269');
+        UPDATE `trainer_template` SET `req_spell_1` = '4269' WHERE (`playerspell` = '4270');
+        UPDATE `trainer_template` SET `req_spell_1` = '4289' WHERE (`playerspell` = '4290');
+        UPDATE `trainer_template` SET `req_spell_1` = '4293' WHERE (`playerspell` = '4294');
+        UPDATE `trainer_template` SET `req_spell_1` = '4297' WHERE (`playerspell` = '4298');
+        UPDATE `trainer_template` SET `req_spell_1` = '4301' WHERE (`playerspell` = '4302');
+        UPDATE `trainer_template` SET `req_spell_1` = '4302' WHERE (`playerspell` = '4303');
+        UPDATE `trainer_template` SET `req_spell_1` = '4307' WHERE (`playerspell` = '4308');
+        UPDATE `trainer_template` SET `req_spell_1` = '4308' WHERE (`playerspell` = '4309');
+        UPDATE `trainer_template` SET `req_spell_1` = '4328' WHERE (`playerspell` = '4329');
+        UPDATE `trainer_template` SET `req_spell_1` = '4329' WHERE (`playerspell` = '4330');
+        UPDATE `trainer_template` SET `req_spell_1` = '4334' WHERE (`playerspell` = '4335');
+        UPDATE `trainer_template` SET `req_spell_1` = '4335' WHERE (`playerspell` = '4336');
+        UPDATE `trainer_template` SET `req_spell_1` = '4336' WHERE (`playerspell` = '4338');
+        UPDATE `trainer_template` SET `req_spell_1` = '4338' WHERE (`playerspell` = '4339');
+        UPDATE `trainer_template` SET `req_spell_1` = '4339' WHERE (`playerspell` = '4340');
+        UPDATE `trainer_template` SET `req_spell_1` = '4340' WHERE (`playerspell` = '4341');
+        UPDATE `trainer_template` SET `req_spell_1` = '4341' WHERE (`playerspell` = '4342');
+        UPDATE `trainer_template` SET `req_spell_1` = '4342' WHERE (`playerspell` = '5428');
+        UPDATE `trainer_template` SET `req_spell_1` = '4350' WHERE (`playerspell` = '4351');
+        UPDATE `trainer_template` SET `req_spell_1` = '4351' WHERE (`playerspell` = '4352');
+        UPDATE `trainer_template` SET `req_spell_1` = '4352' WHERE (`playerspell` = '4353');
+        UPDATE `trainer_template` SET `req_spell_1` = '4353' WHERE (`playerspell` = '4354');
+        UPDATE `trainer_template` SET `req_spell_1` = '4354' WHERE (`playerspell` = '4355');
+        UPDATE `trainer_template` SET `req_spell_1` = '4355' WHERE (`playerspell` = '4356');
+        UPDATE `trainer_template` SET `req_spell_1` = '4356' WHERE (`playerspell` = '4357');
+        UPDATE `trainer_template` SET `req_spell_1` = '4357' WHERE (`playerspell` = '5448');
+        UPDATE `trainer_template` SET `req_spell_1` = '4366' WHERE (`playerspell` = '4368');
+        UPDATE `trainer_template` SET `req_spell_1` = '4368' WHERE (`playerspell` = '4369');
+        UPDATE `trainer_template` SET `req_spell_1` = '4369' WHERE (`playerspell` = '4370');
+        UPDATE `trainer_template` SET `req_spell_1` = '4370' WHERE (`playerspell` = '4371');
+        UPDATE `trainer_template` SET `req_spell_1` = '4371' WHERE (`playerspell` = '4372');
+        UPDATE `trainer_template` SET `req_spell_1` = '4372' WHERE (`playerspell` = '4373');
+        UPDATE `trainer_template` SET `req_spell_1` = '4373' WHERE (`playerspell` = '4374');
+        UPDATE `trainer_template` SET `req_spell_1` = '4374' WHERE (`playerspell` = '5548');
+        UPDATE `trainer_template` SET `req_spell_1` = '4382' WHERE (`playerspell` = '4384');
+        UPDATE `trainer_template` SET `req_spell_1` = '4384' WHERE (`playerspell` = '4385');
+        UPDATE `trainer_template` SET `req_spell_1` = '4385' WHERE (`playerspell` = '4386');
+        UPDATE `trainer_template` SET `req_spell_1` = '4386' WHERE (`playerspell` = '4387');
+        UPDATE `trainer_template` SET `req_spell_1` = '4387' WHERE (`playerspell` = '4388');
+        UPDATE `trainer_template` SET `req_spell_1` = '4388' WHERE (`playerspell` = '4389');
+        UPDATE `trainer_template` SET `req_spell_1` = '4389' WHERE (`playerspell` = '4390');
+        UPDATE `trainer_template` SET `req_spell_1` = '4398' WHERE (`playerspell` = '4400');
+        UPDATE `trainer_template` SET `req_spell_1` = '4402' WHERE (`playerspell` = '4405');
+        UPDATE `trainer_template` SET `req_spell_1` = '4406' WHERE (`playerspell` = '4408');
+        UPDATE `trainer_template` SET `req_spell_1` = '4410' WHERE (`playerspell` = '4412');
+        UPDATE `trainer_template` SET `req_spell_1` = '4414' WHERE (`playerspell` = '4416');
+        UPDATE `trainer_template` SET `req_spell_1` = '4418' WHERE (`playerspell` = '4420');
+        UPDATE `trainer_template` SET `req_spell_1` = '4420' WHERE (`playerspell` = '4421');
+        UPDATE `trainer_template` SET `req_spell_1` = '4416' WHERE (`playerspell` = '4417');
+        UPDATE `trainer_template` SET `req_spell_1` = '4426' WHERE (`playerspell` = '4428');
+        UPDATE `trainer_template` SET `req_spell_1` = '4428' WHERE (`playerspell` = '4429');
+        UPDATE `trainer_template` SET `req_spell_1` = '4433' WHERE (`playerspell` = '4435');
+        UPDATE `trainer_template` SET `req_spell_1` = '4435' WHERE (`playerspell` = '4437');
+        UPDATE `trainer_template` SET `req_spell_1` = '4440' WHERE (`playerspell` = '4442');
+        UPDATE `trainer_template` SET `req_spell_1` = '4442' WHERE (`playerspell` = '4443');
+        UPDATE `trainer_template` SET `req_spell_1` = '4443' WHERE (`playerspell` = '4444');
+        UPDATE `trainer_template` SET `req_spell_1` = '4444' WHERE (`playerspell` = '4445');
+        UPDATE `trainer_template` SET `req_spell_1` = '4445' WHERE (`playerspell` = '4446');
+        UPDATE `trainer_template` SET `req_spell_1` = '4446' WHERE (`playerspell` = '4447');
+        UPDATE `trainer_template` SET `req_spell_1` = '4447' WHERE (`playerspell` = '4448');
+        UPDATE `trainer_template` SET `req_spell_1` = '4448' WHERE (`playerspell` = '5340');
+        UPDATE `trainer_template` SET `req_spell_1` = '4456' WHERE (`playerspell` = '4458');
+        UPDATE `trainer_template` SET `req_spell_1` = '4458' WHERE (`playerspell` = '4459');
+        UPDATE `trainer_template` SET `req_spell_1` = '4459' WHERE (`playerspell` = '4460');
+        UPDATE `trainer_template` SET `req_spell_1` = '4460' WHERE (`playerspell` = '4461');
+        UPDATE `trainer_template` SET `req_spell_1` = '4461' WHERE (`playerspell` = '4462');
+        UPDATE `trainer_template` SET `req_spell_1` = '4462' WHERE (`playerspell` = '4463');
+        UPDATE `trainer_template` SET `req_spell_1` = '4463' WHERE (`playerspell` = '4464');
+        UPDATE `trainer_template` SET `req_spell_1` = '4464' WHERE (`playerspell` = '5355');
+        UPDATE `trainer_template` SET `req_spell_1` = '4472' WHERE (`playerspell` = '4474');
+        UPDATE `trainer_template` SET `req_spell_1` = '4474' WHERE (`playerspell` = '4475');
+        UPDATE `trainer_template` SET `req_spell_1` = '4475' WHERE (`playerspell` = '4476');
+        UPDATE `trainer_template` SET `req_spell_1` = '4476' WHERE (`playerspell` = '4477');
+        UPDATE `trainer_template` SET `req_spell_1` = '4477' WHERE (`playerspell` = '4478');
+        UPDATE `trainer_template` SET `req_spell_1` = '4478' WHERE (`playerspell` = '4479');
+        UPDATE `trainer_template` SET `req_spell_1` = '4479' WHERE (`playerspell` = '4480');
+        UPDATE `trainer_template` SET `req_spell_1` = '4480' WHERE (`playerspell` = '5348');
+        UPDATE `trainer_template` SET `req_spell_1` = '4488' WHERE (`playerspell` = '4490');
+        UPDATE `trainer_template` SET `req_spell_1` = '4490' WHERE (`playerspell` = '4491');
+        UPDATE `trainer_template` SET `req_spell_1` = '4491' WHERE (`playerspell` = '4492');
+        UPDATE `trainer_template` SET `req_spell_1` = '4492' WHERE (`playerspell` = '4493');
+        UPDATE `trainer_template` SET `req_spell_1` = '4493' WHERE (`playerspell` = '4494');
+        UPDATE `trainer_template` SET `req_spell_1` = '4494' WHERE (`playerspell` = '4495');
+        UPDATE `trainer_template` SET `req_spell_1` = '4495' WHERE (`playerspell` = '4496');
+        UPDATE `trainer_template` SET `req_spell_1` = '4517' WHERE (`playerspell` = '4518');
+        UPDATE `trainer_template` SET `req_spell_1` = '4518' WHERE (`playerspell` = '4519');
+        UPDATE `trainer_template` SET `req_spell_1` = '4519' WHERE (`playerspell` = '7198');
+        UPDATE `trainer_template` SET `req_spell_1` = '4530' WHERE (`playerspell` = '4531');
+        UPDATE `trainer_template` SET `req_spell_1` = '4531' WHERE (`playerspell` = '4532');
+        UPDATE `trainer_template` SET `req_spell_1` = '4532' WHERE (`playerspell` = '4533');
+        UPDATE `trainer_template` SET `req_spell_1` = '4580' WHERE (`playerspell` = '4581');
+        UPDATE `trainer_template` SET `req_spell_1` = '4581' WHERE (`playerspell` = '4582');
+        UPDATE `trainer_template` SET `req_spell_1` = '4582' WHERE (`playerspell` = '4583');
+        UPDATE `trainer_template` SET `req_spell_1` = '4583' WHERE (`playerspell` = '4584');
+        UPDATE `trainer_template` SET `req_spell_1` = '4584' WHERE (`playerspell` = '4585');
+        UPDATE `trainer_template` SET `req_spell_1` = '4585' WHERE (`playerspell` = '4586');
+        UPDATE `trainer_template` SET `req_spell_1` = '4540' WHERE (`playerspell` = '4541');
+        UPDATE `trainer_template` SET `req_spell_1` = '4541' WHERE (`playerspell` = '4542');
+        UPDATE `trainer_template` SET `req_spell_1` = '4542' WHERE (`playerspell` = '4543');
+        UPDATE `trainer_template` SET `req_spell_1` = '4543' WHERE (`playerspell` = '4544');
+        UPDATE `trainer_template` SET `req_spell_1` = '4544' WHERE (`playerspell` = '4545');
+        UPDATE `trainer_template` SET `req_spell_1` = '4545' WHERE (`playerspell` = '4546');
+        UPDATE `trainer_template` SET `req_spell_1` = '4551' WHERE (`playerspell` = '4552');
+        UPDATE `trainer_template` SET `req_spell_1` = '4552' WHERE (`playerspell` = '4553');
+        UPDATE `trainer_template` SET `req_spell_1` = '4553' WHERE (`playerspell` = '4554');
+        UPDATE `trainer_template` SET `req_spell_1` = '4554' WHERE (`playerspell` = '4555');
+        UPDATE `trainer_template` SET `req_spell_1` = '4555' WHERE (`playerspell` = '4556');
+        UPDATE `trainer_template` SET `req_spell_1` = '4556' WHERE (`playerspell` = '4557');
+        UPDATE `trainer_template` SET `req_spell_1` = '4558' WHERE (`playerspell` = '4559');
+        UPDATE `trainer_template` SET `req_spell_1` = '4559' WHERE (`playerspell` = '4560');
+        UPDATE `trainer_template` SET `req_spell_1` = '4560' WHERE (`playerspell` = '4561');
+        UPDATE `trainer_template` SET `req_spell_1` = '4561' WHERE (`playerspell` = '4562');
+        UPDATE `trainer_template` SET `req_spell_1` = '4562' WHERE (`playerspell` = '4563');
+        UPDATE `trainer_template` SET `req_spell_1` = '4563' WHERE (`playerspell` = '4564');
+        UPDATE `trainer_template` SET `req_spell_1` = '4565' WHERE (`playerspell` = '4566');
+        UPDATE `trainer_template` SET `req_spell_1` = '4566' WHERE (`playerspell` = '4567');
+        UPDATE `trainer_template` SET `req_spell_1` = '4567' WHERE (`playerspell` = '4568');
+        UPDATE `trainer_template` SET `req_spell_1` = '4568' WHERE (`playerspell` = '4569');
+        UPDATE `trainer_template` SET `req_spell_1` = '4569' WHERE (`playerspell` = '4570');
+        UPDATE `trainer_template` SET `req_spell_1` = '4570' WHERE (`playerspell` = '4571');
+        UPDATE `trainer_template` SET `req_spell_1` = '4572' WHERE (`playerspell` = '4573');
+        UPDATE `trainer_template` SET `req_spell_1` = '4573' WHERE (`playerspell` = '4574');
+        UPDATE `trainer_template` SET `req_spell_1` = '4574' WHERE (`playerspell` = '4575');
+        UPDATE `trainer_template` SET `req_spell_1` = '4575' WHERE (`playerspell` = '4576');
+        UPDATE `trainer_template` SET `req_spell_1` = '4576' WHERE (`playerspell` = '4577');
+        UPDATE `trainer_template` SET `req_spell_1` = '4577' WHERE (`playerspell` = '4578');
+        UPDATE `trainer_template` SET `req_spell_1` = '4631' WHERE (`playerspell` = '4632');
+        UPDATE `trainer_template` SET `req_spell_1` = '4632' WHERE (`playerspell` = '4633');
+        UPDATE `trainer_template` SET `req_spell_1` = '4633' WHERE (`playerspell` = '4634');
+        UPDATE `trainer_template` SET `req_spell_1` = '4634' WHERE (`playerspell` = '4635');
+        UPDATE `trainer_template` SET `req_spell_1` = '4635' WHERE (`playerspell` = '4636');
+        UPDATE `trainer_template` SET `req_spell_1` = '4636' WHERE (`playerspell` = '4637');
+        UPDATE `trainer_template` SET `req_spell_1` = '4645' WHERE (`playerspell` = '4646');
+        UPDATE `trainer_template` SET `req_spell_1` = '4646' WHERE (`playerspell` = '4647');
+        UPDATE `trainer_template` SET `req_spell_1` = '4647' WHERE (`playerspell` = '4648');
+        UPDATE `trainer_template` SET `req_spell_1` = '4648' WHERE (`playerspell` = '4649');
+        UPDATE `trainer_template` SET `req_spell_1` = '4649' WHERE (`playerspell` = '4650');
+        UPDATE `trainer_template` SET `req_spell_1` = '4650' WHERE (`playerspell` = '4651');
+        UPDATE `trainer_template` SET `req_spell_1` = '4661' WHERE (`playerspell` = '4662');
+        UPDATE `trainer_template` SET `req_spell_1` = '4662' WHERE (`playerspell` = '4663');
+        UPDATE `trainer_template` SET `req_spell_1` = '4663' WHERE (`playerspell` = '4664');
+        UPDATE `trainer_template` SET `req_spell_1` = '4664' WHERE (`playerspell` = '4665');
+        UPDATE `trainer_template` SET `req_spell_1` = '4665' WHERE (`playerspell` = '4666');
+        UPDATE `trainer_template` SET `req_spell_1` = '4666' WHERE (`playerspell` = '4667');
+        UPDATE `trainer_template` SET `req_spell_1` = '4678' WHERE (`playerspell` = '4680');
+        UPDATE `trainer_template` SET `req_spell_1` = '4680' WHERE (`playerspell` = '4681');
+        UPDATE `trainer_template` SET `req_spell_1` = '4681' WHERE (`playerspell` = '4683');
+        UPDATE `trainer_template` SET `req_spell_1` = '4683' WHERE (`playerspell` = '4684');
+        UPDATE `trainer_template` SET `req_spell_1` = '4684' WHERE (`playerspell` = '4685');
+        UPDATE `trainer_template` SET `req_spell_1` = '4685' WHERE (`playerspell` = '4687');
+        UPDATE `trainer_template` SET `req_spell_1` = '4697' WHERE (`playerspell` = '4699');
+        UPDATE `trainer_template` SET `req_spell_1` = '4699' WHERE (`playerspell` = '4700');
+        UPDATE `trainer_template` SET `req_spell_1` = '4700' WHERE (`playerspell` = '4701');
+        UPDATE `trainer_template` SET `req_spell_1` = '4701' WHERE (`playerspell` = '4702');
+        UPDATE `trainer_template` SET `req_spell_1` = '4702' WHERE (`playerspell` = '4703');
+        UPDATE `trainer_template` SET `req_spell_1` = '4703' WHERE (`playerspell` = '4705');
+        UPDATE `trainer_template` SET `req_spell_1` = '4714' WHERE (`playerspell` = '4717');
+        UPDATE `trainer_template` SET `req_spell_1` = '4717' WHERE (`playerspell` = '4718');
+        UPDATE `trainer_template` SET `req_spell_1` = '4718' WHERE (`playerspell` = '4719');
+        UPDATE `trainer_template` SET `req_spell_1` = '4719' WHERE (`playerspell` = '4720');
+        UPDATE `trainer_template` SET `req_spell_1` = '4720' WHERE (`playerspell` = '4721');
+        UPDATE `trainer_template` SET `req_spell_1` = '4721' WHERE (`playerspell` = '4722');
+        UPDATE `trainer_template` SET `req_spell_1` = '4722' WHERE (`playerspell` = '4723');
+        UPDATE `trainer_template` SET `req_spell_1` = '4751' WHERE (`playerspell` = '4752');
+        UPDATE `trainer_template` SET `req_spell_1` = '4760' WHERE (`playerspell` = '4762');
+        UPDATE `trainer_template` SET `req_spell_1` = '4762' WHERE (`playerspell` = '4763');
+        UPDATE `trainer_template` SET `req_spell_1` = '4763' WHERE (`playerspell` = '5794');
+        UPDATE `trainer_template` SET `req_spell_1` = '4778' WHERE (`playerspell` = '4780');
+        UPDATE `trainer_template` SET `req_spell_1` = '4780' WHERE (`playerspell` = '5682');
+        UPDATE `trainer_template` SET `req_spell_1` = '4786' WHERE (`playerspell` = '5919');
+        UPDATE `trainer_template` SET `req_spell_1` = '4788' WHERE (`playerspell` = '4790');
+        UPDATE `trainer_template` SET `req_spell_1` = '4790' WHERE (`playerspell` = '5842');
+        UPDATE `trainer_template` SET `req_spell_1` = '4792' WHERE (`playerspell` = '4794');
+        UPDATE `trainer_template` SET `req_spell_1` = '4794' WHERE (`playerspell` = '5819');
+        UPDATE `trainer_template` SET `req_spell_1` = '4796' WHERE (`playerspell` = '4798');
+        UPDATE `trainer_template` SET `req_spell_1` = '4798' WHERE (`playerspell` = '5872');
+        UPDATE `trainer_template` SET `req_spell_1` = '4800' WHERE (`playerspell` = '4802');
+        UPDATE `trainer_template` SET `req_spell_1` = '4802' WHERE (`playerspell` = '5893');
+        UPDATE `trainer_template` SET `req_spell_1` = '2917' WHERE (`playerspell` = '4818');
+        UPDATE `trainer_template` SET `req_spell_1` = '4818' WHERE (`playerspell` = '4819');
+        UPDATE `trainer_template` SET `req_spell_1` = '4819' WHERE (`playerspell` = '4820');
+        UPDATE `trainer_template` SET `req_spell_1` = '4820' WHERE (`playerspell` = '4821');
+        UPDATE `trainer_template` SET `req_spell_1` = '4821' WHERE (`playerspell` = '4822');
+        UPDATE `trainer_template` SET `req_spell_1` = '4822' WHERE (`playerspell` = '4823');
+        UPDATE `trainer_template` SET `req_spell_1` = '4823' WHERE (`playerspell` = '4824');
+        UPDATE `trainer_template` SET `req_spell_1` = '4824' WHERE (`playerspell` = '5921');
+        UPDATE `trainer_template` SET `req_spell_1` = '4832' WHERE (`playerspell` = '4834');
+        UPDATE `trainer_template` SET `req_spell_1` = '4834' WHERE (`playerspell` = '4835');
+        UPDATE `trainer_template` SET `req_spell_1` = '4835' WHERE (`playerspell` = '4836');
+        UPDATE `trainer_template` SET `req_spell_1` = '4836' WHERE (`playerspell` = '4837');
+        UPDATE `trainer_template` SET `req_spell_1` = '4837' WHERE (`playerspell` = '4838');
+        UPDATE `trainer_template` SET `req_spell_1` = '4838' WHERE (`playerspell` = '4839');
+        UPDATE `trainer_template` SET `req_spell_1` = '4839' WHERE (`playerspell` = '4840');
+        UPDATE `trainer_template` SET `req_spell_1` = '4840' WHERE (`playerspell` = '5844');
+        UPDATE `trainer_template` SET `req_spell_1` = '4848' WHERE (`playerspell` = '4850');
+        UPDATE `trainer_template` SET `req_spell_1` = '4850' WHERE (`playerspell` = '4851');
+        UPDATE `trainer_template` SET `req_spell_1` = '4851' WHERE (`playerspell` = '4852');
+        UPDATE `trainer_template` SET `req_spell_1` = '4852' WHERE (`playerspell` = '4853');
+        UPDATE `trainer_template` SET `req_spell_1` = '4853' WHERE (`playerspell` = '4854');
+        UPDATE `trainer_template` SET `req_spell_1` = '4854' WHERE (`playerspell` = '4855');
+        UPDATE `trainer_template` SET `req_spell_1` = '4855' WHERE (`playerspell` = '4856');
+        UPDATE `trainer_template` SET `req_spell_1` = '4856' WHERE (`playerspell` = '5820');
+        UPDATE `trainer_template` SET `req_spell_1` = '4864' WHERE (`playerspell` = '4866');
+        UPDATE `trainer_template` SET `req_spell_1` = '4866' WHERE (`playerspell` = '4867');
+        UPDATE `trainer_template` SET `req_spell_1` = '4867' WHERE (`playerspell` = '4868');
+        UPDATE `trainer_template` SET `req_spell_1` = '4868' WHERE (`playerspell` = '4869');
+        UPDATE `trainer_template` SET `req_spell_1` = '4869' WHERE (`playerspell` = '4870');
+        UPDATE `trainer_template` SET `req_spell_1` = '4870' WHERE (`playerspell` = '4871');
+        UPDATE `trainer_template` SET `req_spell_1` = '4871' WHERE (`playerspell` = '4872');
+        UPDATE `trainer_template` SET `req_spell_1` = '4872' WHERE (`playerspell` = '5874');
+        UPDATE `trainer_template` SET `req_spell_1` = '4880' WHERE (`playerspell` = '4882');
+        UPDATE `trainer_template` SET `req_spell_1` = '4882' WHERE (`playerspell` = '4883');
+        UPDATE `trainer_template` SET `req_spell_1` = '4883' WHERE (`playerspell` = '4884');
+        UPDATE `trainer_template` SET `req_spell_1` = '4884' WHERE (`playerspell` = '4885');
+        UPDATE `trainer_template` SET `req_spell_1` = '4885' WHERE (`playerspell` = '4886');
+        UPDATE `trainer_template` SET `req_spell_1` = '4886' WHERE (`playerspell` = '4887');
+        UPDATE `trainer_template` SET `req_spell_1` = '4887' WHERE (`playerspell` = '4888');
+        UPDATE `trainer_template` SET `req_spell_1` = '4888' WHERE (`playerspell` = '5891');
+        UPDATE `trainer_template` SET `req_spell_1` = '4896' WHERE (`playerspell` = '4897');
+        UPDATE `trainer_template` SET `req_spell_1` = '4900' WHERE (`playerspell` = '4902');
+        UPDATE `trainer_template` SET `req_spell_1` = '4915' WHERE (`playerspell` = '4917');
+        UPDATE `trainer_template` SET `req_spell_1` = '4917' WHERE (`playerspell` = '4918');
+        UPDATE `trainer_template` SET `req_spell_1` = '4921' WHERE (`playerspell` = '4923');
+        UPDATE `trainer_template` SET `req_spell_1` = '4923' WHERE (`playerspell` = '4924');
+        UPDATE `trainer_template` SET `req_spell_1` = '5027' WHERE (`playerspell` = '5028');
+        UPDATE `trainer_template` SET `req_spell_1` = '5028' WHERE (`playerspell` = '5029');
+        UPDATE `trainer_template` SET `req_spell_1` = '5029' WHERE (`playerspell` = '5030');
+        UPDATE `trainer_template` SET `req_spell_1` = '5030' WHERE (`playerspell` = '5031');
+        UPDATE `trainer_template` SET `req_spell_1` = '5031' WHERE (`playerspell` = '5032');
+        UPDATE `trainer_template` SET `req_spell_1` = '5032' WHERE (`playerspell` = '5033');
+        UPDATE `trainer_template` SET `req_spell_1` = '5041' WHERE (`playerspell` = '5042');
+        UPDATE `trainer_template` SET `req_spell_1` = '5042' WHERE (`playerspell` = '5043');
+        UPDATE `trainer_template` SET `req_spell_1` = '5043' WHERE (`playerspell` = '5044');
+        UPDATE `trainer_template` SET `req_spell_1` = '5045' WHERE (`playerspell` = '5046');
+        UPDATE `trainer_template` SET `req_spell_1` = '5046' WHERE (`playerspell` = '5047');
+        UPDATE `trainer_template` SET `req_spell_1` = '5044' WHERE (`playerspell` = '5045');
+        UPDATE `trainer_template` SET `req_spell_1` = '5055' WHERE (`playerspell` = '5056');
+        UPDATE `trainer_template` SET `req_spell_1` = '5057' WHERE (`playerspell` = '5058');
+        UPDATE `trainer_template` SET `req_spell_1` = '5058' WHERE (`playerspell` = '5059');
+        UPDATE `trainer_template` SET `req_spell_1` = '5059' WHERE (`playerspell` = '5060');
+        UPDATE `trainer_template` SET `req_spell_1` = '5060' WHERE (`playerspell` = '5061');
+        UPDATE `trainer_template` SET `req_spell_1` = '5056' WHERE (`playerspell` = '5057');
+        UPDATE `trainer_template` SET `req_spell_1` = '5069' WHERE (`playerspell` = '5070');
+        UPDATE `trainer_template` SET `req_spell_1` = '5070' WHERE (`playerspell` = '5071');
+        UPDATE `trainer_template` SET `req_spell_1` = '5071' WHERE (`playerspell` = '5072');
+        UPDATE `trainer_template` SET `req_spell_1` = '5072' WHERE (`playerspell` = '5073');
+        UPDATE `trainer_template` SET `req_spell_1` = '5073' WHERE (`playerspell` = '5074');
+        UPDATE `trainer_template` SET `req_spell_1` = '5074' WHERE (`playerspell` = '5075');
+        UPDATE `trainer_template` SET `req_spell_1` = '5084' WHERE (`playerspell` = '5085');
+        UPDATE `trainer_template` SET `req_spell_1` = '5085' WHERE (`playerspell` = '5086');
+        UPDATE `trainer_template` SET `req_spell_1` = '5086' WHERE (`playerspell` = '5087');
+        UPDATE `trainer_template` SET `req_spell_1` = '5087' WHERE (`playerspell` = '5088');
+        UPDATE `trainer_template` SET `req_spell_1` = '5088' WHERE (`playerspell` = '5089');
+        UPDATE `trainer_template` SET `req_spell_1` = '5089' WHERE (`playerspell` = '5090');
+        UPDATE `trainer_template` SET `req_spell_1` = '5355' WHERE (`playerspell` = '5356');
+        UPDATE `trainer_template` SET `req_spell_1` = '5356' WHERE (`playerspell` = '5357');
+        UPDATE `trainer_template` SET `req_spell_1` = '5357' WHERE (`playerspell` = '5358');
+        UPDATE `trainer_template` SET `req_spell_1` = '5358' WHERE (`playerspell` = '5359');
+        UPDATE `trainer_template` SET `req_spell_1` = '5359' WHERE (`playerspell` = '5360');
+        UPDATE `trainer_template` SET `req_spell_1` = '5454' WHERE (`playerspell` = '5455');
+        UPDATE `trainer_template` SET `req_spell_1` = '5455' WHERE (`playerspell` = '5456');
+        UPDATE `trainer_template` SET `req_spell_1` = '5340' WHERE (`playerspell` = '5341');
+        UPDATE `trainer_template` SET `req_spell_1` = '5341' WHERE (`playerspell` = '5342');
+        UPDATE `trainer_template` SET `req_spell_1` = '5342' WHERE (`playerspell` = '5343');
+        UPDATE `trainer_template` SET `req_spell_1` = '5343' WHERE (`playerspell` = '5344');
+        UPDATE `trainer_template` SET `req_spell_1` = '5344' WHERE (`playerspell` = '5345');
+        UPDATE `trainer_template` SET `req_spell_1` = '5466' WHERE (`playerspell` = '5467');
+        UPDATE `trainer_template` SET `req_spell_1` = '5467' WHERE (`playerspell` = '5468');
+        UPDATE `trainer_template` SET `req_spell_1` = '5448' WHERE (`playerspell` = '5449');
+        UPDATE `trainer_template` SET `req_spell_1` = '5449' WHERE (`playerspell` = '5450');
+        UPDATE `trainer_template` SET `req_spell_1` = '5450' WHERE (`playerspell` = '5451');
+        UPDATE `trainer_template` SET `req_spell_1` = '5451' WHERE (`playerspell` = '5452');
+        UPDATE `trainer_template` SET `req_spell_1` = '5452' WHERE (`playerspell` = '5453');
+        UPDATE `trainer_template` SET `req_spell_1` = '5481' WHERE (`playerspell` = '5482');
+        UPDATE `trainer_template` SET `req_spell_1` = '5482' WHERE (`playerspell` = '5483');
+        UPDATE `trainer_template` SET `req_spell_1` = '5428' WHERE (`playerspell` = '5429');
+        UPDATE `trainer_template` SET `req_spell_1` = '5429' WHERE (`playerspell` = '5430');
+        UPDATE `trainer_template` SET `req_spell_1` = '5430' WHERE (`playerspell` = '5431');
+        UPDATE `trainer_template` SET `req_spell_1` = '5431' WHERE (`playerspell` = '5432');
+        UPDATE `trainer_template` SET `req_spell_1` = '5432' WHERE (`playerspell` = '5433');
+        UPDATE `trainer_template` SET `req_spell_1` = '5433' WHERE (`playerspell` = '5513');
+        UPDATE `trainer_template` SET `req_spell_1` = '5509' WHERE (`playerspell` = '5510');
+        UPDATE `trainer_template` SET `req_spell_1` = '5510' WHERE (`playerspell` = '5511');
+        UPDATE `trainer_template` SET `req_spell_1` = '5348' WHERE (`playerspell` = '5349');
+        UPDATE `trainer_template` SET `req_spell_1` = '5349' WHERE (`playerspell` = '5350');
+        UPDATE `trainer_template` SET `req_spell_1` = '5350' WHERE (`playerspell` = '5351');
+        UPDATE `trainer_template` SET `req_spell_1` = '5351' WHERE (`playerspell` = '5352');
+        UPDATE `trainer_template` SET `req_spell_1` = '5352' WHERE (`playerspell` = '5353');
+        UPDATE `trainer_template` SET `req_spell_1` = '5353' WHERE (`playerspell` = '5354');
+        UPDATE `trainer_template` SET `req_spell_1` = '5527' WHERE (`playerspell` = '5528');
+        UPDATE `trainer_template` SET `req_spell_1` = '5528' WHERE (`playerspell` = '5529');
+        UPDATE `trainer_template` SET `req_spell_1` = '5545' WHERE (`playerspell` = '5546');
+        UPDATE `trainer_template` SET `req_spell_1` = '5546' WHERE (`playerspell` = '5547');
+        UPDATE `trainer_template` SET `req_spell_1` = '5548' WHERE (`playerspell` = '5549');
+        UPDATE `trainer_template` SET `req_spell_1` = '5549' WHERE (`playerspell` = '5550');
+        UPDATE `trainer_template` SET `req_spell_1` = '5550' WHERE (`playerspell` = '5551');
+        UPDATE `trainer_template` SET `req_spell_1` = '5551' WHERE (`playerspell` = '5552');
+        UPDATE `trainer_template` SET `req_spell_1` = '5552' WHERE (`playerspell` = '5553');
+        UPDATE `trainer_template` SET `req_spell_1` = '5553' WHERE (`playerspell` = '5554');
+        UPDATE `trainer_template` SET `req_spell_1` = '5585' WHERE (`playerspell` = '5586');
+        UPDATE `trainer_template` SET `req_spell_1` = '5586' WHERE (`playerspell` = '5587');
+        UPDATE `trainer_template` SET `req_spell_1` = '5626' WHERE (`playerspell` = '5630');
+        UPDATE `trainer_template` SET `req_spell_1` = '5630' WHERE (`playerspell` = '5631');
+        UPDATE `trainer_template` SET `req_spell_1` = '5631' WHERE (`playerspell` = '5632');
+        UPDATE `trainer_template` SET `req_spell_1` = '5632' WHERE (`playerspell` = '5633');
+        UPDATE `trainer_template` SET `req_spell_1` = '5633' WHERE (`playerspell` = '5634');
+        UPDATE `trainer_template` SET `req_spell_1` = '5634' WHERE (`playerspell` = '5635');
+        UPDATE `trainer_template` SET `req_spell_1` = '5635' WHERE (`playerspell` = '5636');
+        UPDATE `trainer_template` SET `req_spell_1` = '5636' WHERE (`playerspell` = '5637');
+        UPDATE `trainer_template` SET `req_spell_1` = '5637' WHERE (`playerspell` = '5638');
+        UPDATE `trainer_template` SET `req_spell_1` = '5638' WHERE (`playerspell` = '5639');
+        UPDATE `trainer_template` SET `req_spell_1` = '5639' WHERE (`playerspell` = '5640');
+        UPDATE `trainer_template` SET `req_spell_1` = '5640' WHERE (`playerspell` = '5641');
+        UPDATE `trainer_template` SET `req_spell_1` = '5641' WHERE (`playerspell` = '5642');
+        UPDATE `trainer_template` SET `req_spell_1` = '5642' WHERE (`playerspell` = '5643');
+        UPDATE `trainer_template` SET `req_spell_1` = '5682' WHERE (`playerspell` = '5683');
+        UPDATE `trainer_template` SET `req_spell_1` = '5683' WHERE (`playerspell` = '5684');
+        UPDATE `trainer_template` SET `req_spell_1` = '5684' WHERE (`playerspell` = '5685');
+        UPDATE `trainer_template` SET `req_spell_1` = '5685' WHERE (`playerspell` = '5686');
+        UPDATE `trainer_template` SET `req_spell_1` = '5686' WHERE (`playerspell` = '5687');
+        UPDATE `trainer_template` SET `req_spell_1` = '5715' WHERE (`playerspell` = '5716');
+        UPDATE `trainer_template` SET `req_spell_1` = '5716' WHERE (`playerspell` = '5717');
+        UPDATE `trainer_template` SET `req_spell_1` = '5757' WHERE (`playerspell` = '5758');
+        UPDATE `trainer_template` SET `req_spell_1` = '5742' WHERE (`playerspell` = '5743');
+        UPDATE `trainer_template` SET `req_spell_1` = '5743' WHERE (`playerspell` = '5744');
+        UPDATE `trainer_template` SET `req_spell_1` = '5744' WHERE (`playerspell` = '5745');
+        UPDATE `trainer_template` SET `req_spell_1` = '5745' WHERE (`playerspell` = '5746');
+        UPDATE `trainer_template` SET `req_spell_1` = '5746' WHERE (`playerspell` = '5747');
+        UPDATE `trainer_template` SET `req_spell_1` = '5747' WHERE (`playerspell` = '5748');
+        UPDATE `trainer_template` SET `req_spell_1` = '5748' WHERE (`playerspell` = '5749');
+        UPDATE `trainer_template` SET `req_spell_1` = '5749' WHERE (`playerspell` = '5750');
+        UPDATE `trainer_template` SET `req_spell_1` = '5750' WHERE (`playerspell` = '5751');
+        UPDATE `trainer_template` SET `req_spell_1` = '5751' WHERE (`playerspell` = '5752');
+        UPDATE `trainer_template` SET `req_spell_1` = '5752' WHERE (`playerspell` = '5753');
+        UPDATE `trainer_template` SET `req_spell_1` = '5753' WHERE (`playerspell` = '5754');
+        UPDATE `trainer_template` SET `req_spell_1` = '5754' WHERE (`playerspell` = '5755');
+        UPDATE `trainer_template` SET `req_spell_1` = '5755' WHERE (`playerspell` = '5756');
+        UPDATE `trainer_template` SET `req_spell_1` = '5794' WHERE (`playerspell` = '5795');
+        UPDATE `trainer_template` SET `req_spell_1` = '5786' WHERE (`playerspell` = '5787');
+        UPDATE `trainer_template` SET `req_spell_1` = '5787' WHERE (`playerspell` = '5788');
+        UPDATE `trainer_template` SET `req_spell_1` = '5788' WHERE (`playerspell` = '5789');
+        UPDATE `trainer_template` SET `req_spell_1` = '5789' WHERE (`playerspell` = '5790');
+        UPDATE `trainer_template` SET `req_spell_1` = '5790' WHERE (`playerspell` = '5791');
+        UPDATE `trainer_template` SET `req_spell_1` = '5791' WHERE (`playerspell` = '5792');
+        UPDATE `trainer_template` SET `req_spell_1` = '5820' WHERE (`playerspell` = '5821');
+        UPDATE `trainer_template` SET `req_spell_1` = '5819' WHERE (`playerspell` = '5822');
+        UPDATE `trainer_template` SET `req_spell_1` = '5812' WHERE (`playerspell` = '5813');
+        UPDATE `trainer_template` SET `req_spell_1` = '5813' WHERE (`playerspell` = '5814');
+        UPDATE `trainer_template` SET `req_spell_1` = '5814' WHERE (`playerspell` = '5815');
+        UPDATE `trainer_template` SET `req_spell_1` = '5816' WHERE (`playerspell` = '5817');
+        UPDATE `trainer_template` SET `req_spell_1` = '5817' WHERE (`playerspell` = '5818');
+        UPDATE `trainer_template` SET `req_spell_1` = '5844' WHERE (`playerspell` = '5845');
+        UPDATE `trainer_template` SET `req_spell_1` = '5835' WHERE (`playerspell` = '5839');
+        UPDATE `trainer_template` SET `req_spell_1` = '5834' WHERE (`playerspell` = '5837');
+        UPDATE `trainer_template` SET `req_spell_1` = '5837' WHERE (`playerspell` = '5838');
+        UPDATE `trainer_template` SET `req_spell_1` = '5839' WHERE (`playerspell` = '5840');
+        UPDATE `trainer_template` SET `req_spell_1` = '5840' WHERE (`playerspell` = '5841');
+        UPDATE `trainer_template` SET `req_spell_1` = '5842' WHERE (`playerspell` = '5843');
+        UPDATE `trainer_template` SET `req_spell_1` = '5874' WHERE (`playerspell` = '5875');
+        UPDATE `trainer_template` SET `req_spell_1` = '5872' WHERE (`playerspell` = '5873');
+        UPDATE `trainer_template` SET `req_spell_1` = '5866' WHERE (`playerspell` = '5869');
+        UPDATE `trainer_template` SET `req_spell_1` = '5865' WHERE (`playerspell` = '5867');
+        UPDATE `trainer_template` SET `req_spell_1` = '5867' WHERE (`playerspell` = '5868');
+        UPDATE `trainer_template` SET `req_spell_1` = '5869' WHERE (`playerspell` = '5870');
+        UPDATE `trainer_template` SET `req_spell_1` = '5870' WHERE (`playerspell` = '5871');
+        UPDATE `trainer_template` SET `req_spell_1` = '5891' WHERE (`playerspell` = '5892');
+        UPDATE `trainer_template` SET `req_spell_1` = '5893' WHERE (`playerspell` = '5894');
+        UPDATE `trainer_template` SET `req_spell_1` = '5896' WHERE (`playerspell` = '5898');
+        UPDATE `trainer_template` SET `req_spell_1` = '5897' WHERE (`playerspell` = '5901');
+        UPDATE `trainer_template` SET `req_spell_1` = '5898' WHERE (`playerspell` = '5899');
+        UPDATE `trainer_template` SET `req_spell_1` = '5899' WHERE (`playerspell` = '5900');
+        UPDATE `trainer_template` SET `req_spell_1` = '5901' WHERE (`playerspell` = '5902');
+        UPDATE `trainer_template` SET `req_spell_1` = '5919' WHERE (`playerspell` = '5920');
+        UPDATE `trainer_template` SET `req_spell_1` = '5921' WHERE (`playerspell` = '5922');
+        UPDATE `trainer_template` SET `req_spell_1` = '5923' WHERE (`playerspell` = '5924');
+        UPDATE `trainer_template` SET `req_spell_1` = '5927' WHERE (`playerspell` = '5928');
+        UPDATE `trainer_template` SET `req_spell_1` = '5928' WHERE (`playerspell` = '5929');
+        UPDATE `trainer_template` SET `req_spell_1` = '5924' WHERE (`playerspell` = '5925');
+        UPDATE `trainer_template` SET `req_spell_1` = '5925' WHERE (`playerspell` = '5926');
+        UPDATE `trainer_template` SET `req_spell_1` = '5941' WHERE (`playerspell` = '5942');
+        UPDATE `trainer_template` SET `req_spell_1` = '5942' WHERE (`playerspell` = '5943');
+        UPDATE `trainer_template` SET `req_spell_1` = '5943' WHERE (`playerspell` = '5944');
+        UPDATE `trainer_template` SET `req_spell_1` = '5952' WHERE (`playerspell` = '5953');
+        UPDATE `trainer_template` SET `req_spell_1` = '5953' WHERE (`playerspell` = '5954');
+        UPDATE `trainer_template` SET `req_spell_1` = '5954' WHERE (`playerspell` = '5955');
+        UPDATE `trainer_template` SET `req_spell_1` = '5955' WHERE (`playerspell` = '5956');
+        UPDATE `trainer_template` SET `req_spell_1` = '5956' WHERE (`playerspell` = '5957');
+        UPDATE `trainer_template` SET `req_spell_1` = '5957' WHERE (`playerspell` = '5958');
+        UPDATE `trainer_template` SET `req_spell_1` = '5970' WHERE (`playerspell` = '5971');
+        UPDATE `trainer_template` SET `req_spell_1` = '5969' WHERE (`playerspell` = '5973');
+        UPDATE `trainer_template` SET `req_spell_1` = '5971' WHERE (`playerspell` = '5972');
+        UPDATE `trainer_template` SET `req_spell_1` = '5973' WHERE (`playerspell` = '5974');
+        UPDATE `trainer_template` SET `req_spell_1` = '5974' WHERE (`playerspell` = '5975');
+        UPDATE `trainer_template` SET `req_spell_1` = '5975' WHERE (`playerspell` = '5976');
+        UPDATE `trainer_template` SET `req_spell_1` = '5976' WHERE (`playerspell` = '5977');
+        UPDATE `trainer_template` SET `req_spell_1` = '5977' WHERE (`playerspell` = '5979');
+        UPDATE `trainer_template` SET `req_spell_1` = '6095' WHERE (`playerspell` = '6096');
+        UPDATE `trainer_template` SET `req_spell_1` = '6094' WHERE (`playerspell` = '6097');
+        UPDATE `trainer_template` SET `req_spell_1` = '6057' WHERE (`playerspell` = '6085');
+        UPDATE `trainer_template` SET `req_spell_1` = '6085' WHERE (`playerspell` = '6086');
+        UPDATE `trainer_template` SET `req_spell_1` = '6086' WHERE (`playerspell` = '6087');
+        UPDATE `trainer_template` SET `req_spell_1` = '6087' WHERE (`playerspell` = '6088');
+        UPDATE `trainer_template` SET `req_spell_1` = '6088' WHERE (`playerspell` = '6089');
+        UPDATE `trainer_template` SET `req_spell_1` = '6089' WHERE (`playerspell` = '6090');
+        UPDATE `trainer_template` SET `req_spell_1` = '6090' WHERE (`playerspell` = '6091');
+        UPDATE `trainer_template` SET `req_spell_1` = '6091' WHERE (`playerspell` = '6092');
+        UPDATE `trainer_template` SET `req_spell_1` = '6097' WHERE (`playerspell` = '6098');
+        UPDATE `trainer_template` SET `req_spell_1` = '6092' WHERE (`playerspell` = '6093');
+        UPDATE `trainer_template` SET `req_spell_1` = '6151' WHERE (`playerspell` = '6153');
+        UPDATE `trainer_template` SET `req_spell_1` = '6152' WHERE (`playerspell` = '6159');
+        UPDATE `trainer_template` SET `req_spell_1` = '6153' WHERE (`playerspell` = '6155');
+        UPDATE `trainer_template` SET `req_spell_1` = '6155' WHERE (`playerspell` = '6156');
+        UPDATE `trainer_template` SET `req_spell_1` = '6156' WHERE (`playerspell` = '6157');
+        UPDATE `trainer_template` SET `req_spell_1` = '6157' WHERE (`playerspell` = '7203');
+        UPDATE `trainer_template` SET `req_spell_1` = '6159' WHERE (`playerspell` = '6160');
+        UPDATE `trainer_template` SET `req_spell_1` = '6160' WHERE (`playerspell` = '6161');
+        UPDATE `trainer_template` SET `req_spell_1` = '6161' WHERE (`playerspell` = '6162');
+        UPDATE `trainer_template` SET `req_spell_1` = '6162' WHERE (`playerspell` = '7211');
+        UPDATE `trainer_template` SET `req_spell_1` = '7203' WHERE (`playerspell` = '7204');
+        UPDATE `trainer_template` SET `req_spell_1` = '7204' WHERE (`playerspell` = '7205');
+        UPDATE `trainer_template` SET `req_spell_1` = '7205' WHERE (`playerspell` = '7206');
+
+        -- Dagger Power (Specialization Rank 4 and Physical Prowess Rank 1
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4386', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5585');
+        -- 2H Axe Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4444', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5466');
+        -- 2H Mace Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4476', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5527');
+        -- 2H Sword Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4460', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '4418');
+        -- Axe Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4338', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5509');
+        -- Bow Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '5745', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '4915');
+        -- Crossbow Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '5975', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5970');
+        -- Gun Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '5632', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '4921');
+        -- Mace Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4370', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5545');
+        -- Staff Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4492', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5715');
+        -- Sword Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4353', `req_spell_3` = '4247' WHERE (`template_entry` = '1000') and (`playerspell` = '5481');
+        -- Fire Power (Specialization Rank 4 and Mental Acuity Rank 1
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4836', `req_spell_3` = '4263' WHERE (`template_entry` = '1000') and (`playerspell` = '5835');
+        -- Frost Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4868', `req_spell_3` = '4263' WHERE (`template_entry` = '1000') and (`playerspell` = '5866');
+        -- Holy Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4820', `req_spell_3` = '4263' WHERE (`template_entry` = '1000') and (`playerspell` = '5923');
+        -- Nature Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4852', `req_spell_3` = '4263' WHERE (`template_entry` = '1000') and (`playerspell` = '5812');
+        -- Shadow Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '4884', `req_spell_3` = '4263' WHERE (`template_entry` = '1000') and (`playerspell` = '5896');
+        -- Wand Power
+        UPDATE `trainer_template` SET `req_spell_1` = '0', `req_spell_2` = '6087', `req_spell_3` = '4263' WHERE (`template_entry` = '1000') and (`playerspell` = '6094');
+        
+        -- Enraged Thunder Lizards quest changes. https://github.com/The-Alpha-Project/alpha-core/issues/1227
+        UPDATE `creature_quest_starter` SET `entry` = '3338' WHERE (`entry` = '3387') and (`quest` = '907');
+        UPDATE `creature_quest_finisher` SET `entry` = '3338' WHERE (`entry` = '3387') and (`quest` = '907');
+        -- Remove from chain.
+        UPDATE `quest_template` SET `PrevQuestId` = '0', `NextQuestInChain` = '874' WHERE (`entry` = '882');
+        UPDATE `quest_template` SET `PrevQuestId` = '0', `NextQuestInChain` = '913', `Title` = 'Enraged Stormsnouts', `Details` = 'The defilement of the scytheclaw nests has sent the stormsnout thunderlizards into a rage. It seems that they often picked through scytheclaw nests to consume the eggs. Without this... snack, they have begun trampling the life out of smaller creatures around them.', `Objectives` = 'Collect 3 Stormsnout Blood Vials and return them to Sergra Darkthorn in the Crossroads.', `OfferRewardText` = 'It is good to see you return.  And it is good to know you have done so with your bones unbroken.', `RequestItemsText` = 'Have you collected my Stormsnout Blood, $N?' WHERE (`entry` = '907');
+        -- Remove Stormsnout Blood Vials from Stormhides.
+        DELETE FROM `creature_loot_template` WHERE (`entry` = '3238') and (`item` = '5143');
+        -- Remove Stormsnout Blood Vials from Thunderheads.
+        DELETE FROM `creature_loot_template` WHERE (`entry` = '3239') and (`item` = '5143');
+        
+        -- Cry of the thunderhawk quest changes. https://github.com/The-Alpha-Project/alpha-core/issues/1227
+        UPDATE `creature_quest_starter` SET `entry` = '3338' WHERE (`entry` = '3387') and (`quest` = '913');
+        UPDATE `creature_quest_finisher` SET `entry` = '3338' WHERE (`entry` = '3387') and (`quest` = '913');
+        UPDATE `quest_template` SET `NextQuestInChain` = '0' WHERE (`entry` = '913');
+        
+        -- Plainstrider Menace (ID 844) > Zhevra Dependence (845) > Prowlers of the Barrens (903) > The Angry Scytheclaws (905) > Enraged Stormsnouts (907) > Cry of the Cloudscraper (913)
+        UPDATE `quest_template` SET `NextQuestInChain` = '905' WHERE (`entry` = '903');
+        UPDATE `quest_template` SET `PrevQuestId` = '903', `NextQuestInChain` = '907' WHERE (`entry` = '905');
+        UPDATE `quest_template` SET `PrevQuestId` = '905', `NextQuestInChain` = '913' WHERE (`entry` = '907');
+
+        --  Cloudscraper Wings should only be dropped by Thunderhawk Cloudscraper
+        DELETE FROM `creature_loot_template` WHERE (`entry` = '3247') and (`item` = '5164');
+        DELETE FROM `creature_loot_template` WHERE (`entry` = '3249') and (`item` = '5164');
+        
+        -- Prowlers of the Barrens, remove from chain.
+        UPDATE `quest_template` SET `NextQuestInChain` = '0' WHERE (`entry` = '903');
+        
+        -- The Jorn Skyseer Hunt chain, Echeyakee (ID 881) --> Ishamuhale (882) --> Mahren Skyseer (874) --> Isha Awak (873)
+        UPDATE `quest_template` SET `PrevQuestId` = '0', `NextQuestInChain` = '882' WHERE (`entry` = '881');
+        UPDATE `quest_template` SET `PrevQuestId` = '881', `NextQuestInChain` = '874' WHERE (`entry` = '882');
+        UPDATE `quest_template` SET `PrevQuestId` = '882' WHERE (`entry` = '874');
+        
+        -- Remove invalid map worldports.
+        DELETE FROM `worldports` WHERE (`entry` = '17');
+        DELETE FROM `worldports` WHERE (`entry` = '18');
+        DELETE FROM `worldports` WHERE (`entry` = '26');
+        DELETE FROM `worldports` WHERE (`entry` = '64');
+        DELETE FROM `worldports` WHERE (`entry` = '109');
+        DELETE FROM `worldports` WHERE (`entry` = '113');
+        DELETE FROM `worldports` WHERE (`entry` = '120');
+        DELETE FROM `worldports` WHERE (`entry` = '124');
+        DELETE FROM `worldports` WHERE (`entry` = '125');
+        DELETE FROM `worldports` WHERE (`entry` = '126');
+        DELETE FROM `worldports` WHERE (`entry` = '129');
+        DELETE FROM `worldports` WHERE (`entry` = '131');
+        DELETE FROM `worldports` WHERE (`entry` = '135');
+        DELETE FROM `worldports` WHERE (`entry` = '208');
+        DELETE FROM `worldports` WHERE (`entry` = '240');
+        DELETE FROM `worldports` WHERE (`entry` = '241');
+        DELETE FROM `worldports` WHERE (`entry` = '243');
+        DELETE FROM `worldports` WHERE (`entry` = '365');
+        DELETE FROM `worldports` WHERE (`entry` = '366');
+        DELETE FROM `worldports` WHERE (`entry` = '367');
+        DELETE FROM `worldports` WHERE (`entry` = '368');
+        DELETE FROM `worldports` WHERE (`entry` = '369');
+        DELETE FROM `worldports` WHERE (`entry` = '370');
+        DELETE FROM `worldports` WHERE (`entry` = '371');
+        DELETE FROM `worldports` WHERE (`entry` = '372');
+        DELETE FROM `worldports` WHERE (`entry` = '375');
+        DELETE FROM `worldports` WHERE (`entry` = '430');
+        DELETE FROM `worldports` WHERE (`entry` = '431');
+        DELETE FROM `worldports` WHERE (`entry` = '453');
+        DELETE FROM `worldports` WHERE (`entry` = '454');
+        DELETE FROM `worldports` WHERE (`entry` = '455');
+        DELETE FROM `worldports` WHERE (`entry` = '465');
+        DELETE FROM `worldports` WHERE (`entry` = '543');
+        DELETE FROM `worldports` WHERE (`entry` = '550');
+        DELETE FROM `worldports` WHERE (`entry` = '577');
+        DELETE FROM `worldports` WHERE (`entry` = '631');
+        DELETE FROM `worldports` WHERE (`entry` = '670');
+        DELETE FROM `worldports` WHERE (`entry` = '748');
+        DELETE FROM `worldports` WHERE (`entry` = '749');
+        DELETE FROM `worldports` WHERE (`entry` = '806');
+        DELETE FROM `worldports` WHERE (`entry` = '831');
+        DELETE FROM `worldports` WHERE (`entry` = '833');
+        DELETE FROM `worldports` WHERE (`entry` = '867');
+        DELETE FROM `worldports` WHERE (`entry` = '868');
+        DELETE FROM `worldports` WHERE (`entry` = '869');
+        DELETE FROM `worldports` WHERE (`entry` = '870');
+        DELETE FROM `worldports` WHERE (`entry` = '871');
+        DELETE FROM `worldports` WHERE (`entry` = '899');
+        DELETE FROM `worldports` WHERE (`entry` = '901');
+        DELETE FROM `worldports` WHERE (`entry` = '903');
+        DELETE FROM `worldports` WHERE (`entry` = '944');
+        DELETE FROM `worldports` WHERE (`entry` = '955');
+        DELETE FROM `worldports` WHERE (`entry` = '956');
+        DELETE FROM `worldports` WHERE (`entry` = '957');
+        DELETE FROM `worldports` WHERE (`entry` = '959');
+        DELETE FROM `worldports` WHERE (`entry` = '962');
+        DELETE FROM `worldports` WHERE (`entry` = '963');
+        DELETE FROM `worldports` WHERE (`entry` = '972');
+        DELETE FROM `worldports` WHERE (`entry` = '974');
+        DELETE FROM `worldports` WHERE (`entry` = '975');
+        DELETE FROM `worldports` WHERE (`entry` = '976');
+        DELETE FROM `worldports` WHERE (`entry` = '1006');
+        DELETE FROM `worldports` WHERE (`entry` = '1008');
+        DELETE FROM `worldports` WHERE (`entry` = '1011');
+        DELETE FROM `worldports` WHERE (`entry` = '1012');
+        DELETE FROM `worldports` WHERE (`entry` = '1013');
+        DELETE FROM `worldports` WHERE (`entry` = '1038');
+        DELETE FROM `worldports` WHERE (`entry` = '1040');
+        DELETE FROM `worldports` WHERE (`entry` = '1066');
+        DELETE FROM `worldports` WHERE (`entry` = '1121');
+        DELETE FROM `worldports` WHERE (`entry` = '1124');
+        DELETE FROM `worldports` WHERE (`entry` = '1125');
+        DELETE FROM `worldports` WHERE (`entry` = '1126');
+        DELETE FROM `worldports` WHERE (`entry` = '1127');
+        DELETE FROM `worldports` WHERE (`entry` = '1129');
+        DELETE FROM `worldports` WHERE (`entry` = '1130');
+        DELETE FROM `worldports` WHERE (`entry` = '1131');
+        DELETE FROM `worldports` WHERE (`entry` = '1132');
+        DELETE FROM `worldports` WHERE (`entry` = '1133');
+        DELETE FROM `worldports` WHERE (`entry` = '1134');
+        DELETE FROM `worldports` WHERE (`entry` = '1135');
+        DELETE FROM `worldports` WHERE (`entry` = '1136');
+        DELETE FROM `worldports` WHERE (`entry` = '1137');
+        DELETE FROM `worldports` WHERE (`entry` = '1139');
+        DELETE FROM `worldports` WHERE (`entry` = '1140');
+        DELETE FROM `worldports` WHERE (`entry` = '1143');
+        DELETE FROM `worldports` WHERE (`entry` = '1329');
+        DELETE FROM `worldports` WHERE (`entry` = '1508');
+        DELETE FROM `worldports` WHERE (`entry` = '1511');
+        DELETE FROM `worldports` WHERE (`entry` = '1536');
+        DELETE FROM `worldports` WHERE (`entry` = '1560');
+        DELETE FROM `worldports` WHERE (`entry` = '1591');
+        DELETE FROM `worldports` WHERE (`entry` = '1592');
+        DELETE FROM `worldports` WHERE (`entry` = '1595');
+        DELETE FROM `worldports` WHERE (`entry` = '1601');
+        DELETE FROM `worldports` WHERE (`entry` = '1602');
+        
+        -- Worldport Z's
+        UPDATE `worldports` SET `z` = '-14.65632438659668' WHERE (`entry` = '16');
+        UPDATE `worldports` SET `z` = '1318.0865478515625' WHERE (`entry` = '21');
+        UPDATE `worldports` SET `z` = '65.54314422607422' WHERE (`entry` = '42');
+        UPDATE `worldports` SET `z` = '80.88398742675781' WHERE (`entry` = '52');
+        UPDATE `worldports` SET `z` = '4.696474552154541' WHERE (`entry` = '53');
+        UPDATE `worldports` SET `z` = '20.716657638549805' WHERE (`entry` = '56');
+        UPDATE `worldports` SET `z` = '10.591429710388184' WHERE (`entry` = '66');
+        UPDATE `worldports` SET `z` = '91.66666412353516' WHERE (`entry` = '83');
+        UPDATE `worldports` SET `z` = '95.85484313964844' WHERE (`entry` = '84');
+        UPDATE `worldports` SET `z` = '83.88062286376953' WHERE (`entry` = '88');
+        UPDATE `worldports` SET `z` = '267.0151062011719' WHERE (`entry` = '100');
+        UPDATE `worldports` SET `z` = '289.9219665527344' WHERE (`entry` = '114');
+        UPDATE `worldports` SET `z` = '148.4664306640625' WHERE (`entry` = '121');
+        UPDATE `worldports` SET `z` = '169.08148193359375' WHERE (`entry` = '122');
+        UPDATE `worldports` SET `z` = '83.37861633300781' WHERE (`entry` = '132');
+        UPDATE `worldports` SET `z` = '138.1004180908203' WHERE (`entry` = '134');
+        UPDATE `worldports` SET `z` = '5.902897834777832' WHERE (`entry` = '140');
+        UPDATE `worldports` SET `z` = '23.413482666015625' WHERE (`entry` = '167');
+        UPDATE `worldports` SET `z` = '35.41666793823242' WHERE (`entry` = '173');
+        UPDATE `worldports` SET `z` = '35.41666793823242' WHERE (`entry` = '179');
+        UPDATE `worldports` SET `z` = '114.29692077636719' WHERE (`entry` = '180');
+        UPDATE `worldports` SET `z` = '393.9275817871094' WHERE (`entry` = '189');
+        UPDATE `worldports` SET `z` = '9.698801040649414' WHERE (`entry` = '196');
+        UPDATE `worldports` SET `z` = '70.56886291503906' WHERE (`entry` = '207');
+        UPDATE `worldports` SET `z` = '95.49029541015625' WHERE (`entry` = '223');
+        UPDATE `worldports` SET `z` = '96.78387451171875' WHERE (`entry` = '225');
+        UPDATE `worldports` SET `z` = '85.3732681274414' WHERE (`entry` = '254');
+        UPDATE `worldports` SET `z` = '-1.5092871763044' WHERE (`entry` = '257');
+        UPDATE `worldports` SET `z` = '91.66666412353516' WHERE (`entry` = '263');
+        UPDATE `worldports` SET `z` = '145.40943908691406' WHERE (`entry` = '265');
+        UPDATE `worldports` SET `z` = '59.4200553894043' WHERE (`entry` = '304');
+        UPDATE `worldports` SET `z` = '10.816635131835938' WHERE (`entry` = '306');
+        UPDATE `worldports` SET `z` = '32.254302978515625' WHERE (`entry` = '307');
+        UPDATE `worldports` SET `z` = '87.1917953491211' WHERE (`entry` = '339');
+        UPDATE `worldports` SET `z` = '91.66666412353516' WHERE (`entry` = '347');
+        UPDATE `worldports` SET `z` = '110.9892578125' WHERE (`entry` = '350');
+        UPDATE `worldports` SET `z` = '54.780792236328125' WHERE (`entry` = '403');
+        UPDATE `worldports` SET `z` = '33.94541549682617' WHERE (`entry` = '407');
+        UPDATE `worldports` SET `z` = '41.23528289794922' WHERE (`entry` = '409');
+        UPDATE `worldports` SET `z` = '24.16664695739746' WHERE (`entry` = '460');
+        UPDATE `worldports` SET `z` = '251.06239318847656' WHERE (`entry` = '464');
+        UPDATE `worldports` SET `z` = '65.7186508178711' WHERE (`entry` = '466');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '469');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '470');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '471');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '472');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '473');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '474');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '475');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '476');
+        UPDATE `worldports` SET `z` = '27.48322868347168' WHERE (`entry` = '487');
+        UPDATE `worldports` SET `z` = '25.324565887451172' WHERE (`entry` = '505');
+        UPDATE `worldports` SET `z` = '-27.927778244018555' WHERE (`entry` = '506');
+        UPDATE `worldports` SET `z` = '30.383028030395508' WHERE (`entry` = '507');
+        UPDATE `worldports` SET `z` = '55.75581741333008' WHERE (`entry` = '508');
+        UPDATE `worldports` SET `z` = '84.04817199707031' WHERE (`entry` = '509');
+        UPDATE `worldports` SET `z` = '111.74383544921875' WHERE (`entry` = '510');
+        UPDATE `worldports` SET `z` = '86.43180084228516' WHERE (`entry` = '511');
+        UPDATE `worldports` SET `z` = '89.26384735107422' WHERE (`entry` = '512');
+        UPDATE `worldports` SET `z` = '67.63835906982422' WHERE (`entry` = '513');
+        UPDATE `worldports` SET `z` = '11.861671447753906' WHERE (`entry` = '514');
+        UPDATE `worldports` SET `z` = '8.945718765258789' WHERE (`entry` = '515');
+        UPDATE `worldports` SET `z` = '94.02362823486328' WHERE (`entry` = '522');
+        UPDATE `worldports` SET `z` = '500.7723083496094' WHERE (`entry` = '525');
+        UPDATE `worldports` SET `z` = '944.1858520507812' WHERE (`entry` = '529');
+        UPDATE `worldports` SET `z` = '956.719970703125' WHERE (`entry` = '530');
+        UPDATE `worldports` SET `z` = '1104.7467041015625' WHERE (`entry` = '531');
+        UPDATE `worldports` SET `z` = '943.4331665039062' WHERE (`entry` = '532');
+        UPDATE `worldports` SET `z` = '6.922975063323975' WHERE (`entry` = '537');
+        UPDATE `worldports` SET `z` = '500.6644592285156' WHERE (`entry` = '541');
+        UPDATE `worldports` SET `z` = '563.6461181640625' WHERE (`entry` = '547');
+        UPDATE `worldports` SET `z` = '798.9649658203125' WHERE (`entry` = '549');
+        UPDATE `worldports` SET `z` = '132.2436065673828' WHERE (`entry` = '570');
+        UPDATE `worldports` SET `z` = '170.4852294921875' WHERE (`entry` = '571');
+        UPDATE `worldports` SET `z` = '85.44287109375' WHERE (`entry` = '574');
+        UPDATE `worldports` SET `z` = '397.4706726074219' WHERE (`entry` = '582');
+        UPDATE `worldports` SET `z` = '161.17071533203125' WHERE (`entry` = '596');
+        UPDATE `worldports` SET `z` = '153.98338317871094' WHERE (`entry` = '599');
+        UPDATE `worldports` SET `z` = '32.2495002746582' WHERE (`entry` = '600');
+        UPDATE `worldports` SET `z` = '789.4754028320312' WHERE (`entry` = '603');
+        UPDATE `worldports` SET `z` = '-2.777777910232544' WHERE (`entry` = '604');
+        UPDATE `worldports` SET `z` = '492.18939208984375' WHERE (`entry` = '607');
+        UPDATE `worldports` SET `z` = '492.197021484375' WHERE (`entry` = '608');
+        UPDATE `worldports` SET `z` = '492.20391845703125' WHERE (`entry` = '609');
+        UPDATE `worldports` SET `z` = '757.5595092773438' WHERE (`entry` = '611');
+        UPDATE `worldports` SET `z` = '736.6512451171875' WHERE (`entry` = '612');
+        UPDATE `worldports` SET `z` = '751.4054565429688' WHERE (`entry` = '613');
+        UPDATE `worldports` SET `z` = '505.6779479980469' WHERE (`entry` = '614');
+        UPDATE `worldports` SET `z` = '499.9337158203125' WHERE (`entry` = '615');
+        UPDATE `worldports` SET `z` = '493.6976013183594' WHERE (`entry` = '616');
+        UPDATE `worldports` SET `z` = '491.88330078125' WHERE (`entry` = '617');
+        UPDATE `worldports` SET `z` = '3.7313895225524902' WHERE (`entry` = '623');
+        UPDATE `worldports` SET `z` = '-0.7511735558509827' WHERE (`entry` = '624');
+        UPDATE `worldports` SET `z` = '66.86027526855469' WHERE (`entry` = '625');
+        UPDATE `worldports` SET `z` = '91.66670989990234' WHERE (`entry` = '629');
+        UPDATE `worldports` SET `z` = '242.3016815185547' WHERE (`entry` = '635');
+        UPDATE `worldports` SET `z` = '523.4952392578125' WHERE (`entry` = '642');
+        UPDATE `worldports` SET `z` = '501.65948486328125' WHERE (`entry` = '643');
+        UPDATE `worldports` SET `z` = '135.34458923339844' WHERE (`entry` = '646');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '654');
+        UPDATE `worldports` SET `z` = '482.5367431640625' WHERE (`entry` = '656');
+        UPDATE `worldports` SET `z` = '520.172119140625' WHERE (`entry` = '667');
+        UPDATE `worldports` SET `z` = '91.66777801513672' WHERE (`entry` = '671');
+        UPDATE `worldports` SET `z` = '8.823688507080078' WHERE (`entry` = '673');
+        UPDATE `worldports` SET `z` = '72.9816665649414' WHERE (`entry` = '676');
+        UPDATE `worldports` SET `z` = '944.1858520507812' WHERE (`entry` = '680');
+        UPDATE `worldports` SET `z` = '944.1858520507812' WHERE (`entry` = '681');
+        UPDATE `worldports` SET `z` = '688.4142456054688' WHERE (`entry` = '682');
+        UPDATE `worldports` SET `z` = '1144.070556640625' WHERE (`entry` = '683');
+        UPDATE `worldports` SET `z` = '1192.283935546875' WHERE (`entry` = '684');
+        UPDATE `worldports` SET `z` = '944.1858520507812' WHERE (`entry` = '685');
+        UPDATE `worldports` SET `z` = '703.3854370117188' WHERE (`entry` = '688');
+        UPDATE `worldports` SET `z` = '22.233154296875' WHERE (`entry` = '693');
+        UPDATE `worldports` SET `z` = '492.2193298339844' WHERE (`entry` = '696');
+        UPDATE `worldports` SET `z` = '515.638427734375' WHERE (`entry` = '697');
+        UPDATE `worldports` SET `z` = '495.1303405761719' WHERE (`entry` = '701');
+        UPDATE `worldports` SET `z` = '499.18218994140625' WHERE (`entry` = '707');
+        UPDATE `worldports` SET `z` = '500.8486633300781' WHERE (`entry` = '709');
+        UPDATE `worldports` SET `z` = '437.97998046875' WHERE (`entry` = '712');
+        UPDATE `worldports` SET `z` = '72.94255065917969' WHERE (`entry` = '714');
+        UPDATE `worldports` SET `z` = '20.879587173461914' WHERE (`entry` = '726');
+        UPDATE `worldports` SET `z` = '96.91902160644531' WHERE (`entry` = '739');
+        UPDATE `worldports` SET `z` = '2.506004810333252' WHERE (`entry` = '741');
+        UPDATE `worldports` SET `z` = '146.99110412597656' WHERE (`entry` = '742');
+        UPDATE `worldports` SET `z` = '146.9906768798828' WHERE (`entry` = '751');
+        UPDATE `worldports` SET `z` = '61.27336502075195' WHERE (`entry` = '753');
+        UPDATE `worldports` SET `z` = '35.8028564453125' WHERE (`entry` = '755');
+        UPDATE `worldports` SET `z` = '30.26163673400879' WHERE (`entry` = '757');
+        UPDATE `worldports` SET `z` = '95.83364868164062' WHERE (`entry` = '760');
+        UPDATE `worldports` SET `z` = '41.00790023803711' WHERE (`entry` = '762');
+        UPDATE `worldports` SET `z` = '670.3834228515625' WHERE (`entry` = '765');
+        UPDATE `worldports` SET `z` = '57.074745178222656' WHERE (`entry` = '771');
+        UPDATE `worldports` SET `z` = '10.798580169677734' WHERE (`entry` = '775');
+        UPDATE `worldports` SET `z` = '322.0032043457031' WHERE (`entry` = '779');
+        UPDATE `worldports` SET `z` = '302.23919677734375' WHERE (`entry` = '780');
+        UPDATE `worldports` SET `z` = '321.95703125' WHERE (`entry` = '781');
+        UPDATE `worldports` SET `z` = '365.93157958984375' WHERE (`entry` = '782');
+        UPDATE `worldports` SET `z` = '338.0885925292969' WHERE (`entry` = '783');
+        UPDATE `worldports` SET `z` = '307.05316162109375' WHERE (`entry` = '784');
+        UPDATE `worldports` SET `z` = '1.9524794816970825' WHERE (`entry` = '797');
+        UPDATE `worldports` SET `z` = '8.823688507080078' WHERE (`entry` = '798');
+        UPDATE `worldports` SET `z` = '10.190675735473633' WHERE (`entry` = '804');
+        UPDATE `worldports` SET `z` = '523.5082397460938' WHERE (`entry` = '805');
+        UPDATE `worldports` SET `z` = '30.30861473083496' WHERE (`entry` = '807');
+        UPDATE `worldports` SET `z` = '59.45692443847656' WHERE (`entry` = '812');
+        UPDATE `worldports` SET `z` = '136.86712646484375' WHERE (`entry` = '830');
+        UPDATE `worldports` SET `z` = '150.7998504638672' WHERE (`entry` = '832');
+        UPDATE `worldports` SET `z` = '113.10458374023438' WHERE (`entry` = '834');
+        UPDATE `worldports` SET `z` = '111.38858032226562' WHERE (`entry` = '841');
+        UPDATE `worldports` SET `z` = '184.52139282226562' WHERE (`entry` = '842');
+        UPDATE `worldports` SET `z` = '729.56005859375' WHERE (`entry` = '843');
+        UPDATE `worldports` SET `z` = '725.1421508789062' WHERE (`entry` = '844');
+        UPDATE `worldports` SET `z` = '36.9250602722168' WHERE (`entry` = '859');
+        UPDATE `worldports` SET `z` = '482.074951171875' WHERE (`entry` = '876');
+        UPDATE `worldports` SET `z` = '68.47321319580078' WHERE (`entry` = '880');
+        UPDATE `worldports` SET `z` = '91.6666488647461' WHERE (`entry` = '882');
+        UPDATE `worldports` SET `z` = '92.1657485961914' WHERE (`entry` = '883');
+        UPDATE `worldports` SET `z` = '29.771474838256836' WHERE (`entry` = '887');
+        UPDATE `worldports` SET `z` = '961.9216918945312' WHERE (`entry` = '888');
+        UPDATE `worldports` SET `z` = '10.404770851135254' WHERE (`entry` = '891');
+        UPDATE `worldports` SET `z` = '520.9876098632812' WHERE (`entry` = '892');
+        UPDATE `worldports` SET `z` = '521.8757934570312' WHERE (`entry` = '894');
+        UPDATE `worldports` SET `z` = '116.50276947021484' WHERE (`entry` = '907');
+        UPDATE `worldports` SET `z` = '39.77757263183594' WHERE (`entry` = '908');
+        UPDATE `worldports` SET `z` = '19.851577758789062' WHERE (`entry` = '909');
+        UPDATE `worldports` SET `z` = '61.16632080078125' WHERE (`entry` = '910');
+        UPDATE `worldports` SET `z` = '65.56185913085938' WHERE (`entry` = '911');
+        UPDATE `worldports` SET `z` = '18.62386703491211' WHERE (`entry` = '912');
+        UPDATE `worldports` SET `z` = '487.5511779785156' WHERE (`entry` = '914');
+        UPDATE `worldports` SET `z` = '193.43228149414062' WHERE (`entry` = '919');
+        UPDATE `worldports` SET `z` = '48.92432403564453' WHERE (`entry` = '921');
+        UPDATE `worldports` SET `z` = '13.375226974487305' WHERE (`entry` = '926');
+        UPDATE `worldports` SET `z` = '98.80848693847656' WHERE (`entry` = '934');
+        UPDATE `worldports` SET `z` = '33.3841438293457' WHERE (`entry` = '941');
+        UPDATE `worldports` SET `z` = '9.746161460876465' WHERE (`entry` = '943');
+        UPDATE `worldports` SET `z` = '49.5455322265625' WHERE (`entry` = '970');
+        UPDATE `worldports` SET `z` = '30.862653732299805' WHERE (`entry` = '971');
+        UPDATE `worldports` SET `z` = '35.61806869506836' WHERE (`entry` = '973');
+        UPDATE `worldports` SET `z` = '22.806228637695312' WHERE (`entry` = '978');
+        UPDATE `worldports` SET `z` = '168.9027099609375' WHERE (`entry` = '984');
+        UPDATE `worldports` SET `z` = '795.3301391601562' WHERE (`entry` = '991');
+        UPDATE `worldports` SET `z` = '128.43870544433594' WHERE (`entry` = '997');
+        UPDATE `worldports` SET `z` = '58.582664489746094' WHERE (`entry` = '1002');
+        UPDATE `worldports` SET `z` = '252.76596069335938' WHERE (`entry` = '1004');
+        UPDATE `worldports` SET `z` = '20.79047393798828' WHERE (`entry` = '1037');
+        UPDATE `worldports` SET `z` = '77.46324920654297' WHERE (`entry` = '1043');
+        UPDATE `worldports` SET `z` = '186.5274200439453' WHERE (`entry` = '1058');
+        UPDATE `worldports` SET `z` = '13.948995590209961' WHERE (`entry` = '1064');
+        UPDATE `worldports` SET `z` = '175.1947784423828' WHERE (`entry` = '1068');
+        UPDATE `worldports` SET `z` = '71.77127075195312' WHERE (`entry` = '1069');
+        UPDATE `worldports` SET `z` = '163.8568115234375' WHERE (`entry` = '1070');
+        UPDATE `worldports` SET `z` = '8.823678016662598' WHERE (`entry` = '1074');
+        UPDATE `worldports` SET `z` = '249.42770385742188' WHERE (`entry` = '1080');
+        UPDATE `worldports` SET `z` = '155.91639709472656' WHERE (`entry` = '1086');
+        UPDATE `worldports` SET `z` = '321.932373046875' WHERE (`entry` = '1093');
+        UPDATE `worldports` SET `z` = '697.719970703125' WHERE (`entry` = '1106');
+        UPDATE `worldports` SET `z` = '13.572653770446777' WHERE (`entry` = '1109');
+        UPDATE `worldports` SET `z` = '2.8449578285217285' WHERE (`entry` = '1119');
+        UPDATE `worldports` SET `z` = '3.394974946975708' WHERE (`entry` = '1120');
+        UPDATE `worldports` SET `z` = '88.30427551269531' WHERE (`entry` = '1144');
+        UPDATE `worldports` SET `z` = '62.209720611572266' WHERE (`entry` = '1145');
+        UPDATE `worldports` SET `z` = '163.25657653808594' WHERE (`entry` = '1164');
+        UPDATE `worldports` SET `z` = '110.5777816772461' WHERE (`entry` = '1174');
+        UPDATE `worldports` SET `z` = '35.261070251464844' WHERE (`entry` = '1178');
+        UPDATE `worldports` SET `z` = '91.66666412353516' WHERE (`entry` = '1180');
+        UPDATE `worldports` SET `z` = '130.69369506835938' WHERE (`entry` = '1185');
+        UPDATE `worldports` SET `z` = '522.1080932617188' WHERE (`entry` = '1196');
+        UPDATE `worldports` SET `z` = '5.750999927520752' WHERE (`entry` = '1200');
+        UPDATE `worldports` SET `z` = '3.2649543285369873' WHERE (`entry` = '1201');
+        UPDATE `worldports` SET `z` = '101.54351806640625' WHERE (`entry` = '1202');
+        UPDATE `worldports` SET `z` = '109.07907104492188' WHERE (`entry` = '1208');
+        UPDATE `worldports` SET `z` = '178.87608337402344' WHERE (`entry` = '1209');
+        UPDATE `worldports` SET `z` = '10.097345352172852' WHERE (`entry` = '1213');
+        UPDATE `worldports` SET `z` = '199.04815673828125' WHERE (`entry` = '1219');
+        UPDATE `worldports` SET `z` = '11.486868858337402' WHERE (`entry` = '1228');
+        UPDATE `worldports` SET `z` = '22.476449966430664' WHERE (`entry` = '1234');
+        UPDATE `worldports` SET `z` = '34.581764221191406' WHERE (`entry` = '1235');
+        UPDATE `worldports` SET `z` = '22.96815299987793' WHERE (`entry` = '1241');
+        UPDATE `worldports` SET `z` = '4.267756462097168' WHERE (`entry` = '1251');
+        UPDATE `worldports` SET `z` = '129.63052368164062' WHERE (`entry` = '1252');
+        UPDATE `worldports` SET `z` = '117.57709503173828' WHERE (`entry` = '1256');
+        UPDATE `worldports` SET `z` = '80.49620056152344' WHERE (`entry` = '1261');
+        UPDATE `worldports` SET `z` = '52.975826263427734' WHERE (`entry` = '1262');
+        UPDATE `worldports` SET `z` = '124.45695495605469' WHERE (`entry` = '1263');
+        UPDATE `worldports` SET `z` = '107.49458312988281' WHERE (`entry` = '1264');
+        UPDATE `worldports` SET `z` = '154.65321350097656' WHERE (`entry` = '1265');
+        UPDATE `worldports` SET `z` = '118.84752655029297' WHERE (`entry` = '1266');
+        UPDATE `worldports` SET `z` = '113.89607238769531' WHERE (`entry` = '1267');
+        UPDATE `worldports` SET `z` = '102.24176025390625' WHERE (`entry` = '1268');
+        UPDATE `worldports` SET `z` = '498.2484436035156' WHERE (`entry` = '1269');
+        UPDATE `worldports` SET `z` = '24.070796966552734' WHERE (`entry` = '1272');
+        UPDATE `worldports` SET `z` = '688.5227661132812' WHERE (`entry` = '1275');
+        UPDATE `worldports` SET `z` = '688.4135131835938' WHERE (`entry` = '1276');
+        UPDATE `worldports` SET `z` = '492.1860656738281' WHERE (`entry` = '1279');
+        UPDATE `worldports` SET `z` = '20.178178787231445' WHERE (`entry` = '1285');
+        UPDATE `worldports` SET `z` = '501.64984130859375' WHERE (`entry` = '1288');
+        UPDATE `worldports` SET `z` = '69.5446548461914' WHERE (`entry` = '1291');
+        UPDATE `worldports` SET `z` = '239.43817138671875' WHERE (`entry` = '1296');
+        UPDATE `worldports` SET `z` = '400.5773620605469' WHERE (`entry` = '1299');
+        UPDATE `worldports` SET `z` = '113.23101806640625' WHERE (`entry` = '1339');
+        UPDATE `worldports` SET `z` = '93.67650604248047' WHERE (`entry` = '1340');
+        UPDATE `worldports` SET `z` = '153.892333984375' WHERE (`entry` = '1341');
+        UPDATE `worldports` SET `z` = '431.30584716796875' WHERE (`entry` = '1349');
+        UPDATE `worldports` SET `z` = '386.70294189453125' WHERE (`entry` = '1353');
+        UPDATE `worldports` SET `z` = '12.354066848754883' WHERE (`entry` = '1358');
+        UPDATE `worldports` SET `z` = '-515.5638427734375' WHERE (`entry` = '1362');
+        UPDATE `worldports` SET `z` = '492.1969909667969' WHERE (`entry` = '1369');
+        UPDATE `worldports` SET `z` = '96.33737182617188' WHERE (`entry` = '1379');
+        UPDATE `worldports` SET `z` = '60.504634857177734' WHERE (`entry` = '1385');
+        UPDATE `worldports` SET `z` = '257.2812194824219' WHERE (`entry` = '1404');
+        UPDATE `worldports` SET `z` = '-3.0325517654418945' WHERE (`entry` = '1406');
+        UPDATE `worldports` SET `z` = '32.84526824951172' WHERE (`entry` = '1411');
+        UPDATE `worldports` SET `z` = '140.3487548828125' WHERE (`entry` = '1415');
+        UPDATE `worldports` SET `z` = '557.4075927734375' WHERE (`entry` = '1423');
+        UPDATE `worldports` SET `z` = '591.3077392578125' WHERE (`entry` = '1425');
+        UPDATE `worldports` SET `z` = '624.812744140625' WHERE (`entry` = '1427');
+        UPDATE `worldports` SET `z` = '590.0350952148438' WHERE (`entry` = '1428');
+        UPDATE `worldports` SET `z` = '482.2751159667969' WHERE (`entry` = '1429');
+        UPDATE `worldports` SET `z` = '436.93792724609375' WHERE (`entry` = '1430');
+        UPDATE `worldports` SET `z` = '33.9565544128418' WHERE (`entry` = '1433');
+        UPDATE `worldports` SET `z` = '59.45693588256836' WHERE (`entry` = '1440');
+        UPDATE `worldports` SET `z` = '4.479469299316406' WHERE (`entry` = '1458');
+        UPDATE `worldports` SET `z` = '527.0970458984375' WHERE (`entry` = '1461');
+        UPDATE `worldports` SET `z` = '77.74201202392578' WHERE (`entry` = '1464');
+        UPDATE `worldports` SET `z` = '64.19906616210938' WHERE (`entry` = '1467');
+        UPDATE `worldports` SET `z` = '113.7524642944336' WHERE (`entry` = '1468');
+        UPDATE `worldports` SET `z` = '341.5601501464844' WHERE (`entry` = '1471');
+        UPDATE `worldports` SET `z` = '56.36688995361328' WHERE (`entry` = '1474');
+        UPDATE `worldports` SET `z` = '117.78749084472656' WHERE (`entry` = '1499');
+        UPDATE `worldports` SET `z` = '491.06005859375' WHERE (`entry` = '1500');
+        UPDATE `worldports` SET `z` = '91.6668930053711' WHERE (`entry` = '1510');
+        UPDATE `worldports` SET `z` = '51.23350524902344' WHERE (`entry` = '1512');
+        UPDATE `worldports` SET `z` = '172.67274475097656' WHERE (`entry` = '1519');
+        UPDATE `worldports` SET `z` = '185.70924377441406' WHERE (`entry` = '1520');
+        UPDATE `worldports` SET `z` = '146.26148986816406' WHERE (`entry` = '1521');
+        UPDATE `worldports` SET `z` = '175.5513916015625' WHERE (`entry` = '1522');
+        UPDATE `worldports` SET `z` = '180.1768341064453' WHERE (`entry` = '1523');
+        UPDATE `worldports` SET `z` = '47.23222351074219' WHERE (`entry` = '1524');
+        UPDATE `worldports` SET `z` = '180.1768341064453' WHERE (`entry` = '1526');
+        UPDATE `worldports` SET `z` = '189.39735412597656' WHERE (`entry` = '1527');
+        UPDATE `worldports` SET `z` = '520.08935546875' WHERE (`entry` = '1528');
+        UPDATE `worldports` SET `z` = '523.4891357421875' WHERE (`entry` = '1529');
+        UPDATE `worldports` SET `z` = '521.8759155273438' WHERE (`entry` = '1530');
+        UPDATE `worldports` SET `z` = '520.4300537109375' WHERE (`entry` = '1531');
+        UPDATE `worldports` SET `z` = '102.51465606689453' WHERE (`entry` = '1534');
+        UPDATE `worldports` SET `z` = '121.27771759033203' WHERE (`entry` = '1535');
+        UPDATE `worldports` SET `z` = '142.79505920410156' WHERE (`entry` = '1537');
+        UPDATE `worldports` SET `z` = '58.099639892578125' WHERE (`entry` = '1545');
+        UPDATE `worldports` SET `z` = '97.2957992553711' WHERE (`entry` = '1546');
+        UPDATE `worldports` SET `z` = '32.87602615356445' WHERE (`entry` = '1552');
+        UPDATE `worldports` SET `z` = '56.646820068359375' WHERE (`entry` = '1554');
+        UPDATE `worldports` SET `z` = '367.2717590332031' WHERE (`entry` = '1566');
+        UPDATE `worldports` SET `z` = '688.4141235351562' WHERE (`entry` = '1570');
+        UPDATE `worldports` SET `z` = '537.4898681640625' WHERE (`entry` = '1572');
+        UPDATE `worldports` SET `z` = '722.99267578125' WHERE (`entry` = '1573');
+        UPDATE `worldports` SET `z` = '41.29138946533203' WHERE (`entry` = '1588');
+        UPDATE `worldports` SET `z` = '22.559764862060547' WHERE (`entry` = '1594');
+
+        insert into applied_updates values ('300820241');
+    end if;
 end $
 delimiter ;

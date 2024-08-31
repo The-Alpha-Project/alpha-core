@@ -190,6 +190,13 @@ class DbcDatabaseManager:
 
             return DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
+        @staticmethod
+        def spell_is_specialization(spell_id):
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not spell:
+                return False
+            return 'Specialization' in spell.Name_enUS
+
     @staticmethod
     def spell_get_all():
         dbc_db_session = SessionHolder()

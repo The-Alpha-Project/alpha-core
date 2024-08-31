@@ -2,13 +2,14 @@ from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.units.player.ReputationManager import ReputationManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdateMask import UpdateMask
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellImmunity
 from utils.constants.UnitCodes import UnitReaction
@@ -78,6 +79,7 @@ class ObjectManager:
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
         self.spell_manager = None
+        self.reputation_manager = None
         if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.spell_manager = SpellManager(self)
 
@@ -132,6 +134,7 @@ class ObjectManager:
         # Misc fields.
         combat_unit = UnitManager.UnitManager(self).combat_target if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT \
             else None
+
         data.extend(pack(
             '<3IQ',
             1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
@@ -185,7 +188,7 @@ class ObjectManager:
             self.location.z,
             self.location.o,
             self.pitch,
-            self.movement_flags,
+            self.movement_flags
         )
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
@@ -199,6 +202,9 @@ class ObjectManager:
 
     def is_active_object(self):
         return False
+
+    def get_stationary_position(self):
+        return self.location
 
     def get_name(self):
         return ''
@@ -257,10 +263,10 @@ class ObjectManager:
             self.transport_location.y,
             self.transport_location.z,
             self.transport_location.o,
-            self.location.x,
-            self.location.y,
-            self.location.z,
-            self.location.o,
+            self.get_stationary_position().x,
+            self.get_stationary_position().y,
+            self.get_stationary_position().z,
+            self.get_stationary_position().o,
             self.pitch,
             self.movement_flags
         )
@@ -521,7 +527,15 @@ class ObjectManager:
                 Logger.warning(f'Invalid src faction template: {target.faction} for {target.get_name()}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
-        # TODO: Reputation standing checks first.
+        # Reputation standing.
+        reputation_manager = self.reputation_manager if self.reputation_manager else target.reputation_manager
+        if reputation_manager:
+            faction_dst = DbcDatabaseManager.FactionHolder.faction_get_by_id(dst_faction.Faction)
+            faction_self = DbcDatabaseManager.FactionHolder.faction_get_by_id(src_faction.Faction)
+            if ReputationManager.faction_has_reputation(faction_dst):
+                return reputation_manager.get_reaction_for_faction(faction_dst.ID)
+            if ReputationManager.faction_has_reputation(faction_self):
+                return reputation_manager.get_reaction_for_faction(faction_self.ID)
 
         if dst_faction.FactionGroup & src_faction.EnemyGroup != 0:
             return UnitReaction.UNIT_REACTION_HOSTILE

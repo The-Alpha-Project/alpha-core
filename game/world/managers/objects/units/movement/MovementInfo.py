@@ -1,4 +1,6 @@
 from struct import pack, unpack
+
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 
@@ -17,6 +19,7 @@ class MovementInfo:
 
     def update(self, reader, unit_mover):
         from game.world.managers.objects.units.movement.helpers.Spline import Spline
+        self.collided = reader.opcode in COLLISION_DETECTION
 
         # t 'Transport' followed by unit fields.
         t_id, t_x, t_y, t_z, t_o, x, y, z, o, pitch, movement_flags = unpack('<Q9fI', reader.data[:48])
@@ -45,7 +48,6 @@ class MovementInfo:
         else:
             self.owner.movement_spline = None
 
-        self.collided = reader.opcode in COLLISION_DETECTION
         self.jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
         self.moved = self.owner.movement_flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) != 0
         self.turned = self.owner.movement_flags & MoveFlags.MOVEFLAG_TURN_MASK != 0
@@ -64,19 +66,23 @@ class MovementInfo:
         elif not self.owner.transport_id and self.transport:
             self._remove_transport()
 
+        if self.transport:
+            self.transport.calculate_passenger_position(self.owner)
+
         return self
 
     def remove_from_transport(self):
         if not self.transport:
-            return
-        self.owner.transport_id = 0
+            return False
         self._remove_transport()
+        return True
 
     def _add_transport(self):
         self.transport = self._get_transport()
         self.transport.add_passenger(self.owner)
 
     def _remove_transport(self):
+        self.owner.transport_id = 0
         self.owner.transport_location.flush()
         self.transport.remove_passenger(self.owner)
         self.transport = None
@@ -85,12 +91,17 @@ class MovementInfo:
         map_ = self.owner.get_map()
         return map_.get_surrounding_gameobject_by_guid(self.owner, self.owner.transport_id).transport_manager
 
-    def get_bytes(self):
+    def _get_bytes(self):
         data = pack('<2Q9fI', self.owner.guid, self.owner.transport_id, self.owner.transport_location.x,
                     self.owner.transport_location.y, self.owner.transport_location.z, self.owner.transport_location.o,
                     self.owner.location.x, self.owner.location.y, self.owner.location.z, self.owner.location.o,
                     self.owner.pitch, self.owner.movement_flags)
+
         if self.owner.movement_spline:
             spline_bytes = self.owner.movement_spline.to_bytes()
             pack(f'<{len(spline_bytes)}s', spline_bytes)
         return data
+
+    def send_surrounding_update(self, opcode=OpCode.MSG_MOVE_HEARTBEAT):
+        movement_packet = PacketWriter.get_packet(opcode, self._get_bytes())
+        self.owner.get_map().send_surrounding(movement_packet, self.owner, include_self=False)

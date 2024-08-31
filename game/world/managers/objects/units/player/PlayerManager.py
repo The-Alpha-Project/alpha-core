@@ -402,7 +402,7 @@ class PlayerManager(UnitManager):
         self.player.money = self.coinage
         self.player.online = self.online
 
-    def teleport(self, map_id, location, is_instant=False, recovery: float = -1.0):
+    def teleport(self, map_id, location, recovery: float = -1.0):
         dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         if not dbc_map:
             Logger.warning(f'Teleport, invalid map {map_id}.')
@@ -411,6 +411,8 @@ class PlayerManager(UnitManager):
         if not self.get_map().validate_teleport_destination(location.x, location.y, map_id):
             Logger.warning(f'Teleport, invalid destination, Map {map_id}, X {location.x} Y {location.y}.')
             return False
+
+        is_instant = self.map_id == map_id
 
         # End duel and detach pets if this is a long-distance teleport.
         if not is_instant:
@@ -449,15 +451,19 @@ class PlayerManager(UnitManager):
         # Pending teleport information.
         pending_teleport = self.pending_teleport_data[0]
 
-        # Remove from transport.
-        self.movement_info.remove_from_transport()
-
         # Leave combat.
         self.leave_combat()
         self.threat_manager.reset()
 
+        # Remove from transport.
+        if self.movement_info.remove_from_transport():
+            # Make the client also aware of passenger removal.
+            # TODO: This fixes client Camera crash when leaving elevators using a near teleport, but it will also
+            #  leave the player camera mispositioned, forcing the player to do /reload.
+            self.enqueue_packet(self.generate_movement_packet())
+
         # Same map.
-        if self.map_id == pending_teleport.destination_map:
+        if not pending_teleport.is_long_teleport():
             data = pack(
                 '<Q9fI',
                 self.transport_id,
@@ -505,17 +511,17 @@ class PlayerManager(UnitManager):
         # Pending teleport information.
         pending_teleport = self.pending_teleport_data[0]
 
-        # Check if player changed maps before setting the new value.
-        changed_map = self.map_id != pending_teleport.destination_map
+        # Check if player comes from a long teleport.
+        from_long_teleport = pending_teleport.is_long_teleport()
 
         dbc_map = DbcDatabaseManager.map_get_by_id(pending_teleport.destination_map)
-        if not dbc_map and changed_map:
+        if not dbc_map and from_long_teleport:
             self.pending_teleport_data.pop(0)
             self.teleport(pending_teleport.origin_map, pending_teleport.origin_location, True)
             return
 
         instance_token = InstancesManager.get_or_create_instance_token_by_player(self, dbc_map.ID)
-        if changed_map and MapManager.is_dungeon_map_id(dbc_map.ID):
+        if from_long_teleport and MapManager.is_dungeon_map_id(dbc_map.ID):
             if not MapManager.get_or_create_instance_map(instance_token):
                 self.pending_teleport_data.pop(0)
                 self.teleport(pending_teleport.origin_map, pending_teleport.origin_location, True)
@@ -525,8 +531,8 @@ class PlayerManager(UnitManager):
         self.instance_id = instance_token.id
         self.location = pending_teleport.destination_location.copy()
 
-        # Player changed map. Send initial spells, action buttons and create packet.
-        if changed_map:
+        # Long teleport. Send initial spells, action buttons and create packet.
+        if from_long_teleport:
             # Send initial packets for spells, action buttons and player creation.
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
@@ -569,7 +575,7 @@ class PlayerManager(UnitManager):
 
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)
-        if not changed_map:
+        if not from_long_teleport:
             self.movement_flags |= MoveFlags.MOVEFLAG_MOVED
             heart_beat_packet = self.get_heartbeat_packet()
             self.get_map().send_surrounding(heart_beat_packet, self, True)
@@ -1592,10 +1598,10 @@ class PlayerManager(UnitManager):
             is_instant = self.resurrect_data.resurrect_map == self.map_id and \
                          self.resurrect_data.resurrect_location == self.location
             self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location,
-                          is_instant=is_instant, recovery=self.resurrect_data.recovery_percentage)
+                          self.resurrect_data.recovery_percentage)
         else:
             deathbind_map, deathbind_location = self.get_deathbind_coordinates()
-            self.teleport(deathbind_map, deathbind_location, recovery=1, is_instant=False)
+            self.teleport(deathbind_map, deathbind_location, recovery=1)
 
     # override
     def get_name(self):

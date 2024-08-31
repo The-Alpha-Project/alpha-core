@@ -76,15 +76,15 @@ class ReputationManager(object):
                                                                           reputation_qty, creature.level) * rate)
         return reputation_mod, reputation_faction
 
-    def modify_reputation(self, faction_id, amount):
+    def modify_reputation(self, faction_id, amount, is_final=False):
         faction_template = DbcDatabaseManager.FactionHolder.faction_get_by_id(faction_id)
 
         if not faction_template or faction_template.ReputationIndex not in self.reputations:
             Logger.warning(f'Unable to modify reputation for faction {faction_id}.')
-            return
+            return 0
 
         faction = self.reputations[faction_template.ReputationIndex]
-        new_standing = self.reputations[faction.index].standing + amount
+        new_standing = self.reputations[faction.index].standing + amount if not is_final else amount
 
         # Prevent overflow client crash.
         if new_standing > MAX_REPUTATION:
@@ -93,15 +93,17 @@ class ReputationManager(object):
             new_standing = MIN_REPUTATION
 
         # Notify only if there was an actual change.
-        if new_standing != self.reputations[faction.index].standing:
-            self.reputations[faction.index].standing = new_standing
-            RealmDatabaseManager.character_update_reputation(self.reputations[faction.index])
+        if new_standing == self.reputations[faction.index].standing:
+            return 0
+        self.reputations[faction.index].standing = new_standing
+        RealmDatabaseManager.character_update_reputation(self.reputations[faction.index])
 
-            # Notify the client
-            standing = self.reputations[faction.index].standing - faction_template.ReputationBase_1
-            data = pack('<2i', faction.index, standing)
-            packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_STANDING, data)
-            self.player_mgr.enqueue_packet(packet)
+        # Notify the client
+        standing = self.reputations[faction.index].standing - faction_template.ReputationBase_1
+        data = pack('<2i', faction.index, standing)
+        packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_STANDING, data)
+        self.player_mgr.enqueue_packet(packet)
+        return new_standing
 
     def get_reputation_flag(self, faction):
         standing = -1
@@ -113,9 +115,13 @@ class ReputationManager(object):
         return ReputationFlag.HIDDEN.value
 
     def get_reaction_for_faction(self, faction):
-        for index, reputation in self.reputations.items():
+        for reputation in self.reputations.values():
             if reputation.faction == faction:
-                return ReputationManager.reaction_by_standing(reputation.standing)
+                reaction = ReputationManager.reaction_by_standing(reputation.standing)
+                # If at war, always return hostile.
+                if ReputationManager.reputation_flag_by_reaction(reaction) == ReputationFlag.ATWAR.value:
+                    return UnitReaction.UNIT_REACTION_HOSTILE
+                return reaction
         return UnitReaction.UNIT_REACTION_NEUTRAL
 
     @staticmethod

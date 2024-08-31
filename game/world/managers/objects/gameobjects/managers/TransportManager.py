@@ -1,3 +1,4 @@
+import math
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import TransportAnimation
 from game.world import WorldManager
@@ -8,14 +9,17 @@ from utils.constants.MiscCodes import GameObjectStates
 
 
 # TODO: Players automatically desync to other player viewers when inside transports.
+#  this seems to be all client related since we've tried many changes based on other cores and nothing seems to work.
+#  From 0.5.4 patch notes. 'fixed problems with elevators.'
+#  From 0.7.1 patch notes. 'fixed multiple crashes related to both players and pets on elevators'
 class TransportManager:
     def __init__(self, owner):
         self.owner = owner
         self.entry = owner.gobject_template.entry
         self.passengers = {}
         self.current_anim_position = owner.location
-        self.path_progress = 0
-        self.total_time = 0
+        self.path_progress = 0.0
+        self.total_time = 0.0
         self.current_segment = 0
         self.path_nodes: dict[int, TransportAnimation] = {}
         self.load_path_nodes()
@@ -40,21 +44,26 @@ class TransportManager:
             return lower_bound
         return None
 
-    def get_position(self):
-        self.update()
-        return self.current_anim_position
+    def get_path_progress(self):
+        return self.update()
+
+    def has_passengers(self):
+        return len(self.passengers) > 0
 
     def update(self):
         self.path_progress = self._get_time()
         next_node = self.get_next_node(self.path_progress)
         prev_node = self.get_previous_node(self.path_progress)
+        # No progress.
         if not next_node or not prev_node:
             return int(self.path_progress)
         self.current_segment = prev_node.TimeIndex
         prev_pos = Vector(prev_node.X, prev_node.Y, prev_node.Z)
         next_pos = Vector(next_node.X, next_node.Y, next_node.Z)
+        # Stop/Waiting.
         if prev_pos == next_pos:
             location = prev_pos.copy()
+        # Moving.
         else:
             time_elapsed = self.path_progress - prev_node.TimeIndex
             time_diff = next_node.TimeIndex - prev_node.TimeIndex
@@ -65,19 +74,46 @@ class TransportManager:
             location = Vector(time_elapsed * velocity_x, time_elapsed * velocity_y, time_elapsed * velocity_z)
             location += prev_pos
 
-        self.current_anim_position = self.owner.location + location
+        self.current_anim_position = self.owner.get_stationary_position() + location
 
         if config.Server.Settings.debug_transport:
             self._debug_position(self.current_anim_position)
 
-        # Update passengers Z.
+        self.owner.location.z = self.current_anim_position.z
+
         self._update_passengers()
 
         return int(self.path_progress)
 
+    def calculate_passenger_position(self, player_mgr):
+        in_x = player_mgr.transport_location.x
+        in_y = player_mgr.transport_location.y
+        in_z = player_mgr.transport_location.z
+        in_o = player_mgr.transport_location.o
+
+        trans_x = self.owner.location.x
+        trans_y = self.owner.location.y
+        trans_z = self.owner.location.z
+        trans_o = self.owner.location.o
+
+        x = trans_x + in_x * math.cos(trans_o) - in_y * math.sin(trans_o)
+        y = trans_y + in_y * math.cos(trans_o) + in_x * math.sin(trans_o)
+        z = trans_z + in_z
+        o = TransportManager.normalize_orientation(trans_o + in_o)
+
+        player_mgr.location.x = x
+        player_mgr.location.y = y
+        player_mgr.location.z = z
+        player_mgr.location.o = o
+
     def _update_passengers(self):
         for unit in list(self.passengers.values()):
-            unit.location.z = self.current_anim_position.z
+            self.calculate_passenger_position(unit)
+            unit.movement_info.send_surrounding_update()
+
+    @staticmethod
+    def normalize_orientation(o):
+        return math.fmod(o, 2.0*math.pi)
 
     def add_passenger(self, unit):
         self.passengers[unit.guid] = unit
