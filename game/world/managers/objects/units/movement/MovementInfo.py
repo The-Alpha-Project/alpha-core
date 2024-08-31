@@ -68,8 +68,6 @@ class MovementInfo:
 
         if self.transport:
             self.transport.calculate_passenger_position(self.owner)
-        else:
-            self.safe_location = self.owner.location.copy()
 
         return self
 

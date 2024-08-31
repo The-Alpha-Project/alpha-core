@@ -240,12 +240,6 @@ class WorldServerSessionHandler:
         gameobject_update_scheduler.add_job(MapManager.update_gameobjects, 'interval', seconds=1.0, max_instances=1)
         gameobject_update_scheduler.start()
 
-        # Transport updates.
-        transport_update_scheduler = BackgroundScheduler()
-        transport_update_scheduler._daemon = True
-        transport_update_scheduler.add_job(MapManager.update_transports, 'interval', seconds=0.5, max_instances=1)
-        transport_update_scheduler.start()
-
         # Dynamicobject updates.
         dynobject_update_scheduler = BackgroundScheduler()
         dynobject_update_scheduler._daemon = True

@@ -488,7 +488,7 @@ class GameObjectManager(ObjectManager):
                         self.trap_manager.update(elapsed)
                     if self.fishing_node_manager:
                         self.fishing_node_manager.update(elapsed)
-                    if self.transport_manager:
+                    if self.transport_manager and self.transport_manager.has_passengers():
                         self.transport_manager.update()
 
                 # SpellManager update.
@@ -531,6 +531,8 @@ class GameObjectManager(ObjectManager):
 
     # override
     def get_low_guid(self):
+        if self.is_transport():
+            return self.guid & ~HighGuid.HIGHGUID_TRANSPORT
         return self.guid & ~HighGuid.HIGHGUID_GAMEOBJECT
 
     # override

@@ -379,12 +379,6 @@ class GridManager:
             for key in list(self.active_cell_keys):
                 self.cells[key].update_gameobjects(now)
 
-    def update_transports(self):
-        with self.grid_lock:
-            now = time.time()
-            for key in list(self.active_cell_keys):
-                self.cells[key].update_transports(now)
-
     def update_dynobjects(self):
         with self.grid_lock:
             now = time.time()
