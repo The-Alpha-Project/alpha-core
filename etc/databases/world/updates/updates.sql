@@ -3731,6 +3731,9 @@ begin not atomic
         UPDATE `worldports` SET `z` = '500.6644592285156' WHERE (`entry` = '541');
         UPDATE `worldports` SET `z` = '563.6461181640625' WHERE (`entry` = '547');
         UPDATE `worldports` SET `z` = '798.9649658203125' WHERE (`entry` = '549');
+        UPDATE `worldports` SET `z` = '132.2436065673828' WHERE (`entry` = '570');
+        UPDATE `worldports` SET `z` = '170.4852294921875' WHERE (`entry` = '571');
+        UPDATE `worldports` SET `z` = '85.44287109375' WHERE (`entry` = '574');
 
         insert into applied_updates values ('300820241');
     end if;
