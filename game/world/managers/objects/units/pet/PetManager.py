@@ -411,7 +411,7 @@ class PetManager:
 
     def handle_tame_result(self, tame_effect, target) -> SpellCheckCastResult:
         # Taming level restriction.
-        max_tame_level = tame_effect.get_effect_points()
+        max_tame_level = tame_effect.casting_spell.spell_caster.level
         if target.level > max_tame_level:
             self._send_tame_result(PetTameResult.TAME_TOO_HIGH_LEVEL)
             return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
