@@ -51,6 +51,9 @@ begin not atomic
         
         -- Lucian Fenner -> Lockpicking Trainer.
         UPDATE `creature_template` SET `subname` = 'Lockpicking Trainer', `npc_flags` = '8', `trainer_id` = '27' WHERE (`entry` = '2799');
+        
+        -- Tynnus Venomsprout <Shady Dealer> -> Poison Vendor
+        UPDATE `creature_template` SET `subname` = 'Poison Vendor' WHERE (`entry` = '5169');
 
         insert into applied_updates values ('010920241');
     end if;
