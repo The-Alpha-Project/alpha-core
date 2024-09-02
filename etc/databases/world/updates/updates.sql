@@ -1,8 +1,8 @@
 delimiter $
 begin not atomic
 
-	-- 01/09/2024 1
-	if (select count(*) from applied_updates where id='010920241') = 0 then
+    -- 01/09/2024 1
+    if (select count(*) from applied_updates where id='010920241') = 0 then
         -- Apprentice Physician  
         UPDATE `trainer_template` SET `skillpointcost` = '2' WHERE (`template_entry` = '500') and (`spell` = '3279');
         -- Journeyman Physician
@@ -38,7 +38,6 @@ begin not atomic
 
         insert into applied_updates values ('010920241');
     end if;
-
 
 end $
 delimiter ;
