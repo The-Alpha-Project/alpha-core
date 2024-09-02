@@ -16,8 +16,6 @@ MAX_QUIET_DISTANCE = 43.0 - SEARCH_RANDOM_RADIUS
 FLEE_ASSISTANCE_RADIUS = 30.0
 
 
-# TODO: Namigator: FindRandomPointAroundCircle (Detour)
-#  We need a valid path for fear else unexpected collisions can mess things up.
 class FearMovement(BaseMovement):
     def __init__(self, fear_duration_secs, spline_callback, target=None, seek_assist=False):
         super().__init__(move_type=MoveType.FEAR, spline_callback=spline_callback)
@@ -32,23 +30,6 @@ class FearMovement(BaseMovement):
     def initialize(self, unit):
         super().initialize(unit)
         unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
-
-        # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.
-        if not config.World.Gameplay.enable_call_for_help:
-            return True
-
-        # TODO: Call for help should be checked several times while the creature is fleeing, not only on init. Also,
-        #  it should call all available units, not just one.
-        if not self.seek_assist or not unit.combat_target:
-            return True
-        # Should search assistance, search for a friendly unit.
-        units = unit.get_map().get_surrounding_units_by_location(unit.location, unit.map_id, unit.instance_id,
-                                                                 FLEE_ASSISTANCE_RADIUS)[0].values()
-        for unit in units:
-            if not unit.threat_manager.unit_can_assist_help_call(unit, unit.combat_target):
-                continue
-            self.assist_unit = unit
-            break
         return True
 
     # override
@@ -118,7 +99,7 @@ class FearMovement(BaseMovement):
         return [fear_point]
 
     def _get_fear_point(self):
-        # Looking for assist.
+        self.assist_unit = self._seek_assistance_unit()
         if self.assist_unit:
             return self.assist_unit.location
 
@@ -147,3 +128,24 @@ class FearMovement(BaseMovement):
         y = self.unit.location.y + (dist * math.sin(angle))
         z = self.unit.get_map().calculate_z(x, y, self.unit.location.z, is_rand_point=True)[0]
         return Vector(x, y, z)
+
+    def _seek_assistance_unit(self):
+        if self.assist_unit:
+            return self.assist_unit
+
+        # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.
+        if not config.World.Gameplay.enable_call_for_help:
+            return None
+
+        if not self.seek_assist or not self.unit.combat_target:
+            return None
+
+        # Should search assistance, search for a friendly unit.
+        units = self.unit.get_map().get_surrounding_units_by_location(self.unit.location, self.unit.map_id,
+                                                                      self.unit.instance_id,
+                                                                      FLEE_ASSISTANCE_RADIUS)[0].values()
+
+        for unit in units:
+            if not unit.threat_manager.unit_can_assist_help_call(self.unit, self.unit.combat_target):
+                continue
+            return unit

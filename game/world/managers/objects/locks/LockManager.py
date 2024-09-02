@@ -59,7 +59,7 @@ class LockManager:
     @staticmethod
     def get_skill_by_lock_type(lock_type: LockTypes) -> SkillTypes:
         if lock_type == LockTypes.LOCKTYPE_PICKLOCK:
-            return SkillTypes.LOCKPICKING
+            return SkillTypes.LOCKPICKING_TEMP
         elif lock_type == LockTypes.LOCKTYPE_HERBALISM:
             return SkillTypes.HERBALISM
         elif lock_type == LockTypes.LOCKTYPE_MINING:

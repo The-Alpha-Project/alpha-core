@@ -5,6 +5,7 @@ from typing import Optional
 
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
+from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
@@ -184,10 +185,16 @@ class ThreatManager:
     def call_for_help(self, source, threat=THREAT_NOT_TO_LEAVE_COMBAT):
         if not self._call_for_help_range:
             return
+
+        # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.
+        if self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING and not config.World.Gameplay.enable_call_for_help:
+            return
+
         units = self.unit.get_map().get_surrounding_units_by_location(self.unit.location, self.unit.map_id,
                                                                       self.unit.instance_id,
                                                                       self._call_for_help_range)[0].values()
-        helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
+
+        helping_units = [unit for unit in units if unit.threat_manager.unit_can_assist_help_call(self.unit, source)]
         [unit.threat_manager.add_threat(source, threat, is_call_for_help=True) for unit in helping_units]
 
     def can_resolve_target(self):
@@ -210,31 +217,35 @@ class ThreatManager:
     def unit_can_assist_help_call(self, caller_unit, source):
         if caller_unit == self.unit:
             return False
-        elif caller_unit.is_pet() or caller_unit.is_evading:
+        elif self.unit.is_pet() or caller_unit.is_pet() or self.unit.is_evading:
             return False
-        elif caller_unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+        elif self.unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
-        elif caller_unit.unit_state & UnitStates.STUNNED:
+        elif self.unit.unit_state & UnitStates.STUNNED:
             return False
-        elif caller_unit.unit_state & UnitStates.CONFUSED:
+        elif self.unit.unit_state & UnitStates.CONFUSED:
             return False
-        elif caller_unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+        elif self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False
         elif self.unit.faction != caller_unit.faction and self.unit.is_hostile_to(caller_unit):
             return False
-        elif not caller_unit.can_attack_target(source) or not caller_unit.is_hostile_to(source):
+        elif not self.unit.can_attack_target(source) or not self.unit.is_hostile_to(source):
             return False
-        elif caller_unit.in_combat:
+        elif self.unit.in_combat:
             return False
-        elif caller_unit.react_state == CreatureReactStates.REACT_PASSIVE:
+        elif (self.unit.get_creature_family() != caller_unit.get_creature_family()
+              and not self.unit.get_map().is_dungeon()):
             return False
-        elif not caller_unit.can_assist_help_calls():
+        elif not self.unit.get_map().los_check(self.unit.get_ray_position(), caller_unit.get_ray_position()):
             return False
-        elif (caller_unit.get_creature_family() != self.unit.get_creature_family()
-              and not caller_unit.get_map().is_dungeon()):
-            return False
-        elif not caller_unit.get_map().los_check(self.unit.get_ray_position(), caller_unit.get_ray_position()):
-            return False
+
+        from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+        if isinstance(self.unit, CreatureManager):
+            if self.unit.react_state == CreatureReactStates.REACT_PASSIVE:
+                return False
+            elif not self.unit.can_assist_help_calls():
+                return False
+
         return True
 
     # noinspection PyMethodMayBeStatic

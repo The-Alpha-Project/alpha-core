@@ -314,7 +314,7 @@ class SkillManager(object):
             return False
 
         start_rank_value = 1
-        if skill.CategoryID == SkillCategories.MAX_SKILL:
+        if skill.CategoryID == SkillCategories.MAX_SKILL and skill.ID != SkillTypes.LOCKPICKING_TEMP:
             start_rank_value = skill.MaxRank
 
         skill_to_set = CharacterSkill()
@@ -646,7 +646,7 @@ class SkillManager(object):
 
         # Chance for fail at orange mining, herbs or lock picking.
         if (skill_type == SkillTypes.HERBALISM or skill_type == SkillTypes.MINING
-                or lock_result.skill_type == SkillTypes.LOCKPICKING):
+                or lock_result.skill_type in (SkillTypes.LOCKPICKING, SkillTypes.LOCKPICKING_TEMP)):
             can_fail_at_max_skill = skill_type != SkillTypes.HERBALISM and skill_type != SkillTypes.MINING
             can_fail = can_fail_at_max_skill or skill_value < SkillManager.MAX_PROFESSION_SKILL
             if can_fail and required_skill_value > random.randint(bonus_skill_value - 25, bonus_skill_value + 37):
@@ -785,7 +785,7 @@ class SkillManager(object):
         # Language, Riding, Secondary profs
         elif skill.SkillType == SkillLineType.SECONDARY:
             # Language, Riding
-            if skill.CategoryID == SkillCategories.MAX_SKILL:
+            if skill.CategoryID == SkillCategories.MAX_SKILL and skill.ID != SkillTypes.LOCKPICKING_TEMP:
                 return skill.MaxRank
             # Secondary skills of other categories are all professions.
             return ExtendedSpellData.ProfessionInfo.get_max_skill_value(skill_id, self.player_mgr)
