@@ -57,6 +57,8 @@ begin not atomic
         
         -- Sewa Mistrunner - Placement
         UPDATE `spawns_creatures` SET `position_x` = '-1176.36', `position_y` = '-66.7109', `position_z` = '162.231' WHERE (`spawn_id` = '26653');
+        -- Aska Mistrunner - Placement
+        UPDATE `spawns_creatures` SET `position_x` = '-1222.345', `position_y` = '-13.229', `position_z` = '165.890', `orientation` = '5.32' WHERE (`spawn_id` = '26649');
 
         insert into applied_updates values ('010920241');
     end if;
