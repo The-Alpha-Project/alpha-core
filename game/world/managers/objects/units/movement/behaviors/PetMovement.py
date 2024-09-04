@@ -34,7 +34,6 @@ class PetMovement(BaseMovement):
 
     # override
     def update(self, now, elapsed):
-
         should_move_range, location = self._should_move_range()
         if should_move_range:
             self._move_range(location)
@@ -64,6 +63,9 @@ class PetMovement(BaseMovement):
         if self.follow_state != PetMoveState.AT_HOME or self.stay_position or self.spline:
             return
         charmer_or_summoner = self.unit.get_charmer_or_summoner()
+        if not charmer_or_summoner:
+            return
+
         if self.unit.location.o == charmer_or_summoner.location.o:
             return
         self.unit.movement_manager.face_angle(charmer_or_summoner.location.o)
