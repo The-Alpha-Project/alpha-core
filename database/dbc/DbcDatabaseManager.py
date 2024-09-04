@@ -195,6 +195,7 @@ class DbcDatabaseManager:
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not spell:
                 return False
+            # TODO: Find better way without using hardcoded name?
             return 'Specialization' in spell.Name_enUS
 
     @staticmethod

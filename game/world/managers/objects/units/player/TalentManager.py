@@ -20,10 +20,8 @@ class TalentManager(object):
         spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_id(spell_id)
         is_specialization = DbcDatabaseManager.SpellHolder.spell_is_specialization(spell_id)
 
-        # TODO Below statement is not 100% correct, but works -for now- since we lack more data.
-        # We do know that Rank 1 cost 10 TP and Rank 2 cost 15 TP (https://i.imgur.com/eFi3cf4.jpg),
-        # so we assume each rank cost 5 TP more.
-
+        # TODO Below statement might not be 100% correct, but works for now since we lack more data.
+        # https://github.com/The-Alpha-Project/alpha-core/issues/1362
         if is_specialization:
             return 10 if spell_rank <= 2 else 15 if 2 < spell_rank <= 4 else 20 if 5 < spell_rank <= 6 \
                 else 25 if 7 < spell_rank <= 8 else 30

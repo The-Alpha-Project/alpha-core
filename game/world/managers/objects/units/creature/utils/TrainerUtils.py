@@ -12,9 +12,11 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellEffects
+from utils.constants.UnitCodes import Classes
 
 
 class TrainerUtils:
+    PICK_LOCK_SPELLS = {1804, 6461, 6463}
 
     @staticmethod
     def send_trainer_list(creature_mgr, player_mgr):
@@ -49,7 +51,7 @@ class TrainerUtils:
                 continue
 
             # Handle other classes training Lockpicking through rogue trainers.
-            if not is_player_class_trainer and 'Pick Lock' not in spell.Name_enUS:
+            if not is_player_class_trainer and spell.ID not in TrainerUtils.PICK_LOCK_SPELLS:
                 continue
 
             if spell.EffectItemType_1:
@@ -200,9 +202,9 @@ class TrainerUtils:
             return False
 
         # If expecting a specific class, check if they match.
-        # Allow other classes to interact with rogue trainers for Lockpicking training.
+        # Always allow other classes to interact with rogue trainers for Lockpicking training.
         # https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Ironforge/images_7297.jpg
-        if creature_mgr.creature_template.trainer_class > 0 and creature_mgr.creature_template.trainer_class != 4:
+        if 0 < creature_mgr.creature_template.trainer_class != Classes.CLASS_ROGUE:
             return creature_mgr.creature_template.trainer_class == player_mgr.player.class_
 
         # Mount, TradeSkill or Pet trainer.
