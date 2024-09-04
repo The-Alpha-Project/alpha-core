@@ -63,8 +63,8 @@ begin not atomic
         insert into applied_updates values ('010920241');
     end if;
 
-    -- 01/09/2024 1
-    if (select count(*) from applied_updates where id='010920241') = 0 then
+    -- 04/09/2024 1
+    if (select count(*) from applied_updates where id='040920241') = 0 then
         -- Removing unused script actions.
         DELETE FROM `creature_ai_scripts` WHERE `id` IN (185203);
 
@@ -104,7 +104,7 @@ begin not atomic
         -- Events list for Morbent Fel
         DELETE FROM `creature_ai_events` WHERE `creature_id`=1200;
 
-        insert into applied_updates values ('010920241');
+        insert into applied_updates values ('040920241');
     end if;
 end $
 delimiter ;
