@@ -213,6 +213,7 @@ class ProfessionInfo:
         164: (2018, 3100, 3538),  # Blacksmithing
         165: (2108, 3104, 3811),  # Leatherworking
         171: (2259, 3101, 3464),  # Alchemy
+        181: (1804, 6461, 6463),  # Lockpicking
         182: (2366, 2368, 3570),  # Herbalism
         185: (2550, 3102, 3413),  # Cooking
         186: (2575, 2576, 3564),  # Mining

@@ -39,6 +39,7 @@ class TrainerListHandler(object):
                 if not TrainerUtils.can_train(trainer, player_mgr) or available_quests > 0:
                     player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
                 elif TrainerUtils.can_train(trainer, player_mgr):
-                    TrainerUtils.send_trainer_list(trainer, player_mgr)
+                    if not TrainerUtils.send_trainer_list(trainer, player_mgr):
+                        player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
 
         return 0

@@ -22,7 +22,7 @@ class TrainerUtils:
             Logger.anticheat(f'send_trainer_list called from NPC {creature_mgr.entry} by player with GUID '
                              f'{player_mgr.guid} but this unit does not train that '
                              f'player\'s class. Possible cheating')
-            return
+            return False
 
         train_spell_bytes = bytearray()
         train_spell_count: int = 0
@@ -32,10 +32,13 @@ class TrainerUtils:
 
         if not trainer_ability_list or trainer_ability_list.count == 0:
             Logger.warning(f'send_trainer_list called from NPC {creature_mgr.entry} but no trainer spells found!')
-            return
+            return False
 
         trainer_type: TrainerTypes = TrainerTypes(WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
             creature_mgr.entry).trainer_type)
+
+        is_player_class_trainer = TrainerUtils.is_player_class_trainer(creature_mgr, player_mgr)
+        has_available_spells = False
 
         item_templates = []
         # trainer_spell: The spell the trainer uses to teach the player.
@@ -43,6 +46,10 @@ class TrainerUtils:
             player_spell_id = trainer_spell.playerspell
             spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(player_spell_id)
             if not spell:
+                continue
+
+            # Handle other classes training Lockpicking through rogue trainers.
+            if not is_player_class_trainer and 'Pick Lock' not in spell.Name_enUS:
                 continue
 
             if spell.EffectItemType_1:
@@ -55,6 +62,13 @@ class TrainerUtils:
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(
                 spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
+
+            skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+                spell.ID, player_mgr.race, player_mgr.class_)
+
+            # Spell is not available to player.
+            if not skill_line_ability:
+                continue
 
             # Skill step.
             skill_step: int = 0
@@ -82,6 +96,9 @@ class TrainerUtils:
                                                                  skill_step, preceded_spell))
             train_spell_count += 1
 
+            if not has_available_spells and status == TrainerServices.TRAINER_SERVICE_AVAILABLE:
+                has_available_spells = True
+
         placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
         trainer_greeting = WorldDatabaseManager.get_npc_trainer_greeting(creature_mgr.entry)
         greeting_to_use = trainer_greeting.content_default if trainer_greeting else placeholder_greeting
@@ -97,9 +114,12 @@ class TrainerUtils:
                 packets.append(query_packet)
             player_mgr.enqueue_packets(packets)
 
+        if not is_player_class_trainer and not has_available_spells:
+            return False
         data_header = pack('<Q2I', creature_mgr.guid, trainer_type, train_spell_count)
         data = data_header + bytes(train_spell_bytes) + greeting_bytes_packed
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
+        return True
 
     @staticmethod
     def get_spell_data(spell_id, status, cost, tp_cost, sp_cost, lvl, skill, req_skill, skill_step, required_spell_1=0,
@@ -180,10 +200,18 @@ class TrainerUtils:
             return False
 
         # If expecting a specific class, check if they match.
-        if creature_mgr.creature_template.trainer_class > 0:
+        # Allow other classes to interact with rogue trainers for Lockpicking training.
+        # https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Ironforge/images_7297.jpg
+        if creature_mgr.creature_template.trainer_class > 0 and creature_mgr.creature_template.trainer_class != 4:
             return creature_mgr.creature_template.trainer_class == player_mgr.player.class_
 
         # Mount, TradeSkill or Pet trainer.
+        return True
+
+    @staticmethod
+    def is_player_class_trainer(creature_mgr, player_mgr):
+        if creature_mgr.creature_template.trainer_class > 0:
+            return creature_mgr.creature_template.trainer_class == player_mgr.player.class_
         return True
 
     @staticmethod
