@@ -128,6 +128,9 @@ begin not atomic
         -- 421 Prove Your Worth, 422 Arugal's Folly, 423 Arugal's Folly, 424 Arugal's Folly, 99 Arugal's Folly, 1014 Arugal Must Die
         UPDATE `quest_template` SET `NextQuestInChain` = '1014' WHERE (`entry` = '99');
         UPDATE `quest_template` SET `PrevQuestId` = '99' WHERE (`entry` = '1014');
+        
+        -- Chest placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5603.735', `spawn_positionY` = '646.926', `spawn_positionZ` = '393.223' WHERE (`spawn_id` = '9940');
 
         insert into applied_updates values ('040920242');
     end if;
