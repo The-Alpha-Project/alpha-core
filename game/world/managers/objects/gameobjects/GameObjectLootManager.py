@@ -24,14 +24,15 @@ class GameObjectLootManager(LootManager):
     # https://github.com/The-Alpha-Project/alpha-core/issues/699
     def _generate_money_by_surrounding_units_mean(self):
         money = 0
+        multiplier = randint(3, 5)
         # Find surrounding normal creatures.
         surrounding_units = \
             [u for u in self.world_object.get_map().get_surrounding_units(self.world_object).values()
-             if u.creature_template.rank == 0]
+             if not u.creature_template.rank]
         if surrounding_units:
             min_gold = mean([u.creature_template.gold_min for u in surrounding_units])
             max_gold = mean([u.creature_template.gold_max for u in surrounding_units])
-            money = randint(int(min_gold), int(max_gold)) * 5
+            money = randint(int(min_gold), int(max_gold)) * multiplier
         return money
 
     # override
