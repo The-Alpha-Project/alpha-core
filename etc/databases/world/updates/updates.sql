@@ -125,6 +125,10 @@ begin not atomic
         UPDATE `quest_template` SET `PrevQuestId` = '792', `NextQuestId` = '805' WHERE (`entry` = '794');
         UPDATE `quest_template` SET `NextQuestInChain` = '823' WHERE (`entry` = '805');
         
+        -- 421 Prove Your Worth, 422 Arugal's Folly, 423 Arugal's Folly, 424 Arugal's Folly, 99 Arugal's Folly, 1014 Arugal Must Die
+        UPDATE `quest_template` SET `NextQuestInChain` = '1014' WHERE (`entry` = '99');
+        UPDATE `quest_template` SET `PrevQuestId` = '99' WHERE (`entry` = '1014');
+
         insert into applied_updates values ('040920242');
     end if;
 end $
