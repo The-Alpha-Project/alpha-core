@@ -93,7 +93,7 @@ class FearMovement(BaseMovement):
             return [fear_point]
         for search_range in range(0, int(SEARCH_RANDOM_RADIUS)):
             destination = fear_point.get_random_point_in_radius(search_range, self.unit.map_id)
-            # Avoid slopes above 2.5.
+            # Avoid slopes above 2.5 (Units running through cliffs).
             diff = math.fabs(destination.z - self.unit.location.z)
             if diff > 2.5:
                 continue
