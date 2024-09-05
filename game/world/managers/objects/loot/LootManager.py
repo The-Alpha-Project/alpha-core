@@ -46,10 +46,14 @@ class LootManager(object):
         loot_item_result = []
         for group_id, loot_group_items in loot_groups.items():
             loot_item_result += self.process_loot_group(group_id, loot_group_items, requester)
+            # There is evidence of chests offering the same item twice or two different items from the same group.
+            # For now, do a second pass with half chances.
+            # https://github.com/The-Alpha-Project/alpha-core/issues/699
+            loot_item_result += self.process_loot_group(group_id, loot_group_items, requester, second_pass=True)
 
         return loot_item_result
 
-    def process_loot_group(self, group_id, group_loot_items: list, requester):
+    def process_loot_group(self, group_id, group_loot_items: list, requester, second_pass=False):
         # A group may consist of explicitly-chanced (having non-zero chance) and equal-chanced (chance = 0) entries.
         # Every equal-chanced entry of a group is considered having such a chance that all equal-chanced entries have
         # the same chance (sum of chances of all entries is 100%).
@@ -93,6 +97,10 @@ class LootManager(object):
 
             item_chance = abs(loot_item.ChanceOrQuestChance)
             chance = item_chance if item_chance > 0 else split_group_chance
+
+            if second_pass:
+                chance /= 2
+
             if current_roll < item_chance:
                 if loot_item.mincountOrRef < 0:
                     reference_loot_template = WorldDatabaseManager.ReferenceLootTemplateHolder\
