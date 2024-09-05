@@ -106,5 +106,26 @@ begin not atomic
 
         insert into applied_updates values ('040920241');
     end if;
+    
+    -- 04/09/2024 2
+    if (select count(*) from applied_updates where id='040920242') = 0 then
+        -- Grave Robber
+        UPDATE `creature_template` SET `display_id1` = '1287', `display_id2` = '1289' WHERE (`entry` = '218');     
+        -- Report to Orgnil (805) should be turned in to Orgnil (3188)
+        UPDATE `creature_quest_finisher` SET `entry` = '3142' WHERE (`entry` = '3188') and (`quest` = '805');
+        -- XP 440
+        UPDATE `quest_template` SET `RewXP` = '440' WHERE (`entry` = '805');
+        -- Orgnil should start quest 823. (Master Gadrin)
+        UPDATE `creature_quest_starter` SET `entry` = '3142' WHERE (`entry` = '3188') and (`quest` = '823');
+        -- Should be turned in to Master Gadrin (3188)
+        UPDATE `creature_quest_finisher` SET `entry` = '3188' WHERE (`entry` = '3142') and (`quest` = '823');
+        -- Chain quests, and modify xp to 210.
+        UPDATE `quest_template` SET `NextQuestId` = '823' WHERE (`entry` = '805');
+        UPDATE `quest_template` SET `PrevQuestId` = '805', `RewXP` = '210' WHERE (`entry` = '823');
+        UPDATE `quest_template` SET `PrevQuestId` = '792', `NextQuestId` = '805' WHERE (`entry` = '794');
+        UPDATE `quest_template` SET `NextQuestInChain` = '823' WHERE (`entry` = '805');
+        
+        insert into applied_updates values ('040920242');
+    end if;
 end $
 delimiter ;
