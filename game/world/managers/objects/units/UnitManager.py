@@ -556,7 +556,7 @@ class UnitManager(ObjectManager):
                 damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
 
             damage_info.proc_ex |= ProcFlagsExLegacy.NORMAL_HIT
-            damage_info.target_state |= VictimStates.VS_WOUND  # Normal hit.
+            damage_info.target_state = VictimStates.VS_WOUND  # Normal hit.
             damage_info.total_damage = damage_info.base_damage
 
         # Invincibility.
@@ -587,6 +587,7 @@ class UnitManager(ObjectManager):
         # If the victim is going to die due this attack.
         if victim.health - damage_info.total_damage <= 0:
             damage_info.hit_info |= HitInfo.UNIT_DEAD
+            damage_info.proc_attacker |= ProcFlags.KILL
 
         return damage_info
 
