@@ -428,6 +428,14 @@ class CreatureManager(UnitManager):
         return super().can_parry(attacker_location, in_combat=in_combat)
 
     # override
+    def can_crush(self):
+        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_CRUSH
+
+    # override
+    def should_always_crush(self):
+        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_ALWAYS_CRUSH
+
+    # override
     def enter_combat(self, source=None):
         if not super().enter_combat(source):
             return False

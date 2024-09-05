@@ -500,9 +500,13 @@ class UnitManager(ObjectManager):
         damage_info.base_damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
         damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.
 
-        # Apply crit damage modifier first if necessary.
+        # Apply crit damage modifier if necessary.
         if damage_info.hit_info & HitInfo.CRITICAL_HIT:
             damage_info.base_damage *= 2
+
+        # Apply crushing blow damage modifier if necessary.
+        if damage_info.hit_info & HitInfo.CRUSHING:
+            damage_info.base_damage += int(damage_info.base_damage / 2)
 
         # Handle school absorb.
         damage_info.absorb = victim.get_school_absorb_for_damage(damage_info)
@@ -550,6 +554,9 @@ class UnitManager(ObjectManager):
         else:  # Successful attack.
             if damage_info.hit_info & HitInfo.CRITICAL_HIT:
                 damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
+
+            damage_info.proc_ex |= ProcFlagsExLegacy.NORMAL_HIT
+            damage_info.target_state |= VictimStates.VS_WOUND  # Normal hit.
             damage_info.total_damage = damage_info.base_damage
 
         # Invincibility.
@@ -1005,6 +1012,12 @@ class UnitManager(ObjectManager):
 
         return self.has_dodge_passive and not self.spell_manager.is_casting() and \
             not self.unit_state & UnitStates.STUNNED
+
+    def can_crush(self):
+        return False
+
+    def should_always_crush(self):
+        return False
 
     def enter_combat(self, source=None):
         if self.in_combat:
