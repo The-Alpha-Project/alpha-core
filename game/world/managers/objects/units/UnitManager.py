@@ -1246,9 +1246,9 @@ class UnitManager(ObjectManager):
         else:
             self.movement_flags &= ~move_flag
 
-        # Only broadcast swimming, rooted or immobilized.
+        # Only broadcast swimming, rooted, walking or immobilized.
         if flag_changed and move_flag in {MoveFlags.MOVEFLAG_SWIMMING, MoveFlags.MOVEFLAG_ROOTED,
-                                          MoveFlags.MOVEFLAG_IMMOBILIZED}:
+                                          MoveFlags.MOVEFLAG_IMMOBILIZED, MoveFlags.MOVEFLAG_WALK}:
             self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
 
         return is_active
