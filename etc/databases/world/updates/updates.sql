@@ -158,8 +158,9 @@ begin not atomic
         UPDATE `quest_template` SET `ignored` = '1' WHERE (`entry` = '27');
         -- Ignore quest Finding the Source, invalid items, invalid spells.
         UPDATE `quest_template` SET `ignored` = '1' WHERE (`entry` = '974');
-        -- Enable 'The Great Lift' elevator.
+        -- Enable 'The Great Lift' elevators.
         UPDATE `spawns_gameobjects` SET `ignored` = '0' WHERE (`spawn_id` = '16876');
+        UPDATE `spawns_gameobjects` SET `ignored` = '0' WHERE (`spawn_id` = '16874');
 
         insert into applied_updates values ('040920242');
     end if;
