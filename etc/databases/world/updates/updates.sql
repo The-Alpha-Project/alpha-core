@@ -156,6 +156,8 @@ begin not atomic
         
         -- Ignore quest A Lesson to Learn (Aquatic Form chain)
         UPDATE `quest_template` SET `ignored` = '1' WHERE (`entry` = '27');
+        -- Ignore quest Finding the Source, invalid items, invalid spells.
+        UPDATE `quest_template` SET `ignored` = '1' WHERE (`entry` = '974');
 
         insert into applied_updates values ('040920242');
     end if;
