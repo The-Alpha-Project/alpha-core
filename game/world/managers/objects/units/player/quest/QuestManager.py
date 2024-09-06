@@ -479,8 +479,8 @@ class QuestManager(object):
         for guid, world_object in list(known_objects.items()):
             if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
                 unit = world_object
-                if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
-                        unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
+                if (WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(unit.entry)
+                        or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry)):
                     quest_status = self.get_dialog_status(unit)
                     self.send_quest_giver_status(guid, quest_status)
             # Make the owner refresh gameobject dynamic flags if needed.
