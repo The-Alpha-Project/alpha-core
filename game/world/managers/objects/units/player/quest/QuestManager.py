@@ -325,8 +325,8 @@ class QuestManager(object):
 
     # Updates the dialog_status display.
     def update_dialog_display_status(self, quest_template, dialog_status, checks_failed=False):
-        can_even_take_quest = QuestHelpers.can_ever_take_quest(quest_template, self.player_mgr)
-        if not can_even_take_quest:
+        can_ever_take_quest = QuestHelpers.can_ever_take_quest(quest_template, self.player_mgr)
+        if not can_ever_take_quest:
             return QuestGiverStatus.QUEST_GIVER_NONE
         # If general quest requirements failed, we just care about 'Future' display status.
         elif quest_template.MinLevel > self.player_mgr.level >= quest_template.MinLevel - 4:
