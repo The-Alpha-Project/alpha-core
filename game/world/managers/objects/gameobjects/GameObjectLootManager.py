@@ -12,28 +12,7 @@ class GameObjectLootManager(LootManager):
 
     # override
     def generate_money(self, requester):
-        money = randint(self.world_object.gobject_template.mingold, self.world_object.gobject_template.maxgold)
-
-        # Handle chests with no gold data.
-        if not money and self.world_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
-            money = self._generate_money_by_surrounding_units_mean()
-
-        self.current_money = money
-
-    # It can be estimated, that chests should contain about 5 times the average gold that a typical mob in the area.
-    # https://github.com/The-Alpha-Project/alpha-core/issues/699
-    def _generate_money_by_surrounding_units_mean(self):
-        money = 0
-        multiplier = randint(3, 5)
-        # Find surrounding normal creatures.
-        surrounding_units = \
-            [u for u in self.world_object.get_map().get_surrounding_units(self.world_object).values()
-             if not u.creature_template.rank]
-        if surrounding_units:
-            min_gold = mean([u.creature_template.gold_min for u in surrounding_units])
-            max_gold = mean([u.creature_template.gold_max for u in surrounding_units])
-            money = randint(int(min_gold), int(max_gold)) * multiplier
-        return money
+        self.current_money = randint(self.world_object.gobject_template.mingold, self.world_object.gobject_template.maxgold)
 
     # override
     def generate_loot(self, requester):
@@ -51,11 +30,13 @@ class GameObjectLootManager(LootManager):
             if self.world_object.gobject_template.type != GameObjectTypes.TYPE_CHEST:
                 return loot_item_result
             # There is evidence of chests offering the same item twice or two different items from the same group.
-            # For now, do a second pass with half chances.
+            # For now, do a second pass with 1/3 of chances.
             # https://github.com/The-Alpha-Project/alpha-core/issues/699
-            loot_item_result += self.process_loot_group(group_id, loot_group_items, requester, second_pass=True)
+            if 'Chest' or 'Strongbox' in self.world_object.get_name():
+                loot_item_result += self.process_loot_group(group_id, loot_group_items, requester, second_pass=True)
 
         return loot_item_result
+
     # override
     def populate_loot_template(self):
         # Handle Chest.

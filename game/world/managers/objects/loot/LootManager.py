@@ -95,7 +95,7 @@ class LootManager(object):
             chance = item_chance if item_chance > 0 else split_group_chance
 
             if second_pass:
-                chance /= 2
+                chance = int(chance / 3)
 
             if current_roll < item_chance:
                 if loot_item.mincountOrRef < 0:
