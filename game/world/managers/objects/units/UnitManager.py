@@ -1030,8 +1030,7 @@ class UnitManager(ObjectManager):
             pet.creature.enter_combat()
 
         self.in_combat = True
-        self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_IN_COMBAT, active=True)
         # Handle enter combat interrupts.
         self.aura_manager.check_aura_interrupts(enter_combat=True)
         return True
@@ -1060,8 +1059,7 @@ class UnitManager(ObjectManager):
             pet.creature.spell_manager.remove_casts()
             pet.creature.leave_combat()
 
-        self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_IN_COMBAT, active=False)
         return True
 
     def is_attack_ready(self, attack_type):
@@ -1087,10 +1085,10 @@ class UnitManager(ObjectManager):
 
     def set_sanctuary(self, active=True, time_secs=0):
         if active:
-            self.unit_state |= UnitStates.SANCTUARY
+            self.set_unit_state(UnitStates.SANCTUARY, active=True)
             self.sanctuary_timer = time_secs
         else:
-            self.unit_state &= ~UnitStates.SANCTUARY
+            self.set_unit_state(UnitStates.SANCTUARY, active=False)
             self.sanctuary_timer = 0
 
     def update_sanctuary(self, elapsed):
@@ -1230,6 +1228,32 @@ class UnitManager(ObjectManager):
 
         return is_stunned
 
+    def remove_all_unit_flags(self, clear_effects=True):
+        if clear_effects:
+            self._flag_effects.clear()
+
+        for unit_flag in UnitFlags:
+            if self.unit_flags & unit_flag:
+                self.set_unit_flag(unit_flag, active=False)
+
+    def remove_all_dynamic_flags(self, clear_effects=True):
+        if clear_effects:
+            self._flag_effects.clear()
+
+        for dyn_flag in UnitDynamicTypes:
+            if self.dynamic_flags & dyn_flag:
+                self.set_dynamic_type_flag(dyn_flag, active=False)
+
+    def remove_all_movement_flags(self, clear_effects=True):
+        if clear_effects:
+            self._flag_effects.clear()
+
+        for move_flag in MoveFlags:
+            if self.movement_flags & move_flag:
+                self.set_move_flag(move_flag, active=False)
+
+        self.get_map().send_surrounding(self.get_heartbeat_packet(), self, include_self=False)
+
     def set_unit_state(self, unit_state, active=True, index=-1) -> bool:
         is_active = self._set_effect_flag_state(UnitStates, unit_state, active, index)
         if is_active:
@@ -1238,6 +1262,10 @@ class UnitManager(ObjectManager):
             self.unit_state &= ~unit_state
 
         return is_active
+
+    def set_unit_flags(self, unit_flags, active=True, index=-1):
+        for unit_flag in unit_flags:
+            self.set_unit_flag(unit_flag, active=active, index=index)
 
     def set_unit_flag(self, unit_flag, active=True, index=-1) -> bool:
         is_active = self._set_effect_flag_state(UnitFlags, unit_flag, active, index)
@@ -1328,17 +1356,15 @@ class UnitManager(ObjectManager):
         if mount_display_id > 0 and \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
             self.mount_display_id = mount_display_id
-            self.unit_flags |= UnitFlags.UNIT_MASK_MOUNTED
+            self.set_unit_flag(UnitFlags.UNIT_MASK_MOUNTED, active=True)
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             return True
         return False
 
     def unmount(self):
         self.mount_display_id = 0
-        self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
+        self.set_unit_flag(UnitFlags.UNIT_MASK_MOUNTED, active=False)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         return True
 
     def is_moving(self):
@@ -1373,11 +1399,7 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
     def set_can_abandon(self, state: bool):
-        if state:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_PET_CAN_ABANDON
-        else:
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_PET_CAN_ABANDON
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_CAN_ABANDON, active=state)
 
     # Emote state is set given the EmoteID over dbc.
     def set_emote_unit_state(self, emote_state, is_temporary=False):
@@ -1392,18 +1414,10 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_EMOTE_STATE, emote_state)
 
     def set_can_rename(self, state: bool):
-        if state:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_PET_CAN_RENAME
-        else:
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_PET_CAN_RENAME
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_CAN_RENAME, active=state)
 
     def set_player_controlled(self, state):
-        if state:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
-        else:
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED, active=state)
 
     def get_power_value(self, power_type=-1):
         if power_type == -1:
@@ -1730,15 +1744,11 @@ class UnitManager(ObjectManager):
         pass
 
     def set_taxi_flying_state(self, is_flying, mount_display_id=0):
+        self.set_unit_flags([UnitFlags.UNIT_FLAG_FROZEN, UnitFlags.UNIT_FLAG_TAXI_FLIGHT], active=is_flying)
         if is_flying:
             self.mount(mount_display_id)
-            self.unit_flags |= (UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-        else:
-            if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
-                self.unmount()
-            self.unit_flags &= ~(UnitFlags.UNIT_FLAG_FROZEN | UnitFlags.UNIT_FLAG_TAXI_FLIGHT)
-
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        elif self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            self.unmount()
 
     # override
     def set_display_id(self, display_id):
@@ -1785,7 +1795,7 @@ class UnitManager(ObjectManager):
 
         # Flush movement manager.
         self.movement_manager.flush()
-        self.movement_flags = MoveFlags.MOVEFLAG_NONE
+        self.remove_all_movement_flags()
 
         # Reset threat manager.
         self.threat_manager.reset()
@@ -1797,11 +1807,8 @@ class UnitManager(ObjectManager):
 
         self.set_health(0)
 
-        self.unit_flags |= UnitFlags.UNIT_MASK_DEAD
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-        self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_DEAD
-        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
+        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
 
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if killer.current_selection == self.guid:
@@ -1860,12 +1867,8 @@ class UnitManager(ObjectManager):
         self.set_current_target(0)
         self.is_alive = True
 
-        self.unit_flags &= ~UnitFlags.UNIT_MASK_DEAD
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-        self.dynamic_flags = UnitDynamicTypes.UNIT_DYNAMIC_NONE
-        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-
+        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=False)
+        self.remove_all_dynamic_flags()
         self.set_stand_state(StandState.UNIT_STANDING)
 
     def is_in_world(self):

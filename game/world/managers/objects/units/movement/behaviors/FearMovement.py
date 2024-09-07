@@ -78,8 +78,7 @@ class FearMovement(BaseMovement):
 
     # override
     def on_removed(self):
-        self.unit.movement_flags = MoveFlags.MOVEFLAG_NONE
-        self.unit.get_map().send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)
+        self.unit.remove_all_movement_flags()
         # Remove fleeing flag if not caused by auras (ie. scripted flee).
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, False)
 

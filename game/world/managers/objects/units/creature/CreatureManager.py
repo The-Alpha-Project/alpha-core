@@ -106,13 +106,13 @@ class CreatureManager(UnitManager):
 
         # Elite mob.
         if 0 < self.creature_template.rank < 4:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_PLUS_MOB, active=True)
         # NPC can't be attacked by other NPCs and can't attack other NPCs.
         if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_NPC:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_PASSIVE
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_PASSIVE, active=True)
         # NPC is immune to player characters.
         if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_PLAYER:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC, active=True)
 
         if self.is_totem() or self.is_critter() or not self.can_have_target():
             self.react_state = CreatureReactStates.REACT_PASSIVE
@@ -732,7 +732,7 @@ class CreatureManager(UnitManager):
             if self.loot_manager.has_loot():
                 self.set_lootable(True)
 
-        self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
+        self.remove_all_unit_flags()
 
         return super().die(killer)
 
@@ -759,11 +759,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
 
     def set_lootable(self, flag=True):
-        if flag:
-            self.dynamic_flags |= UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-        else:
-            self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE, active=flag)
 
     def near_teleport(self, location):
         map_ = self.get_map()

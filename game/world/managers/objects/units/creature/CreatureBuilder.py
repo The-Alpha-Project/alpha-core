@@ -64,8 +64,7 @@ class CreatureBuilder:
 
         if possessed:
             creature_instance.set_charmed_by(summoner, subtype, movement_type)
-            creature_instance.unit_flags |= UnitFlags.UNIT_FLAG_POSSESSED
-            creature_instance.unit_state |= UnitStates.POSSESSED
+            creature_instance.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=True)
             summoner.possessed_unit = creature_instance
 
         return creature_instance

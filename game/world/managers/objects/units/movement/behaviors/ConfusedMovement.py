@@ -72,8 +72,7 @@ class ConfusedMovement(BaseMovement):
 
     # override
     def on_removed(self):
-        self.unit.movement_flags = MoveFlags.MOVEFLAG_NONE
-        self.unit.get_map().send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)
+        self.unit.remove_all_movement_flags()
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_CONFUSED, False)
 
     def _get_confused_move_point(self):

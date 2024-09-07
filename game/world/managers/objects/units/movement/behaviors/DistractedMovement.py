@@ -16,13 +16,13 @@ class DistractedMovement(BaseMovement):
     # override
     def initialize(self, unit):
         super().initialize(unit)
-        self.unit.unit_state |= UnitStates.DISTRACTED
+        self.unit.set_unit_state(UnitStates.DISTRACTED, active=True)
         self.unit.movement_manager.face_angle(self.angle)
         return True
 
     # override
     def on_removed(self):
-        self.unit.unit_state &= ~UnitStates.DISTRACTED
+        self.unit.set_unit_state(UnitStates.DISTRACTED, active=False)
         if self.unit.get_type_id() == ObjectTypeIds.ID_UNIT and not self.unit.has_wander_type():
             self.unit.movement_manager.face_angle(self.unit.spawn_position.o)
 
