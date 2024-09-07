@@ -161,6 +161,10 @@ begin not atomic
         -- Enable 'The Great Lift' elevators.
         UPDATE `spawns_gameobjects` SET `ignored` = '0' WHERE (`spawn_id` = '16876');
         UPDATE `spawns_gameobjects` SET `ignored` = '0' WHERE (`spawn_id` = '16874');
+        -- Food Crate Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-6.55' WHERE (`spawn_id` = '43044');
+        -- Fix chest state.
+        UPDATE `spawns_gameobjects` SET `spawn_state` = '1' WHERE (`spawn_id` = '60099');
 
         insert into applied_updates values ('040920242');
     end if;
