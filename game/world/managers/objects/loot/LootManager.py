@@ -46,10 +46,6 @@ class LootManager(object):
         loot_item_result = []
         for group_id, loot_group_items in loot_groups.items():
             loot_item_result += self.process_loot_group(group_id, loot_group_items, requester)
-            # There is evidence of chests offering the same item twice or two different items from the same group.
-            # For now, do a second pass with half chances.
-            # https://github.com/The-Alpha-Project/alpha-core/issues/699
-            loot_item_result += self.process_loot_group(group_id, loot_group_items, requester, second_pass=True)
 
         return loot_item_result
 
