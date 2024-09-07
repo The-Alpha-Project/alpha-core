@@ -15,12 +15,15 @@ class ReadItemHandler(object):
                 bag = InventorySlots.SLOT_INBACKPACK.value
             item = world_session.player_mgr.inventory.get_item(bag, slot)
 
-            # TODO: Better handling of this: check if player can use item, etc.
+            result = InventoryError.BAG_ITEM_NOT_FOUND
             if item:
+                result = world_session.player_mgr.inventory.can_use_item(item.item_template)
+
+            if result == InventoryError.BAG_OK:
                 data = pack('<2Q', item.guid, item.guid)
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_OK, data))
             else:
-                world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
+                world_session.player_mgr.inventory.send_equip_error(result)
                 data = pack('<QIQ', item.guid, 0, item.guid)
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_FAILED, data))
 
