@@ -1564,7 +1564,7 @@ class PlayerManager(UnitManager):
         self.update_swimming_state(False)
 
         self.remove_all_unit_flags()
-        self.set_unit_flags(UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED, active=True)
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED, active=True)
 
         return super().die(killer)
 
