@@ -1,5 +1,4 @@
 from random import randint
-from statistics import mean
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.loot.LootManager import LootManager
