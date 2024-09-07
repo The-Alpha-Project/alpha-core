@@ -1247,6 +1247,15 @@ class UnitManager(ObjectManager):
             self.unit_flags &= ~unit_flag
 
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+        # Modify UnitStates accordingly.
+        if unit_flag == UnitFlags.UNIT_FLAG_FLEEING:
+            self.set_unit_state(UnitStates.FLEEING, active=is_active, index=index)
+        elif unit_flag == UnitFlags.UNIT_FLAG_POSSESSED:
+            self.set_unit_state(UnitStates.POSSESSED, active=is_active, index=index)
+        elif unit_flag == UnitFlags.UNIT_FLAG_CONFUSED:
+            self.set_unit_state(UnitStates.CONFUSED, active=is_active, index=index)
+
         return is_active
 
     def set_move_flag(self, move_flag, active=True, index=-1) -> bool:
