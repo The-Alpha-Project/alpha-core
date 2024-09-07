@@ -20,6 +20,8 @@ class QuestHelpers:
         if class_is_required and not (quest_template.RequiredClasses & player_mgr.class_mask):
             return False
 
+        return True
+
     @staticmethod
     def is_instant_complete_quest(quest_template):
         return quest_template.Method == QuestMethod.QUEST_AUTOCOMPLETE
