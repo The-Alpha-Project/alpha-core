@@ -814,28 +814,27 @@ class PlayerManager(UnitManager):
             slot = 0
             # Slot should match real current_loot indexes.
             for loot in loot_manager.current_loot:
-                if not loot:
-                    continue
-                # Skip conditions:
-                # - Is quest item and player does not have the involved quest.
-                # - Is quest multi-drop item and is no longer visible to this player.
-                if not from_item_container and loot.is_quest_item() and \
-                        not self.player_or_group_require_quest_item(loot.get_item_entry(), only_self=True) or \
-                        not loot.is_visible_to_player(self):
-                    slot += 1
-                    continue
+                if loot:
+                    # Skip conditions:
+                    # - Is quest item and player does not have the involved quest.
+                    # - Is quest multi-drop item and is no longer visible to this player.
+                    if not from_item_container and loot.is_quest_item() and \
+                            not self.player_or_group_require_quest_item(loot.get_item_entry(), only_self=True) or \
+                            not loot.is_visible_to_player(self):
+                        slot += 1
+                        continue
 
-                item_templates.append(loot.item.item_template)
-                item_count += 1
+                    item_templates.append(loot.item.item_template)
+                    item_count += 1
 
-                item_data.extend(pack(
-                    '<B3I',
-                    slot,
-                    loot.item.item_template.entry,
-                    loot.quantity,
-                    loot.item.item_template.display_id,
-                ))
-            slot += 1
+                    item_data.extend(pack(
+                        '<B3I',
+                        slot,
+                        loot.item.item_template.entry,
+                        loot.quantity,
+                        loot.item.item_template.display_id,
+                    ))
+                slot += 1
 
             # At this point, this player has access to the loot window, add him to the active looters.
             loot_manager.add_active_looter(self)
