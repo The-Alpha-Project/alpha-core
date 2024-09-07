@@ -1250,11 +1250,11 @@ class UnitManager(ObjectManager):
 
         # Modify UnitStates accordingly.
         if unit_flag == UnitFlags.UNIT_FLAG_FLEEING:
-            self.set_unit_state(UnitStates.FLEEING, active=is_active, index=index)
+            self.set_unit_state(UnitStates.FLEEING, active=active, index=index)
         elif unit_flag == UnitFlags.UNIT_FLAG_POSSESSED:
-            self.set_unit_state(UnitStates.POSSESSED, active=is_active, index=index)
+            self.set_unit_state(UnitStates.POSSESSED, active=active, index=index)
         elif unit_flag == UnitFlags.UNIT_FLAG_CONFUSED:
-            self.set_unit_state(UnitStates.CONFUSED, active=is_active, index=index)
+            self.set_unit_state(UnitStates.CONFUSED, active=active, index=index)
 
         return is_active
 
