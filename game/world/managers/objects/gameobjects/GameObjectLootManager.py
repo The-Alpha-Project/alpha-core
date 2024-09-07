@@ -23,21 +23,6 @@ class GameObjectLootManager(LootManager):
             self.add_loot(loot_item, requester)
 
     # override
-    def process_loot_groups(self, loot_groups, requester) -> list:
-        loot_item_result = []
-        for group_id, loot_group_items in loot_groups.items():
-            loot_item_result += self.process_loot_group(group_id, loot_group_items, requester)
-            if self.world_object.gobject_template.type != GameObjectTypes.TYPE_CHEST:
-                return loot_item_result
-            # There is evidence of chests offering the same item twice or two different items from the same group.
-            # For now, do a second pass with 1/3 of chances.
-            # https://github.com/The-Alpha-Project/alpha-core/issues/699
-            if 'Chest' or 'Strongbox' in self.world_object.get_name():
-                loot_item_result += self.process_loot_group(group_id, loot_group_items, requester, second_pass=True)
-
-        return loot_item_result
-
-    # override
     def populate_loot_template(self):
         # Handle Chest.
         if self.world_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
