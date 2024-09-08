@@ -1252,8 +1252,6 @@ class UnitManager(ObjectManager):
             if self.movement_flags & move_flag:
                 self.set_move_flag(move_flag, active=False)
 
-        self.get_map().send_surrounding(self.get_heartbeat_packet(), self, include_self=False)
-
     def set_unit_state(self, unit_state, active=True, index=-1) -> bool:
         is_active = self._set_effect_flag_state(UnitStates, unit_state, active, index)
         if is_active:
