@@ -5,6 +5,7 @@ from database.dbc.DbcModels import Spell
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
@@ -18,9 +19,9 @@ class TalentManager(object):
     @staticmethod
     def get_talent_cost_by_id(spell_id: int) -> int:
         spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_id(spell_id)
-        is_specialization = DbcDatabaseManager.SpellHolder.spell_is_specialization(spell_id)
+        is_specialization = ExtendedSpellData.SpecializationTalents.is_specialization_spell(spell_id)
 
-        # TODO Below statement might not be 100% correct, but works for now since we lack more data.
+        # TODO Below statements might not be 100% correct, but works for now since we lack more data.
         # https://github.com/The-Alpha-Project/alpha-core/issues/1362
         if is_specialization:
             return 10 if spell_rank <= 2 else 15 if 2 < spell_rank <= 4 else 20 if 5 < spell_rank <= 6 \

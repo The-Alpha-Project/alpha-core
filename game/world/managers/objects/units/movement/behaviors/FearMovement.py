@@ -78,8 +78,7 @@ class FearMovement(BaseMovement):
 
     # override
     def on_removed(self):
-        self.unit.movement_flags = MoveFlags.MOVEFLAG_NONE
-        self.unit.get_map().send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)
+        self.unit.remove_all_movement_flags()
         # Remove fleeing flag if not caused by auras (ie. scripted flee).
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, False)
 
@@ -93,6 +92,10 @@ class FearMovement(BaseMovement):
             return [fear_point]
         for search_range in range(0, int(SEARCH_RANDOM_RADIUS)):
             destination = fear_point.get_random_point_in_radius(search_range, self.unit.map_id)
+            # Avoid slopes above 2.5 (Units running off cliffs).
+            diff = math.fabs(destination.z - self.unit.location.z)
+            if diff > 2.5:
+                continue
             failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, destination)
             if not failed:
                 return path

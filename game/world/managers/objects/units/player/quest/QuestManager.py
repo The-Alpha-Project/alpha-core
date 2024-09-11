@@ -325,8 +325,11 @@ class QuestManager(object):
 
     # Updates the dialog_status display.
     def update_dialog_display_status(self, quest_template, dialog_status, checks_failed=False):
+        can_ever_take_quest = QuestHelpers.can_ever_take_quest(quest_template, self.player_mgr)
+        if not can_ever_take_quest:
+            return QuestGiverStatus.QUEST_GIVER_NONE
         # If general quest requirements failed, we just care about 'Future' display status.
-        if quest_template.MinLevel > self.player_mgr.level >= quest_template.MinLevel - 4:
+        elif quest_template.MinLevel > self.player_mgr.level >= quest_template.MinLevel - 4:
             dialog_status = QuestGiverStatus.QUEST_GIVER_FUTURE  # Gray '!', you are close to having a quest.
         elif not checks_failed and quest_template.MinLevel <= self.player_mgr.level < quest_template.QuestLevel + 7:
             dialog_status = QuestGiverStatus.QUEST_GIVER_QUEST  # Yellow '!', available quest.
@@ -479,8 +482,8 @@ class QuestManager(object):
         for guid, world_object in list(known_objects.items()):
             if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
                 unit = world_object
-                if WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(
-                        unit.entry) or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry):
+                if (WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(unit.entry)
+                        or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry)):
                     quest_status = self.get_dialog_status(unit)
                     self.send_quest_giver_status(guid, quest_status)
             # Make the owner refresh gameobject dynamic flags if needed.

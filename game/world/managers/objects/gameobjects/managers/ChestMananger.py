@@ -21,8 +21,7 @@ class ChestManager:
             self.chest_object.set_state(GameObjectStates.GO_STATE_ACTIVE)
 
         # Player kneel loot.
-        player.unit_flags |= UnitFlags.UNIT_FLAG_LOOTING
-        player.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player.unit_flags)
+        player.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=True)
 
         # Generate loot if it's empty.
         if not self.chest_object.loot_manager.has_loot():

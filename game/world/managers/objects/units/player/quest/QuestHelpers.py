@@ -5,6 +5,24 @@ from utils.constants.MiscCodes import QuestSpecialFlags, QuestMethod, QuestFlags
 class QuestHelpers:
 
     @staticmethod
+    def can_ever_take_quest(quest_template, player_mgr):
+        # First check if quest is disabled.
+        if quest_template.Method == QuestMethod.QUEST_DISABLED:
+            return False
+
+        # Satisfies required race?
+        race_is_required = quest_template.RequiredRaces > 0
+        if race_is_required and not (quest_template.RequiredRaces & player_mgr.race_mask):
+            return False
+
+        # Satisfies required class?
+        class_is_required = quest_template.RequiredClasses > 0
+        if class_is_required and not (quest_template.RequiredClasses & player_mgr.class_mask):
+            return False
+
+        return True
+
+    @staticmethod
     def is_instant_complete_quest(quest_template):
         return quest_template.Method == QuestMethod.QUEST_AUTOCOMPLETE
 

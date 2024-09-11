@@ -278,7 +278,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_confuse(aura, effect_target, remove):
-        effect_target.set_unit_state(UnitStates.CONFUSED, not remove, aura.index)
+        effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_CONFUSED, not remove, aura.index)
         if not remove:
             if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 effect_target.interrupt_looting()

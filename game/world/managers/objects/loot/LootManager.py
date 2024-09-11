@@ -41,6 +41,9 @@ class LootManager(object):
 
         return loot_groups
 
+    #  There is evidence of chests offering the same item twice or two different items from the same group.
+    #  The provided evidence is from later builds of the game (Not 0.5.3).
+    #  https://github.com/The-Alpha-Project/alpha-core/issues/699
     # Returns the final list of items available for looting.
     def process_loot_groups(self, loot_groups, requester) -> list:
         loot_item_result = []
@@ -93,6 +96,7 @@ class LootManager(object):
 
             item_chance = abs(loot_item.ChanceOrQuestChance)
             chance = item_chance if item_chance > 0 else split_group_chance
+
             if current_roll < item_chance:
                 if loot_item.mincountOrRef < 0:
                     reference_loot_template = WorldDatabaseManager.ReferenceLootTemplateHolder\

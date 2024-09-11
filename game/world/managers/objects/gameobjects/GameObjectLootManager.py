@@ -11,8 +11,7 @@ class GameObjectLootManager(LootManager):
 
     # override
     def generate_money(self, requester):
-        money = randint(self.world_object.gobject_template.mingold, self.world_object.gobject_template.maxgold)
-        self.current_money = money
+        self.current_money = randint(self.world_object.gobject_template.mingold, self.world_object.gobject_template.maxgold)
 
     # override
     def generate_loot(self, requester):

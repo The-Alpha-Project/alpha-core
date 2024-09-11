@@ -45,6 +45,9 @@ class SpellManager:
         for spell in RealmDatabaseManager.character_get_spells(self.caster.guid):
             self.spells[spell.spell] = spell
 
+    def has_spell(self, spell_id):
+        return spell_id in self.spells
+
     def can_learn_spell(self, spell_id):
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return False

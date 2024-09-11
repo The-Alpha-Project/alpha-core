@@ -156,7 +156,7 @@ class PlayerManager(UnitManager):
             self.update_packet_factory.init_values(self.guid, PlayerFields)
             self.update_manager = UpdateManager(self)
 
-            self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED, active=True)
 
             self.threat_manager = ThreatManager(self)
             self.enchantment_manager = EnchantmentManager(self)
@@ -540,7 +540,7 @@ class PlayerManager(UnitManager):
             item_queries, item_create_packets, item_partial_packets = self.get_inventory_update_packets(requester=self)
             self.enqueue_packets(item_queries + item_create_packets + item_partial_packets)
             # Reset move flags before create packet in order to avoid player starting automatically moving after tele.
-            self.movement_flags = MoveFlags.MOVEFLAG_NONE
+            self.remove_all_movement_flags()
             # Create packet.
             self.enqueue_packet(self.generate_create_packet(requester=self))
 
@@ -741,8 +741,7 @@ class PlayerManager(UnitManager):
             self.send_loot_release(self.loot_selection)
 
     def send_loot_release(self, loot_selection):
-        self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=False)
         loot_guid = self.loot_selection.object_guid
 
         high_guid: HighGuid = GuidUtils.extract_high_guid(loot_guid)
@@ -1564,7 +1563,8 @@ class PlayerManager(UnitManager):
         self.mirror_timers_manager.stop_all()
         self.update_swimming_state(False)
 
-        self.unit_flags = UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+        self.remove_all_unit_flags()
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED, active=True)
 
         return super().die(killer)
 

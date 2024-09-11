@@ -880,6 +880,17 @@ class StatManager(object):
             hit_info |= HitInfo.OFFHAND
         if random.random() < critical_chance:
             hit_info |= HitInfo.CRITICAL_HIT
+            return hit_info
+
+        # Crushing blows.
+        # TODO: Find formula, use crit chance for now.
+        if attacker.can_crush():
+            if attacker.should_always_crush():
+                hit_info |= HitInfo.CRUSHING
+                return hit_info
+            elif attacker.level >= self.unit_mgr.level + 3:
+                if random.random() < critical_chance:
+                    hit_info |= HitInfo.CRUSHING
         
         return hit_info
 

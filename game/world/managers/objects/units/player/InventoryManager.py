@@ -85,6 +85,38 @@ class InventoryManager(object):
             if item.duration:
                 item.send_item_duration()
 
+    def can_use_item(self, item_template):
+        if item_template.required_level:
+            if self.owner.level < item_template.required_level:
+                return InventoryError.BAG_LEVEL_MISMATCH
+
+        # Get player race/class masks.
+        race_mask = 1 << self.owner.race - 1
+        class_mask = 1 << self.owner.class_ - 1
+
+        item_race_mask = item_template.allowable_race if item_template.allowable_race > 0 else 0
+        item_class_mask = item_template.allowable_class if item_template.allowable_class > 0 else 0
+        # Race / Class.
+        if item_class_mask or race_mask:
+            if item_race_mask and not race_mask & item_race_mask:
+                return InventoryError.BAG_RACE_NOTALLOWED
+            if item_class_mask and not class_mask & item_class_mask:
+                return InventoryError.BAG_RACE_NOTALLOWED
+
+        if item_template.required_skill:
+            skill_id = item_template.required_skill
+            required_value = item_template.required_skill_rank
+            if not self.owner.skill_manager.has_skill(skill_id):
+                return InventoryError.BAG_PROFICIENCY_NEEDED
+            if self.owner.skill_manager.get_total_skill_value(skill_id) < required_value:
+                return InventoryError.BAG_SKILL_MISMATCH
+
+        if item_template.required_spell:
+            if not self.owner.spell_manager.has_spell(item_template.required_spell):
+                return InventoryError.BAG_PROFICIENCY_NEEDED
+
+        return InventoryError.BAG_OK
+
     def get_all_items(self, include_bank=False):
         items = []
         for container_slot, container in list(self.containers.items()):
