@@ -1,5 +1,5 @@
 Version:
-    current: 17
+    current: 18
 
 Database:
     Connection:
@@ -31,6 +31,7 @@ Server:
         xp_rate: 1.0
         load_gameobjects: True
         load_creatures: True
+        load_pools: True  # If False, creatures and gameobject spawns will ignore pooling.
         supported_client: 3368
         realm_saving_interval_seconds: 60
         cell_size: 64  # Shouldn't be much bigger than 200

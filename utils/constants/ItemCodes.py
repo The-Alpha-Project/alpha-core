@@ -127,6 +127,12 @@ class ItemSubClasses(IntEnum):
     ITEM_SUBCLASS_MOUNT = 5
 
 
+class ItemSubclassMask(IntEnum):
+    SHIELDS = (1 << ItemSubClasses.ITEM_SUBCLASS_SHIELD)
+    BUCKLERS = (1 << ItemSubClasses.ITEM_SUBCLASS_BUCKLER)
+    ALL = (SHIELDS | BUCKLERS)
+
+
 class BagFamilies(IntEnum):
     NONE = 0
     ARROWS = 1

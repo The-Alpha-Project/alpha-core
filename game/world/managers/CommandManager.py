@@ -102,6 +102,11 @@ class CommandManager(object):
         return 0, f'{total_number} commands found.'
 
     @staticmethod
+    def toggle_collision(world_session, args):
+        active = world_session.player_mgr.toggle_collision()
+        return 0, f'collision cheat {'On' if active else 'Off'}'
+
+    @staticmethod
     def speed(world_session, args):
         try:
             speed = config.Unit.Defaults.run_speed * float(args)
@@ -1066,6 +1071,7 @@ PLAYER_COMMAND_DEFINITIONS = {
 
 # noinspection SpellCheckingInspection
 GM_COMMAND_DEFINITIONS = {
+    'collision': [CommandManager.toggle_collision, 'toggle collision'],
     'speed': [CommandManager.speed, 'change your run speed'],
     'swimspeed': [CommandManager.swim_speed, 'change your swim speed'],
     'scriptwp': [CommandManager.activate_script_waypoints, 'tries to activate the selected unit script waypoints'],

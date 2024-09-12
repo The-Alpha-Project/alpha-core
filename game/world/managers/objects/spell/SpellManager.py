@@ -11,6 +11,9 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
+from game.world.managers.objects.gameobjects.managers.RitualManager import RitualManager
+from game.world.managers.objects.gameobjects.managers.SpellFocusManager import SpellFocusManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -1168,8 +1171,8 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS,
                                       spell_focus_type)
                 return False
-            if spell_focus_object[0].spell_focus_manager:
-                spell_focus_object[0].spell_focus_manager.use_spell_focus(self.caster)
+            if isinstance(spell_focus_object[0], SpellFocusManager):
+                spell_focus_object[0].use_spell_focus(self.caster)
 
         # Target validation.
         validation_target = casting_spell.initial_target
@@ -1470,6 +1473,10 @@ class SpellManager:
                 # Skill check only on initial validation.
                 unlock_result = LockManager.can_open_lock(self.caster, open_lock_effect.misc_value, validation_target.lock,
                                                           cast_item=casting_spell.source_item, bonus_points=bonus_skill)
+
+                if casting_spell.initial_target_is_gameobject():
+                    casting_spell.initial_target.unlock_result = unlock_result
+
                 unlock_result = unlock_result.result
             else:
                 # Include failure chance on cast.
@@ -1477,6 +1484,7 @@ class SpellManager:
                                                                                        validation_target.lock,
                                                                                        used_item=casting_spell.source_item,
                                                                                        bonus_skill=bonus_skill)
+
             if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
                 self.send_cast_result(casting_spell, unlock_result)
                 return False
@@ -1541,22 +1549,20 @@ class SpellManager:
     def _handle_fishing_node_end(self):
         if not self.caster.channel_object:
             return
-        fishing_node_object = self.caster.get_map().get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
-        if not fishing_node_object or fishing_node_object.gobject_template.type != GameObjectTypes.TYPE_FISHINGNODE:
-            return
-        # If this was an interrupt or miss hook, remove the bobber.
-        # Else, it will be removed upon CMSG_LOOT_RELEASE.
-        if not fishing_node_object.fishing_node_manager.hook_result:
-            self.caster.get_map().remove_object(fishing_node_object)
+        fishing_node = self.caster.get_map().get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
+        if isinstance(fishing_node, FishingNodeManager):
+            # If this was an interrupt or miss hook, remove the bobber.
+            # Else, it will be removed upon CMSG_LOOT_RELEASE.
+            if not fishing_node.hook_result:
+                self.caster.get_map().remove_object(fishing_node)
 
     def _handle_summoning_channel_end(self):
         # Specific handling of ritual of summoning interrupting.
         if not self.caster.channel_object:
             return
         channel_object = self.caster.get_map().get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
-        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL:
-            return
-        channel_object.ritual_manager.channel_end(self.caster)
+        if isinstance(channel_object, RitualManager):
+            channel_object.channel_end(self.caster)
 
     def meets_casting_requisites(self, casting_spell) -> bool:
         # This method should only check resource costs (ie. power/combo/items).

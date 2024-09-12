@@ -92,7 +92,8 @@ class Map:
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
             go_spawn_instance = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
-            go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
+            if not config.Server.Settings.load_pools:
+                go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
             if not go_spawn_instance.pool:
                 go_spawn_instances.append(go_spawn_instance)
             count += 1
@@ -108,7 +109,8 @@ class Map:
         length = len(creature_spawns)
         for creature_spawn in creature_spawns:
             creature_spawn_instance = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
-            creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
+            if not config.Server.Settings.load_pools:
+                creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
             if not creature_spawn_instance.pool:
                 creature_spawn_instances.append(creature_spawn_instance)
             count += 1

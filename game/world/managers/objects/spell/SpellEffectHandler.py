@@ -47,6 +47,14 @@ class SpellEffectHandler:
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
     @staticmethod
+    def handle_activate_object(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT:
+            return
+        # Only two spells, Summon Voidwalker and Summon Succubus (Need summoning circle).
+        # Both with same action, 'AnimateCustom0'.
+        target.send_custom_animation(0)
+
+    @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -971,6 +979,7 @@ class SpellEffectHandler:
 
 
 SPELL_EFFECTS = {
+    SpellEffects.SPELL_EFFECT_ACTIVATE_OBJECT: SpellEffectHandler.handle_activate_object,
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
     SpellEffects.SPELL_EFFECT_HEAL_MAX_HEALTH: SpellEffectHandler.handle_heal_max_health,

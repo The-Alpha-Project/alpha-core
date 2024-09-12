@@ -787,6 +787,14 @@ class CreatureManager(UnitManager):
         return self.creature_template.name
 
     # override
+    def get_entry(self):
+        if self.entry:
+            return self.entry
+        if self.creature_template:
+            return self.creature_template.entry
+        return 0
+
+    # override
     def respawn(self):
         super().respawn()
 
