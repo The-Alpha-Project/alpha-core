@@ -55,7 +55,7 @@ class GameObjectBuilder:
         go_instance.state = state
         go_instance.time_to_live_timer = ttl
 
-        # Set channel object update field for rituals.
+        # Set channel object update field for rituals and fishing nodes.
         if (gobject_template.type in {GameObjectTypes.TYPE_RITUAL, GameObjectTypes.TYPE_FISHINGNODE}
                 and summoner and summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT):
             summoner.set_channel_object(go_instance.guid)
