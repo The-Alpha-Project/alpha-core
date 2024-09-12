@@ -499,7 +499,7 @@ class PlayerManager(UnitManager):
                 pending_teleport.destination_location.z,
                 pending_teleport.destination_location.o,
                 self.pitch,
-                self.movement_flags
+                MoveFlags.MOVEFLAG_NONE
             )
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
