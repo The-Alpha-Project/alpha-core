@@ -4,6 +4,7 @@ from utils.constants.UnitCodes import UnitFlags
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 
 
+# TODO: Chest which have hostile faction towards player should do a surrounding call for help call upon use.
 class ChestManager(GameObjectManager):
 
     def __init__(self, **kwargs):
