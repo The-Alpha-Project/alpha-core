@@ -55,7 +55,7 @@ class GooberManager(GameObjectManager):
         else:
             self.set_active()
 
-        self.cooldown = time_to_restore + int(time.time())
+        self.cooldown = time_to_restore + time.time()
 
         if self.spell_id:
             self.cast_spell(self.spell_id, player)

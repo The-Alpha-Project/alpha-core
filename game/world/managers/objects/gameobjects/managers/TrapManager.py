@@ -33,12 +33,14 @@ class TrapManager(GameObjectManager):
         self.start_delay = self.get_data_field(7, int)
         self.total_cooldown = time.time() + self.cooldown + self.start_delay
 
+    # override
     def update(self, now):
-        if now > self.last_tick > 0 and self.is_active_object():
-            self._update(now)
+        if now > self.last_tick > 0:
+            if self.is_active_object():
+                self._update()
             super().update(now)
 
-    def _update(self, now):
+    def _update(self):
         if not self._is_triggered_by_proximity():
             return
 
@@ -75,6 +77,7 @@ class TrapManager(GameObjectManager):
             self.send_custom_animation(0)
         if self.charges == 1:
             self.despawn()
+            return
 
         super().use(player, target, from_script)
 
@@ -88,7 +91,7 @@ class TrapManager(GameObjectManager):
 
     # override
     def set_cooldown(self, now):
-        self.total_cooldown = now + self.cooldown
+        self.total_cooldown = now + self.cooldown + self.start_delay
 
     def _is_triggered_by_proximity(self):
         return self.radius > 0 and self.cooldown

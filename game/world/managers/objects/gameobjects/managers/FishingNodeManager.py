@@ -27,11 +27,11 @@ class FishingNodeManager(GameObjectManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0 and self.is_active_object():
-            elapsed = now - self.last_tick
-            self._update(elapsed)
-
-        super().update(now)
+        if now > self.last_tick > 0:
+            if self.is_active_object():
+                elapsed = now - self.last_tick
+                self._update(elapsed)
+            super().update(now)
 
     def _update(self, elapsed):
         if not self.fishing_timer:

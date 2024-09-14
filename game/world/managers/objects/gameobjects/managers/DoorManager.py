@@ -17,10 +17,11 @@ class DoorManager(GameObjectManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0 and self.is_active_object():
-            # Check if we need to reset the original door state.
-            if self.is_active() and super().check_cooldown(now):
-                self.reset_door_state()
+        if now > self.last_tick > 0:
+            if self.is_active_object():
+                # Check if we need to reset the original door state.
+                if self.is_active() and super().check_cooldown(now):
+                    self.reset_door_state()
             super().update(now)
 
     # override

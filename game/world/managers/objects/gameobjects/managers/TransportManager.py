@@ -35,11 +35,11 @@ class TransportManager(GameObjectManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0 and self.is_active_object() and self.has_passengers():
-            self._calculate_progress()
-            self._update_passengers()
-
-        super().update(now)
+        if now > self.last_tick > 0:
+            if self.is_active_object() and self.has_passengers():
+                self._calculate_progress()
+                self._update_passengers()
+            super().update(now)
 
     def load_path_nodes(self):
         for node in DbcDatabaseManager.TransportAnimationHolder.animations_by_entry(self.get_entry()):

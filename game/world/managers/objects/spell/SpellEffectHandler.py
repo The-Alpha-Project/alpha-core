@@ -662,28 +662,17 @@ class SpellEffectHandler:
         for count in range(amount):
             if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
                 if count == 0:
-                    px = target.x
-                    py = target.y
-                    pz = target.z
+                    location = target
                 else:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_id)
-                    px = location.x
-                    py = location.y
-                    pz = location.z
             else:
                 if radius > 0.0:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_id)
-                    px = location.x
-                    py = location.y
-                    pz = location.z
                 else:
                     location = target if isinstance(target, Vector) else target.location
-                    px = location.x
-                    py = location.y
-                    pz = location.z
 
                 # Spawn the summoned unit.
-                creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_id,
+                creature_manager = CreatureBuilder.create(creature_entry, location, caster.map_id,
                                                           caster.instance_id,
                                                           summoner=caster, faction=caster.faction, ttl=duration,
                                                           spell_id=casting_spell.spell_entry.ID,

@@ -16,10 +16,11 @@ class ButtonManager(GameObjectManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0 and self.is_active_object():
-            # Check if we need to reset the original button state.
-            if self.is_active() and super().check_cooldown(now):
-                self.reset_button_state()
+        if now > self.last_tick > 0:
+            if self.is_active_object():
+                # Check if we need to reset the original button state.
+                if self.is_active() and super().check_cooldown(now):
+                    self.reset_button_state()
             super().update(now)
 
     # override
