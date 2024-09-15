@@ -16,6 +16,14 @@ class DoorManager(GameObjectManager):
         self.total_cooldown = 0
 
     # override
+    def initialize_from_gameobject_template(self, gobject_template):
+        super().initialize_from_gameobject_template(gobject_template)
+        self.start_open_state = self.get_data_field(0, bool)
+        self.lock = self.get_data_field(1, int)
+        self.auto_close_secs = self.get_data_field(2, int)  # (65536 * seconds) (e.g. open after 5min = 19660800)
+        self.no_damage_immune = self.get_data_field(3, int)
+
+    # override
     def update(self, now):
         if now > self.last_tick > 0:
             if self.is_active_object():
@@ -23,14 +31,6 @@ class DoorManager(GameObjectManager):
                 if self.is_active() and super().check_cooldown(now):
                     self.reset_door_state()
             super().update(now)
-
-    # override
-    def initialize_from_gameobject_template(self, gobject_template):
-        super().initialize_from_gameobject_template(gobject_template)
-        self.start_open_state = self.get_data_field(0, bool)
-        self.lock = self.get_data_field(1, int)
-        self.auto_close_secs = self.get_data_field(2, int)  # (65536 * seconds) (e.g. open after 5min = 19660800)
-        self.no_damage_immune = self.get_data_field(3, int)
 
     # override
     def use(self, player=None, target=None, from_script=False):
