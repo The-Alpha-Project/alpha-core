@@ -119,7 +119,7 @@ class MapManager:
         if map_.map_id in MAPS_TILES:
             return
 
-        MAPS_TILES[map_.map_id] = [[None for r in range(64)] for c in range(64)]
+        MAPS_TILES[map_.map_id] = [[None for _ in range(64)] for _ in range(64)]
         for adt_x in range(BLOCK_SIZE):
             for adt_y in range(BLOCK_SIZE):
                 MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)

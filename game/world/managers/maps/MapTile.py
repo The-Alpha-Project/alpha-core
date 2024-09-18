@@ -78,9 +78,9 @@ class MapTile(object):
         if not self.map_.is_dungeon() and namigator.has_adts():
             return self._load_namigator_adt(namigator)
         else:
-            return self._load_namigator_wmo_map(namigator)
+            return self._load_namigator_wmo_map()
 
-    def _load_namigator_wmo_map(self, namigator):
+    def _load_namigator_wmo_map(self):
         Logger.debug(f'[Namigator] Loading nav WMO, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
         self.has_navigation = True
         return True

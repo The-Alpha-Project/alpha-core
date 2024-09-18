@@ -11,7 +11,7 @@ class AttackSwingHandler(object):
                 world_session.player_mgr, enemy_guid, include_players=True)
 
             if not enemy or not enemy.is_alive:
-                AttackSwingHandler.handle_stop(world_session, reader)
+                AttackSwingHandler.handle_stop(world_session)
                 return 0
 
             world_session.player_mgr.attack(enemy)
@@ -19,7 +19,7 @@ class AttackSwingHandler(object):
         return 0
 
     @staticmethod
-    def handle_stop(world_session, reader):
+    def handle_stop(world_session):
         world_session.player_mgr.attack_stop()
 
         return 0
