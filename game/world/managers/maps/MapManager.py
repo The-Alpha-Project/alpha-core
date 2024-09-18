@@ -119,7 +119,7 @@ class MapManager:
         if map_.map_id in MAPS_TILES:
             return
 
-        MAPS_TILES[map_.map_id] = [[None for _ in range(64)] for _ in range(64)]
+        MAPS_TILES[map_.map_id] = [[None for _ in range(BLOCK_SIZE)] for _ in range(BLOCK_SIZE)]
         for adt_x in range(BLOCK_SIZE):
             for adt_y in range(BLOCK_SIZE):
                 MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)
@@ -147,7 +147,7 @@ class MapManager:
 
         for i in range(-1, 1):
             for j in range(-1, 1):
-                if -1 < adt_x + i < 64 and -1 < adt_y + j < 64:
+                if -1 < adt_x + i < BLOCK_SIZE and -1 < adt_y + j < BLOCK_SIZE:
                     if MAPS_TILES[map_id][adt_x + i][adt_y + j].initialized:
                         continue
                     Logger.debug(f'[Map] Loading ADT tile {adt_x + i},{adt_y + j}')
