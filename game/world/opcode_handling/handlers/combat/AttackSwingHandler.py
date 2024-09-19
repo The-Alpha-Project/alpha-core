@@ -19,7 +19,7 @@ class AttackSwingHandler(object):
         return 0
 
     @staticmethod
-    def handle_stop(world_session):
+    def handle_stop(world_session, reader):
         world_session.player_mgr.attack_stop()
 
         return 0
