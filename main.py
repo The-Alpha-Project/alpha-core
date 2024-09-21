@@ -1,7 +1,6 @@
 import multiprocessing
 import os
 import argparse
-import sys
 from sys import platform
 from time import sleep
 
