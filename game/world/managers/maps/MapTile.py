@@ -1,6 +1,5 @@
 import os
 import traceback
-from enum import IntEnum
 from os import path
 from struct import unpack
 
@@ -11,12 +10,6 @@ from utils.ConfigManager import config
 from utils.Float16 import Float16
 from utils.Logger import Logger
 from utils.PathManager import PathManager
-
-
-class MapTileStates(IntEnum):
-    READY = 0
-    LOADING = 1
-    UNUSABLE = 2
 
 
 class MapTile(object):
@@ -71,37 +64,38 @@ class MapTile(object):
         self.has_navigation = self.load_namigator_data(namigator)
         self.ready = True
 
+    def unload(self):
+        self.initialized = False
+        self.has_maps = False
+        self.has_navigation = False
+        self.ready = False
+        self.area_information = None
+        self.liquid_information = None
+        self.z_height_map = None
+
     def load_namigator_data(self, namigator):
         if not config.Server.Settings.use_nav_tiles or not namigator:
             return False
+        return self._load_namigator_adt_navs(namigator)
 
-        if not self.map_.is_dungeon() and namigator.has_adts():
-            return self._load_namigator_adt(namigator)
-        else:
-            return self._load_namigator_wmo_map()
-
-    def _load_namigator_wmo_map(self):
-        Logger.debug(f'[Namigator] Loading nav WMO, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
-        self.has_navigation = True
-        return True
-
-    def _load_namigator_adt(self, namigator):
+    def _load_namigator_adt_navs(self, namigator):
         try:
-            Logger.debug(f'[Namigator] Loading nav ADT, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
+            Logger.info(f'[Namigator] Loading navs, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
             # Notice, namigator has inverted coordinates.
-            namigator.load_adt(self.adt_y, self.adt_x)
-            self.has_navigation = True
-            return True
+            if not namigator.adt_loaded(self.adt_y, self.adt_x):
+                namigator.load_adt(self.adt_y, self.adt_x)
+            self.has_navigation = namigator.adt_loaded(self.adt_y, self.adt_x)
+            return self.has_navigation
         except RuntimeError:
             Logger.error(traceback.format_exc())
         return False
 
     def load_maps_data(self):
-        if not config.Server.Settings.use_map_tiles or self.map_.is_dungeon():  # No .map for dungeons.
+        if not config.Server.Settings.use_map_tiles or self.map_.is_dungeon():  # No .map files for dungeons.
             return False
         filename = f'{self.map_id:03}{self.adt_x:02}{self.adt_y:02}.map'
         maps_path = PathManager.get_map_file_path(filename)
-        Logger.debug(f'[Maps] Loading map file: {filename}, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
+        Logger.info(f'[Maps] Loading map tile, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}, File: {filename}')
 
         if not path.exists(maps_path):
             Logger.warning(f'[Maps] Unable to locate map file: {filename}, '

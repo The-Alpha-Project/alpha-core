@@ -65,7 +65,7 @@ if __name__ == '__main__':
         exit()
 
     # Validate if maps available and if version match.
-    if not MapManager.validate_maps():
+    if not MapManager.validate_map_files():
         Logger.error(f'Invalid maps version or maps missing, expected version {MapTile.EXPECTED_VERSION}')
         exit()
 

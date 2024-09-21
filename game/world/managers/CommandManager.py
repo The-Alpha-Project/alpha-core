@@ -1002,6 +1002,20 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def mapstats(world_session, args):
+        from game.world.managers.maps.MapManager import MapManager
+        tile_count = MapManager.get_active_tiles_count()
+        maps = MapManager.get_active_maps()
+        result = f'Total active tiles/adts: {tile_count}\n'
+        for m in maps:
+            result += (f'Id:{m.map_id}, '
+                       f'Name:{m.name}, '
+                       f'InstanceId:{m.instance_id}, '
+                       f'Active Cells: {m.get_active_cell_count()}\n'
+                       )
+        return 0, result
+
+    @staticmethod
     def destroymonster(world_session, args):
         try:
             creature_guid = int(args) if args else 0
@@ -1131,6 +1145,7 @@ GM_COMMAND_DEFINITIONS = {
 }
 
 DEV_COMMAND_DEFINITIONS = {
+    'mapstats': [CommandManager.mapstats, 'active maps, adts and cells'],
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
     'sloc': [CommandManager.save_location, 'save your location to locations.log along with a comment'],

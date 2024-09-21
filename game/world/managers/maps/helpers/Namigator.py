@@ -19,6 +19,9 @@ class Namigator:
     def adt_loaded(self, adt_x, adt_y):
         pass
 
+    def load_all_adts(self):
+        pass
+
     def load_adt(self, adt_x, adt_y):
         pass
 

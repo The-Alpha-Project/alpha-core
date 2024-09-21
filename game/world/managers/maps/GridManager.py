@@ -10,13 +10,14 @@ from utils.constants.MiscCodes import ObjectTypeIds
 
 
 class GridManager:
-    def __init__(self, map_id, instance_id, active_cell_callback):
+    def __init__(self, map_id, instance_id, active_cell_callback, inactive_cell_callback):
         self.map_id = map_id
         self.grid_lock = RLock()
         self.instance_id = instance_id
         self.active_cell_keys: set[str] = set()
         self.cells: dict[str, Cell] = {}
         self.active_cell_callback = active_cell_callback
+        self.inactive_cell_callback = inactive_cell_callback
 
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
         if world_object_instance:
@@ -29,6 +30,7 @@ class GridManager:
     def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
         source_cell_key = world_object.current_cell
         current_cell_key = CellUtils.get_cell_key_for_object(world_object)
+        cell_swap = source_cell_key is not None and current_cell_key != source_cell_key
 
         # Handle cell change within the same map.
         if current_cell_key != source_cell_key:
@@ -64,8 +66,8 @@ class GridManager:
 
         # Notify cell changed if needed.
         if current_cell_key != source_cell_key:
-            if current_cell_key not in self.active_cell_keys:
-                self._activate_cell_by_world_object(world_object)
+            if current_cell_key not in self.active_cell_keys and cell_swap:
+                self.activate_cell_by_world_object(world_object)
                 Logger.debug(f'Unit {world_object.get_name()} triggered inactive cell {current_cell_key}')
             world_object.on_cell_change()
 
@@ -88,21 +90,33 @@ class GridManager:
         cell_key = CellUtils.get_cell_key(location.x, location.y, self.map_id, self.instance_id)
         return self.is_active_cell(cell_key)
 
-    # TODO: Should cleanup loaded tiles for deactivated cells.
+    def get_active_cell_count(self):
+        return len(self.active_cell_keys)
+
     def deactivate_cells(self):
         with self.grid_lock:
+            adt_keys = dict()
             for cell_key in list(self.active_cell_keys):
-                players_near = False
-                for cell in self._get_surrounding_cells_by_cell(self.cells[cell_key]):
-                    if cell.has_players() or cell.has_cameras():
-                        players_near = True
-                        break
 
                 # Make sure only Cells with no players near are removed from the Active list.
-                if not players_near:
-                    cell = self.cells[cell_key]
-                    self.active_cell_keys.discard(cell_key)
-                    cell.stop_movement()
+                if any(not cell.can_deactivate() for cell in self._get_surrounding_cells_by_cell(self.cells[cell_key])):
+                    continue
+
+                cell = self.cells[cell_key]
+                self.active_cell_keys.discard(cell_key)
+                cell.stop_movement()
+
+                if cell.adt_key not in adt_keys:
+                    adt_keys[cell.adt_key] = set()
+                adt_keys[cell.adt_key].add(cell)
+
+            for adt_key, cells in adt_keys.items():
+                # Check if there are active cells still using the affected adt tile.
+                if any(cell.adt_key == adt_key for cell in self.cells.values() if cell.key in self.active_cell_keys):
+                    continue
+                # No active cells for given adt, unload.
+                adt_x, adt_y = adt_key.split(',')
+                self.inactive_cell_callback(self.map_id, int(adt_x), int(adt_y))
 
     def _add_world_object_spawn(self, world_object_spawn):
         cell = self._get_create_cell(world_object_spawn.location, world_object_spawn.map_id,
@@ -114,7 +128,7 @@ class GridManager:
         cell.add_world_object(world_object)
 
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            self._activate_cell_by_world_object(world_object)
+            self.activate_cell_by_world_object(world_object)
 
         # Notify surrounding players.
         if update_players:
@@ -126,26 +140,24 @@ class GridManager:
 
             self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
-    def _activate_cell_by_world_object(self, world_object):
-        affected_cells = list(self._get_surrounding_cells_by_object(world_object))
-        # Try to load tile maps for affected cells if needed.
-        self._load_maps_for_cells(affected_cells)
-        # Try to activate this player cell.
-        self.active_cell_callback(world_object)
-        # Set affected cells as active cells based on creatures if needed.
-        self._activate_cells(affected_cells)
+    def activate_cell_by_world_object(self, world_object):
+        # Surrounding cells.
+        affected_cells = set(self._get_surrounding_cells_by_cell(self.cells[world_object.current_cell]))
+        # Self cell.
+        affected_cells.add(self.cells[world_object.current_cell])
+        self._activate_cells(affected_cells, world_object)
 
-    def _activate_cells(self, cells: list[Cell]):
+    def _activate_cells(self, cells: set[Cell], world_object):
         with self.grid_lock:
-            for cell in cells:
-                if cell.key not in self.active_cell_keys:
-                    self.active_cell_keys.add(cell.key)
+            [self._activate_cell(cell, world_object) for cell in cells]
 
-    def _load_maps_for_cells(self, cells):
-        for cell in cells:
-            if cell.key not in self.active_cell_keys:
-                for creature in list(cell.creatures.values()):
-                    self.active_cell_callback(creature)
+    def _activate_cell(self, cell, world_object):
+        if cell.key not in self.active_cell_keys:
+            self.active_cell_keys.add(cell.key)
+
+        # Only player activation will trigger tile/nav loading.
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.active_cell_callback(self.map_id, cell.adt_x, cell.adt_y)
 
     def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False,
                                      has_inventory_changes=False, update_data=None, object_type=None):

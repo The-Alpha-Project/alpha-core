@@ -1,4 +1,5 @@
 from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
+from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants.MiscCodes import ObjectTypeIds
 from threading import RLock
@@ -15,6 +16,8 @@ class Cell:
         self.map_id = map_id
         self.instance_id = instance_id
         self.key = key
+        self.adt_x, self.adt_y = MapUtils.get_tile(self.mid_x, self.mid_y)
+        self.adt_key = f'{self.adt_x},{self.adt_y}'
         # Cell lock.
         self.cell_lock = RLock()
         # Instances.
@@ -30,6 +33,11 @@ class Cell:
         if not key:
             self.key = (f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:'
                         f'{self.map_id}:{self.instance_id}')
+
+        self.hash = hash(self.key)
+
+    def __hash__(self):
+        return self.hash
 
     def get_players(self, caller, visibility_range=True):
         return {k: v for k, v in list(self.players.items())
@@ -223,3 +231,7 @@ class Cell:
             # If this cell has cameras, route packets.
             for camera in FarSightManager.get_cell_cameras(self):
                 camera.broadcast_packet(packet, exclude=players_reached)
+
+    def can_deactivate(self):
+        return not self.has_players() and not self.has_cameras()
+

@@ -274,7 +274,7 @@ class WorldServerSessionHandler:
         # Cell deactivation.
         cell_unloading_scheduler = BackgroundScheduler()
         cell_unloading_scheduler._daemon = True
-        cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0, max_instances=1)
+        cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=300.0, max_instances=1)
         cell_unloading_scheduler.start()
 
         # Chat logging queue.
