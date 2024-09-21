@@ -284,30 +284,36 @@ class WorldServerSessionHandler:
             logging_thread.start()
 
     @staticmethod
-    def start():
+    def start(running):
         WorldLoader.load_data()
 
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-        # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
-        except AttributeError:
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port))
-        server_socket.listen()
-
-        WorldServerSessionHandler.schedule_background_tasks()
-
-        real_binding = server_socket.getsockname()
-        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
-
-        while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
-            # noinspection PyBroadException
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             try:
-                client_socket, client_address = server_socket.accept()
-                server_handler = WorldServerSessionHandler(client_socket, client_address)
-                world_session_thread = threading.Thread(target=server_handler.handle)
-                world_session_thread.daemon = True
-                world_session_thread.start()
-            except:
-                break
+                server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
+            except AttributeError:
+                server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server_socket.bind((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port))
+            server_socket.listen()
+            server_socket.settimeout(2)
+
+            WorldServerSessionHandler.schedule_background_tasks()
+
+            real_binding = server_socket.getsockname()
+            Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+
+            while WORLD_ON and running.value:
+                try:
+                    client_socket, client_address = server_socket.accept()
+                    server_handler = WorldServerSessionHandler(client_socket, client_address)
+                    world_session_thread = threading.Thread(target=server_handler.handle)
+                    world_session_thread.daemon = True
+                    world_session_thread.start()
+                except socket.timeout:
+                    pass  # Non blocking.
+                except OSError:
+                    Logger.warning(traceback.format_exc())
+                except KeyboardInterrupt:
+                    break
+
+        Logger.info("World server turned off.")

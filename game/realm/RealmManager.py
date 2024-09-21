@@ -70,49 +70,49 @@ class RealmManager:
         sck.sendall(packet)
 
     @staticmethod
-    def start_realm():
+    def start_realm(running):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        server_socket = RealmManager.build_socket(local_realm.realm_address, local_realm.realm_port)
-        server_socket.listen()
-        real_binding = server_socket.getsockname()
-        # Make sure all characters have online = 0 on realm start.
-        RealmDatabaseManager.character_set_all_offline()
-        Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+        with RealmManager.build_socket(local_realm.realm_address, local_realm.realm_port) as server_socket:
+            server_socket.listen()
+            real_binding = server_socket.getsockname()
+            # Make sure all characters have online = 0 on realm start.
+            RealmDatabaseManager.character_set_all_offline()
+            Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
-        while True:
-            try:
-                client_socket, client_address = server_socket.accept()
-                RealmManager.serve_realmlist(client_socket)
-                client_socket.shutdown(socket.SHUT_RDWR)
-                client_socket.close()
-            except socket.timeout:
-                pass  # Non blocking.
-            except OSError:
-                Logger.warning(traceback.format_exc())
-            except KeyboardInterrupt:
-                break
+            while running.value:
+                try:
+                    client_socket, client_address = server_socket.accept()
+                    RealmManager.serve_realmlist(client_socket)
+                    client_socket.shutdown(socket.SHUT_RDWR)
+                    client_socket.close()
+                except socket.timeout:
+                    pass  # Non blocking.
+                except OSError:
+                    Logger.warning(traceback.format_exc())
+                except KeyboardInterrupt:
+                    break
 
         Logger.info("Login server turned off.")
 
     @staticmethod
-    def start_proxy():
+    def start_proxy(running):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        server_socket = RealmManager.build_socket(local_realm.proxy_address, local_realm.proxy_port)
-        server_socket.listen()
-        real_binding = server_socket.getsockname()
-        Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+        with RealmManager.build_socket(local_realm.proxy_address, local_realm.proxy_port) as server_socket:
+            server_socket.listen()
+            real_binding = server_socket.getsockname()
+            Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
-        while True:
-            try:
-                client_socket, client_address = server_socket.accept()
-                RealmManager.redirect_to_world(client_socket)
-                client_socket.shutdown(socket.SHUT_RDWR)
-                client_socket.close()
-            except socket.timeout:
-                pass  # Non blocking.
-            except OSError:
-                Logger.warning(traceback.format_exc())
-            except KeyboardInterrupt:
-                break
+            while running.value:
+                try:
+                    client_socket, client_address = server_socket.accept()
+                    RealmManager.redirect_to_world(client_socket)
+                    client_socket.shutdown(socket.SHUT_RDWR)
+                    client_socket.close()
+                except socket.timeout:
+                    pass  # Non blocking.
+                except OSError:
+                    Logger.warning(traceback.format_exc())
+                except KeyboardInterrupt:
+                    break
 
         Logger.info("Proxy server turned off.")
