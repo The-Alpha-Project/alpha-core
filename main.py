@@ -14,7 +14,6 @@ from game.world.managers.maps.MapTile import MapTile
 from tools.map_extractor.MapExtractor import MapExtractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
-from utils.ChatLogManager import ChatLogManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
@@ -42,12 +41,15 @@ def release_process(active_process):
     Logger.info(f'Releasing {active_process.name}...')
     while active_process.is_alive():
         try:
-            active_process.join(timeout=2)  # Seconds.
+            # Give the process 2 seconds to shut down.
+            active_process.join(timeout=2)
             if active_process.is_alive():
                 active_process.terminate()
+                break
         except (ValueError, KeyboardInterrupt):
             sleep(0.1)
-    Logger.info(f'{active_process.name} terminated.')
+
+    Logger.info(f'{active_process.name} released.')
 
 
 def handle_console_commands():
@@ -147,7 +149,6 @@ if __name__ == '__main__':
     if launch_world:
         # Make sure we disconnect current players and save their characters.
         CommandManager.worldoff(None, args='confirm')
-        ChatLogManager.exit()
 
     # Make sure all process finish gracefully (Exit their listening loops).
     [release_process(process) for process in ACTIVE_PROCESSES]
