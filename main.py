@@ -1,6 +1,8 @@
 import multiprocessing
 import os
 import argparse
+import signal
+import threading
 from sys import platform
 from time import sleep
 
@@ -48,6 +50,20 @@ def release_process(active_process):
     Logger.info(f'{active_process.name} terminated.')
 
 
+def handle_console_commands():
+    try:
+        while input() != 'exit':
+            Logger.error("Invalid command.")
+    except:
+        pass
+    RUNNING.value = 0
+
+
+def handler_stop_signals(signum, frame):
+    RUNNING.value = 0
+
+
+CONSOLE_THREAD = None
 RUNNING = multiprocessing.Value('i', 1)
 ACTIVE_PROCESSES = []
 
@@ -88,13 +104,25 @@ if __name__ == '__main__':
         if env_var:
             Logger.info(f'Environment variable {env_var_name}: {env_var}')
 
-    # Process launching starts here.
-
     launch_realm = not args.launch or args.launch == 'realm'
     launch_world = not args.launch or args.launch == 'world'
     console_mode = os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
                              config.Server.Settings.console_mode) in [True, 'True', 'true']
 
+    if not launch_world and not launch_realm:
+        Logger.error('Realm and World launch are disabled.')
+        exit()
+
+    # Hook exit signals.
+    signal.signal(signal.SIGINT, handler_stop_signals)
+    signal.signal(signal.SIGTERM, handler_stop_signals)
+
+    # Handle console mode.
+    if console_mode:
+        CONSOLE_THREAD = threading.Thread(target=handle_console_commands, daemon=True)
+        CONSOLE_THREAD.start()
+
+    # Process launching starts here.
     if launch_world:
         ACTIVE_PROCESSES.append(context.Process(
             name='World process',
@@ -108,16 +136,9 @@ if __name__ == '__main__':
 
     [process.start() for process in ACTIVE_PROCESSES]
 
-    try:
-        # Wait for user input or interrupt.
-        if console_mode:
-            while input() != 'exit':
-                Logger.error('Invalid command.')
-        # Wait for processes.
-        else:
-            [process.join() for process in ACTIVE_PROCESSES]
-    except:
-        pass
+    # Wait on main thread for stop signal or 'exit' command.
+    while RUNNING.value:
+        sleep(2)
 
     # Exit.
     Logger.info('Shutting down the core, please wait...')
