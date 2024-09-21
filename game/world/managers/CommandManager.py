@@ -1016,6 +1016,12 @@ class CommandManager(object):
         return 0, result
 
     @staticmethod
+    def deactivate_cells(world_session, args):
+        from game.world.managers.maps.MapManager import MapManager
+        MapManager.deactivate_cells()
+        return 0, ''
+
+    @staticmethod
     def destroymonster(world_session, args):
         try:
             creature_guid = int(args) if args else 0
@@ -1146,6 +1152,7 @@ GM_COMMAND_DEFINITIONS = {
 
 DEV_COMMAND_DEFINITIONS = {
     'mapstats': [CommandManager.mapstats, 'active maps, adts and cells'],
+    'deactivatecells': [CommandManager.deactivate_cells, 'run cell deactivate process'],
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
     'sloc': [CommandManager.save_location, 'save your location to locations.log along with a comment'],
