@@ -81,10 +81,13 @@ class MapTile(object):
     def _load_namigator_adt_navs(self, namigator):
         try:
             Logger.info(f'[Namigator] Loading navs, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
-            # Notice, namigator has inverted coordinates.
-            if not namigator.adt_loaded(self.adt_y, self.adt_x):
-                namigator.load_adt(self.adt_y, self.adt_x)
-            self.has_navigation = namigator.adt_loaded(self.adt_y, self.adt_x)
+            if namigator.has_adts():
+                # Notice, namigator has inverted coordinates.
+                if not namigator.adt_loaded(self.adt_y, self.adt_x):
+                    namigator.load_adt(self.adt_y, self.adt_x)
+                self.has_navigation = namigator.adt_loaded(self.adt_y, self.adt_x)
+            else:  # WMO only.
+                self.has_navigation = True
             return self.has_navigation
         except RuntimeError:
             Logger.error(traceback.format_exc())
