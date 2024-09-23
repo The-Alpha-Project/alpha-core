@@ -107,7 +107,7 @@ class GameObjectSpawn:
         self.respawn_time = randint(self.gameobject_spawn.spawn_spawntimemin, self.gameobject_spawn.spawn_spawntimemax)
         gameobject_instance = GameObjectBuilder.create(gameobject_template_id, gameobject_location,
                                                        self.map_id, self.instance_id,
-                                                       self.gameobject_spawn.spawn_state,
+                                                       state=self.gameobject_spawn.spawn_state,
                                                        rot0=self.gameobject_spawn.spawn_rotation0,
                                                        rot1=self.gameobject_spawn.spawn_rotation1,
                                                        rot2=self.gameobject_spawn.spawn_rotation2,

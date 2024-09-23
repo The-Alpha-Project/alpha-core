@@ -292,10 +292,9 @@ class CreatureManager(UnitManager):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
 
     def reset_virtual_equipment(self):
-        if self.creature_template.equipment_id > 0:
-            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                self.creature_template.equipment_id
-            )
+        equipment_id = self.addon.equipment_id if self.addon.equipment_id else self.creature_template.equipment_id
+        if equipment_id:
+            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
             if equip_template:
                 [VirtualItemsUtils.set_virtual_item(self, x, getattr(equip_template, f'equipentry{x + 1}')) for x in range(3)]
                 return
