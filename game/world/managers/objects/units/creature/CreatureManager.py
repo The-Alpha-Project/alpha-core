@@ -929,7 +929,6 @@ class CreatureManager(UnitManager):
         ]
 
     # override
-    # noinspection PyMethodMayBeStatic
     def get_creature_family(self):
         return self.creature_template.beast_family
 
