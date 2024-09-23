@@ -233,6 +233,9 @@ begin not atomic
         (1052, 28, 0, 19, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raleigh the Devout - Set Equipment'),
         (1052, 31, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raleigh the Devout - Modify Flags');
 
+        -- Anton's Letter of Commendation
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '19534');
+
         insert into applied_updates values ('040920242');
     end if;
 end $
