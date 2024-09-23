@@ -15,7 +15,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
-from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
@@ -685,6 +685,18 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def setvirtualitem(world_session, args):
+        try:
+            item_id = int(args)
+            unit = CommandManager._target_or_self(world_session)
+            if unit.get_type_id() != ObjectTypeIds.ID_UNIT:
+                return -1, 'target must be unit.'
+            unit.set_virtual_equipment(slot=0, item_id=item_id)
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid display id.'
+
+    @staticmethod
     def morph(world_session, args):
         try:
             display_id = int(args)
@@ -1130,6 +1142,7 @@ GM_COMMAND_DEFINITIONS = {
     'unmount': [CommandManager.unmount, 'dismount'],
     'morph': [CommandManager.morph, 'morph the targeted unit'],
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
+    'setvirtualitem': [CommandManager.setvirtualitem, 'equips virtual item on unit main hand'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],
     'unitflags': [CommandManager.unit_flags, 'get targeted unit flags status'],
     'weaponmode': [CommandManager.weaponmode, 'set targeted creature weapon mode'],

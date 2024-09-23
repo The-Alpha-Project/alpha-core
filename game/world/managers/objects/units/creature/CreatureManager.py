@@ -292,7 +292,7 @@ class CreatureManager(UnitManager):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
 
     def reset_virtual_equipment(self):
-        equipment_id = self.addon.equipment_id if self.addon.equipment_id else self.creature_template.equipment_id
+        equipment_id = self._get_equipment_id()
         if equipment_id:
             equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
             if equip_template:
@@ -300,6 +300,10 @@ class CreatureManager(UnitManager):
                 return
         # Make sure its cleared if creature was morphed.
         [VirtualItemsUtils.set_virtual_item(self, x, 0) for x in range(3)]
+
+    def _get_equipment_id(self):
+        return self.addon.equipment_id if self.addon and self.addon.equipment_id \
+            else self.creature_template.equipment_id
 
     def set_faction(self, faction_id):
         self.faction = faction_id
