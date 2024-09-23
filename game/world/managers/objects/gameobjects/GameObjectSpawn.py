@@ -46,6 +46,8 @@ class GameObjectSpawn:
         # New instance for default objects.
         if self.is_default:
             self.gameobject_instance = self._generate_gameobject_instance()
+            if ttl:
+                self.gameobject_instance.time_to_live_timer = ttl
         # Triggered objects uses the existent instance.
         elif not self.gameobject_instance:
             self.gameobject_instance = self._generate_gameobject_instance(ttl=ttl)

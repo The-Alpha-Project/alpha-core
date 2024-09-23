@@ -434,6 +434,7 @@ class ScriptHandler:
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, {command.get_info()}.')
             return command.should_abort()
+
         go_spawn.spawn(ttl=command.datalong2)
 
         return False
