@@ -41,6 +41,7 @@ class GameObjectBuilder:
         go_instance.instance_id = instance_id if not summoner else summoner.instance_id
         go_instance.summoner = summoner
         go_instance.spell_id = spell_id
+        go_instance.initial_state = state
 
         # Initialize from gameobject template.
         go_instance.initialize_from_gameobject_template(gobject_template)
@@ -52,7 +53,6 @@ class GameObjectBuilder:
         go_instance.rot1 = rot1
         go_instance.rot2 = rot2
         go_instance.rot3 = rot3
-        go_instance.state = state
         go_instance.time_to_live_timer = ttl
 
         # Set channel object update field for rituals and fishing nodes.

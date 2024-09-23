@@ -796,6 +796,7 @@ class CreatureManager(UnitManager):
 
     # override
     def respawn(self):
+        self.initialize_from_creature_template(self.creature_template)
         super().respawn()
 
     # override

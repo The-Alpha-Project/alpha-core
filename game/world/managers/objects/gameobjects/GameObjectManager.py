@@ -41,6 +41,7 @@ class GameObjectManager(ObjectManager):
         self.unlocked_by = set()
         self.unlock_result = None
         self.flags = 0
+        self.initial_state = 0
         self.state = 0
 
         self.update_packet_factory.init_values(self.guid, GameObjectFields)
@@ -81,6 +82,7 @@ class GameObjectManager(ObjectManager):
         if not gobject_template:
             return
 
+        self.state = self.initial_state
         self.entry = gobject_template.entry
         self.gobject_template = gobject_template
         self.native_display_id = self.gobject_template.display_id
@@ -334,6 +336,11 @@ class GameObjectManager(ObjectManager):
                 self.despawn()
                 return False
         return True
+
+    # override
+    def respawn(self):
+        self.initialize_from_gameobject_template(self.gobject_template)
+        super().respawn()
 
     # override
     def despawn(self, ttl=0):
