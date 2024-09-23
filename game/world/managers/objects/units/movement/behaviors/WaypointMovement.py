@@ -1,6 +1,6 @@
 import time
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags, ObjectTypeIds
+from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
@@ -13,7 +13,7 @@ class WaypointMovement(BaseMovement):
                  is_single=False):
         super().__init__(move_type=MoveType.WAYPOINTS, spline_callback=spline_callback, is_default=is_default)
         self.creature_movement = None
-        self.is_single=is_single
+        self.is_single = is_single
         self.command_move_info = command_move_info
         self.speed = speed
         self.should_repeat = is_default

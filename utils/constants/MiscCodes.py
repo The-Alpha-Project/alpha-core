@@ -662,6 +662,12 @@ class CreatureGroupFlags(IntEnum):
     OPTION_INFORM_MEMBERS_ON_ANY_DIED = 0x080
 
 
+class MapTileStates(IntEnum):
+    READY = 0
+    LOADING = 1
+    UNUSABLE = 2
+
+
 class MoveType(IntEnum):
     INSTANT = 0x0
     IDLE = 0x1

@@ -89,7 +89,7 @@ class MovementInfo:
 
     def _get_transport(self):
         map_ = self.owner.get_map()
-        return map_.get_surrounding_gameobject_by_guid(self.owner, self.owner.transport_id).transport_manager
+        return map_.get_surrounding_gameobject_by_guid(self.owner, self.owner.transport_id)
 
     def _get_bytes(self):
         data = pack('<2Q9fI', self.owner.guid, self.owner.transport_id, self.owner.transport_location.x,

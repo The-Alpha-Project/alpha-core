@@ -46,6 +46,8 @@ class GameObjectSpawn:
         # New instance for default objects.
         if self.is_default:
             self.gameobject_instance = self._generate_gameobject_instance()
+            if ttl:
+                self.gameobject_instance.time_to_live_timer = ttl
         # Triggered objects uses the existent instance.
         elif not self.gameobject_instance:
             self.gameobject_instance = self._generate_gameobject_instance(ttl=ttl)
@@ -105,7 +107,7 @@ class GameObjectSpawn:
         self.respawn_time = randint(self.gameobject_spawn.spawn_spawntimemin, self.gameobject_spawn.spawn_spawntimemax)
         gameobject_instance = GameObjectBuilder.create(gameobject_template_id, gameobject_location,
                                                        self.map_id, self.instance_id,
-                                                       self.gameobject_spawn.spawn_state,
+                                                       state=self.gameobject_spawn.spawn_state,
                                                        rot0=self.gameobject_spawn.spawn_rotation0,
                                                        rot1=self.gameobject_spawn.spawn_rotation1,
                                                        rot2=self.gameobject_spawn.spawn_rotation2,

@@ -1,17 +1,19 @@
 import multiprocessing
 import os
 import argparse
+import signal
+import threading
 from sys import platform
 from time import sleep
 
 from game.realm.RealmManager import RealmManager
 from game.world import WorldManager
+from game.world.managers.CommandManager import CommandManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
 from tools.map_extractor.MapExtractor import MapExtractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
-from utils.ChatLogManager import ChatLogManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
@@ -35,14 +37,37 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def release_process(process):
-    while process.is_alive():
+def release_process(active_process):
+    Logger.info(f'Releasing {active_process.name}...')
+    while active_process.is_alive():
         try:
-            process.join(timeout=2)  # Seconds.
-            if process.is_alive():
-                process.terminate()
+            # Give the process 2 seconds to shut down.
+            active_process.join(timeout=2)
+            if active_process.is_alive():
+                active_process.terminate()
+                break
         except (ValueError, KeyboardInterrupt):
             sleep(0.1)
+
+    Logger.info(f'{active_process.name} released.')
+
+
+def handle_console_commands():
+    try:
+        while input() != 'exit':
+            Logger.error("Invalid command.")
+    except:
+        pass
+    RUNNING.value = 0
+
+
+def handler_stop_signals(signum, frame):
+    RUNNING.value = 0
+
+
+CONSOLE_THREAD = None
+RUNNING = multiprocessing.Value('i', 1)
+ACTIVE_PROCESSES = []
 
 
 if __name__ == '__main__':
@@ -65,14 +90,9 @@ if __name__ == '__main__':
         exit()
 
     # Validate if maps available and if version match.
-    if not MapManager.validate_maps():
+    if not MapManager.validate_map_files():
         Logger.error(f'Invalid maps version or maps missing, expected version {MapTile.EXPECTED_VERSION}')
         exit()
-
-    # if platform != 'win32':
-    #    from signal import signal, SIGPIPE, SIG_DFL
-    #    # https://stackoverflow.com/a/30091579
-    #    signal(SIGPIPE, SIG_DFL)
 
     # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
     if platform == 'darwin':
@@ -86,63 +106,52 @@ if __name__ == '__main__':
         if env_var:
             Logger.info(f'Environment variable {env_var_name}: {env_var}')
 
-    # Process launching starts here.
-
     launch_realm = not args.launch or args.launch == 'realm'
     launch_world = not args.launch or args.launch == 'world'
+    console_mode = os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
+                             config.Server.Settings.console_mode) in [True, 'True', 'true']
 
-    login_process = None
-    proxy_process = None
-    world_process = None
+    if not launch_world and not launch_realm:
+        Logger.error('Realm and World launch are disabled.')
+        exit()
+
+    # Hook exit signals.
+    signal.signal(signal.SIGINT, handler_stop_signals)
+    signal.signal(signal.SIGTERM, handler_stop_signals)
+
+    # Handle console mode.
+    if console_mode:
+        CONSOLE_THREAD = threading.Thread(target=handle_console_commands, daemon=True)
+        CONSOLE_THREAD.start()
+
+    # Process launching starts here.
+    if launch_world:
+        ACTIVE_PROCESSES.append(context.Process(
+            name='World process',
+            target=WorldManager.WorldServerSessionHandler.start,
+            args=(RUNNING,))
+        )
 
     if launch_realm:
-        login_process = context.Process(target=RealmManager.start_realm)
-        login_process.start()
+        ACTIVE_PROCESSES.append(context.Process(name='Login process', target=RealmManager.start_realm, args=(RUNNING,)))
+        ACTIVE_PROCESSES.append(context.Process(name='Proxy process', target=RealmManager.start_proxy, args=(RUNNING,)))
 
-        proxy_process = context.Process(target=RealmManager.start_proxy)
-        proxy_process.start()
+    [process.start() for process in ACTIVE_PROCESSES]
 
-        if not launch_world:
-            try:
-                login_process.join()
-            except:
-                Logger.info('Terminating login processes...')
+    # Wait on main thread for stop signal or 'exit' command.
+    while RUNNING.value:
+        sleep(2)
 
-    if launch_world:
-        world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
-        world_process.start()
-
-        # noinspection PyBroadException
-        try:
-            if os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
-                         config.Server.Settings.console_mode) in [True, 'True', 'true']:
-                while input() != 'exit':
-                    Logger.error('Invalid command.')
-            else:
-                world_process.join()
-        except:
-            Logger.info('Shutting down the core...')
-
-        ChatLogManager.exit()
-
-    # Send SIGTERM to processes.
-    # Add checks to send SIGTERM to only running process
-    if launch_world:
-        world_process.terminate()
-        Logger.info('World process terminated.')
-    if launch_realm:
-        login_process.terminate()
-        Logger.info('Login process terminated.')
-        proxy_process.terminate()
-        Logger.info('Proxy process terminated.')
-
-    # Release process resources.
-    Logger.info('Waiting to release resources...')
+    # Exit.
+    Logger.info('Shutting down the core, please wait...')
 
     if launch_world:
-        release_process(world_process)
-    if launch_realm:
-        release_process(proxy_process)
-        release_process(login_process)
+        # Make sure we disconnect current players and save their characters.
+        CommandManager.worldoff(None, args='confirm')
 
+    # Make sure all process finish gracefully (Exit their listening loops).
+    [release_process(process) for process in ACTIVE_PROCESSES]
+
+    ACTIVE_PROCESSES.clear()
     Logger.success('Core gracefully shut down.')
+    exit()

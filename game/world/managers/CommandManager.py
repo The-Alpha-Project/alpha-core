@@ -15,7 +15,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
-from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
@@ -100,6 +100,11 @@ class CommandManager(object):
                                                            f'{PLAYER_COMMAND_DEFINITIONS[command][1]}')
 
         return 0, f'{total_number} commands found.'
+
+    @staticmethod
+    def toggle_collision(world_session, args):
+        active = world_session.player_mgr.toggle_collision()
+        return 0, f'collision cheat {'On' if active else 'Off'}'
 
     @staticmethod
     def speed(world_session, args):
@@ -680,6 +685,18 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def setvirtualitem(world_session, args):
+        try:
+            item_id = int(args)
+            unit = CommandManager._target_or_self(world_session)
+            if unit.get_type_id() != ObjectTypeIds.ID_UNIT:
+                return -1, 'target must be unit.'
+            unit.set_virtual_equipment(slot=0, item_id=item_id)
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid display id.'
+
+    @staticmethod
     def morph(world_session, args):
         try:
             display_id = int(args)
@@ -997,6 +1014,26 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def mapstats(world_session, args):
+        from game.world.managers.maps.MapManager import MapManager
+        tile_count = MapManager.get_active_tiles_count()
+        maps = MapManager.get_active_maps()
+        result = f'Total active tiles/adts: {tile_count}\n'
+        for m in maps:
+            result += (f'Id:{m.map_id}, '
+                       f'Name:{m.name}, '
+                       f'InstanceId:{m.instance_id}, '
+                       f'Active Cells: {m.get_active_cell_count()}\n'
+                       )
+        return 0, result
+
+    @staticmethod
+    def deactivate_cells(world_session, args):
+        from game.world.managers.maps.MapManager import MapManager
+        MapManager.deactivate_cells()
+        return 0, ''
+
+    @staticmethod
     def destroymonster(world_session, args):
         try:
             creature_guid = int(args) if args else 0
@@ -1066,6 +1103,7 @@ PLAYER_COMMAND_DEFINITIONS = {
 
 # noinspection SpellCheckingInspection
 GM_COMMAND_DEFINITIONS = {
+    'collision': [CommandManager.toggle_collision, 'toggle collision'],
     'speed': [CommandManager.speed, 'change your run speed'],
     'swimspeed': [CommandManager.swim_speed, 'change your swim speed'],
     'scriptwp': [CommandManager.activate_script_waypoints, 'tries to activate the selected unit script waypoints'],
@@ -1104,6 +1142,7 @@ GM_COMMAND_DEFINITIONS = {
     'unmount': [CommandManager.unmount, 'dismount'],
     'morph': [CommandManager.morph, 'morph the targeted unit'],
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
+    'setvirtualitem': [CommandManager.setvirtualitem, 'equips virtual item on unit main hand'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],
     'unitflags': [CommandManager.unit_flags, 'get targeted unit flags status'],
     'weaponmode': [CommandManager.weaponmode, 'set targeted creature weapon mode'],
@@ -1125,6 +1164,8 @@ GM_COMMAND_DEFINITIONS = {
 }
 
 DEV_COMMAND_DEFINITIONS = {
+    'mapstats': [CommandManager.mapstats, 'active maps, adts and cells'],
+    'deactivatecells': [CommandManager.deactivate_cells, 'run cell deactivate process'],
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
     'sloc': [CommandManager.save_location, 'save your location to locations.log along with a comment'],

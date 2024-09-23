@@ -1,7 +1,10 @@
+import traceback
+
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.items.VirtualItemInfoHolder import VirtualItemInfoHolder
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -51,9 +54,15 @@ class VirtualItemsUtils:
             creature_mgr.virtual_item_info[slot] = VirtualItemInfoHolder()
 
         virtual_info = creature_mgr.virtual_item_info[slot]
-        creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_info.display_id)
-        creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_info.info_packed)
-        creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_info.info_packed_2)
+
+        # Some items packed data will overflow int, this usually happens when trying to equip non monster items
+        # to npcs via .setvirtualitem command.
+        try:
+            creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_info.display_id)
+            creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_info.info_packed)
+            creature_mgr.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_info.info_packed_2)
+        except:
+            Logger.error(f'Item entry: [{item_entry}] {traceback.format_exc()}')
 
         if slot == 0:
             creature_mgr.set_weapon_reach(weapon_reach)

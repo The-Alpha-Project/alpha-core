@@ -57,7 +57,7 @@ class ObjectManager:
         self.current_display_id = native_display_id
         self.faction = faction
         self.bounding_radius = bounding_radius
-        self.location = Vector()
+        self.location = location if location else Vector()
         self.transport_id = transport_id
         self.transport_location = Vector()
         self.pitch = pitch
@@ -75,6 +75,7 @@ class ObjectManager:
         self.last_tick = 0
         self.movement_spline = None
         self.object_ai = None
+        self.collision_cheat = False
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
@@ -208,6 +209,9 @@ class ObjectManager:
 
     def get_name(self):
         return ''
+
+    def get_entry(self):
+        return self.entry
 
     def get_display_id(self):
         return self.current_display_id
@@ -429,6 +433,7 @@ class ObjectManager:
         if self.is_default and not ttl:
             self.get_map().remove_object(self)
             return
+        # TODO: Some objects are being despawned and not entirely destroyed. e.g. Fishing Bobber, Duel Flags, Rituals.
         # Despawn (De-activate)
         self.get_map().update_object(self, has_changes=True)
 

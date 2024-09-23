@@ -1,3 +1,4 @@
+from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.objects.pools.PoolManager import PoolManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -12,13 +13,13 @@ from utils.constants.MiscCodes import PoolType
 
 
 class Map:
-    def __init__(self, map_id, active_cell_callback, instance_id, map_manager):
+    def __init__(self, map_id, active_cell_callback, inactive_cell_callback, instance_id, map_manager):
         self.map_id = map_id
         self.map_manager = map_manager
         self.dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         self.instance_id = instance_id
         self.name = self.dbc_map.MapName_enUS
-        self.grid_manager = GridManager(map_id, instance_id, active_cell_callback)
+        self.grid_manager = GridManager(map_id, instance_id, active_cell_callback, inactive_cell_callback)
         self.script_handler = ScriptHandler(self)
         self.map_event_manager = MapEventManager()
         self.pool_manager = PoolManager()
@@ -92,7 +93,8 @@ class Map:
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
             go_spawn_instance = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
-            go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
+            if config.Server.Settings.load_pools:
+                go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
             if not go_spawn_instance.pool:
                 go_spawn_instances.append(go_spawn_instance)
             count += 1
@@ -108,7 +110,8 @@ class Map:
         length = len(creature_spawns)
         for creature_spawn in creature_spawns:
             creature_spawn_instance = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
-            creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
+            if config.Server.Settings.load_pools:
+                creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
             if not creature_spawn_instance.pool:
                 creature_spawn_instances.append(creature_spawn_instance)
             count += 1
@@ -203,7 +206,7 @@ class Map:
         return self.map_manager.los_check(self.map_id, start_vector, end_vector, doodads=doodads)
 
     def get_tile(self, x, y):
-        return self.map_manager.get_tile(x, y)
+        return MapUtils.get_tile(x, y)
 
     # GridManager helpers.
 
@@ -269,6 +272,12 @@ class Map:
 
     def is_active_cell_for_location(self, location):
         return self.grid_manager.is_active_cell_for_location(location)
+
+    def get_active_cell_count(self):
+        return self.grid_manager.get_active_cell_count()
+
+    def activate_cell_by_world_object(self, world_object):
+        self.grid_manager.activate_cell_by_world_object(world_object)
 
     # Objects updates.
     def update_creatures(self):

@@ -20,7 +20,6 @@ from utils.constants.AuthCodes import AuthCode
 
 STARTUP_TIME = time()
 WORLD_ON = True
-
 MAX_PACKET_BYTES = 4096
 
 
@@ -213,70 +212,7 @@ class WorldServerSessionHandler:
         return buffer
 
     @staticmethod
-    def schedule_background_tasks():
-        # Save characters.
-        realm_saving_scheduler = BackgroundScheduler()
-        realm_saving_scheduler._daemon = True
-        realm_saving_scheduler.add_job(WorldSessionStateHandler.save_characters, 'interval',
-                                       seconds=config.Server.Settings.realm_saving_interval_seconds, max_instances=1)
-        realm_saving_scheduler.start()
-
-        # Player updates.
-        player_update_scheduler = BackgroundScheduler()
-        player_update_scheduler._daemon = True
-        player_update_scheduler.add_job(WorldSessionStateHandler.update_players, 'interval', seconds=0.1,
-                                        max_instances=1)
-        player_update_scheduler.start()
-
-        # Creature updates.
-        creature_update_scheduler = BackgroundScheduler()
-        creature_update_scheduler._daemon = True
-        creature_update_scheduler.add_job(MapManager.update_creatures, 'interval', seconds=0.2, max_instances=1)
-        creature_update_scheduler.start()
-
-        # Gameobject updates.
-        gameobject_update_scheduler = BackgroundScheduler()
-        gameobject_update_scheduler._daemon = True
-        gameobject_update_scheduler.add_job(MapManager.update_gameobjects, 'interval', seconds=1.0, max_instances=1)
-        gameobject_update_scheduler.start()
-
-        # Dynamicobject updates.
-        dynobject_update_scheduler = BackgroundScheduler()
-        dynobject_update_scheduler._daemon = True
-        dynobject_update_scheduler.add_job(MapManager.update_dynobjects, 'interval', seconds=1.0, max_instances=1)
-        dynobject_update_scheduler.start()
-
-        # Creature and Gameobject spawn updates (mostly to handle respawn logic).
-        spawn_update_scheduler = BackgroundScheduler()
-        spawn_update_scheduler._daemon = True
-        spawn_update_scheduler.add_job(MapManager.update_spawns, 'interval', seconds=1.0, max_instances=1)
-        spawn_update_scheduler.start()
-
-        # Corpses updates.
-        corpses_update_scheduler = BackgroundScheduler()
-        corpses_update_scheduler._daemon = True
-        corpses_update_scheduler.add_job(MapManager.update_corpses, 'interval', seconds=10.0, max_instances=1)
-        corpses_update_scheduler.start()
-
-        # Scripts/MapEvents events updates.
-        map_events_update_scheduler = BackgroundScheduler()
-        map_events_update_scheduler._daemon = True
-        map_events_update_scheduler.add_job(MapManager.update_map_scripts_and_events, 'interval', seconds=1.0,
-                                            max_instances=1)
-        map_events_update_scheduler.start()
-
-        # MapManager tile loading.
-        tile_loading_scheduler = BackgroundScheduler()
-        tile_loading_scheduler._daemon = True
-        tile_loading_scheduler.add_job(MapManager.initialize_pending_tiles, 'interval', seconds=2.0, max_instances=4)
-        tile_loading_scheduler.start()
-
-        # Cell deactivation.
-        cell_unloading_scheduler = BackgroundScheduler()
-        cell_unloading_scheduler._daemon = True
-        cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0, max_instances=1)
-        cell_unloading_scheduler.start()
-
+    def start_chat_logger():
         # Chat logging queue.
         if config.Server.Logging.log_player_chat:
             logging_thread = threading.Thread(target=ChatLogManager.process_logs)
@@ -284,30 +220,81 @@ class WorldServerSessionHandler:
             logging_thread.start()
 
     @staticmethod
-    def start():
+    def build_get_schedulers():
+        return [
+            WorldServerSessionHandler.build_scheduler('Realm Saving', WorldSessionStateHandler.save_characters,
+                                                      config.Server.Settings.realm_saving_interval_seconds, 1),
+            WorldServerSessionHandler.build_scheduler('Player', WorldSessionStateHandler.update_players, 0.1, 1),
+            WorldServerSessionHandler.build_scheduler('Creature', MapManager.update_creatures, 0.2, 1),
+            WorldServerSessionHandler.build_scheduler('Gameobject', MapManager.update_gameobjects, 1.0, 1),
+            WorldServerSessionHandler.build_scheduler('DynObject', MapManager.update_dynobjects, 1.0, 1),
+            WorldServerSessionHandler.build_scheduler('Spawn', MapManager.update_spawns, 1.0, 1),
+            WorldServerSessionHandler.build_scheduler('Corpse', MapManager.update_corpses, 10.0, 1),
+            WorldServerSessionHandler.build_scheduler('Script/Event', MapManager.update_map_scripts_and_events, 1.0, 1),
+            WorldServerSessionHandler.build_scheduler('Tile Loading', MapManager.initialize_pending_tiles, 2.0, 4),
+            WorldServerSessionHandler.build_scheduler('Tile Unloading', MapManager.deactivate_cells, 300.0, 1)]
+
+    @staticmethod
+    def build_scheduler(name, target, seconds, instances, daemon=True):
+        scheduler = BackgroundScheduler()
+        scheduler.daemon = daemon
+        scheduler.add_job(target, 'interval', seconds=seconds, max_instances=instances)
+        return scheduler
+
+    @staticmethod
+    def start_schedulers(schedulers):
+        length = len(schedulers)
+        count = 0
+
+        for scheduler in schedulers:
+            scheduler.start()
+            count += 1
+            Logger.progress('Loading background schedulers...', count, length)
+
+    @staticmethod
+    def stop_schedulers(schedulers):
+        for scheduler in schedulers:
+            scheduler.shutdown()
+        Logger.info('Background schedulers stopped.')
+
+    @staticmethod
+    def start(running):
         WorldLoader.load_data()
 
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-        # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
-        except AttributeError:
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port))
-        server_socket.listen()
+        # Start background tasks.
+        schedulers = WorldServerSessionHandler.build_get_schedulers()
+        WorldServerSessionHandler.start_schedulers(schedulers)
 
-        WorldServerSessionHandler.schedule_background_tasks()
+        # Chat logger.
+        WorldServerSessionHandler.start_chat_logger()
 
-        real_binding = server_socket.getsockname()
-        Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
-
-        while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
-            # noinspection PyBroadException
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             try:
-                client_socket, client_address = server_socket.accept()
-                server_handler = WorldServerSessionHandler(client_socket, client_address)
-                world_session_thread = threading.Thread(target=server_handler.handle)
-                world_session_thread.daemon = True
-                world_session_thread.start()
-            except:
-                break
+                server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
+            except AttributeError:
+                server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server_socket.bind((config.Server.Connection.WorldServer.host, config.Server.Connection.WorldServer.port))
+            server_socket.listen()
+            server_socket.settimeout(2)
+
+            real_binding = server_socket.getsockname()
+            Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+
+            while WORLD_ON and running.value:
+                try:
+                    client_socket, client_address = server_socket.accept()
+                    server_handler = WorldServerSessionHandler(client_socket, client_address)
+                    world_session_thread = threading.Thread(target=server_handler.handle)
+                    world_session_thread.daemon = True
+                    world_session_thread.start()
+                except socket.timeout:
+                    pass  # Non blocking.
+                except OSError:
+                    Logger.warning(traceback.format_exc())
+                except KeyboardInterrupt:
+                    break
+
+        Logger.info("World server turned off.")
+        ChatLogManager.exit()
+        WorldServerSessionHandler.stop_schedulers(schedulers)

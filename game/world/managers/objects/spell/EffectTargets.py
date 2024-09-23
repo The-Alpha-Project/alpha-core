@@ -370,7 +370,8 @@ class EffectTargets:
             casting_spell.spell_impact_timestamps[enemy.guid] = -1
 
         if len(enemies) == 0 and len(target_effect.targets.resolved_targets_a) > 0:
-            target_effect.targets.resolved_targets_a = []  # As this target specifies on A in some cases, clear out A if no targets exist.
+            # As this target specifies on A in some cases, clear out A if no targets exist.
+            target_effect.targets.resolved_targets_a = []
         return enemies
 
     @staticmethod
@@ -378,6 +379,9 @@ class EffectTargets:
         target_position = WorldDatabaseManager.spell_target_position_get_by_spell(casting_spell.spell_entry.ID)
         if not target_position:
             Logger.warning(f'Unimplemented target spell position for spell {casting_spell.spell_entry.ID}.')
+            #  Not available in db tables, return initial target if available.
+            if casting_spell.initial_target and casting_spell.initial_target_is_terrain():
+                return [casting_spell.initial_target]
             return []
 
         return target_position.target_map, Vector(target_position.target_position_x,

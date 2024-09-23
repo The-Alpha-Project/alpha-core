@@ -292,15 +292,18 @@ class CreatureManager(UnitManager):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
 
     def reset_virtual_equipment(self):
-        if self.creature_template.equipment_id > 0:
-            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                self.creature_template.equipment_id
-            )
+        equipment_id = self._get_equipment_id()
+        if equipment_id:
+            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
             if equip_template:
                 [VirtualItemsUtils.set_virtual_item(self, x, getattr(equip_template, f'equipentry{x + 1}')) for x in range(3)]
                 return
         # Make sure its cleared if creature was morphed.
         [VirtualItemsUtils.set_virtual_item(self, x, 0) for x in range(3)]
+
+    def _get_equipment_id(self):
+        return self.addon.equipment_id if self.addon and self.addon.equipment_id \
+            else self.creature_template.equipment_id
 
     def set_faction(self, faction_id):
         self.faction = faction_id
@@ -787,7 +790,16 @@ class CreatureManager(UnitManager):
         return self.creature_template.name
 
     # override
+    def get_entry(self):
+        if self.entry:
+            return self.entry
+        if self.creature_template:
+            return self.creature_template.entry
+        return 0
+
+    # override
     def respawn(self):
+        self.initialize_from_creature_template(self.creature_template)
         super().respawn()
 
     # override
@@ -921,7 +933,6 @@ class CreatureManager(UnitManager):
         ]
 
     # override
-    # noinspection PyMethodMayBeStatic
     def get_creature_family(self):
         return self.creature_template.beast_family
 

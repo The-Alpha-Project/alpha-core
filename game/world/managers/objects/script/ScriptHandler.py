@@ -5,6 +5,8 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureGroup
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
+from game.world.managers.objects.gameobjects.managers.DoorManager import DoorManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.Script import Script
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
@@ -432,6 +434,7 @@ class ScriptHandler:
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, {command.get_info()}.')
             return command.should_abort()
+
         go_spawn.spawn(ttl=command.datalong2)
 
         return False
@@ -855,7 +858,6 @@ class ScriptHandler:
         flag_changed = ((run_enabled and command.source.movement_flags & MoveFlags.MOVEFLAG_WALK) or
                         (not run_enabled and not command.source.movement_flags & MoveFlags.MOVEFLAG_WALK))
         if flag_changed:
-            Logger.script(f"{command.source.get_name()} is now {'Running' if run_enabled else 'Walking'}.")
             command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not run_enabled)
             command.source.movement_manager.set_speed_dirty()
 
@@ -1629,7 +1631,11 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 
-        command.source.gameobject_instance.set_ready()
+        if isinstance(command.source.gameobject_instance, DoorManager):
+            command.source.gameobject_instance.reset_door_state()
+        elif isinstance(command.source.gameobject_instance, ButtonManager):
+            command.source.gameobject_instance.reset_button_state()
+
         return False
 
     @staticmethod

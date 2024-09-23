@@ -143,6 +143,7 @@ class PlayerManager(UnitManager):
 
             # GM checks
             self.is_god = False
+            self.collision_cheat = False
             if self.session.account_mgr.is_gm():
                 self.set_gm_tag()
 
@@ -402,6 +403,28 @@ class PlayerManager(UnitManager):
         self.player.money = self.coinage
         self.player.online = self.online
 
+    def toggle_collision(self):
+        self.collision_cheat = not self.collision_cheat
+        flags = MoveFlags.MOVEFLAG_DONTCOLLIDE if self.collision_cheat else MoveFlags.MOVEFLAG_NONE
+
+        data = pack(
+            '<Q9fI',
+            self.transport_id,
+            self.transport_location.x,
+            self.transport_location.y,
+            self.transport_location.z,
+            self.transport_location.o,
+            self.location.x,
+            self.location.y,
+            self.location.z,
+            self.location.o,
+            self.pitch,
+            flags
+        )
+
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
+        return self.collision_cheat
+
     def teleport(self, map_id, location, recovery: float = -1.0):
         dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         if not dbc_map:
@@ -476,7 +499,7 @@ class PlayerManager(UnitManager):
                 pending_teleport.destination_location.z,
                 pending_teleport.destination_location.o,
                 self.pitch,
-                MoveFlags.MOVEFLAG_NONE,
+                MoveFlags.MOVEFLAG_NONE
             )
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
@@ -507,6 +530,9 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
     def spawn_player_from_teleport(self):
+        if not self.pending_teleport_data:
+            return
+
         from game.world.managers.maps.MapManager import MapManager
         # Pending teleport information.
         pending_teleport = self.pending_teleport_data[0]

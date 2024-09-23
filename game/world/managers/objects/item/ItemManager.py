@@ -532,6 +532,14 @@ class ItemManager(ObjectManager):
     def get_name(self):
         return self.item_template.name if self.item_template else 'Backpack' if self.is_backpack else 'None'
 
+    # override
+    def get_entry(self):
+        if self.entry:
+            return self.entry
+        if self.item_template:
+            return self.item_template.entry
+        return 0
+
     def get_query_details_packet(self):
         data = self.query_details_data()
         return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)

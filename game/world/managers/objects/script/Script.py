@@ -54,10 +54,10 @@ class Script:
             script_command.target = target
 
             # Check if source or target are currently in inactive cells, if so, make their cells become active.
-            if source and not source.is_active_object():
-                source.get_map().update_object(source)
-            if target and target != source and not target.is_active_object():
-                target.get_map().update_object(target)
+            if source and not source.get_map().is_active_cell(source.current_cell):
+                source.get_map().activate_cell_by_world_object(source)
+            if target and target != source and not target.get_map().is_active_cell(target.current_cell):
+                target.get_map().activate_cell_by_world_object(target)
 
             # Condition is not met, skip.
             if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):

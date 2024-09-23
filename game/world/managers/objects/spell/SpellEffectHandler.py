@@ -47,6 +47,14 @@ class SpellEffectHandler:
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
     @staticmethod
+    def handle_activate_object(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT:
+            return
+        # Only two spells, Summon Voidwalker and Summon Succubus (Need summoning circle).
+        # Both with same action, 'AnimateCustom0'.
+        target.send_custom_animation(0)
+
+    @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -654,28 +662,17 @@ class SpellEffectHandler:
         for count in range(amount):
             if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
                 if count == 0:
-                    px = target.x
-                    py = target.y
-                    pz = target.z
+                    location = target
                 else:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_id)
-                    px = location.x
-                    py = location.y
-                    pz = location.z
             else:
                 if radius > 0.0:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_id)
-                    px = location.x
-                    py = location.y
-                    pz = location.z
                 else:
                     location = target if isinstance(target, Vector) else target.location
-                    px = location.x
-                    py = location.y
-                    pz = location.z
 
                 # Spawn the summoned unit.
-                creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_id,
+                creature_manager = CreatureBuilder.create(creature_entry, location, caster.map_id,
                                                           caster.instance_id,
                                                           summoner=caster, faction=caster.faction, ttl=duration,
                                                           spell_id=casting_spell.spell_entry.ID,
@@ -971,6 +968,7 @@ class SpellEffectHandler:
 
 
 SPELL_EFFECTS = {
+    SpellEffects.SPELL_EFFECT_ACTIVATE_OBJECT: SpellEffectHandler.handle_activate_object,
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
     SpellEffects.SPELL_EFFECT_HEAL_MAX_HEALTH: SpellEffectHandler.handle_heal_max_health,
