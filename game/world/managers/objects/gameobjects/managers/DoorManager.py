@@ -1,7 +1,7 @@
 import time
 
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from utils.constants.MiscCodes import GameObjectStates, ScriptTypes
+from utils.constants.MiscCodes import GameObjectStates
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.UpdateFields import GameObjectFields
 
