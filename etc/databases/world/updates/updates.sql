@@ -250,7 +250,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='250920241') = 0 then
         -- Resupplying the Excavation (273), partial fix for https://github.com/The-Alpha-Project/alpha-core/issues/1400
         -- Missing script for ambush event but quest is now completable.
-        INSERT INTO `areatrigger_quest_relation` (`id`, `quest`) VALUES ('171', '233');
+        INSERT INTO `areatrigger_quest_relation` (`id`, `quest`) VALUES ('171', '273');
         
         insert into applied_updates values ('250920241');
     end if;
