@@ -282,7 +282,7 @@ class WorldServerSessionHandler:
             server_socket.settimeout(2)
 
             real_binding = server_socket.getsockname()
-            Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+            Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}')
 
             while WORLD_ON and running.value:
                 try:
