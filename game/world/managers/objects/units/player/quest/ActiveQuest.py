@@ -155,6 +155,22 @@ class ActiveQuest:
             self.db_state.mobcount4 += value
         self.save()
 
+    def subtract_item(self, item_entry, quantity):
+        req_items = QuestHelpers.generate_req_item_list(self.quest)
+        req_count = QuestHelpers.generate_req_item_count_list(self.quest)
+        # Only req items get persisted, not src items.
+        if item_entry not in req_items:
+            return
+        req_item_index = req_items.index(item_entry)
+        # Persist new item count.
+        self._update_db_item_count(req_item_index, -quantity, req_count[req_item_index])  # Update db memento
+        data = pack('<2i', item_entry, -quantity)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
+        self.owner.enqueue_packet(packet)
+        # Check if quest is no longer complete by missing item, update state if necessary.
+        if self.get_quest_state() == QuestState.QUEST_REWARD and not self.can_complete_quest():
+            self.update_quest_state(QuestState.QUEST_ACCEPTED)
+
     def update_item_count(self, item_entry, quantity):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
         req_count = QuestHelpers.generate_req_item_count_list(self.quest)
@@ -165,7 +181,7 @@ class ActiveQuest:
         # Persist new item count.
         self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
         # Notify the current item count to the player.
-        data = pack('<2I', item_entry, quantity)
+        data = pack('<2i', item_entry, quantity)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
         self.owner.enqueue_packet(packet)
         # Check if this makes it complete.
