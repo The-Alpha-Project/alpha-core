@@ -167,7 +167,7 @@ if __name__ == '__main__':
         REALM_SERVER_READY.value = 1
         PROXY_SERVER_READY.value = 1
 
-    Logger.info('Booting alpha core, please wait...')
+    Logger.info('Booting Alpha core, please wait...')
     # Start processes.
     for process, wait_call in ACTIVE_PROCESSES:
         process.start()
