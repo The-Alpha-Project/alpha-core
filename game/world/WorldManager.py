@@ -258,7 +258,7 @@ class WorldServerSessionHandler:
         Logger.info('Background schedulers stopped.')
 
     @staticmethod
-    def start(running):
+    def start_world(running, world_server_ready):
         WorldLoader.load_data()
 
         # Start background tasks.
@@ -267,6 +267,9 @@ class WorldServerSessionHandler:
 
         # Chat logger.
         WorldServerSessionHandler.start_chat_logger()
+
+        # Set ready.
+        world_server_ready.value = 1
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             try:

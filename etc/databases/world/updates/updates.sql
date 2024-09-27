@@ -369,6 +369,56 @@ begin not atomic
         INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES ('4000007', '4000000', '1', '883.882', '-4048.109', '-8.366', '0', '0', '0', '0', '1', '300', '300', '100', '1', '0', '0', '0');
         INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES ('4000008', '4000000', '1', '880.123', '-4048.973', '-6.754', '0', '0', '0', '0', '1', '300', '300', '100', '1', '0', '0', '0');
         INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES ('4000009', '4000000', '1', '754.667', '-4020.691', '-6.072', '0', '0', '0', '0', '1', '300', '300', '100', '1', '0', '0', '0');
+        
+        -- Bring back quest 814, Work for food.
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`, `parse_timestamp`) VALUES ('814', '2', '362', '4', '0', '6', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Work for Food', 'Cook and clean--that\'s all I do!$B$BYou want to eat, you get me some more meat! I don\'t have all day to hunt and prepare food for all these louses. You got to learn to pull your own weight around here if you wanna be treated equal.$B$BGet me some Chunks of Boar Meat if you want to make yourself useful... or you don\'t want to starve to death.', 'Bring 10 Chunks of Boar Meat to Cook Torka in Razor Hill.', 'Get me some Chunks of Boar Meat if you want to make yourself useful...', 'You want to eat, you get me some more meat!', '', '', '', '', '', '769', '0', '0', '0', '10', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '540', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '2004-05-04');
+        
+        -- Reward item. Beer Basted Boar Ribs
+        UPDATE `quest_template` SET `RewItemId1` = '2888', `RewItemCount1` = '10' WHERE (`entry` = '814');
+        
+        -- Torka starter/finisher.
+        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3191', '814');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3191', '814');
+        
+        -- Fix Razor Hill Torka coocking table.
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Durotar/images_6584.jpg
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '336.859', `spawn_positionY` = '-4713.270', `spawn_positionZ` = '12.583' WHERE (`spawn_id` = '399');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '99805');
+        -- Tall Brazier.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1658');
+        -- Smoking Rack.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '329.005', `spawn_positionY` = '-4709.503', `spawn_positionZ` = '13.138' WHERE (`spawn_id` = '1365');
+        -- Cauldron.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '331.229', `spawn_positionY` = '-4707.580', `spawn_positionZ` = '13.714' WHERE (`spawn_id` = '1733');
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '15.11' WHERE (`spawn_id` = '44078');
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '14.2856' WHERE (`spawn_id` = '44051');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '401');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '402');
+        -- Torka
+        UPDATE `spawns_creatures` SET `position_x` = '333.661', `position_y` = '-4710.038', `position_z` = '13.193', `orientation` = '4.26' WHERE (`spawn_id` = '6460');
+        -- Grimtak <Butcher>
+        UPDATE `spawns_creatures` SET `position_x` = '326.98', `position_y` = '-4712.133', `position_z` = '12.731', `orientation` = '5.054' WHERE (`spawn_id` = '10425');
+        -- Braziers.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11978');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11979');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11980');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11981');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '11985');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12065');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12066');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1591');
+        -- Wuark.
+        UPDATE `spawns_creatures` SET `position_x` = '353.706', `position_y` = '-4702.942', `position_z` = '14.566', `orientation` = '3.49' WHERE (`spawn_id` = '7289');
+        -- Krunn
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Durotar/23%20april%2004%20-%20148.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '364.366', `position_y` = '-4705.106', `position_z` = '16.181', `orientation` = '3.35' WHERE (`spawn_id` = '7674');
+        -- Ghrawt
+        UPDATE `spawns_creatures` SET `position_x` = '330.364', `position_y` = '-4827.328', `position_z` = '10.524', `orientation` = '2.85' WHERE (`spawn_id` = '7667');
+        -- Cutac
+        UPDATE `spawns_creatures` SET `position_x` = '339.667', `position_y` = '-4767.068', `position_z` = '12.634', `orientation` = '2.038' WHERE (`spawn_id` = '7672');
 
         insert into applied_updates values ('260920241');
     end if;

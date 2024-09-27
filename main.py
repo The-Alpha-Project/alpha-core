@@ -67,6 +67,7 @@ def handler_stop_signals(signum, frame):
 
 CONSOLE_THREAD = None
 RUNNING = multiprocessing.Value('i', 1)
+WORLD_SERVER_READY = multiprocessing.Value('i', 0)
 ACTIVE_PROCESSES = []
 
 
@@ -128,15 +129,21 @@ if __name__ == '__main__':
     if launch_world:
         ACTIVE_PROCESSES.append(context.Process(
             name='World process',
-            target=WorldManager.WorldServerSessionHandler.start,
-            args=(RUNNING,))
+            target=WorldManager.WorldServerSessionHandler.start_world,
+            args=(RUNNING, WORLD_SERVER_READY))
         )
 
     if launch_realm:
         ACTIVE_PROCESSES.append(context.Process(name='Login process', target=RealmManager.start_realm, args=(RUNNING,)))
         ACTIVE_PROCESSES.append(context.Process(name='Proxy process', target=RealmManager.start_proxy, args=(RUNNING,)))
 
-    [process.start() for process in ACTIVE_PROCESSES]
+    # Start processes.
+    for process in ACTIVE_PROCESSES:
+        process.start()
+        # Wait for world start before starting realm/proxy sockets if needed.
+        if launch_world:
+            while not WORLD_SERVER_READY.value and RUNNING.value:
+                sleep(1)
 
     # Wait on main thread for stop signal or 'exit' command.
     while RUNNING.value:
