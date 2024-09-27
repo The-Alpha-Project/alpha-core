@@ -137,6 +137,7 @@ if __name__ == '__main__':
         ACTIVE_PROCESSES.append(context.Process(name='Login process', target=RealmManager.start_realm, args=(RUNNING,)))
         ACTIVE_PROCESSES.append(context.Process(name='Proxy process', target=RealmManager.start_proxy, args=(RUNNING,)))
 
+    Logger.info('Starting alpha core, please wait...')
     # Start processes.
     for process in ACTIVE_PROCESSES:
         process.start()
