@@ -866,7 +866,7 @@ class StatManager(object):
                                                                      use_block=self.unit_mgr.can_block(in_combat=True))
 
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
-        can_block = not (invalid_result_mask & HitInfo.PARRY) and self.unit_mgr.can_block(attacker.location, in_combat=True)
+        can_block = not (invalid_result_mask & HitInfo.BLOCK) and self.unit_mgr.can_block(attacker.location, in_combat=True)
         if can_block and random.random() < block_chance:
             return hit_info | HitInfo.BLOCK
 
