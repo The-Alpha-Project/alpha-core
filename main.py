@@ -88,10 +88,10 @@ def wait_proxy_server():
 
 
 CONSOLE_THREAD = None
-RUNNING = multiprocessing.Value('i', 1)
-WORLD_SERVER_READY = multiprocessing.Value('i', 0)
-REALM_SERVER_READY = multiprocessing.Value('i', 0)
-PROXY_SERVER_READY = multiprocessing.Value('i', 0)
+RUNNING = None
+WORLD_SERVER_READY = None
+REALM_SERVER_READY = None
+PROXY_SERVER_READY = None
 ACTIVE_PROCESSES = []
 
 
@@ -124,6 +124,11 @@ if __name__ == '__main__':
         context = multiprocessing.get_context('fork')
     else:
         context = multiprocessing.get_context('spawn')
+
+    RUNNING = context.Value('i', 1)
+    WORLD_SERVER_READY = context.Value('i', 0)
+    REALM_SERVER_READY = context.Value('i', 0)
+    PROXY_SERVER_READY = context.Value('i', 0)
 
     # Print active env vars.
     for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
