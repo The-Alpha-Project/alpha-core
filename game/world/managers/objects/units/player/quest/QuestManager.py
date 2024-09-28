@@ -1083,11 +1083,7 @@ class QuestManager(object):
         self.active_quests[quest_id] = active_quest
         self.build_update()
 
-    def pop_item(self, item_mgr):
-        item_entry = item_mgr.get_entry()
-        if not item_entry:
-            return
-
+    def pop_item(self, item_entry):
         # Check if the item is required by a quest condition.
         should_update = WorldDatabaseManager.QuestItemConditionsHolder.is_condition_involved_for_item(item_entry)
 
@@ -1095,7 +1091,7 @@ class QuestManager(object):
         for active_quest in list(self.active_quests.values()):
             if not active_quest.requires_item(item_entry):
                 continue
-            active_quest.subtract_item(item_entry, item_mgr.item_instance.stackcount)
+            active_quest.update_required_items_from_inventory()
             should_update = True
 
         if should_update:
