@@ -103,8 +103,8 @@ class CommandManager(object):
 
     @staticmethod
     def toggle_collision(world_session, args):
-        active = world_session.player_mgr.toggle_collision()
-        return 0, f'collision cheat {'On' if active else 'Off'}'
+        state = world_session.player_mgr.toggle_collision()
+        return 0, f'collision cheat {state}'
 
     @staticmethod
     def speed(world_session, args):

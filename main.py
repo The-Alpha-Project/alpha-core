@@ -65,8 +65,33 @@ def handler_stop_signals(signum, frame):
     RUNNING.value = 0
 
 
+def wait_world_server():
+    if not launch_world:
+        return
+    # Wait for world start before starting realm/proxy sockets if needed.
+    while not WORLD_SERVER_READY.value and RUNNING.value:
+        sleep(1)
+
+
+def wait_realm_server():
+    if not launch_realm:
+        return
+    while not REALM_SERVER_READY.value and RUNNING.value:
+        sleep(1)
+
+
+def wait_proxy_server():
+    if not launch_realm:
+        return
+    while not PROXY_SERVER_READY.value and RUNNING.value:
+        sleep(1)
+
+
 CONSOLE_THREAD = None
-RUNNING = multiprocessing.Value('i', 1)
+RUNNING = None
+WORLD_SERVER_READY = None
+REALM_SERVER_READY = None
+PROXY_SERVER_READY = None
 ACTIVE_PROCESSES = []
 
 
@@ -100,6 +125,11 @@ if __name__ == '__main__':
     else:
         context = multiprocessing.get_context('spawn')
 
+    RUNNING = context.Value('i', 1)
+    WORLD_SERVER_READY = context.Value('i', 0)
+    REALM_SERVER_READY = context.Value('i', 0)
+    PROXY_SERVER_READY = context.Value('i', 0)
+
     # Print active env vars.
     for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
         env_var = os.getenv(env_var_name, '')
@@ -126,17 +156,30 @@ if __name__ == '__main__':
 
     # Process launching starts here.
     if launch_world:
-        ACTIVE_PROCESSES.append(context.Process(
+        ACTIVE_PROCESSES.append((context.Process(
             name='World process',
-            target=WorldManager.WorldServerSessionHandler.start,
-            args=(RUNNING,))
-        )
+            target=WorldManager.WorldServerSessionHandler.start_world,
+            args=(RUNNING, WORLD_SERVER_READY)), wait_world_server))
+    else:
+        WORLD_SERVER_READY.value = 1
 
     if launch_realm:
-        ACTIVE_PROCESSES.append(context.Process(name='Login process', target=RealmManager.start_realm, args=(RUNNING,)))
-        ACTIVE_PROCESSES.append(context.Process(name='Proxy process', target=RealmManager.start_proxy, args=(RUNNING,)))
+        ACTIVE_PROCESSES.append((context.Process(name='Login process', target=RealmManager.start_realm,
+                                                 args=(RUNNING, REALM_SERVER_READY)), wait_realm_server))
+        ACTIVE_PROCESSES.append((context.Process(name='Proxy process', target=RealmManager.start_proxy,
+                                                 args=(RUNNING, PROXY_SERVER_READY)), wait_proxy_server))
+    else:
+        REALM_SERVER_READY.value = 1
+        PROXY_SERVER_READY.value = 1
 
-    [process.start() for process in ACTIVE_PROCESSES]
+    Logger.info('Booting Alpha core, please wait...')
+    # Start processes.
+    for process, wait_call in ACTIVE_PROCESSES:
+        process.start()
+        wait_call()
+
+    # Bell sound character.
+    Logger.info('Alpha core is now running.\a')
 
     # Wait on main thread for stop signal or 'exit' command.
     while RUNNING.value:
@@ -150,7 +193,7 @@ if __name__ == '__main__':
         CommandManager.worldoff(None, args='confirm')
 
     # Make sure all process finish gracefully (Exit their listening loops).
-    [release_process(process) for process in ACTIVE_PROCESSES]
+    [release_process(process) for process, wait_call in ACTIVE_PROCESSES]
 
     ACTIVE_PROCESSES.clear()
     Logger.success('Core gracefully shut down.')

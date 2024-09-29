@@ -70,14 +70,15 @@ class RealmManager:
         sck.sendall(packet)
 
     @staticmethod
-    def start_realm(running):
+    def start_realm(running, realm_server_ready):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         with RealmManager.build_socket(local_realm.realm_address, local_realm.realm_port) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
             # Make sure all characters have online = 0 on realm start.
             RealmDatabaseManager.character_set_all_offline()
-            Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+            Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}')
+            realm_server_ready.value = 1
 
             while running.value:
                 try:
@@ -95,12 +96,13 @@ class RealmManager:
         Logger.info("Login server turned off.")
 
     @staticmethod
-    def start_proxy(running):
+    def start_proxy(running, proxy_server_ready):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         with RealmManager.build_socket(local_realm.proxy_address, local_realm.proxy_port) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
-            Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+            Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}')
+            proxy_server_ready.value = 1
 
             while running.value:
                 try:

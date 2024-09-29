@@ -21,7 +21,7 @@ class Channel(object):
         self.banned: list = banned if banned else []
         self.muted: list = muted if muted else []
 
-    # Addon channels should always start with 'Addon' plus description. e.g. 'AddonAuras'.
+    # Addon channels should always start with '_addon' plus description. e.g. '_addonAuras'.
     def is_addon(self):
         if not config.Server.General.enable_addons_chat_api:
             return False

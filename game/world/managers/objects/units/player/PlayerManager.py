@@ -423,7 +423,7 @@ class PlayerManager(UnitManager):
         )
 
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
-        return self.collision_cheat
+        return 'On' if self.collision_cheat else 'Off'
 
     def teleport(self, map_id, location, recovery: float = -1.0):
         dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
