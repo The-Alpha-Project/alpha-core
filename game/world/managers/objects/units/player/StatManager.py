@@ -809,8 +809,8 @@ class StatManager(object):
         return min(0.4, 0.2 - 0.002 * self._get_combat_rating_difference(attacker.level))
 
     def get_attack_result_against_self(self, attacker, attack_type,
-                                       dual_wield_penalty=0.0, allow_parry=True,
-                                       allow_crit=True, combat_rating=-1) -> HitInfo:
+                                       dual_wield_penalty=0.0, invalid_result_mask: HitInfo = 0,
+                                       combat_rating=-1) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading/Sanctuary.
         if self.unit_mgr.is_evading or self.unit_mgr.unit_state & UnitStates.SANCTUARY:
@@ -846,36 +846,35 @@ class StatManager(object):
         # regardless of how much +hit% gear was equipped.
         miss_chance = max(dual_wield_penalty, miss_chance)
 
-        roll = random.random()
-        if roll < miss_chance:
+        if not (HitInfo.MISS & invalid_result_mask) and random.random() < miss_chance:
             return HitInfo.MISS
+
+        hit_info = HitInfo.SUCCESS
 
         # Dodge/parry/block receive a 0.04% bonus/penalty for each skill point difference.
         dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
-        roll = random.random()
-        if self.unit_mgr.can_dodge(attacker.location, in_combat=True) and roll < dodge_chance:
-            return HitInfo.DODGE | HitInfo.SUCCESS
+        can_dodge = not (invalid_result_mask & HitInfo.DODGE) and self.unit_mgr.can_dodge(attacker.location, in_combat=True)
+        if can_dodge and random.random() < dodge_chance:
+            return hit_info | HitInfo.DODGE
 
-        if allow_parry:
-            parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
-            roll = random.random()
-            if self.unit_mgr.can_parry(attacker.location, in_combat=True) and roll < parry_chance:
-                return HitInfo.PARRY | HitInfo.SUCCESS
+        parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
+        can_parry = not (invalid_result_mask & HitInfo.PARRY) and self.unit_mgr.can_parry(attacker.location, in_combat=True)
+        if can_parry and random.random() < parry_chance:
+            return hit_info | HitInfo.PARRY
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, combat_rating,
                                                                      use_block=self.unit_mgr.can_block(in_combat=True))
 
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
-        roll = random.random()
-        if self.unit_mgr.can_block(attacker.location, in_combat=True) and roll < block_chance:
-            return HitInfo.BLOCK | HitInfo.SUCCESS
+        can_block = not (invalid_result_mask & HitInfo.BLOCK) and self.unit_mgr.can_block(attacker.location, in_combat=True)
+        if can_block and random.random() < block_chance:
+            return hit_info | HitInfo.BLOCK
 
-        if allow_crit:
+        if not (invalid_result_mask & HitInfo.CRITICAL_HIT):
             critical_chance = self._get_base_crit_chance_against_self(attacker, attack_type)
         else:
             critical_chance = 0
 
-        hit_info = HitInfo.SUCCESS
         if attack_type == AttackTypes.OFFHAND_ATTACK:
             hit_info |= HitInfo.OFFHAND
         if random.random() < critical_chance:
@@ -883,14 +882,21 @@ class StatManager(object):
             return hit_info
 
         # Crushing blows.
-        # TODO: Find formula, use crit chance for now.
-        if attacker.can_crush():
-            if attacker.should_always_crush():
-                hit_info |= HitInfo.CRUSHING
-                return hit_info
-            elif attacker.level >= self.unit_mgr.level + 3:
-                if random.random() < critical_chance:
-                    hit_info |= HitInfo.CRUSHING
+        can_crush = not (invalid_result_mask & HitInfo.CRUSHING) and attacker.can_crush()
+        if not can_crush:
+            return hit_info
+
+        if attacker.should_always_crush():
+            return hit_info | HitInfo.CRUSHING
+
+        # Defense rating above max isn't considered for crushing blow roll.
+        effective_defense_rating = min(self._get_defense_rating(False), self.unit_mgr.level * 5)
+        eff_difference = combat_rating - effective_defense_rating
+
+        # 15% + 2% * skill difference chance to crush when level difference >= 3.
+        crush_chance = eff_difference * 0.02 - 0.15
+        if eff_difference >= 15 and random.random() < crush_chance:
+            return hit_info | HitInfo.CRUSHING
         
         return hit_info
 
@@ -994,10 +1000,14 @@ class StatManager(object):
         if is_base_attack_spell:
             # Use base attack formulas for next melee swing and ranged spells.
             # Note that dual wield penalty is not applied to spells.
-            # Ranged attacks can't be parried. Crit is rolled later for special damage (non-normal school) spells.
+            # Spells can never result in crushing blows. Ranged attacks can't be parried.
+            # Crit is rolled later for special damage (non-normal school) spells.
+            invalid_results = HitInfo.CRUSHING | \
+                              (HitInfo.PARRY if casting_spell.is_ranged_weapon_attack() else HitInfo.DAMAGE) | \
+                              (HitInfo.CRITICAL_HIT if is_special_damage else HitInfo.DAMAGE)
+
             result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type(),
-                                                              allow_parry=not casting_spell.is_ranged_weapon_attack(),
-                                                              allow_crit=not is_special_damage,
+                                                              invalid_result_mask=invalid_results,
                                                               combat_rating=attacker_combat_rating)
             if result_info & HitInfo.CRITICAL_HIT:
                 hit_flags |= SpellHitFlags.CRIT
@@ -1028,8 +1038,7 @@ class StatManager(object):
 
         miss_chance = self.get_spell_resist_chance_against_self(casting_spell)
 
-        roll = random.random()
-        if roll < miss_chance:
+        if random.random() < miss_chance:
             return SpellMissReason.MISS_REASON_RESIST, hit_flags
 
         return SpellMissReason.MISS_REASON_NONE, hit_flags
@@ -1276,14 +1285,15 @@ class StatManager(object):
         if attacker_rating == -1:
             attacker_rating = attacker_level * 5
 
+        return self._get_defense_rating(use_block) - attacker_rating
+
+    def _get_defense_rating(self, use_block=True):
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # TODO It's unclear what the block skill is used for based on patch notes.
             # Use Shields/Block or Defense, depending on the class.
-            own_defense_rating = self.unit_mgr.skill_manager.get_defense_skill_value(use_block=use_block)
+            return self.unit_mgr.skill_manager.get_defense_skill_value(use_block=use_block)
         else:
-            own_defense_rating = self.unit_mgr.level * 5
-
-        return own_defense_rating - attacker_rating
+            return self.unit_mgr.level * 5
 
     @staticmethod
     def get_health_bonus_from_stamina(class_, stamina):
