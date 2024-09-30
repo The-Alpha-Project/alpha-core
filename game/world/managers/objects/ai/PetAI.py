@@ -263,7 +263,7 @@ class PetAI(CreatureAI):
     def _get_command_state(self):
         charmer_or_summoner = self.creature.get_charmer_or_summoner()
         if not charmer_or_summoner:
-            return PetCommandState.COMMAND_FOLLOW
+            return PetCommandState.COMMAND_STAY
 
         controlled_pet = charmer_or_summoner.pet_manager.get_active_controlled_pet()
         if not controlled_pet:
