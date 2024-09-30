@@ -10,12 +10,11 @@ OUT_OF_BOUNDARY_GRACE_TIME = 10  # Seconds.
 
 
 class PlayerDuelInformation:
-    def __init__(self, player, target, is_target, team_id):
+    def __init__(self, player, target, team_id):
         self.player = player
         self.target = target
         self.timer = OUT_OF_BOUNDARY_GRACE_TIME
         self.status = DuelStatus.DUEL_STATUS_INBOUNDS
-        self.is_target = is_target
         self.team_id = team_id
         self.accepted = False
 
@@ -116,8 +115,8 @@ class DuelArbiterManager(GameObjectManager):
         self.get_map().remove_object(self)
 
     def _set_participants(self, requester, target):
-        duel_info_requester = PlayerDuelInformation(requester, target, is_target=False, team_id=1)
-        duel_info_target = PlayerDuelInformation(target, requester, is_target=True, team_id=2)
+        duel_info_requester = PlayerDuelInformation(requester, target, team_id=1)
+        duel_info_target = PlayerDuelInformation(target, requester, team_id=2)
         self.duel_info[requester.guid] = duel_info_requester
         self.duel_info[target.guid] = duel_info_target
 
