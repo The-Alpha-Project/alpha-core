@@ -72,7 +72,11 @@ class DuelArbiterManager(GameObjectManager):
         winner_reason = DuelWinner.DUEL_WINNER_RETREAT if retreat else DuelWinner.DUEL_WINNER_KNOCKOUT
         self.end_duel(winner_reason, DuelComplete.DUEL_FINISHED, duel_info.target)
 
-    def end_duel(self, duel_winner_flag, duel_complete_flag, winner_player):
+    def end_duel(self, duel_winner_flag, duel_complete_flag, winner):
+        if winner and not winner.is_player():
+            # If the provided unit is a pet, check for its owner instead.
+            winner = winner.get_charmer_or_summoner(include_self=True)
+
         if (self.duel_state == DuelState.DUEL_STATE_STARTED and
                 duel_complete_flag != DuelComplete.DUEL_CANCELED_INTERRUPTED):
             duel_complete_flag = DuelComplete.DUEL_FINISHED
@@ -90,8 +94,8 @@ class DuelArbiterManager(GameObjectManager):
         self._leave_combat()
 
         # Was not interrupted, broadcast duel result.
-        if duel_complete_flag == DuelComplete.DUEL_FINISHED and winner_player:
-            self._notify_winner(winner_player, self.duel_info[winner_player.guid].target, duel_winner_flag)
+        if duel_complete_flag == DuelComplete.DUEL_FINISHED and winner:
+            self._notify_winner(winner, self.duel_info[winner.guid].target, duel_winner_flag)
 
         self.despawn()
 
