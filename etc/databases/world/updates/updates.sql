@@ -449,8 +449,8 @@ begin not atomic
         insert into applied_updates values ('260920241');
     end if;
     
-        -- 29/09/2024 1
-        if (select count(*) from applied_updates where id='290920241') = 0 then
+    -- 29/09/2024 1
+    if (select count(*) from applied_updates where id='290920241') = 0 then
         -- Invalid script spells for Son of Cenarius 4057
         DELETE FROM `creature_ai_scripts` WHERE `id` IN (405701);
         DELETE FROM `creature_ai_events` WHERE `creature_id`=4057;
