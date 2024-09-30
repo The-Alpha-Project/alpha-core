@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import argparse
 import signal
+import sys
 import threading
 from sys import platform
 from time import sleep
@@ -50,6 +51,22 @@ def release_process(active_process):
             sleep(0.1)
 
     Logger.info(f'{active_process.name} released.')
+
+
+def debug_enabled():
+    try:
+        if sys.gettrace() is not None:
+            return True
+    except AttributeError:
+        pass
+
+    try:
+        if sys.monitoring.get_tool(sys.monitoring.DEBUGGER_ID) is not None:
+            return True
+    except AttributeError:
+        pass
+
+    return False
 
 
 def handle_console_commands():
@@ -140,6 +157,11 @@ if __name__ == '__main__':
     launch_world = not args.launch or args.launch == 'world'
     console_mode = os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
                              config.Server.Settings.console_mode) in [True, 'True', 'true']
+
+    # Turn off console mode while debugging.
+    if console_mode and debug_enabled():
+        Logger.debug(f'Debugger detected, disabled console mode.')
+        console_mode = False
 
     if not launch_world and not launch_realm:
         Logger.error('Realm and World launch are disabled.')

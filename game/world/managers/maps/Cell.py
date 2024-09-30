@@ -171,6 +171,7 @@ class Cell:
 
     def remove(self, world_object):
         guid = world_object.guid
+        world_object.current_cell = None
         if world_object.is_player() and guid in self.players:
             self.players.pop(world_object.guid, None)
             return True

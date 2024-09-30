@@ -109,12 +109,12 @@ class UpdateManager:
         can_detect = self.player_mgr.can_detect_target(world_object)[0]
         if world_object.guid in self.player_mgr.known_objects and can_detect and has_changes:
             if not world_object.is_spawned:
-                self.update_builder.add_destroy_update_from_object(world_object)
+                self.enqueue_object_update(world_object.get_type_id())  # Update known objects for type.
             else:
                 self.update_builder.add_partial_update_from_object(world_object, update_data=update_data)
         elif (world_object.guid not in self.player_mgr.known_objects and can_detect and has_changes
               and world_object.is_spawned and world_object.guid not in self.player_mgr.known_stealth_units):
-            self.update_builder.add_create_update_from_object(world_object)
+            self.enqueue_object_update(world_object.get_type_id())  # Update known objects for type.
         # Stealth detection.
         # Unit is now visible.
         elif world_object.guid not in self.player_mgr.known_objects and can_detect \
