@@ -7,7 +7,7 @@ from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObject
 from game.world.managers.objects.units.movement.helpers.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags, MoveType
+from utils.constants.MiscCodes import GameObjectStates, MoveFlags, MoveType
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
@@ -16,7 +16,7 @@ class Spline(object):
     def __init__(self, unit, spline_type=0, spline_flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0,
                  total_time=0, points=None, extra_time_seconds=0):
         self.unit = unit
-        self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self.is_player = self.unit.is_player()
         self.spline_type = spline_type
         self.spline_flags = spline_flags
         self.spot = spot

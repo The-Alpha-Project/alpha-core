@@ -127,7 +127,7 @@ class GridManager:
         cell: Cell = self._get_create_cell(world_object.location, world_object.map_id, world_object.instance_id)
         cell.add_world_object(world_object)
 
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if world_object.is_player():
             self.activate_cell_by_world_object(world_object)
 
         # Notify surrounding players.
@@ -135,7 +135,7 @@ class GridManager:
 
             # Handle pet/guardian player summons, they need to be notified to owner immediately.
             owner = world_object.get_charmer_or_summoner()
-            if owner and owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if owner and owner.is_player():
                 owner.update_manager.update_self_summon_creation(world_object)
 
             self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
@@ -156,7 +156,7 @@ class GridManager:
             self.active_cell_keys.add(cell.key)
 
         # Only player activation will trigger tile/nav loading.
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if world_object.is_player():
             self.active_cell_callback(self.map_id, cell.adt_x, cell.adt_y)
 
     def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False,
@@ -204,7 +204,7 @@ class GridManager:
             for cell in self._get_surrounding_cells_by_object(world_object):
                 cell.send_all(packet, world_object, include_source=include_self, exclude=exclude, use_ignore=use_ignore)
         # This player has no current cell, send the message directly.
-        elif world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and include_self:
+        elif world_object.is_player() and include_self:
             world_object.enqueue_packet(packet)
 
     def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None,
@@ -238,7 +238,7 @@ class GridManager:
         cells = self._get_surrounding_cells_by_object(world_object)
 
         # Handle Far Sight.
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if world_object.is_player():
             camera = FarSightManager.get_camera_for_player(world_object)
             # If the player has a camera object, aggregate camera cells.
             if camera:

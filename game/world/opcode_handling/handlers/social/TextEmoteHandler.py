@@ -3,7 +3,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import Emotes, ObjectTypeIds
+from utils.constants.MiscCodes import Emotes
 from utils.constants.UnitCodes import StandState
 
 
@@ -30,10 +30,10 @@ class TextEmoteHandler(object):
 
         if not target:
             data += pack('<B', 0)
-        elif target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        elif target.is_player():
             player_name_bytes = PacketWriter.string_to_bytes(target.get_name())
             data += pack(f'<{len(player_name_bytes)}s', player_name_bytes)
-        elif target.get_type_id() == ObjectTypeIds.ID_UNIT and target.creature_template:
+        elif target.is_unit() and target.creature_template:
             unit_name_bytes = PacketWriter.string_to_bytes(target.get_name())
             data += pack(f'<{len(unit_name_bytes)}s', unit_name_bytes)
 

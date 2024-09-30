@@ -448,6 +448,30 @@ begin not atomic
 
         insert into applied_updates values ('260920241');
     end if;
+    
+        -- 29/09/2024 1
+        if (select count(*) from applied_updates where id='290920241') = 0 then
+        -- Invalid script spells for Son of Cenarius 4057
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (405701);
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4057;
 
+        -- Vendor items, Kiro <War Harness Maker> and Sura Wildmane <War Harness Vendor>
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6523', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6524', '0', '0', '0', '1');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6525', '0', '0', '0', '2');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6526', '0', '0', '0', '3');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6523', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6524', '0', '0', '0', '1');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6525', '0', '0', '0', '2');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6526', '0', '0', '0', '3');
+        
+        -- Enable Battle Harness, Buckled Harness, Grunt's Harness and Studded Leather Harness
+        UPDATE `item_template` SET `display_id` = '9040', `ignored` = '0' WHERE (`entry` = '6523');
+        UPDATE `item_template` SET `display_id` = '9536', `ignored` = '0' WHERE (`entry` = '6524');
+        UPDATE `item_template` SET `display_id` = '9548', `ignored` = '0' WHERE (`entry` = '6525');
+        UPDATE `item_template` SET `display_id` = '9995', `ignored` = '0' WHERE (`entry` = '6526');
+        
+        insert into applied_updates values ('290920241');
+    end if;
 end $
 delimiter ;

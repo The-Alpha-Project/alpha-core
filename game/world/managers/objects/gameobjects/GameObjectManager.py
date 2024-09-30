@@ -155,7 +155,7 @@ class GameObjectManager(ObjectManager):
         target.receive_damage(damage_info, self, casting_spell=spell, is_periodic=is_periodic)
 
         # Send environmental damage log packet to the affected player.
-        if self.gobject_template.type == GameObjectTypes.TYPE_TRAP and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if self.gobject_template.type == GameObjectTypes.TYPE_TRAP and target.is_player():
             data = pack(
                 '<Q2I',
                 target.guid,
@@ -204,8 +204,11 @@ class GameObjectManager(ObjectManager):
     def is_active(self):
         return self.state in {GameObjectStates.GO_STATE_ACTIVE, GameObjectStates.GO_STATE_ACTIVE_ALTERNATIVE}
 
+    def is_ready(self):
+        return self.state == GameObjectStates.GO_STATE_READY
+
     def set_ready(self):
-        if self.state != GameObjectStates.GO_STATE_READY:
+        if not self.is_ready():
             self.set_state(GameObjectStates.GO_STATE_READY)
             return True
         return False

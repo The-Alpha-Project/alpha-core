@@ -19,7 +19,7 @@ from game.world.managers.objects.units.movement.helpers.SplineEvent import Splin
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes
+     GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -118,7 +118,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast messages for {command.get_info()}, not found.')
             return command.should_abort()
 
-        if command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if not command.source.is_unit():
             Logger.warning(f'ScriptHandler: Wrong target type, {command.get_info()}.')
             return command.should_abort()
 
@@ -199,7 +199,7 @@ class ScriptHandler:
         # datalong4 = eMoveToFlags
         # dataint = path_id
         # x/y/z/o = coordinates
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or not command.source.is_unit(by_mask=True):
             Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
             return command.should_abort()
 
@@ -261,22 +261,22 @@ class ScriptHandler:
         flag_equivalences_5875_to_3368: dict[int, tuple[int, int, callable]] = {
             # GAMEOBJECT_FLAGS
             9: (GameObjectFields.GAMEOBJECT_FLAGS, command.source.flags, command.source.set_uint32)
-            if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
+            if command.source.is_gameobject() else (None, None, None),
             # GAMEOBJECT_DYN_FLAGS
             19: (GameObjectFields.GAMEOBJECT_DYN_FLAGS, command.source.flags, command.source.set_uint32)
-            if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
+            if command.source.is_gameobject() else (None, None, None),
             # UNIT_FIELD_FLAGS
             46: (UnitFields.UNIT_FIELD_FLAGS, command.source.unit_flags, command.source.set_unit_flag)
-            if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
+            if command.source.is_unit() else (None, None, None),
             # UNIT_DYNAMIC_FLAGS
             143: (UnitFields.UNIT_DYNAMIC_FLAGS, command.source.dynamic_flags, command.source.set_dynamic_type_flag)
-            if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
+            if command.source.is_unit() else (None, None, None),
             # UNIT_NPC_FLAGS
             147: (UnitFields.UNIT_FIELD_BYTES_1, command.source.npc_flags, command.source.set_npc_flag)
-            if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
+            if command.source.is_unit() else (None, None, None),
             # PLAYER_FLAGS
             190: (PlayerFields.PLAYER_BYTES_2, command.source.player.extra_flags, command.source.player.set_extra_flag)
-            if command.source.get_type_id() == ObjectTypeIds.ID_PLAYER else (None, None, None)
+            if command.source.is_player() else (None, None, None)
         }
 
         try:
@@ -367,7 +367,7 @@ class ScriptHandler:
             return command.should_abort()
 
         # Units.
-        if command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
+        if command.source.is_unit():
             command.source.near_teleport(Vector(command.x, command.y, command.z, command.o))
             return command.should_abort()
 
@@ -540,10 +540,10 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {spawn_id} not found.')
                 return command.should_abort()
             gobject_spawn.gameobject_instance.use()
-        elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        elif command.source.is_gameobject():
             command.source.use()
 
-        if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
+        if command.target and command.target.is_gameobject() and \
                 command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
             command.target.use()
 
@@ -573,10 +573,10 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {spawn_id} not found.')
                 return command.should_abort()
             gobject_spawn.gameobject_instance.set_ready()
-        elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        elif command.source.is_gameobject():
             command.source.set_ready()
 
-        if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
+        if command.target and command.target.is_gameobject() and \
                 command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
             command.target.set_ready()
 
@@ -595,7 +595,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source or target, {command.get_info()}')
             return command.should_abort()
 
-        if target.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+        if not target.is_gameobject():
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 
@@ -641,7 +641,7 @@ class ScriptHandler:
         spell = command.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
         if command.datalong2 & CastFlags.CF_TRIGGERED:
             spell.force_instant_cast()
-        elif not targets_terrain and command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
+        elif not targets_terrain and command.source.is_unit():
             cast_result = command.source.object_ai.try_to_cast(target, spell, command.datalong2, chance=100)
             if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
                 Logger.warning(f'[Script] [{command.script_id}],'
@@ -670,7 +670,7 @@ class ScriptHandler:
     def handle_script_command_despawn_creature(command):
         # source = Creature
         # datalong = despawn_delay
-        if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
+        if command.source and command.source.is_unit(by_mask=True) and command.source.is_alive:
             command.source.despawn(ttl=command.datalong)
             return False
 
@@ -685,7 +685,7 @@ class ScriptHandler:
         # dataint = main-hand item_id
         # dataint2 = off-hand item_id
         # dataint3 = ranged item_id
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or not command.source.is_unit(by_mask=True):
             Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
             return command.should_abort()
 
@@ -983,7 +983,7 @@ class ScriptHandler:
         # source = Creature
         # datalong = eSetHomePositionOptions
         # x/y/z/o = coordinates
-        if not command.source or command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if not command.source or not command.source.is_unit():
             Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
             return command.should_abort()
 
@@ -1601,7 +1601,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source, {command.get_info()}')
             return command.should_abort()
 
-        if command.source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+        if not command.source.is_gameobject():
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 

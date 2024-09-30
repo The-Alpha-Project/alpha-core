@@ -38,14 +38,14 @@ class TrapManager(GameObjectManager):
         if now > self.last_tick > 0:
             if self.is_active_object():
                 self._update()
-            super().update(now)
+        super().update(now)
 
     def _update(self):
         if not self._is_triggered_by_proximity():
             return
 
         # Infinite trigger, set go as ready until triggered.
-        if not self.charges:
+        if not self.charges and not self.is_ready():
             self.set_ready()
 
         # If the trap should be triggered by creatures, search for them along with players.
@@ -94,4 +94,4 @@ class TrapManager(GameObjectManager):
         self.total_cooldown = now + self.cooldown + self.start_delay
 
     def _is_triggered_by_proximity(self):
-        return self.radius > 0 and self.cooldown
+        return self.radius > 0

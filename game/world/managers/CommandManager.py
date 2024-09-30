@@ -15,7 +15,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
-from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, ObjectTypeIds
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
@@ -689,7 +689,7 @@ class CommandManager(object):
         try:
             item_id = int(args)
             unit = CommandManager._target_or_self(world_session)
-            if unit.get_type_id() != ObjectTypeIds.ID_UNIT:
+            if not unit.is_unit():
                 return -1, 'target must be unit.'
             unit.set_virtual_equipment(slot=0, item_id=item_id)
             return 0, ''

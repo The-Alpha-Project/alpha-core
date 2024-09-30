@@ -2,7 +2,7 @@ from typing import Optional
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
-from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
+from utils.constants.MiscCodes import MoveType, MoveFlags
 from utils.constants.UnitCodes import UnitStates
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
@@ -20,7 +20,7 @@ from game.world.managers.objects.units.movement.behaviors.ConfusedMovement impor
 class MovementManager:
     def __init__(self, unit):
         self.unit = unit
-        self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self.is_player = self.unit.is_player()
         self.pause_ooc_timer = 0
         self.default_behavior_type = None
         self.active_behavior_type = None

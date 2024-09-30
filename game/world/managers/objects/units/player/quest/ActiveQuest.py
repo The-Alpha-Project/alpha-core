@@ -3,7 +3,6 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.GuidUtils import GuidUtils
-from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.MiscCodes import HighGuid
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter
@@ -53,9 +52,9 @@ class ActiveQuest:
         if self.db_state.state != QuestState.QUEST_REWARD:
             return False
 
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if quest_giver.is_unit() and not quest_giver.is_player():
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        elif quest_giver.is_gameobject():
             involved_relations_list = WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
         else:
             return False
@@ -127,7 +126,7 @@ class ActiveQuest:
 
     def update_creature_go_count(self, world_object, value):
         # Creatures > 0, Gameobjects < 0.
-        entry = world_object.entry if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT else -world_object.entry
+        entry = world_object.entry if not world_object.is_gameobject() else -world_object.entry
 
         creature_go_index = QuestHelpers.generate_req_creature_or_go_list(self.quest).index(entry)
         required = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[creature_go_index]
@@ -136,7 +135,7 @@ class ActiveQuest:
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
 
         # Notify the current objective count to the player if this was a kill.
-        if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+        if not world_object.is_gameobject():
             data = pack('<4IQ', self.db_state.quest, world_object.entry, current + value, required, world_object.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
             self.owner.enqueue_packet(packet)
@@ -245,7 +244,7 @@ class ActiveQuest:
 
     def requires_creature_or_go(self, world_object):
         # Creatures > 0, Gameobjects < 0.
-        entry = world_object.entry if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT else -world_object.entry
+        entry = world_object.entry if not world_object.is_gameobject() else -world_object.entry
         
         req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         required = entry in req_creatures_or_gos

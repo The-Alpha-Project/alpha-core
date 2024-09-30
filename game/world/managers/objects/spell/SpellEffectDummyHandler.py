@@ -1,17 +1,17 @@
-from utils.constants.MiscCodes import ObjectTypeFlags, Emotes
+from utils.constants.MiscCodes import Emotes
 
 
 class SpellEffectDummyHandler:
     @staticmethod
     def handle_force_target_salute(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         target.play_emote(Emotes.SALUTE)
 
     @staticmethod
     def handle_force_target_bow(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         target.play_emote(Emotes.BOW)

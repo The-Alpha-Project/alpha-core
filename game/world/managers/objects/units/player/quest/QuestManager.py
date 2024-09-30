@@ -133,7 +133,7 @@ class QuestManager(object):
             return dialog_status
 
         # Relation bounds, the quest giver; Involved relations bounds, the quest completer.
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+        if quest_giver.is_unit():
             relations_list = QuestManager.get_quest_giver_relations(quest_giver)
             involved_relations_list = QuestManager.get_quest_giver_involved_relations(quest_giver)
         else:
@@ -279,7 +279,7 @@ class QuestManager(object):
             self.send_quest_giver_quest_list(greeting_text, emote, quest_giver_guid, quest_menu.items)
         # Landed here because player is talking to a trainer, which can't train the player and does not have any quest.
         # Display the default greeting, since gossip system was not a thing in 0.5.3.
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.is_trainer():
+        elif quest_giver.is_unit() and quest_giver.is_trainer():
             text = QuestManager.get_default_greeting_text(quest_giver)
             self.send_quest_giver_quest_list(text, 0, quest_giver_guid, quest_menu.items)
         else:
@@ -439,7 +439,7 @@ class QuestManager(object):
             text_entry = quest_giver_gossip_entry.textid
         quest_giver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
 
-        if not quest_giver_gossip_entry and quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if not quest_giver_gossip_entry and quest_giver.is_gameobject():
             gossip_text = QuestManager._get_gossip_menu_gossip_text(quest_giver, quest_giver.gobject_template.data3)
             return True if gossip_text else False, gossip_text, 0
 
@@ -466,7 +466,7 @@ class QuestManager(object):
         female_greeting = text.text0_1
 
         # Gameobject.
-        if quest_giver.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if not quest_giver.is_unit():
             return male_greeting
 
         # Male or agnostic to gender.
@@ -480,7 +480,7 @@ class QuestManager(object):
         known_objects = self.player_mgr.known_objects
 
         for guid, world_object in list(known_objects.items()):
-            if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+            if world_object.is_unit():
                 unit = world_object
                 if (WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(unit.entry)
                         or WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(unit.entry)):
@@ -488,7 +488,7 @@ class QuestManager(object):
                     self.send_quest_giver_status(guid, quest_status)
             # Make the owner refresh gameobject dynamic flags if needed.
             # We can't detect dynamic flag changes, since it is unique for each observer.
-            elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            elif world_object.is_gameobject():
                 gameobject = world_object
                 if gameobject.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
                         gameobject.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
@@ -1019,7 +1019,7 @@ class QuestManager(object):
             self.send_quest_giver_quest_details(next_quest, quest_giver.guid, True)
 
         # Force surrounding players to refresh this GO interactive state.
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if quest_giver.is_gameobject():
             quest_giver.refresh_dynamic_flag()
 
     def get_next_quest_in_chain(self, quest_giver, current_quest):
@@ -1050,9 +1050,9 @@ class QuestManager(object):
     # Quest starters.
     @staticmethod
     def get_quest_giver_relations(quest_giver: ObjectManager):
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+        if quest_giver.is_unit():
             return WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_get_by_entry(quest_giver.entry)
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        elif quest_giver.is_gameobject():
             return WorldDatabaseManager.QuestRelationHolder.gameobject_quest_starter_get_by_entry(quest_giver.entry)
         else:
             return []
@@ -1060,9 +1060,9 @@ class QuestManager(object):
     # Quest finishers.
     @staticmethod
     def get_quest_giver_involved_relations(quest_giver: ObjectManager):
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+        if quest_giver.is_unit():
             return WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_get_by_entry(quest_giver.entry)
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        elif quest_giver.is_gameobject():
             return WorldDatabaseManager.QuestRelationHolder.gameobject_quest_finisher_get_by_entry(quest_giver.entry)
         else:
             return []

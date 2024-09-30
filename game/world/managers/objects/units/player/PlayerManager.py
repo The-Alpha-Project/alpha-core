@@ -168,7 +168,6 @@ class PlayerManager(UnitManager):
             self.friends_manager = FriendsManager(self)
             self.reputation_manager = ReputationManager(self)
             self.taxi_manager = TaxiManager(self)
-            self.duel_manager = None
             self.guild_manager = None
             self.has_pending_group_invite = False
             self.group_manager = None
@@ -311,8 +310,9 @@ class PlayerManager(UnitManager):
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
 
-        if self.duel_manager:
-            self.duel_manager.force_duel_end(self)
+        duel_arbiter = self.get_duel_arbiter()
+        if duel_arbiter:
+            duel_arbiter.force_duel_end(self)
 
         self.spell_manager.remove_casts()
         self.aura_manager.remove_all_auras()
@@ -442,8 +442,10 @@ class PlayerManager(UnitManager):
             # Set sanctuary, this will take care of leaving combat, removing casts, etc.
             self.set_sanctuary(True, time_secs=1)
             self.pet_manager.detach_active_pets()
-            if self.duel_manager:
-                self.duel_manager.force_duel_end(self)
+
+            duel_arbiter = self.get_duel_arbiter()
+            if duel_arbiter:
+                duel_arbiter.force_duel_end(self)
 
         # If unit is being moved by a spline, stop it.
         if self.movement_manager.unit_is_moving():
@@ -621,6 +623,11 @@ class PlayerManager(UnitManager):
         self.update_lock = len(self.pending_teleport_data) > 0
 
     # override
+    def attack_stop(self):
+        super().attack_stop()
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT))
+
+    # override
     def set_stunned(self, active=True, index=-1) -> bool:
         if active and self.pending_taxi_destination:
             return False  # Ignore on flight path.
@@ -670,6 +677,16 @@ class PlayerManager(UnitManager):
     # override
     def is_active_object(self):
         return True
+
+    def is_dueling(self):
+        return self.get_uint64(PlayerFields.PLAYER_DUEL_ARBITER) != 0
+
+    def get_duel_arbiter(self):
+        arbiter_guid = self.get_uint64(PlayerFields.PLAYER_DUEL_ARBITER)
+        if not arbiter_guid:
+            return None
+        arbiter = self.get_map().get_surrounding_gameobject_by_guid(self, arbiter_guid)
+        return arbiter
 
     # override
     def mount(self, mount_display_id):
@@ -1228,10 +1245,6 @@ class PlayerManager(UnitManager):
             if self.guild_manager:
                 self.guild_manager.build_update(self)
 
-            # Duel.
-            if self.duel_manager:
-                self.duel_manager.build_update(self)
-
             # Auras.
             self.aura_manager.build_update()
 
@@ -1403,6 +1416,8 @@ class PlayerManager(UnitManager):
 
     # override
     def remove_combo_points(self):
+        if not self.combo_target:
+            return
         self.combo_points = 0
         self.bytes_2 = self.get_bytes_2()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
@@ -1490,10 +1505,6 @@ class PlayerManager(UnitManager):
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update(now, elapsed)
 
-            # Duel tick.
-            if self.duel_manager:
-                self.duel_manager.update(self, elapsed)
-
             # Enchantment manager.
             self.enchantment_manager.update(elapsed)
 
@@ -1572,15 +1583,16 @@ class PlayerManager(UnitManager):
 
         if killer:
             # If this player is dueling and the death blow comes from the opponent just end duel and set HP to 1.
-            if self.duel_manager and self.duel_manager.is_unit_involved(killer):
-                if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            duel_arbiter = self.get_duel_arbiter()
+            if duel_arbiter and duel_arbiter.is_unit_involved(killer):
+                if not killer.is_player():
                     killer = killer.get_charmer_or_summoner()  # Pet dealt killing blow - pass owner to duel manager.
-                self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
+                duel_arbiter.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
                 self.set_health(1)
                 return False
 
             # Shows a message in chat with the name of the killer.
-            if killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if killer.is_player():
                 death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
                 self.enqueue_packet(death_notify_packet)
 
@@ -1691,8 +1703,9 @@ class PlayerManager(UnitManager):
     def can_detect_target(self, target, distance=0):
         # Party group.
         if self.group_manager and self.group_manager.is_party_member(target.guid):
+            duel_arbiter = self.get_duel_arbiter()
             # Not dueling.
-            if not self.duel_manager or not self.duel_manager.is_unit_involved(target):
+            if not duel_arbiter or not duel_arbiter.is_unit_involved(target):
                 return True, False
         return super().can_detect_target(target, distance)
 
@@ -1737,10 +1750,11 @@ class PlayerManager(UnitManager):
         if not target or target is self:
             return False
 
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if target.is_player():
+            duel_arbiter = self.get_duel_arbiter()
             # Return True if players are dueling.
-            if self.duel_manager and self.duel_manager.is_unit_involved(target) and \
-                    self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED:
+            if (duel_arbiter and duel_arbiter.is_unit_involved(target) and
+                    duel_arbiter.duel_state == DuelState.DUEL_STATE_STARTED):
                 return True
 
             # Only allow pvp in pvp maps (PvP system was not added until Patch 0.7).

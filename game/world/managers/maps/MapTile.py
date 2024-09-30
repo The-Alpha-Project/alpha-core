@@ -90,7 +90,7 @@ class MapTile(object):
                 self.has_navigation = True
             return self.has_navigation
         except RuntimeError:
-            Logger.error(traceback.format_exc())
+            Logger.warning(f'[Namigator] Unable to load Adt nav for {self.adt_x},{self.adt_y}.')
         return False
 
     def load_maps_data(self):

@@ -13,7 +13,6 @@ from game.world.managers.objects.units.pet.PetData import PetData
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetSlot
 from utils.constants.SpellCodes import SpellCheckCastResult, TotemSlots, SpellTargetMask
@@ -28,7 +27,7 @@ class PetManager:
         self.active_pets: dict[PetSlot, ActivePet] = {}
 
     def load_pets(self):
-        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not self.owner.is_player():
             return
 
         character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
@@ -182,7 +181,7 @@ class PetManager:
             pet.detach()
 
     def handle_login(self):
-        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not self.owner.is_player():
             return
 
         for pet in self.permanent_pets:
@@ -402,8 +401,7 @@ class PetManager:
         active_pet.set_level(self.owner.level, replenish=True)
 
     def handle_cast_result(self, spell_id, result):
-        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER or \
-                result == SpellCheckCastResult.SPELL_NO_ERROR:
+        if not self.owner.is_player() or result == SpellCheckCastResult.SPELL_NO_ERROR:
             return
 
         data = pack('<IB', spell_id, result)
@@ -428,7 +426,7 @@ class PetManager:
         return SpellCheckCastResult.SPELL_NO_ERROR
 
     def _send_tame_result(self, result):
-        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not self.owner.is_player():
             return
 
         if result == PetTameResult.TAME_SUCCESS:
@@ -445,7 +443,7 @@ class PetManager:
 
     def _handle_creature_spawn_detach(self, creature: CreatureManager, is_permanent):
         # Creatures which are linked to a CreatureSpawn.
-        if creature.get_type_id() != ObjectTypeIds.ID_UNIT or creature.is_dynamic_spawn:
+        if not creature.is_unit() or creature.is_dynamic_spawn:
             return
 
         spawn = self.owner.get_map().get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
@@ -464,7 +462,7 @@ class PetManager:
                 return
 
     def send_pet_spell_info(self, reset=False):
-        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not self.owner.is_player():
             return
 
         if not reset:

@@ -7,7 +7,7 @@ from game.world.managers.objects.spell.aura.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
+from utils.constants.MiscCodes import ProcFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
     SpellAttributesEx, SpellEffects, AuraState
@@ -33,7 +33,7 @@ class AuraManager:
         # Application threat and negative aura application interrupts.
         if aura.harmful and self.unit_mgr != aura.caster and self.unit_mgr.can_attack_target(aura.caster):
             # Add threat for non-player targets against unit casters if the caster and target are not the same.
-            if aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and aura.source_spell.generates_threat():
+            if aura.caster.is_unit(by_mask=True) and aura.source_spell.generates_threat():
                 self.unit_mgr.threat_manager.add_threat(aura.caster, abs(aura.get_effect_points()))
 
             self.check_aura_interrupts(negative_aura_applied=True)
@@ -435,7 +435,7 @@ class AuraManager:
         self.cancel_auras_by_spell_id(spell_id)
 
     def send_aura_duration(self, aura):
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not self.unit_mgr.is_player():
             return
 
         data = pack('<Bi', aura.index, int(aura.get_duration()))

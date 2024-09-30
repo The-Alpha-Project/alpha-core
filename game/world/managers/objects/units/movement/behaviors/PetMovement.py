@@ -4,7 +4,7 @@ from game.world.managers.maps.helpers import CellUtils
 from game.world.managers.objects.units.movement.helpers.PetRangeMove import PetRangeMove
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType, MoveFlags, ObjectTypeIds
+from utils.constants.MiscCodes import MoveType, MoveFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.PetCodes import PetMoveState
 
@@ -98,7 +98,7 @@ class PetMovement(BaseMovement):
         if not charmer_or_summoner:
             return
 
-        if charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if charmer_or_summoner.is_player():
             speed = self.unit.running_speed
         else:
             speed = config.Unit.Defaults.walk_speed if (self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK

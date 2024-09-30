@@ -1,7 +1,7 @@
 from struct import unpack
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
-from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
+from utils.constants.MiscCodes import HighGuid
 from utils.Logger import Logger
 
 
@@ -46,7 +46,7 @@ class QuestGiverHelloHandler(object):
             # TODO: If the gossip menu is already open, do nothing
             if is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 # Pause the NPCs movement when a player attempts to talk to them
-                if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
+                if quest_giver.is_unit():
                     quest_giver.object_ai.player_interacted()
                 player_mgr.quest_manager.handle_quest_giver_hello(quest_giver, guid)
 

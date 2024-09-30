@@ -1,5 +1,5 @@
 import time
-from utils.constants.MiscCodes import MoveType, ObjectTypeIds
+from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import UnitStates
 
@@ -23,7 +23,7 @@ class DistractedMovement(BaseMovement):
     # override
     def on_removed(self):
         self.unit.set_unit_state(UnitStates.DISTRACTED, active=False)
-        if self.unit.get_type_id() == ObjectTypeIds.ID_UNIT and not self.unit.has_wander_type():
+        if self.unit.is_unit() and not self.unit.has_wander_type():
             self.unit.movement_manager.face_angle(self.unit.spawn_position.o)
 
     # override

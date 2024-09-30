@@ -2,7 +2,6 @@ import math
 from random import random
 from struct import pack, unpack
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeFlags
 
 
 class Vector(object):

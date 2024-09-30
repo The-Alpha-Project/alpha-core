@@ -2,7 +2,7 @@ import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal, EscortConditionFlags
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
+from utils.constants.MiscCodes import QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
 MAX_3368_SPELL_ID = 7913
@@ -52,19 +52,19 @@ class ConditionChecker:
 
     @staticmethod
     def is_player(target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        return target and target.is_player()
 
     @staticmethod
     def is_creature(target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_UNIT
+        return target and target.is_unit()
 
     @staticmethod
     def is_unit(target):
-        return target and target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        return target and target.is_unit(by_mask=True)
 
     @staticmethod
     def is_gameobject(target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+        return target and target.is_gameobject()
 
     @staticmethod
     def time_in_range(start, end, current):
@@ -823,11 +823,11 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_unit(_source, target):
-        return target and target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        return target and target.is_unit(by_mask=True)
 
     @staticmethod
     def check_target_player(_source, target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        return target and target.is_player()
 
     @staticmethod
     def check_target_any_worldobject(source, target):
@@ -836,16 +836,15 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_source_unit(source, _target):
-        return source and source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        return source and source.is_unit(by_mask=True)
 
     @staticmethod
     def check_target_source_worldobject(source, _target):
-        return source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT
+        return source and source.is_object(by_mask=True)
 
     @staticmethod
     def check_target_map_or_worldobject(source, target):
-        return (source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT) \
-            or (target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT)
+        return (source and source.is_object(by_mask=True)) or (target and target.is_object(by_mask=True))
 
     @staticmethod
     def check_target_worldobject(_source, target):
@@ -853,7 +852,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_source_creature(source, _target):
-        return source and source.get_type_id() == ObjectTypeIds.ID_UNIT
+        return source and source.is_unit()
 
     @staticmethod
     def check_target_both_worldobjects(source, target):
@@ -862,7 +861,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_gameobject(_source, target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+        return target and target.is_gameobject()
 
 
 CONDITIONAL_TARGETS_INTERNAL_MAP = {

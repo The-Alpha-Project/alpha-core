@@ -30,7 +30,7 @@ class DoorManager(GameObjectManager):
                 # Check if we need to reset the original door state.
                 if self.is_active() and super().check_cooldown(now):
                     self.reset_door_state()
-            super().update(now)
+        super().update(now)
 
     # override
     def use(self, player=None, target=None, from_script=False):

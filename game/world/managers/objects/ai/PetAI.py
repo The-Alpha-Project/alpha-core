@@ -5,7 +5,7 @@ from database.dbc.DbcModels import Spell
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
-from utils.constants.MiscCodes import ObjectTypeIds, MoveType
+from utils.constants.MiscCodes import MoveType
 from utils.constants.PetCodes import PetCommandState, PetReactState, PetMoveState
 from utils.constants.SpellCodes import SpellTargetMask, SpellEffects
 from utils.constants.UnitCodes import UnitStates
@@ -36,7 +36,7 @@ class PetAI(CreatureAI):
         elif self.move_state != PetMoveState.MOVE_RANGE:
             self.pending_spell_cast = None
 
-        if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if owner.is_player():
             if self.creature.combat_target and not self.creature.combat_target.is_alive:
                 self.creature.combat_target = self.select_next_target()
             if not self.creature.combat_target and self.creature.in_combat:
@@ -200,7 +200,11 @@ class PetAI(CreatureAI):
         if self.creature.spell_manager.is_casting():
             return
 
-        controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()
+        charmer_or_summoner = self.creature.get_charmer_or_summoner()
+        if not charmer_or_summoner:
+            return
+
+        controlled_pet = charmer_or_summoner.pet_manager.get_active_controlled_pet()
         if not controlled_pet:
             return
 
@@ -257,13 +261,23 @@ class PetAI(CreatureAI):
         return self.creature.movement_manager.get_move_behavior_by_type(MoveType.PET)
 
     def _get_command_state(self):
-        controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()
+        charmer_or_summoner = self.creature.get_charmer_or_summoner()
+        if not charmer_or_summoner:
+            return PetCommandState.COMMAND_FOLLOW
+
+        controlled_pet = charmer_or_summoner.pet_manager.get_active_controlled_pet()
         if not controlled_pet:
             return PetCommandState.COMMAND_FOLLOW
+
         return controlled_pet.get_pet_data().command_state
 
     def _get_react_state(self):
-        controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()
+        charmer_or_summoner = self.creature.get_charmer_or_summoner()
+        if not charmer_or_summoner:
+            return PetReactState.REACT_PASSIVE
+
+        controlled_pet = charmer_or_summoner.pet_manager.get_active_controlled_pet()
         if not controlled_pet:
             return PetReactState.REACT_PASSIVE
+
         return controlled_pet.get_pet_data().react_state

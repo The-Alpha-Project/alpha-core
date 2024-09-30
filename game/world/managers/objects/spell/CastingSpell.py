@@ -17,7 +17,7 @@ from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags, \
@@ -81,7 +81,7 @@ class CastingSpell:
         self.cast_end_timestamp = self.get_cast_time_ms() / 1000 + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
-        if self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if self.spell_caster.is_unit(by_mask=True):
             self.caster_effective_level = self.calculate_effective_level()
         else:
             self.caster_effective_level = 0
@@ -102,7 +102,7 @@ class CastingSpell:
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.spell_impact_timestamps = {}
 
-        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if caster.is_player():
             selection = caster.current_selection
             self.targeted_unit_on_cast_start = caster if not selection \
                 else caster.get_map().get_surrounding_unit_by_guid(self.spell_caster, selection, include_players=True)
@@ -129,13 +129,13 @@ class CastingSpell:
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        return self.initial_target.is_unit(by_mask=True)
 
     def initial_target_is_player(self):
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        return self.initial_target.is_player()
 
     def initial_target_is_pet(self):
         if not self.initial_target_is_object():
@@ -147,13 +147,13 @@ class CastingSpell:
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.get_type_id() == ObjectTypeIds.ID_ITEM
+        return self.initial_target.is_item()
 
     def initial_target_is_gameobject(self):
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+        return self.initial_target.is_gameobject()
 
     def initial_target_is_terrain(self):
         return isinstance(self.initial_target, Vector)
@@ -184,8 +184,7 @@ class CastingSpell:
         return self.spell_attack_type if self.spell_attack_type != -1 else 0
 
     def get_damage_school(self):
-        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not self.is_weapon_attack() or \
-                self.spell_attack_type == -1 or \
+        if not self.spell_caster.is_player() or not self.is_weapon_attack() or self.spell_attack_type == -1 or \
                 self.spell_entry.School != SpellSchools.SPELL_SCHOOL_NORMAL:
             # Provide base spell school if a weapon isn't used or if the spell has a non-normal school.
             return self.spell_entry.School
@@ -210,7 +209,7 @@ class CastingSpell:
         if not self.is_ranged_weapon_attack():
             return None
 
-        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not self.spell_caster.is_player():
             ranged_items = {
                 1 << ItemSubClasses.ITEM_SUBCLASS_BOW: 2512,  # Rough Arrow
                 1 << ItemSubClasses.ITEM_SUBCLASS_GUN: 2516,  # Light Shot
@@ -220,7 +219,7 @@ class CastingSpell:
             }
 
             weapon_mask = 0
-            if self.spell_caster.get_type_id() == ObjectTypeIds.ID_UNIT:
+            if self.spell_caster.is_unit():
                 # If the caster is a creature, use virtual items for resolving ammo type.
                 for item_info in self.spell_caster.virtual_item_info.values():
                     equip_subclass = 1 << ((item_info.info_packed >> 8) & 0xFF)
@@ -475,8 +474,7 @@ class CastingSpell:
     def requires_combo_points(self):
         cp_att = (SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS |
                   SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS)
-        return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
-            self.spell_entry.AttributesEx & cp_att != 0
+        return self.spell_caster.is_player() and self.spell_entry.AttributesEx & cp_att != 0
 
     def requires_aura_state(self):
         return self.spell_entry.CasterAuraState != 0
@@ -558,13 +556,13 @@ class CastingSpell:
             return 0
 
         skill = 0
-        if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if self.spell_caster.is_player():
             skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
 
         cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel *
                             skill))
 
-        caster_is_unit = self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        caster_is_unit = self.spell_caster.is_unit(by_mask=True)
 
         if self.is_ranged_weapon_attack() and caster_is_unit:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
@@ -582,7 +580,7 @@ class CastingSpell:
         mana_cost = self.spell_entry.ManaCost
         power_cost_mod = 0
 
-        if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if self.spell_caster.is_player():
             if self.spell_entry.ManaCostPct != 0:
                 base_mana = self.spell_caster.stat_manager.get_base_stat(UnitStats.MANA)
                 mana_cost = base_mana * self.spell_entry.ManaCostPct / 100
@@ -607,7 +605,7 @@ class CastingSpell:
         gain_per_level = self.duration_entry.DurationPerLevel * self.caster_effective_level
 
         base_duration = min(base_duration + gain_per_level, self.duration_entry.MaxDuration)
-        if not self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not self.spell_caster.is_unit(by_mask=True):
             return base_duration
 
         # Apply casting speed modifiers for channeled spells.
@@ -664,7 +662,7 @@ class CastingSpell:
             return
 
         # Only players are affected by pushback.
-        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not self.spell_caster.is_player():
             return
 
         curr_time = time.time()
@@ -692,6 +690,6 @@ class CastingSpell:
         else:
             return
 
-        is_player = self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        is_player = self.spell_caster.is_player()
         packet = PacketWriter.get_packet(final_opcode, data)
         self.spell_caster.get_map().send_surrounding(packet, self.spell_caster, include_self=is_player)

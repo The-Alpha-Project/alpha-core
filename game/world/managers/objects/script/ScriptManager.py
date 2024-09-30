@@ -4,7 +4,6 @@ from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.ScriptCodes import ScriptTarget, AttackingTarget
 
 
@@ -370,7 +369,7 @@ class ScriptManager:
 
     @staticmethod
     def _validate_is_unit(world_object):
-        return world_object and world_object.get_type_id() == ObjectTypeIds.ID_UNIT
+        return world_object and world_object.is_unit()
 
     @staticmethod
     def _get_injured_friendly_units(caster, radius, hp_threshold, exclude_unit=None, is_percent=True) -> Optional[list[UnitManager]]:

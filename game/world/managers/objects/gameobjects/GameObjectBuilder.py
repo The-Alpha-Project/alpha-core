@@ -2,7 +2,7 @@ from typing import Callable
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.GuidManager import GuidManager
-from utils.constants.MiscCodes import GameObjectTypes, ObjectTypeFlags
+from utils.constants.MiscCodes import GameObjectTypes
 
 
 class GameObjectBuilder:
@@ -57,7 +57,7 @@ class GameObjectBuilder:
 
         # Set channel object update field for rituals and fishing nodes.
         if (gobject_template.type in {GameObjectTypes.TYPE_RITUAL, GameObjectTypes.TYPE_FISHINGNODE}
-                and summoner and summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT):
+                and summoner and summoner.is_unit(by_mask=True)):
             summoner.set_channel_object(go_instance.guid)
 
         return go_instance
@@ -78,6 +78,7 @@ class GameObjectBuilder:
         from game.world.managers.objects.gameobjects.managers.MiningNodeManager import MiningNodeManager
         from game.world.managers.objects.gameobjects.managers.QuestGiverManager import QuestGiverManager
         from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
+        from game.world.managers.objects.gameobjects.managers.DuelArbiterManager import DuelArbiterManager
 
         if template.type == GameObjectTypes.TYPE_DOOR:
             return DoorManager
@@ -105,5 +106,7 @@ class GameObjectBuilder:
             return RitualManager
         elif template.type == GameObjectTypes.TYPE_SPELL_FOCUS:
             return SpellFocusManager
+        elif template.type == GameObjectTypes.TYPE_DUEL_ARBITER:
+            return DuelArbiterManager
         else:
             return GameObjectManager

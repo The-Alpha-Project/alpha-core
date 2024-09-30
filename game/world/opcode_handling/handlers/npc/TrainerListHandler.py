@@ -3,7 +3,6 @@ from struct import unpack
 
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
-from utils.constants.MiscCodes import ObjectTypeIds
 
 
 class TrainerListHandler(object):
@@ -27,7 +26,7 @@ class TrainerListHandler(object):
                 trainer: CreatureManager = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
 
             if trainer and trainer.is_within_interactable_distance(player_mgr):
-                if trainer.get_type_id() == ObjectTypeIds.ID_UNIT:
+                if trainer.is_unit():
                     trainer.object_ai.player_interacted()
                 available_quests: int = 0
                 # Check if any quest is available.
