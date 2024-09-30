@@ -1585,8 +1585,6 @@ class PlayerManager(UnitManager):
             # If this player is dueling and the death blow comes from the opponent just end duel and set HP to 1.
             duel_arbiter = self.get_duel_arbiter()
             if duel_arbiter and duel_arbiter.is_unit_involved(killer):
-                if not killer.is_player():
-                    killer = killer.get_charmer_or_summoner()  # Pet dealt killing blow - pass owner to duel manager.
                 duel_arbiter.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
                 self.set_health(1)
                 return False
