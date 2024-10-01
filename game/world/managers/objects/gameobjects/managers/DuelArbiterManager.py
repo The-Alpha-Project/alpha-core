@@ -28,7 +28,6 @@ class PlayerDuelInformation:
         return self.timer <= 0
 
 
-# TODO: Missing checks before requesting a duel, does the map allow duel, etc.
 class DuelArbiterManager(GameObjectManager):
 
     def __init__(self, **kwargs):
