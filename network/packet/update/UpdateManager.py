@@ -72,7 +72,7 @@ class UpdateManager:
 
     def update_self_summon_creation(self, world_object):
         self.update_builder.add_create_update_from_object(world_object)
-        self.update_builder.process_update()
+        self.update_builder.process_update()  # Notify instantly.
 
     # Player update, packets are sent immediately.
     def _update_self(self, has_changes, inventory_changes, update_data):
