@@ -26,8 +26,15 @@ class AuraManager:
         self.add_aura(aura)
 
     def add_aura(self, aura):
-        can_apply = self.can_apply_aura(aura) and self.remove_colliding_effects(aura)
-        if not can_apply:
+        # Special case with SpellEffect mounting and mounting by aura.
+        # If a mount aura is being applied, and it results in dismounting, don't apply the new mount aura.
+        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
+                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and not \
+                self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED):
+            AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)
+            return
+
+        if not self.can_apply_aura(aura):
             return -1
 
         # Application threat and negative aura application interrupts.
@@ -40,7 +47,7 @@ class AuraManager:
 
         applied_similar_auras = self.get_similar_applied_auras(aura, accept_all_ranks=False, accept_all_sources=False)
         is_refresh = len(applied_similar_auras) > 0
-        if is_refresh > 0:
+        if is_refresh:
             # Only one similar aura from the same source can be applied.
             # Lower ranks are removed by remove_colliding_effects.
             similar_aura = applied_similar_auras[0]
@@ -55,6 +62,7 @@ class AuraManager:
             aura.applied_stacks = similar_aura.applied_stacks
             aura.index = similar_aura.index
         else:
+            self.remove_colliding_effects(aura)
             aura.index = self.get_next_aura_index(aura)
             self.active_auras[aura.index] = aura
 
@@ -201,14 +209,6 @@ class AuraManager:
                         self.remove_aura(aura)
 
     def remove_colliding_effects(self, aura):
-        # Special case with SpellEffect mounting and mounting by aura
-        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
-                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and not \
-                self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED):
-            AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)  # Remove mount effect
-            # If a mount aura would be applied but we dismount the unit, don't apply the new mount aura.
-            return False
-
         # TODO Exclusivity by aura effect type.
         #  Some spells with similar effects shouldn't be stackable.
 
@@ -312,7 +312,13 @@ class AuraManager:
                 if i in self.active_auras]
 
     def get_similar_applied_auras(self, aura, accept_all_ranks=True, accept_all_sources=True) -> list[AppliedAura]:
-        aura_spell_template = aura.source_spell.spell_entry
+        return self.get_similar_applied_auras_by_effect(aura.spell_effect,
+                                                       accept_all_ranks=accept_all_ranks,
+                                                       accept_all_sources=accept_all_sources)
+
+    def get_similar_applied_auras_by_effect(self, spell_effect, accept_all_ranks=True, accept_all_sources=True) -> list[AppliedAura]:
+        aura_spell_template = spell_effect.casting_spell.spell_entry
+        caster = spell_effect.casting_spell.spell_caster
 
         new_aura_name = aura_spell_template.Name_enUS
         new_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(aura_spell_template)
@@ -320,10 +326,10 @@ class AuraManager:
         similar_auras = []
 
         for applied_aura in list(self.active_auras.values()):
-            if applied_aura.spell_effect.effect_index != aura.spell_effect.effect_index:
+            if applied_aura.spell_effect.effect_index != spell_effect.effect_index:
                 continue
 
-            if not accept_all_sources and aura.caster != applied_aura.caster:
+            if not accept_all_sources and caster != applied_aura.caster:
                 continue
 
             applied_spell_entry = applied_aura.source_spell.spell_entry
