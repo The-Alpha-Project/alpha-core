@@ -1426,12 +1426,27 @@ class SpellManager:
 
         # Duel target check.
         if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_DUEL):
+            # 0.5.3 has no area flags in order to check for specific zone/area duel flags.
+            # Also, the spell error does not exist 'NO_DUELING'.
+            if validation_target.get_map().is_dungeon():
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                return False
             # Duel cast attempt on a unit or self.
             if not validation_target.is_player() or validation_target == casting_spell.spell_caster:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
+            duel_arbiter = casting_spell.spell_caster.get_duel_arbiter()
+
+            
+            # Already dueling or requested a duel with target.
+            if duel_arbiter and duel_arbiter.is_unit_involved(validation_target):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                return False
             if validation_target.is_dueling():
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
+                return False
+            if casting_spell.spell_caster.can_attack_target(validation_target):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_ENEMY)
                 return False
             if casting_spell.spell_caster.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
                 # There is no 'SPELL_FAILED_CANT_DUEL_WHILE_STEALTHED' in alpha, but this needs to be handled.
