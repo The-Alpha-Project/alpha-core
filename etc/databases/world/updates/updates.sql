@@ -480,6 +480,24 @@ begin not atomic
         DELETE FROM `creature_ai_scripts` WHERE `id`=259802;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (259802, 0, 0, 15, 712, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Darbel Montrose - Cast Spell Summon Succubus');
+        
+        -- Dylan Bissel - Wolf Trainer - Level 50.
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '2942');
+        -- Whladak - Spider Trainer - Level 50
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '2872');
+        -- Aldric - Bear Trainer - Level 50
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '2938');
+        -- Talar - Bear Trainer - Level 50
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '4206');
+        -- Kyln Longclaw - Boar Trainer - Level 30
+        UPDATE `creature_template` SET `level_min` = '30', `level_max` = '30' WHERE (`entry` = '3697');
+        -- Kysandia - Cat Trainer - Level 30
+        UPDATE `creature_template` SET `level_min` = '30', `level_max` = '30' WHERE (`entry` = '4153');
+        -- Nerra - Cat Trainer - Level 30
+        UPDATE `creature_template` SET `level_min` = '30', `level_max` = '30' WHERE (`entry` = '3699');
+        -- Kenna - Crocilisk Pet Trainer - Level 37
+        UPDATE `creature_template` SET `level_min` = '37', `level_max` = '37' WHERE (`entry` = '4901');
+        
 
         insert into applied_updates values ('290920241');
     end if;
