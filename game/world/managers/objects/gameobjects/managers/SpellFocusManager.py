@@ -35,7 +35,8 @@ class SpellFocusManager(GameObjectManager):
 
         go_objects = self.get_map().get_surrounding_gameobjects(self).values()
         should_spawn = not go_objects or not any(go for go in go_objects
-                                                 if go.entry == self.linked_trap and go.summoner == self)
+                                                 if go.entry == self.linked_trap
+                                                 and self.location.distance(go.location) < self.radius)
         if not should_spawn:
             return
 
