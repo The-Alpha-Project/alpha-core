@@ -1436,8 +1436,6 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
             duel_arbiter = casting_spell.spell_caster.get_duel_arbiter()
-
-            
             # Already dueling or requested a duel with target.
             if duel_arbiter and duel_arbiter.is_unit_involved(validation_target):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
