@@ -259,7 +259,13 @@ class EffectTargets:
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
         # Always paired with TARGET_ALL_AROUND_CASTER,
-        # which applied the scripted restriction due to filtering in get_surrounding_unit_targets.
+        # which applies unit entry restrictions via filtering in get_surrounding_unit_targets.
+
+        if casting_spell.spell_entry.ID in [7353, 7358]:  # Cozy Fire - only apply on friendly targets without the aura.
+            return [target for target in target_effect.targets.resolved_targets_a if
+                    not casting_spell.spell_caster.can_attack_target(target) and
+                    not target.aura_manager.get_similar_applied_auras_by_effect(target_effect)]
+
         return target_effect.targets.resolved_targets_a
 
     @staticmethod
