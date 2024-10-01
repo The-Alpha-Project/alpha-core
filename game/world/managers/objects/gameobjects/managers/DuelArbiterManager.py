@@ -66,7 +66,7 @@ class DuelArbiterManager(GameObjectManager):
         duel_info = self.duel_info.get(player_mgr.guid, None)
         if not duel_info:
             return
-        self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, duel_info.target)
+        self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, self._get_canceled_flag(), duel_info.target)
 
     def force_duel_end(self, player_mgr, retreat=True):
         duel_info = self.duel_info.get(player_mgr.guid, None)
@@ -79,10 +79,6 @@ class DuelArbiterManager(GameObjectManager):
         if winner and not winner.is_player():
             # If the provided unit is a pet, check for its owner instead.
             winner = winner.get_charmer_or_summoner(include_self=True)
-
-        if (self.duel_state == DuelState.DUEL_STATE_STARTED and
-                duel_complete_flag != DuelComplete.DUEL_CANCELED_INTERRUPTED):
-            duel_complete_flag = DuelComplete.DUEL_FINISHED
 
         # Set this first to prevent next tick to trigger.
         self.duel_state = DuelState.DUEL_STATE_FINISHED
@@ -171,6 +167,11 @@ class DuelArbiterManager(GameObjectManager):
             if duel_info.player.get_duel_arbiter() != self or duel_info.player.map_id != self.map_id:
                 self.force_duel_end(duel_info.player)
                 break
+
+    def _get_canceled_flag(self):
+        if self.duel_state == DuelState.DUEL_STATE_STARTED:
+            return DuelComplete.DUEL_FINISHED
+        return DuelComplete.DUEL_CANCELED_INTERRUPTED
 
     def _start_duel_check(self):
         if self.duel_state == DuelState.DUEL_STATE_REQUESTED:
