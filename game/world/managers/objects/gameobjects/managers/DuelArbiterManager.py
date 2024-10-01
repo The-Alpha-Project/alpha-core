@@ -1,5 +1,8 @@
 from struct import pack
+from typing import Optional
+
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.DuelCodes import *
 from utils.constants.OpCodes import OpCode
@@ -72,7 +75,7 @@ class DuelArbiterManager(GameObjectManager):
         winner_reason = DuelWinner.DUEL_WINNER_RETREAT if retreat else DuelWinner.DUEL_WINNER_KNOCKOUT
         self.end_duel(winner_reason, DuelComplete.DUEL_FINISHED, duel_info.target)
 
-    def end_duel(self, duel_winner_flag, duel_complete_flag, winner):
+    def end_duel(self, duel_winner_flag, duel_complete_flag, winner: Optional[PlayerManager]):
         if winner and not winner.is_player():
             # If the provided unit is a pet, check for its owner instead.
             winner = winner.get_charmer_or_summoner(include_self=True)
@@ -110,13 +113,12 @@ class DuelArbiterManager(GameObjectManager):
     def despawn(self, ttl=0):
         # Arbiter expired.
         if self.duel_state != DuelState.DUEL_STATE_FINISHED:
-            self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, winner_player=None)
+            self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, winner=None)
 
         self._update_teams(remove=True)
         self._update_arbiter(remove=True)
         self.duel_info.clear()
-        # Destroy self.
-        self.get_map().remove_object(self)
+        super().despawn()
 
     def _set_participants(self, requester, target):
         duel_info_requester = PlayerDuelInformation(requester, target, team_id=1)

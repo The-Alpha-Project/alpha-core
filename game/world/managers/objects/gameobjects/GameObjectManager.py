@@ -20,7 +20,6 @@ class GameObjectManager(ObjectManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.spawn_id = 0
-        self.is_dynamic_spawn = False
         self.entry = 0
         self.guid = 0
         self.gobject_template = None
@@ -139,8 +138,8 @@ class GameObjectManager(ObjectManager):
 
     # override
     def is_active_object(self):
-        return ((self.is_spawned and self.initialized) and
-                len(self.known_players) > 0 or self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT)
+        return ((self.is_spawned and self.initialized and
+                len(self.known_players) > 0) or self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT)
 
     def apply_spell_damage(self, target, damage, spell_effect, is_periodic=False):
         # Skip if target is invalid or already dead.
@@ -241,6 +240,15 @@ class GameObjectManager(ObjectManager):
 
     def trigger_script(self, target):
         self.get_map().enqueue_script(self, target, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
+
+    def spawn_linked_trap(self, trap_entry):
+        from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+        trap_object = GameObjectBuilder.create(trap_entry, self.location, self.map_id, self.instance_id,
+                                               state=GameObjectStates.GO_STATE_READY, summoner=self,
+                                               faction=self.faction, ttl=self.time_to_live_timer)
+
+        self.get_map().spawn_object(world_object_instance=trap_object)
+        return trap_object
 
     def trigger_linked_trap(self, trap_entry, unit, radius=2.5):
         from game.world.managers.objects.gameobjects.managers.TrapManager import TrapManager

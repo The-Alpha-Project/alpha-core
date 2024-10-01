@@ -68,6 +68,7 @@ class ObjectManager:
 
         self.initialized = False
         self.is_spawned = True
+        self.is_dynamic_spawn = False
         self.is_default = True
         self.summoner = None
         self.charmer = None
@@ -472,10 +473,9 @@ class ObjectManager:
         if self.object_ai:
             self.object_ai.just_despawned()
         # Destroy completely.
-        if self.is_default and not ttl:
+        if self.is_dynamic_spawn or (self.is_default and not ttl):
             self.get_map().remove_object(self)
             return
-        # TODO: Some objects are being despawned and not entirely destroyed. e.g. Fishing Bobber, Duel Flags, Rituals.
         # Despawn (De-activate)
         self.get_map().update_object(self, has_changes=True)
 

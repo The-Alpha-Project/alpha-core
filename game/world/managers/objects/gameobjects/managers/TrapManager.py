@@ -1,6 +1,7 @@
 import time
 
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from utils.constants.MiscCodes import GameObjectTypes
 
 
 class TrapManager(GameObjectManager):
@@ -38,10 +39,14 @@ class TrapManager(GameObjectManager):
         if now > self.last_tick > 0:
             if self.is_active_object():
                 self._update()
+
         super().update(now)
 
     def _update(self):
         if not self._is_triggered_by_proximity():
+            return
+
+        if not self.spell_id:
             return
 
         # Infinite trigger, set go as ready until triggered.
@@ -60,16 +65,13 @@ class TrapManager(GameObjectManager):
                                                                        self.radius)
 
         for unit in units.values():
-            # Keep looping until we find a valid unit.
-            if not self.can_attack_target(unit):
-                continue
-            self.use(player=unit)
-            break
+            if not self.use(player=unit):
+                break
 
     # override
     def use(self, player=None, target=None, from_script=False):
         if not super().check_cooldown(time.time()):
-            return
+            return False
 
         self.set_active()
         self.cast_spell(self.spell_id, player)
@@ -77,9 +79,10 @@ class TrapManager(GameObjectManager):
             self.send_custom_animation(0)
         if self.charges == 1:
             self.despawn()
-            return
+            return False
 
         super().use(player, target, from_script)
+        return True
 
     # override
     def get_auto_close_time(self):
