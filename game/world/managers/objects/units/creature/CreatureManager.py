@@ -223,7 +223,7 @@ class CreatureManager(UnitManager):
             self.set_combat_reach(creature_model_info.combat_reach)
             self.gender = creature_model_info.gender
 
-        # TODO: Pets should have dynamic scales based on CreatureFamily.
+        # TODO: Pets should have dynamic scales based on their level and CreatureFamily data.
         #  https://wowdev.wiki/DB/CreatureFamily
         display_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
         # No scale or creature was summoned, look for scale according to display id.
