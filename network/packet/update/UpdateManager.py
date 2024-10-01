@@ -71,16 +71,8 @@ class UpdateManager:
             self.pending_object_types_updates[type_id] = True
 
     def update_self_summon_creation(self, world_object):
-        query_packet = world_object.get_query_details_packet()
-        create_packet = world_object.generate_create_packet(requester=self.player_mgr)
-        self.player_mgr.enqueue_packet(query_packet)
-        self.player_mgr.enqueue_packet(create_packet)
-        if world_object.is_unit():
-            movement_packet = world_object.movement_manager.try_build_movement_packet()
-            if movement_packet:
-                self.player_mgr.enqueue_packets(movement_packet)
-        world_object.known_players[self.player_mgr.guid] = self.player_mgr
-        self.player_mgr.known_objects[world_object.guid] = world_object
+        self.update_builder.add_create_update_from_object(world_object)
+        self.update_builder.process_update()
 
     # Player update, packets are sent immediately.
     def _update_self(self, has_changes, inventory_changes, update_data):
