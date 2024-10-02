@@ -498,6 +498,12 @@ begin not atomic
         -- Kenna - Crocilisk Pet Trainer - Level 37
         UPDATE `creature_template` SET `level_min` = '37', `level_max` = '37' WHERE (`entry` = '4901');
         
+        -- Fixes to quests poi's from wdb.
+        UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '61');
+        UPDATE `quest_template` SET `PointX` = '-9663.55', `PointY` = '688.122', `PointOpt` = '1' WHERE (`entry` = '239');
+        UPDATE `quest_template` SET `PointX` = '-10509', `PointY` = '1047', `PointOpt` = '1' WHERE (`entry` = '109');
+        UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '333');
+        UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '353');
 
         insert into applied_updates values ('290920241');
     end if;
