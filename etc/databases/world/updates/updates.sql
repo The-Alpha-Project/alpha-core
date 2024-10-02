@@ -504,7 +504,14 @@ begin not atomic
         UPDATE `quest_template` SET `PointX` = '-10509', `PointY` = '1047', `PointOpt` = '1' WHERE (`entry` = '109');
         UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '333');
         UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '353');
-
+        -- Brock Stoneseeker <Cartography Trainer> - Remove mining template.
+        UPDATE `creature_template` SET `trainer_id` = '0' WHERE (`entry` = '1681');
+        -- Karm Ironquill <Cartography Supplies> - Remove mining vendor entries.
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '2880');
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '2901');
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '3466');
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '3857');
+        
         insert into applied_updates values ('290920241');
     end if;
 end $
