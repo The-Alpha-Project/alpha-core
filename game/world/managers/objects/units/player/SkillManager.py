@@ -15,7 +15,7 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockTypes, ObjectTypeIds
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects
 from utils.constants.UpdateFields import PlayerFields
@@ -519,7 +519,7 @@ class SkillManager(object):
                                                 cast_item=casting_spell.source_item,
                                                 bonus_points=bonus_points)
 
-        if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if target.is_gameobject():
             # Handle unique skill gain per herb node.
             if lock_result.skill_type == SkillTypes.HERBALISM and self.player_mgr.guid in target.unlocked_by:
                 return

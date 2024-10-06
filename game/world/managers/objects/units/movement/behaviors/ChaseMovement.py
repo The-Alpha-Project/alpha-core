@@ -2,8 +2,7 @@ import math
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.Formulas import UnitFormulas, Distances
-from utils.Logger import Logger
-from utils.constants.MiscCodes import MoveType, ObjectTypeIds
+from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 
@@ -28,7 +27,7 @@ class ChaseMovement(BaseMovement):
     #  This might only refer to creatures not having swimming animations.
     def _chase(self, unit):
         # Check if target is player and is online.
-        target_is_player = unit.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        target_is_player = unit.combat_target.is_player()
         if target_is_player and not unit.combat_target.online:
             unit.threat_manager.remove_unit_threat(unit.combat_target)
             return

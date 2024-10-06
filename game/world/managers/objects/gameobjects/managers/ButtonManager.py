@@ -29,7 +29,7 @@ class ButtonManager(GameObjectManager):
                 # Check if we need to reset the original button state.
                 if self.is_active() and super().check_cooldown(now):
                     self.reset_button_state()
-            super().update(now)
+        super().update(now)
 
     # override
     def use(self, player=None, target=None, from_script=False):

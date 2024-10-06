@@ -2,7 +2,7 @@ from random import randint
 
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags, EmoteUnitState
+from utils.constants.MiscCodes import Emotes, EmoteUnitState
 from utils.constants.SpellCodes import SpellTargetMask, AuraState
 from utils.constants.UnitCodes import StandState
 
@@ -42,7 +42,7 @@ class AuraEffectDummyHandler:
         if not aura.is_past_next_period() or remove:
             return
 
-        if not effect_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not effect_target.is_unit(by_mask=True):
             return
 
         roll = randint(1, 100)
@@ -52,7 +52,7 @@ class AuraEffectDummyHandler:
     @staticmethod
     # This does not display an aura, it can't be cancelled.
     def handle_sleep(aura, effect_target, remove):
-        if not effect_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not effect_target.is_unit(by_mask=True):
             return
 
         if remove:
@@ -65,7 +65,7 @@ class AuraEffectDummyHandler:
 
     @staticmethod
     def handle_sentry_totem(aura, effect_target, remove):
-        if remove or effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if remove or not effect_target.is_player():
             return
         totem_slot = aura.source_spell.get_totem_slot_type()
         totem = effect_target.pet_manager.get_active_totem(totem_slot)

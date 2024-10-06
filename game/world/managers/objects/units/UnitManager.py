@@ -21,8 +21,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid, Emotes, \
-    EmoteUnitState
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid, EmoteUnitState
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState
@@ -248,7 +247,7 @@ class UnitManager(ObjectManager):
         if not target.initialized or not self.initialized:
             return False
 
-        if target.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT:
+        if target.is_gameobject(by_mask=True):
             return False
 
         if not target.is_alive:
@@ -263,16 +262,16 @@ class UnitManager(ObjectManager):
             return False
 
         # Player only checks.
-        if self.get_type_id() == ObjectTypeIds.ID_PLAYER or self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
+        if self.is_player() or self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
             if target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
                 return False
         # Creature only checks.
-        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
+        elif target.is_unit():
             if not target.is_spawned:
                 return False
             if target.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
                 return False
-            if self.get_type_id() == ObjectTypeIds.ID_UNIT and self.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+            if self.is_unit() and self.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
                 return False
 
         # Always short circuit on charmer/summoner relationship.
@@ -281,9 +280,10 @@ class UnitManager(ObjectManager):
             return False
 
         # Charmed unit whose charmer is dueling the target.
-        if charmer and charmer.get_type_id() == ObjectTypeIds.ID_PLAYER and \
-                charmer.duel_manager and charmer.duel_manager.is_unit_involved(target):
-            return charmer.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+        if charmer and charmer.is_player():
+            duel_arbiter = charmer.get_duel_arbiter()
+            if duel_arbiter and duel_arbiter.is_unit_involved(target):
+                return duel_arbiter.duel_state == DuelState.DUEL_STATE_STARTED
 
         is_enemy = super().can_attack_target(target)
         if is_enemy:
@@ -301,7 +301,7 @@ class UnitManager(ObjectManager):
             return False
 
         # Mounted players can't attack
-        if self.get_type_id() == ObjectTypeIds.ID_PLAYER and self.mount_display_id > 0:
+        if self.is_player() and self.mount_display_id > 0:
             return False
 
         # Invalid target.
@@ -407,7 +407,7 @@ class UnitManager(ObjectManager):
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
         if swing_error != AttackSwingError.NONE:
-            if self.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if self.is_player():
                 if swing_error == AttackSwingError.NOTINRANGE:
                     self.send_attack_swing_not_in_range(self.combat_target)
                 elif swing_error == AttackSwingError.BADFACING:
@@ -457,11 +457,11 @@ class UnitManager(ObjectManager):
             self.extra_attacks -= 1
 
     def handle_melee_daze_chance(self, attacker):
-        if attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+        if attacker.is_player(by_mask=True):
             return
 
         owner = attacker.get_charmer_or_summoner()
-        if owner and owner.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+        if owner and owner.is_player(by_mask=True):
             return
 
         # Not attack from behind, ignore.
@@ -592,7 +592,7 @@ class UnitManager(ObjectManager):
         return damage_info
 
     def send_attack_state_update(self, damage_info):
-        is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
+        is_player = self.is_player()
         attack_state_packet = damage_info.get_attacker_state_update_packet()
         self.get_map().send_surrounding(attack_state_packet, self, include_self=is_player)
 
@@ -773,7 +773,7 @@ class UnitManager(ObjectManager):
             return damage_info
 
         subclass = -1
-        if self.get_type_id() == ObjectTypeIds.ID_PLAYER and spell.is_weapon_attack():
+        if self.is_player() and spell.is_weapon_attack():
             equipped_weapon = self.get_current_weapon_for_attack_type(damage_info.attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
@@ -890,7 +890,7 @@ class UnitManager(ObjectManager):
         target_result = spell.object_target_results.get(target.guid, None)
         if target_result:
             miss_reason, hit_flags = target_result.result, target_result.flags
-        elif target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        elif target.is_unit(by_mask=True):
             # Proc auras (PROC_TRIGGER_DAMAGE/DAMAGE_SHIELD) have no persistent target results.
             # Roll miss reason here if the target is missing.
             miss_reason, hit_flags = target.stat_manager.get_spell_miss_result_against_self(spell_effect.casting_spell)
@@ -938,16 +938,16 @@ class UnitManager(ObjectManager):
             return
         creature_observers = [attacker for attacker
                               in target.threat_manager.get_threat_holder_units()
-                              if not attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER]
+                              if not attacker.is_player(by_mask=True)]
         if not creature_observers:
             return
         threat = source_threat / len(creature_observers)
         [creature.threat_manager.add_threat(self, threat) for creature in creature_observers]
 
     def send_spell_cast_debug_info(self, damage_info, casting_spell):
-        is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
+        is_player = self.is_player()
         spell_debug_packet = damage_info.get_attacker_state_update_spell_info_packet()
-        target_is_player = damage_info.target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        target_is_player = damage_info.target.is_player()
         if not damage_info.hit_info & SpellHitFlags.HEALED:
             self.get_map().send_surrounding(spell_debug_packet, self, include_self=is_player)
             damage_done_packet = damage_info.get_damage_done_packet()
@@ -1040,6 +1040,7 @@ class UnitManager(ObjectManager):
             return False
 
         self.attack_stop()
+        self.remove_combo_points()
         self.swing_error = 0
         self.extra_attacks = 0
 
@@ -1135,8 +1136,8 @@ class UnitManager(ObjectManager):
         if distance > 30.0:
             return False, False
 
-        self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
-        target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self_is_player = self.is_player()
+        target_is_player = target.is_player()
 
         # Invisibility.
 
@@ -1189,7 +1190,7 @@ class UnitManager(ObjectManager):
 
         alert = False
         # Creature vs Player, alert handling.
-        if self.get_type_id() == ObjectTypeIds.ID_UNIT and target_is_player:
+        if self.is_unit() and target_is_player:
             alert_range = visible_distance + 5.0
             alert = alert_range >= distance > visible_distance
 
@@ -1375,6 +1376,10 @@ class UnitManager(ObjectManager):
     # Implemented by CreatureManager.
     def is_guardian(self):
         return False
+
+    # Implemented by PlayerManager.
+    def get_duel_arbiter(self):
+        return None
 
     # Implemented by CreatureManager.
     def get_charmer_or_summoner(self, include_self=False):
@@ -1783,7 +1788,7 @@ class UnitManager(ObjectManager):
             self.object_ai.just_died(killer)
 
         # Notify killer's pet AI about this kill.
-        if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if killer and killer.is_unit(by_mask=True):
             killer_pet = killer.pet_manager.get_active_controlled_pet()
             if killer_pet:
                 killer_pet.creature.object_ai.killed_unit(self)
@@ -1808,7 +1813,7 @@ class UnitManager(ObjectManager):
         self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
         self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
 
-        if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if killer and killer.is_player():
             if killer.current_selection == self.guid:
                 killer.set_current_selection(killer.guid)
 
@@ -1816,7 +1821,7 @@ class UnitManager(ObjectManager):
             if killer.combo_target == self.guid:
                 killer.remove_combo_points()
 
-        if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if killer and killer.is_unit(by_mask=True):
             killer.aura_manager.check_aura_procs(killed_unit=True)
 
         self.spell_manager.remove_casts()
@@ -1836,7 +1841,7 @@ class UnitManager(ObjectManager):
 
         charmer = self.get_charmer_or_summoner()
         # (Game objects can spawn creatures, but they don't have a PetManager).
-        if charmer and charmer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if charmer and charmer.is_unit(by_mask=True):
             active_pet = charmer.pet_manager.get_active_pet_by_guid(self.guid)
             if active_pet:
                 summon_spell = active_pet.get_pet_data().summon_spell_id
@@ -1901,7 +1906,7 @@ class UnitManager(ObjectManager):
             return
 
         map_ = self.get_map()
-        self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self_is_player = self.is_player()
         surrounding_units = map_.get_surrounding_units(self, not self_is_player)
         self_has_ooc_los_events = not self_is_player and self.object_ai.ai_event_handler.has_ooc_los_events()
 
@@ -1913,7 +1918,7 @@ class UnitManager(ObjectManager):
             surrounding_units = surrounding_units.values()
 
         for unit in surrounding_units:
-            unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+            unit_is_player = unit.is_player()
             unit_has_ooc_los_events = not unit_is_player and unit.object_ai.ai_event_handler.has_ooc_los_events()
 
             los_check = None

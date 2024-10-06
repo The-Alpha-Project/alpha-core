@@ -60,26 +60,30 @@ class ThreatManager:
         # Remove threat between self and attackers.
         for unit in self.get_threat_holder_units():
             self.remove_unit_threat(unit)
-            if not unit.threat_manager.has_aggro_from(self.unit):
-                continue
-            unit.threat_manager.remove_unit_threat(self.unit)
 
         self.holders.clear()
         self.current_holder = None
 
     def remove_unit_threat(self, unit):
         if unit.guid in self.holders:
+            duel_arbiter = self.unit.get_duel_arbiter()
+            from_duel = duel_arbiter and duel_arbiter.is_unit_involved(unit)
             # Reset current holder if needed.
             if self.current_holder == self.holders[unit.guid]:
                 self.current_holder = None
             # Pop unit from threat holders.
             self.holders.pop(unit.guid)
             # Remove from self casts if needed.
-            if not unit.is_alive:
+            if not unit.is_alive or from_duel or unit.unit_state & UnitStates.SANCTUARY:
                 self.unit.spell_manager.remove_unit_from_all_cast_targets(unit.guid)
+                if from_duel:
+                    self.unit.aura_manager.remove_harmful_auras_by_caster(unit.guid)
             # Remove from unit casts if needed.
-            if not self.unit.is_alive:
+            if not self.unit.is_alive or from_duel or self.unit.unit_state & UnitStates.SANCTUARY:
                 unit.spell_manager.remove_unit_from_all_cast_targets(self.unit.guid)
+                if from_duel:
+                    unit.aura_manager.remove_harmful_auras_by_caster(self.unit.guid)
+            # Remove from unit aggro table if needed.
             if unit.threat_manager.has_aggro_from(self.unit):
                 unit.threat_manager.remove_unit_threat(self.unit)
 

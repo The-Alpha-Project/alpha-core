@@ -284,19 +284,20 @@ class WorldServerSessionHandler:
             real_binding = server_socket.getsockname()
             Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}')
 
-            while WORLD_ON and running.value:
-                try:
-                    client_socket, client_address = server_socket.accept()
-                    server_handler = WorldServerSessionHandler(client_socket, client_address)
-                    world_session_thread = threading.Thread(target=server_handler.handle)
-                    world_session_thread.daemon = True
-                    world_session_thread.start()
-                except socket.timeout:
-                    pass  # Non blocking.
-                except OSError:
-                    Logger.warning(traceback.format_exc())
-                except KeyboardInterrupt:
-                    break
+            try:
+                while WORLD_ON and running.value:
+                    try:
+                        client_socket, client_address = server_socket.accept()
+                        server_handler = WorldServerSessionHandler(client_socket, client_address)
+                        world_session_thread = threading.Thread(target=server_handler.handle)
+                        world_session_thread.daemon = True
+                        world_session_thread.start()
+                    except socket.timeout:
+                        pass  # Non blocking.
+            except OSError:
+                Logger.warning(traceback.format_exc())
+            except KeyboardInterrupt:
+                pass
 
         Logger.info("World server turned off.")
         ChatLogManager.exit()

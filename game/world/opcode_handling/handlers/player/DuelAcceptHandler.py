@@ -1,5 +1,6 @@
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
+from utils.Logger import Logger
 
 
 class DuelAcceptHandler(object):
@@ -11,7 +12,10 @@ class DuelAcceptHandler(object):
         if not player_mgr:
             return res
 
-        if player_mgr.duel_manager:  # Ignore accept from duel-sender
-            player_mgr.duel_manager.handle_duel_accept(player_mgr)
+        duel_arbiter = player_mgr.get_duel_arbiter()
+        if duel_arbiter:
+            duel_arbiter.handle_duel_accept(player_mgr)
+        else:
+            Logger.warning(f'Unable to locate duel arbiter. {reader.opcode_str()}')
 
         return 0

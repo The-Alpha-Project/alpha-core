@@ -5,7 +5,6 @@ from threading import RLock
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import SkinningLootTemplate
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 
 

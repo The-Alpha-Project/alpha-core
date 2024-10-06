@@ -3,7 +3,7 @@ from enum import IntEnum
 from multiprocessing import RLock
 from struct import pack
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 
 
@@ -68,12 +68,12 @@ class UpdateBuilder:
         self._add_packet(world_object.get_create_update_bytes(requester=self._player_mgr), PacketType.CREATE)
 
         # Movement packets.
-        if world_object.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if world_object.is_unit(by_mask=True):
             self._add_movement_update_from_unit(world_object)
 
         # Handle special doors case in which the real state is sent after the create packet in order to remove
         # collision.
-        if world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if world_object.is_gameobject():
             door_deferred_state_update = world_object.get_door_state_update_bytes()
             if door_deferred_state_update:
                 self._add_packet(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)

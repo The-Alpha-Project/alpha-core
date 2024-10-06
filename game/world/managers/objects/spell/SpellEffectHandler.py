@@ -14,7 +14,6 @@ from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
 from game.world.managers.objects.units.pet.PetData import PetData
-from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
@@ -22,8 +21,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
-    GameObjectStates, DynamicObjectTypes, ScriptTypes
+from utils.constants.MiscCodes import AttackTypes, GameObjectStates, DynamicObjectTypes, ScriptTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
@@ -48,7 +46,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_activate_object(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT:
+        if not target.is_gameobject(by_mask=True):
             return
         # Only two spells, Summon Voidwalker and Summon Succubus (Need summoning circle).
         # Both with same action, 'AnimateCustom0'.
@@ -56,7 +54,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         damage = effect.get_effect_points()
@@ -64,7 +62,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         healing = effect.get_effect_points()
@@ -72,7 +70,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_heal_max_health(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         healing = caster.max_health
@@ -80,7 +78,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
-        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not caster.is_unit(by_mask=True):
             return
 
         if casting_spell.spell_attack_type == -1:
@@ -101,28 +99,27 @@ class SpellEffectHandler:
         damage_bonus = effect.get_effect_points()
 
         # Overpower also uses combo points, but shouldn't scale.
-        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and not casting_spell.is_overpower() and \
-                casting_spell.requires_combo_points():
+        if caster.is_player() and not casting_spell.is_overpower() and casting_spell.requires_combo_points():
             damage_bonus *= casting_spell.spent_combo_points
 
         caster.apply_spell_damage(target, weapon_damage + damage_bonus, effect)
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
-        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not caster.is_unit(by_mask=True):
             return
 
         caster.add_combo_points_on_target(target, effect.get_effect_points())
 
     @staticmethod
     def handle_sanctuary(casting_spell, effect, caster, target):
-        if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if caster.is_unit(by_mask=True):
             # Set sanctuary state.
             caster.set_sanctuary(True, time_secs=1)
 
     @staticmethod
     def handle_dispel(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         friendly = not caster.can_attack_target(target)
@@ -138,7 +135,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         if casting_spell.is_target_immune_to_aura(target):
@@ -148,38 +145,35 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
-        # Prevent dueling vs non existent targets or vs self.
-        if not target or target == caster:
-            return
+        # Handle caster already on a duel, forfeit.
+        duel_arbiter = caster.get_duel_arbiter()
+        if duel_arbiter:
+            duel_arbiter.force_end_duel(caster)
 
-        # Duels can only happen between players.
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
+        # New duel arbiter.
+        duel_arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0],
+                                                caster.map_id, caster.instance_id,
+                                                GameObjectStates.GO_STATE_READY,
+                                                summoner=caster,
+                                                spell_id=casting_spell.spell_entry.ID,
+                                                faction=caster.faction, ttl=3600)
 
-        arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0],
-                                           caster.map_id, caster.instance_id,
-                                           GameObjectStates.GO_STATE_READY,
-                                           summoner=caster,
-                                           spell_id=casting_spell.spell_entry.ID,
-                                           faction=caster.faction, ttl=3600)
-
-        caster.get_map().spawn_object(world_object_instance=arbiter)
-
-        DuelManager.request_duel(caster, target, arbiter)
+        caster.get_map().spawn_object(world_object_instance=duel_arbiter)
+        duel_arbiter.request_duel(caster, target)
 
     @staticmethod
     def handle_open_lock(casting_spell, effect, caster, target):
-        if not caster or caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster or not caster.is_player():
             return
 
-        if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if target.is_gameobject():
             target.use(caster, target)
-        elif target.get_type_id() == ObjectTypeIds.ID_ITEM:
+        elif target.is_item():
             target.set_unlocked()
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         power_type = effect.misc_value
@@ -191,7 +185,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_power_burn(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         power_type = effect.misc_value
@@ -209,7 +203,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_power_drain(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         power_type = effect.misc_value
@@ -227,7 +221,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_health_leech(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         amount = effect.get_effect_points()
@@ -236,7 +230,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
@@ -255,7 +249,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_insta_kill(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         # No SMSG_SPELLINSTAKILLLOG in 0.5.3
@@ -263,7 +257,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_create_item(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(effect.item_type)
@@ -298,7 +292,7 @@ class SpellEffectHandler:
         if len(teleport_info) != 2 or not isinstance(teleport_info[1], Vector):
             return
 
-        if target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+        if target.is_player():
             target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved.
         else:
             target.near_teleport(teleport_info[1])
@@ -344,13 +338,13 @@ class SpellEffectHandler:
     @staticmethod
     def handle_learn_spell(casting_spell, effect, caster, target):
         target_spell_id = effect.trigger_spell_id
-        if target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+        if target.is_player(by_mask=True):
             target.spell_manager.learn_spell(target_spell_id)
             return
 
         # Pet teaching.
         summoner = target.get_charmer_or_summoner()
-        if not summoner or summoner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not summoner or not summoner.is_player():
             return
 
         active_pet = summoner.pet_manager.get_active_permanent_pet()
@@ -359,7 +353,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_learn_pet_spell(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         target_spell_id = effect.trigger_spell_id
@@ -459,7 +453,7 @@ class SpellEffectHandler:
         # 1.1: Summoning gives a confirmation dialog to person being summoned.
         # 1.3: You can no longer accept a warlock summoning while you are in combat.
 
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster.is_player():
             return
 
         # Since this handler is ONLY used by the ritual of summoning effect, directly check for that spell here (ID 698).
@@ -480,14 +474,14 @@ class SpellEffectHandler:
 
         elif casting_spell.spell_entry.ID == group_astral_recall:
             for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
-                if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+                if not target.is_player():
                     continue
                 deathbind_map, deathbind_location = target.get_deathbind_coordinates()
                 target.teleport(deathbind_map, deathbind_location)
 
     @staticmethod
     def handle_weapon_skill(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
@@ -497,7 +491,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_add_proficiency(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         item_class = casting_spell.spell_entry.EquippedItemClass
@@ -510,7 +504,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_add_language(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         skill = target.skill_manager.get_skill_for_spell_id(casting_spell.spell_entry.ID)
@@ -522,11 +516,11 @@ class SpellEffectHandler:
     @staticmethod
     def handle_bind(casting_spell, effect, caster, target):
         # Only target allowed is a player.
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         # Only save the GUID of the binder if the spell is casted by a creature.
-        if caster.get_type_id() == ObjectTypeIds.ID_UNIT:
+        if caster.is_unit():
             target.deathbind.creature_binder_guid = caster.get_low_guid()
         else:
             target.deathbind.creature_binder_guid = 0
@@ -583,9 +577,9 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_tame_creature(casting_spell, effect, caster, target):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster.is_player():
             return
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if target.is_player():
             return
 
         # Taming will always result in the target becoming the caster's pet.
@@ -599,7 +593,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
-        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not caster.is_unit(by_mask=True):
             return
 
         caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, creature_id=effect.misc_value)
@@ -679,14 +673,16 @@ class SpellEffectHandler:
                                                           subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
 
                 if not creature_manager:
-                    Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
+                    Logger.error(f'Summon failed, creature with entry {creature_entry} '
+                                 f'not found for spell {casting_spell.spell_entry.ID}, '
+                                 f'caster entry {caster.get_entry()}')
                     return
 
                 caster.get_map().spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         # Skip if target is not dead.
@@ -705,7 +701,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_extra_attacks(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         if not target.is_alive:
@@ -723,7 +719,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_threat(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if not target.is_unit():
             return
 
         if not target.is_alive:
@@ -734,7 +730,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_distract(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         if target.combat_target or target.unit_state & UnitStates.DISTRACTED:
@@ -747,7 +743,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_interrupt_cast(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         if not target.is_alive:
@@ -757,7 +753,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_stuck(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         deathbind_map, deathbind_location = target.get_deathbind_coordinates()
@@ -765,7 +761,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster.is_player():
             return
 
         if not target.pickpocket_loot_manager.has_loot() and not target.pickpocket_loot_manager.already_pickpocketed:
@@ -775,7 +771,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_add_farsight(casting_spell, effect, caster, target):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster.is_player():
             return
 
         duration = casting_spell.get_duration() / 1000
@@ -787,7 +783,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_skill_step(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         step = effect.get_effect_points()
@@ -811,7 +807,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_permanent_enchant(casting_spell, effect, caster, target, is_temporary=False):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster.is_player():
             return
 
         # Calculate slot, duration and charges.
@@ -871,12 +867,12 @@ class SpellEffectHandler:
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         target.has_block_passive = True
 
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if target.is_player():
             target.stat_manager.send_defense_bonuses()  # Send new block chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
@@ -885,12 +881,12 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_parry_passive(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         target.has_parry_passive = True
 
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if target.is_player():
             target.stat_manager.send_defense_bonuses()  # Send new parry chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
@@ -899,12 +895,12 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_dodge_passive(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return
 
         target.has_dodge_passive = True
 
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if target.is_player():
             target.stat_manager.send_defense_bonuses()  # Send new dodge chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
@@ -913,7 +909,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
@@ -927,7 +923,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_dual_wield_passive(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not target.is_player():
             return
 
         skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
@@ -942,8 +938,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_quest_complete(casting_spell, effect, caster, target):
-        target = target if target.get_type_id() == ObjectTypeIds.ID_PLAYER \
-            else caster if caster.get_type_id() == ObjectTypeIds.ID_PLAYER else None
+        target = target if target.is_player() else caster if caster.is_player() else None
 
         if not target:
             return

@@ -448,6 +448,71 @@ begin not atomic
 
         insert into applied_updates values ('260920241');
     end if;
+    
+    -- 29/09/2024 1
+    if (select count(*) from applied_updates where id='290920241') = 0 then
+        -- Invalid script spells for Son of Cenarius 4057
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (405701);
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4057;
 
+        -- Vendor items, Kiro <War Harness Maker> and Sura Wildmane <War Harness Vendor>
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6523', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6524', '0', '0', '0', '1');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6525', '0', '0', '0', '2');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3023', '6526', '0', '0', '0', '3');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6523', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6524', '0', '0', '0', '1');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6525', '0', '0', '0', '2');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('3359', '6526', '0', '0', '0', '3');
+        
+        -- Enable Battle Harness, Buckled Harness, Grunt's Harness and Studded Leather Harness
+        UPDATE `item_template` SET `display_id` = '9040', `ignored` = '0' WHERE (`entry` = '6523');
+        UPDATE `item_template` SET `display_id` = '9536', `ignored` = '0' WHERE (`entry` = '6524');
+        UPDATE `item_template` SET `display_id` = '9548', `ignored` = '0' WHERE (`entry` = '6525');
+        UPDATE `item_template` SET `display_id` = '9995', `ignored` = '0' WHERE (`entry` = '6526');
+        
+        -- Marez Cowl - Invalid spell.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (278301);
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2783;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (278302, 2783, 0, 2, 0, 100, 0, 15, 0, 0, 0, 278302, 0, 0, 'Marez Cowl - Flee at 15% HP');
+
+        -- Darbel Montrose - Summon Succubus on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=259802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (259802, 0, 0, 15, 712, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Darbel Montrose - Cast Spell Summon Succubus');
+        
+        -- Dylan Bissel - Wolf Trainer - Level 50.
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '2942');
+        -- Whladak - Spider Trainer - Level 50
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '2872');
+        -- Aldric - Bear Trainer - Level 50
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '2938');
+        -- Talar - Bear Trainer - Level 50
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '4206');
+        -- Kyln Longclaw - Boar Trainer - Level 30
+        UPDATE `creature_template` SET `level_min` = '30', `level_max` = '30' WHERE (`entry` = '3697');
+        -- Kysandia - Cat Trainer - Level 30
+        UPDATE `creature_template` SET `level_min` = '30', `level_max` = '30' WHERE (`entry` = '4153');
+        -- Nerra - Cat Trainer - Level 30
+        UPDATE `creature_template` SET `level_min` = '30', `level_max` = '30' WHERE (`entry` = '3699');
+        -- Kenna - Crocilisk Pet Trainer - Level 37
+        UPDATE `creature_template` SET `level_min` = '37', `level_max` = '37' WHERE (`entry` = '4901');
+        
+        -- Fixes to quests poi's from wdb.
+        UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '61');
+        UPDATE `quest_template` SET `PointX` = '-9663.55', `PointY` = '688.122', `PointOpt` = '1' WHERE (`entry` = '239');
+        UPDATE `quest_template` SET `PointX` = '-10509', `PointY` = '1047', `PointOpt` = '1' WHERE (`entry` = '109');
+        UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '333');
+        UPDATE `quest_template` SET `PointOpt` = '1' WHERE (`entry` = '353');
+        -- Brock Stoneseeker <Cartography Trainer> - Remove mining template.
+        UPDATE `creature_template` SET `trainer_id` = '0' WHERE (`entry` = '1681');
+        -- Karm Ironquill <Cartography Supplies> - Remove mining vendor entries.
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '2880');
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '2901');
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '3466');
+        DELETE FROM `npc_vendor` WHERE (`entry` = '372') and (`item` = '3857');
+        
+        insert into applied_updates values ('290920241');
+    end if;
 end $
 delimiter ;

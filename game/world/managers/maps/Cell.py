@@ -1,7 +1,6 @@
 from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
-from utils.constants.MiscCodes import ObjectTypeIds
 from threading import RLock
 
 
@@ -92,15 +91,15 @@ class Cell:
         # Update world_object cell so the below messages affect the new cell surroundings.
         world_object.current_cell = self.key
 
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if world_object.is_player():
             self.players[world_object.guid] = world_object
-        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+        elif world_object.is_unit():
             self.creatures[world_object.guid] = world_object
-        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        elif world_object.is_gameobject():
             self.gameobjects[world_object.guid] = world_object
-        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
+        elif world_object.is_dyn_object():
             self.dynamic_objects[world_object.guid] = world_object
-        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
+        elif world_object.is_corpse():
             self.corpses[world_object.guid] = world_object
 
         camera = FarSightManager.get_camera_by_object(world_object)
@@ -172,19 +171,20 @@ class Cell:
 
     def remove(self, world_object):
         guid = world_object.guid
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and guid in self.players:
+
+        if world_object.is_player() and guid in self.players:
             self.players.pop(world_object.guid, None)
             return True
-        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT and guid in self.creatures:
+        elif world_object.is_unit() and guid in self.creatures:
             self.creatures.pop(world_object.guid, None)
             return True
-        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and guid in self.gameobjects:
+        elif world_object.is_gameobject() and guid in self.gameobjects:
             self.gameobjects.pop(world_object.guid, None)
             return True
-        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT and guid in self.dynamic_objects:
+        elif world_object.is_dyn_object() and guid in self.dynamic_objects:
             self.dynamic_objects.pop(world_object.guid, None)
             return True
-        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE and guid in self.corpses:
+        elif world_object.is_corpse() and guid in self.corpses:
             self.corpses.pop(world_object.guid, None)
             return True
         return False

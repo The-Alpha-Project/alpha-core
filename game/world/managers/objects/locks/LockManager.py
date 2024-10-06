@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
-from utils.constants.MiscCodes import LockKeyTypes, LockTypes, ObjectTypeIds
+from utils.constants.MiscCodes import LockKeyTypes, LockTypes
 from utils.constants.SpellCodes import SpellCheckCastResult
 
 
@@ -44,8 +44,8 @@ class LockManager:
                 skill_type = LockManager.get_skill_by_lock_type(LockTypes(lock_info.indexes[index]))
                 if skill_type != SkillTypes.NONE:
                     required_skill_value = lock_info.skills[index]
-                    skill_value = 0 if cast_item or caster.get_type_id() != ObjectTypeIds.ID_PLAYER else \
-                        caster.skill_manager.get_total_skill_value(skill_type)
+                    item_or_not_player = cast_item or not caster.is_player()
+                    skill_value = 0 if item_or_not_player else caster.skill_manager.get_total_skill_value(skill_type)
                     bonus_skill_value = skill_value + bonus_points
                     if bonus_skill_value < required_skill_value or skill_value == -1:
                         return OpenLockResult(SpellCheckCastResult.SPELL_FAILED_LOW_CASTLEVEL)

@@ -9,7 +9,6 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.ExtendedSpellData import SummonedObjectPositions
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, SpellTargetMask, \
     SpellHitFlags
 
@@ -49,8 +48,8 @@ class EffectTargets:
 
     def get_simple_targets(self) -> dict[SpellImplicitTargets, list[Union[ObjectManager, Vector]]]:
         caster = self.casting_spell.spell_caster
-        caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        caster_is_gameobject = caster.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+        caster_is_player = caster.is_player()
+        caster_is_gameobject = caster.is_gameobject()
 
         target_is_player = self.casting_spell.initial_target_is_player()
         target_is_gameobject = self.casting_spell.initial_target_is_gameobject()
@@ -149,8 +148,7 @@ class EffectTargets:
         targets = self.get_resolved_effect_targets_by_type(ObjectManager)
         target_info = {}
         for target in targets:
-            if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
-                    self.effect_source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            if target.is_unit(by_mask=True) and self.effect_source.is_unit(by_mask=True):
                 result = target.stat_manager.get_spell_miss_result_against_self(self.casting_spell)
                 target_info[target.guid] = TargetMissInfo(target, *result)
             else:
@@ -219,7 +217,7 @@ class EffectTargets:
             if unit_type_restriction and not unit_type_restriction & (1 << unit.creature_type - 1):
                 continue
 
-            if target_entries and (unit.get_type_id() != ObjectTypeIds.ID_UNIT or unit.entry not in target_entries):
+            if target_entries and (not unit.is_unit() or unit.entry not in target_entries):
                 continue
 
             # Friendliness.
@@ -247,7 +245,7 @@ class EffectTargets:
 
     @staticmethod
     def get_party_members_from_unit_list(units: list[ObjectManager], caster):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not caster.group_manager:
+        if not caster.is_player() or not caster.group_manager:
             return []
 
         # Party members can be hostile while dueling
@@ -261,7 +259,13 @@ class EffectTargets:
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
         # Always paired with TARGET_ALL_AROUND_CASTER,
-        # which applied the scripted restriction due to filtering in get_surrounding_unit_targets.
+        # which applies unit entry restrictions via filtering in get_surrounding_unit_targets.
+
+        if casting_spell.spell_entry.ID in [7353, 7358]:  # Cozy Fire - only apply on friendly targets without the aura.
+            return [target for target in target_effect.targets.resolved_targets_a if
+                    not casting_spell.spell_caster.can_attack_target(target) and
+                    not target.aura_manager.get_similar_applied_auras_by_effect(target_effect)]
+
         return target_effect.targets.resolved_targets_a
 
     @staticmethod
@@ -309,7 +313,7 @@ class EffectTargets:
 
     @staticmethod
     def resolve_pet(casting_spell, target_effect):
-        if not casting_spell.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not casting_spell.spell_caster.is_unit(by_mask=True):
             return []
         active_pet = casting_spell.spell_caster.pet_manager.get_active_controlled_pet()
         return active_pet.creature if active_pet else []
@@ -407,8 +411,8 @@ class EffectTargets:
     def resolve_party_around_caster(casting_spell, target_effect):
         caster = casting_spell.spell_caster
 
-        caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        caster_is_player = caster.is_player()
+        caster_is_unit = caster.is_unit(by_mask=True)
         caster_pet = caster.pet_manager.get_active_controlled_pet() if caster_is_unit else None
         if caster_pet:
             caster_pet = caster_pet.creature
@@ -418,7 +422,7 @@ class EffectTargets:
         distance_sqrd = target_effect.get_radius() ** 2
 
         # If caster has a player charmer/summoner, use his group manager.
-        if charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if charmer_or_summoner and charmer_or_summoner.is_player():
             party_group = charmer_or_summoner.group_manager
         # No charmer/summoner and caster is a player, use his group manager.
         elif caster_is_player and caster.group_manager:

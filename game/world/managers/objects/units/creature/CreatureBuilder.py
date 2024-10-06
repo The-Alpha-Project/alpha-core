@@ -1,8 +1,7 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.GuidManager import GuidManager
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import MovementTypes, UnitFlags, UnitStates
+from utils.constants.UnitCodes import MovementTypes, UnitFlags
 
 
 class CreatureBuilder:
@@ -22,7 +21,7 @@ class CreatureBuilder:
             return None
 
         # Do not link creatures <-> gos.
-        if summoner and summoner.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if summoner and summoner.is_gameobject():
             summoner = None
 
         # If no spawn_id is provided (for creatures spawned on runtime), generate a new unique one.

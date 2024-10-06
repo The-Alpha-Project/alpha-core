@@ -1,7 +1,7 @@
 from network.packet.PacketWriter import PacketWriter
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
+from utils.constants.MiscCodes import HighGuid
 from utils.constants.OpCodes import OpCode
 
 
@@ -35,8 +35,7 @@ class LootMoneyHandler(object):
                 # If party is formed, try to split money.
                 # TODO: Currently not splitting money when looting a chest, investigate if this is the correct
                 #  behavior or not.
-                if world_object.get_type_id() == ObjectTypeIds.ID_UNIT and player_mgr.group_manager and \
-                        player_mgr.group_manager.is_party_formed():
+                if world_object.is_unit() and player_mgr.group_manager and player_mgr.group_manager.is_party_formed():
                     # Try to split money and finish on success.
                     if player_mgr.group_manager.reward_group_money(player_mgr, world_object):
                         return

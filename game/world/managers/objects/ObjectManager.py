@@ -9,7 +9,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellImmunity
 from utils.constants.UnitCodes import UnitReaction
@@ -68,6 +68,7 @@ class ObjectManager:
 
         self.initialized = False
         self.is_spawned = True
+        self.is_dynamic_spawn = False
         self.is_default = True
         self.summoner = None
         self.charmer = None
@@ -81,7 +82,7 @@ class ObjectManager:
         from game.world.managers.objects.spell.SpellManager import SpellManager
         self.spell_manager = None
         self.reputation_manager = None
-        if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if self.is_unit(by_mask=True) or self.is_gameobject():
             self.spell_manager = SpellManager(self)
 
     def __eq__(self, other):
@@ -133,8 +134,7 @@ class ObjectManager:
         data.extend(self._get_movement_fields())
 
         # Misc fields.
-        combat_unit = UnitManager.UnitManager(self).combat_target if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT \
-            else None
+        combat_unit = UnitManager.UnitManager(self).combat_target if self.is_unit(by_mask=True) else None
 
         data.extend(pack(
             '<3IQ',
@@ -257,7 +257,7 @@ class ObjectManager:
 
     def _get_movement_fields(self):
         # Sniffs show items having location set.
-        if self.get_type_id() == ObjectTypeIds.ID_ITEM:
+        if self.is_item():
             self.location = self.get_location()
 
         data = pack(
@@ -275,7 +275,7 @@ class ObjectManager:
             self.movement_flags
         )
 
-        is_unit = self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        is_unit = self.is_unit(by_mask=True)
         data += pack(
             '<I4f',
             self.get_fall_time(),
@@ -406,6 +406,49 @@ class ObjectManager:
     def get_type_id(self):
         return ObjectTypeIds.ID_OBJECT
 
+    def is_object(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT
+        return self.get_type_id() == ObjectTypeIds.ID_OBJECT
+
+    def is_unit(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        return self.get_type_id() == ObjectTypeIds.ID_UNIT
+
+    def is_player(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER
+        return self.get_type_id() == ObjectTypeIds.ID_PLAYER
+
+    def is_gameobject(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT
+        return self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+
+    def is_dyn_object(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_DYNAMICOBJECT
+        return self.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT
+
+    def is_corpse(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_CORPSE
+        return self.get_type_id() == ObjectTypeIds.ID_CORPSE
+
+    def is_item(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_ITEM
+        return self.get_type_id() == ObjectTypeIds.ID_ITEM
+
+    def is_container(self, by_mask=False):
+        if by_mask:
+            return self.get_type_mask() & ObjectTypeFlags.TYPE_CONTAINER
+        return self.get_type_id() == ObjectTypeIds.ID_CONTAINER
+
+    def is_transport(self):
+        return self.guid & HighGuid.HIGHGUID_TRANSPORT
+
     # override
     def get_query_details_packet(self):
         pass
@@ -430,10 +473,9 @@ class ObjectManager:
         if self.object_ai:
             self.object_ai.just_despawned()
         # Destroy completely.
-        if self.is_default and not ttl:
+        if self.is_dynamic_spawn or (self.is_default and not ttl):
             self.get_map().remove_object(self)
             return
-        # TODO: Some objects are being despawned and not entirely destroyed. e.g. Fishing Bobber, Duel Flags, Rituals.
         # Despawn (De-activate)
         self.get_map().update_object(self, has_changes=True)
 
@@ -504,7 +546,7 @@ class ObjectManager:
             return False
 
         # You can only attack units, not gameobjects.
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.is_unit(by_mask=True):
             return False
 
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
@@ -523,12 +565,12 @@ class ObjectManager:
         dst_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
 
         if not src_faction:
-            if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            if self.is_unit(by_mask=True):
                 Logger.warning(f'Invalid src faction template: {self.faction} for {self.get_name()}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
         if not dst_faction:
-            if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            if self.is_unit(by_mask=True):
                 Logger.warning(f'Invalid src faction template: {target.faction} for {target.get_name()}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 

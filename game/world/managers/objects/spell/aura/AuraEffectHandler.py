@@ -6,7 +6,7 @@ from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError
-from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags, ObjectTypeFlags
+from utils.constants.MiscCodes import UnitDynamicTypes, ProcFlags
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
@@ -36,7 +36,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_bind_sight(aura, effect_target, remove):
-        if not effect_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not effect_target.is_unit(by_mask=True):
             return
 
         if remove:
@@ -68,7 +68,7 @@ class AuraEffectHandler:
         form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
         effect_target.set_shapeshift_form(form)
 
-        faction = aura.target.team if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER else 0
+        faction = aura.target.team if effect_target.is_player() else 0
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 
         # Shapeshifting can affect current power type and stats (druid shapeshift powers/attack values).
@@ -170,7 +170,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_channel_death_item(aura, effect_target, _remove):
-        if effect_target.is_alive or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if effect_target.is_alive or not aura.caster.is_player():
             return
 
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(aura.spell_effect.item_type)
@@ -223,14 +223,14 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_track_creatures(aura, effect_target, remove):
-        if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not effect_target.is_player():
             return
 
         effect_target.set_tracked_creature_type(aura.spell_effect.misc_value, not remove, aura.index)
 
     @staticmethod
     def handle_track_resources(aura, effect_target, remove):
-        if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not effect_target.is_player():
             return
 
         effect_target.set_tracked_resource_type(aura.spell_effect.misc_value, not remove, aura.index)
@@ -249,10 +249,10 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_feign_death(aura, effect_target, remove):
-        if not aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not aura.caster.is_unit(by_mask=True):
             return
 
-        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if effect_target.is_player():
             effect_target.mirror_timers_manager.feign_death = not remove
 
         if not remove:
@@ -264,7 +264,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_water_breathing(aura, effect_target, remove):
-        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if effect_target.is_player():
             effect_target.mirror_timers_manager.update_water_breathing(state=not remove)
 
     @staticmethod
@@ -280,7 +280,7 @@ class AuraEffectHandler:
     def handle_mod_confuse(aura, effect_target, remove):
         effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_CONFUSED, not remove, aura.index)
         if not remove:
-            if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if effect_target.is_player():
                 effect_target.interrupt_looting()
             effect_target.spell_manager.remove_casts(remove_active=False)
             duration = aura.source_spell.get_duration() / 1000
@@ -290,7 +290,7 @@ class AuraEffectHandler:
     def handle_mod_fear(aura, effect_target, remove):
         effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, not remove, aura.index)
         if not remove:
-            if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if effect_target.is_player():
                 effect_target.interrupt_looting()
             effect_target.spell_manager.remove_casts(remove_active=False)
             duration = aura.source_spell.get_duration() / 1000
@@ -373,7 +373,7 @@ class AuraEffectHandler:
     def handle_mod_charm(aura, effect_target, remove):
         # Player target.
         # TODO: Implement behavior for charmed players.
-        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if effect_target.is_player():
             effect_target.set_charmed_by(aura.caster, remove=remove)
             return
 
@@ -385,7 +385,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_taunt(aura, effect_target, remove):
-        if effect_target.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if not effect_target.is_unit():
             return
 
         if not effect_target.is_alive:

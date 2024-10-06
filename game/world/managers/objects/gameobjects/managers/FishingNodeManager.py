@@ -31,7 +31,7 @@ class FishingNodeManager(GameObjectManager):
             if self.is_active_object():
                 elapsed = now - self.last_tick
                 self._update(elapsed)
-            super().update(now)
+        super().update(now)
 
     def _update(self, elapsed):
         if not self.fishing_timer:

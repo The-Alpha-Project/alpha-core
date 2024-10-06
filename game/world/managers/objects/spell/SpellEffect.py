@@ -9,7 +9,6 @@ from game.world.managers.objects.spell.aura.AuraEffectDummyHandler import AuraEf
 from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
-from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellImmunity, SpellMissReason
 from utils.constants.UnitCodes import PowerTypes
 
@@ -206,8 +205,7 @@ class SpellEffect:
 
     def is_target_immune(self, target):
         # Validate target and check harmfulness.
-        if not target or not isinstance(target, ObjectManager) or \
-                not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target or not isinstance(target, ObjectManager) or not target.is_unit(by_mask=True):
             return False
 
         # Spell school/effect aura.

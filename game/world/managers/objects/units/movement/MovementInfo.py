@@ -1,7 +1,7 @@
 from struct import pack, unpack
 
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds
+from utils.constants.MiscCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
 
 COLLISION_DETECTION = {OpCode.MSG_MOVE_COLLIDE_REDIRECT, OpCode.MSG_MOVE_COLLIDE_STUCK}
@@ -26,7 +26,7 @@ class MovementInfo:
 
         distance = self.owner.location.distance(x=x, y=y, z=z)
         # Anti cheat / elevators bug.
-        if (unit_mover == self.owner and self.owner.get_type_id() == ObjectTypeIds.ID_PLAYER
+        if (unit_mover == self.owner and self.owner.is_player()
                 and not self.owner.pending_taxi_destination and distance > 64):
             return None
 

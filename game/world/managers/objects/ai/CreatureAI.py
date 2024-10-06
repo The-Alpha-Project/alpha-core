@@ -12,7 +12,6 @@ from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypeIds, MoveType
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
@@ -190,7 +189,7 @@ class CreatureAI:
     # Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc).
     def attacked_by(self, attacker):
         self.creature.threat_manager.add_threat(attacker)
-        if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if attacker.is_player():
             self.send_ai_reaction(attacker, AIReactionStates.AI_REACT_HOSTILE)
 
     # Called when creature attack is expected (if creature can and doesn't have current victim).
