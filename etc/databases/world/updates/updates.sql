@@ -835,5 +835,69 @@ begin not atomic
 
         insert into applied_updates values ('061020241');
     end if;
+    
+    
+    -- 10/10/2024 1
+    if (select count(*) from applied_updates where id='101020241') = 0 then
+        -- Waypoints for Creature Miran (Entry: 1379 Guid: 68)
+        DELETE FROM creature_movement_template WHERE entry = 1379;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (1379, 1, -5764.81, -3433.93, 305.89, 0, 0, 0, 0),
+        (1379, 2, -5754.81, -3445.92, 303.189, 0, 0, 0, 0),
+        (1379, 3, -5738.74, -3483.18, 302.208, 0, 0, 0, 0),
+        (1379, 4, -5731.07, -3496.83, 302.508, 0, 0, 0, 0),
+        (1379, 5, -5718.45, -3517.26, 302.915, 0, 0, 0, 0),
+        (1379, 6, -5714.55, -3524.18, 303.876, 0, 0, 0, 0),
+        (1379, 7, -5699.35, -3557.07, 306.828, 0, 0, 0, 0),
+        (1379, 8, -5691.3, -3570.81, 308.974, 0, 0, 0, 0),
+        (1379, 9, -5683.69, -3580.33, 309.811, 0, 0, 0, 0),
+        (1379, 10, -5676.5, -3598.45, 312.262, 0, 0, 0, 0),
+        (1379, 11, -5672.3, -3622.29, 311.37, 0, 0, 0, 0),
+        (1379, 12, -5676.67, -3641.2, 313.65, 0, 0, 0, 0),
+        (1379, 13, -5681.06, -3647.38, 315.143, 0, 0, 0, 0),
+        (1379, 14, -5689.83, -3664.69, 312.214, 0, 0, 0, 0),
+        (1379, 15, -5698.71, -3695.64, 314.55, 0, 0, 0, 0),
+        (1379, 16, -5698.75, -3729.51, 318.328, 0, 0, 0, 137901),
+        (1379, 17, -5701.32, -3752.99, 321.503, 0, 0, 0, 0),
+        (1379, 18, -5694.12, -3766.42, 324.254, 0, 0, 0, 0),
+        (1379, 19, -5688.71, -3781.44, 322.824, 0, 0, 0, 0),
+        (1379, 20, -5689.67, -3784.97, 322.740, 0, 0, 0, 0),
+        (1379, 21, -5698.17, -3791.22, 322.410, 0, 0, 0, 0),
+        (1379, 22, -5699.12, -3792.01, 322.410, 0, 0, 0, 137902);
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=137901;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (137901, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 510, 0, 0, 0, 0, 0, 0, 0, 0, 'Protecting the Shipment - Miran - Say Text'),
+        (137901, 0, 0, 10, 2149, 180000, 0, 0, 1379, 20, 8, 0, 0, 0, -1, 9, -5696.19, -3736.78, 318.581, 2.40855, 0, 'Protecting the Shipment - Spawn Dark Iron Raider'),
+        (137901, 0, 0, 10, 2149, 180000, 0, 0, 1379, 20, 8, 0, 0, 0, -1, 9, -5705.01, -3736.66, 318.567, 0.575959, 0, 'Protecting the Shipment - Spawn Dark Iron Raider');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=137902;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (137902, 0, 0, 20, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Miran - Move Idle'),
+        (137902, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 498, 0, 0, 0, 0, 0, 0, 0, 0, 'Miran - Say Text'),
+        (137902, 1, 0, 62, 309, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Miran - End Scripted Map Event'),
+        (137902, 10, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Miran - Despawn');
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=309;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (309, 0, 0, 61, 309, 600, 0, 0, 0, 0, 0, 0, 0, 30901, 1019, 30902, 0, 0, 0, 0, 0, 'Protecting the Shipment: Start Scripted Map Event'),
+        (309, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Protecting the Shipment: Miran - Remove Questgiver Flag'),
+        (309, 0, 0, 22, 10, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Protecting the Shipment: Miran - Set Faction Escortee'),
+        (309, 1, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Protecting the Shipment: Miran - Start Waypoints');
+
+        DELETE FROM `generic_scripts` WHERE `id`=30901;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (30901, 0, 0, 7, 309, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Protecting the Shipment Success: Player - Complete Quest Protecting the Shipment');
+
+        DELETE FROM `generic_scripts` WHERE `id`=30902;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (30902, 0, 0, 70, 309, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Protecting the Shipment Failed: Player - Fail Quest'),
+        (30902, 1, 0, 71, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Protecting the Shipment Failed: Miran - Respawn ');
+
+        -- Remove mount from Dark Iron Riders.
+        UPDATE `creature_template` SET `mount_display_id` = '0' WHERE (`entry` = '2149');
+        
+        insert into applied_updates values ('101020241');
+    end if;
 end $
 delimiter ;
