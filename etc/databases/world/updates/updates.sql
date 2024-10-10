@@ -835,8 +835,7 @@ begin not atomic
 
         insert into applied_updates values ('061020241');
     end if;
-    
-    
+     
     -- 10/10/2024 1
     if (select count(*) from applied_updates where id='101020241') = 0 then
         -- Waypoints for Creature Miran (Entry: 1379 Guid: 68)
