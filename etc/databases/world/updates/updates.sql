@@ -514,5 +514,326 @@ begin not atomic
         
         insert into applied_updates values ('290920241');
     end if;
+
+    -- 06/10/2024 1
+    if (select count(*) from applied_updates where id='061020241') = 0 then
+    
+        -- Item Deprecated Dwarven Novice's Robe
+        UPDATE `item_template` SET `display_id` = 8288 WHERE `entry` = 97;
+
+        -- Item Leather Helmet D (Test)
+        UPDATE `item_template` SET `display_id` = 3086 WHERE `entry` = 1020;
+
+        -- Item Leather Helmet A (test)
+        UPDATE `item_template` SET `display_id` = 1124 WHERE `entry` = 1021;
+
+        -- Item Mail Helmet D (test)
+        UPDATE `item_template` SET `display_id` = 4180 WHERE `entry` = 1022;
+
+        -- Item Mail Helmet C (test)
+        UPDATE `item_template` SET `display_id` = 3135 WHERE `entry` = 1023;
+
+        -- Item Plate Helmet D2 (test)
+        UPDATE `item_template` SET `display_id` = 2995 WHERE `entry` = 1024;
+
+        -- Item Plate Helmet D3 (test)
+        UPDATE `item_template` SET `display_id` = 4145 WHERE `entry` = 1026;
+
+        -- Item Mail Helmet A (Test)
+        UPDATE `item_template` SET `display_id` = 3044 WHERE `entry` = 1027;
+
+        -- Item Deprecated Dented Skullcap
+        UPDATE `item_template` SET `display_id` = 3044 WHERE `entry` = 1028;
+
+        -- Item Rod of the Sleepwalker
+        UPDATE `item_template` SET `display_id` = 11251 WHERE `entry` = 1155;
+
+        -- Item Pirates Patch (Test)
+        UPDATE `item_template` SET `display_id` = 3047 WHERE `entry` = 1162;
+
+        -- Item Dwarven Explorer's Monocle (Test)
+        UPDATE `item_template` SET `display_id` = 3215 WHERE `entry` = 1163;
+
+        -- Item Deprecated Overseer's Helm
+        UPDATE `item_template` SET `display_id` = 3044 WHERE `entry` = 1192;
+
+        -- Item Deprecated Soft Leather Hood
+        UPDATE `item_template` SET `display_id` = 3086 WHERE `entry` = 1279;
+
+        -- Item Shadowhide Scalper
+        UPDATE `item_template` SET `display_id` = 3398 WHERE `entry` = 1459;
+
+        -- Item Robe of the Magi
+        UPDATE `item_template` SET `display_id` = 10469 WHERE `entry` = 1716;
+
+        -- Item Fighter Broadsword
+        UPDATE `item_template` SET `display_id` = 9444 WHERE `entry` = 2027;
+
+        -- Item Deprecated Cougar Head Cap
+        UPDATE `item_template` SET `display_id` = 1124 WHERE `entry` = 2038;
+
+        -- Item Deprecated Cowl of Forlorn Spirits
+        UPDATE `item_template` SET `display_id` = 3869 WHERE `entry` = 2045;
+
+        -- Item Deprecated Sentinel Coif
+        UPDATE `item_template` SET `display_id` = 3128 WHERE `entry` = 2275;
+
+        -- Item Battered Leather Harness
+        UPDATE `item_template` SET `display_id` = 9182 WHERE `entry` = 2370;
+
+        -- Item Battered Leather Pants
+        UPDATE `item_template` SET `display_id` = 9988 WHERE `entry` = 2372;
+
+        -- Item Battered Leather Boots
+        UPDATE `item_template` SET `display_id` = 9992 WHERE `entry` = 2373;
+
+        -- Item Smoky Torch
+        UPDATE `item_template` SET `display_id` = 2998 WHERE `entry` = 2410;
+
+        -- Item Studded Doublet
+        UPDATE `item_template` SET `display_id` = 9545 WHERE `entry` = 2463;
+
+        -- Item Reinforced Leather Boots
+        UPDATE `item_template` SET `display_id` = 4484 WHERE `entry` = 2473;
+
+        -- Item Death Speaker Sceptre
+        UPDATE `item_template` SET `display_id` = 3191 WHERE `entry` = 2816;
+
+        -- Item Deprecated Coif of Inner Strength
+        UPDATE `item_template` SET `display_id` = 3044 WHERE `entry` = 2918;
+
+        -- Item (OLD)Medium Throwing Knife
+        UPDATE `item_template` SET `display_id` = 3274 WHERE `entry` = 2945;
+
+        -- Item Magister's Vest
+        UPDATE `item_template` SET `display_id` = 2472 WHERE `entry` = 2969;
+
+        -- Item Seer's Robe
+        UPDATE `item_template` SET `display_id` = 11471 WHERE `entry` = 2981;
+
+        -- Item Deprecated Inscribed Leather Helm
+        UPDATE `item_template` SET `display_id` = 3086 WHERE `entry` = 2993;
+
+        -- Item Deprecated Seer's Monocle
+        UPDATE `item_template` SET `display_id` = 3087 WHERE `entry` = 2994;
+
+        -- Item Deprecated Burnished Chain Coif
+        UPDATE `item_template` SET `display_id` = 3128 WHERE `entry` = 2995;
+
+        -- Item Deprecated Glinting Scale Crown
+        UPDATE `item_template` SET `display_id` = 3128 WHERE `entry` = 3046;
+
+        -- Item Deprecated Winter Mail Coif
+        UPDATE `item_template` SET `display_id` = 3044 WHERE `entry` = 3052;
+
+        -- Item Deprecated Forest Leather Helm
+        UPDATE `item_template` SET `display_id` = 3086 WHERE `entry` = 3059;
+
+        -- Item Deprecated Deepwood Helm
+        UPDATE `item_template` SET `display_id` = 4386 WHERE `entry` = 3063;
+
+        -- Item Frostweave Cowl
+        UPDATE `item_template` SET `display_id` = 11544 WHERE `entry` = 3068;
+
+        -- Item Flameweave Robe
+        UPDATE `item_template` SET `display_id` = 5882 WHERE `entry` = 3069;
+
+        -- Item Smoldering Robe
+        UPDATE `item_template` SET `display_id` = 10620 WHERE `entry` = 3072;
+
+        -- Item Deprecated Stonecloth Cowl
+        UPDATE `item_template` SET `display_id` = 3356 WHERE `entry` = 3077;
+
+        -- Item (OLD)Wicked Throwing Dagger
+        UPDATE `item_template` SET `display_id` = 3276 WHERE `entry` = 3109;
+
+        -- Item (OLD)Medium Throwing Axe
+        UPDATE `item_template` SET `display_id` = 3281 WHERE `entry` = 3128;
+
+        -- Item (OLD)Heavy Throwing Axe
+        UPDATE `item_template` SET `display_id` = 3284 WHERE `entry` = 3136;
+
+        -- Item Copper Chain Boots
+        UPDATE `item_template` SET `display_id` = 4330 WHERE `entry` = 3469;
+
+        -- Item Black Night Elf Helm
+        UPDATE `item_template` SET `display_id` = 3135 WHERE `entry` = 3529;
+
+        -- Item Demon Hunter Blindfold
+        UPDATE `item_template` SET `display_id` = 3830 WHERE `entry` = 3536;
+
+        -- Item Robe of Solomon
+        UPDATE `item_template` SET `display_id` = 8853 WHERE `entry` = 3555;
+
+        -- Item Interlaced Pants
+        UPDATE `item_template` SET `display_id` = 9945 WHERE `entry` = 3797;
+
+        -- Item Interlaced Shoulderpads
+        UPDATE `item_template` SET `display_id` = 8374 WHERE `entry` = 3798;
+
+        -- Item Hardened Leather Belt
+        UPDATE `item_template` SET `display_id` = 4599 WHERE `entry` = 3800;
+
+        -- Item Hardened Leather Vest
+        UPDATE `item_template` SET `display_id` = 3278 WHERE `entry` = 3807;
+
+        -- Item Golden Scale Coif
+        UPDATE `item_template` SET `display_id` = 9070 WHERE `entry` = 3837;
+
+        -- Item Deprecated Thick Cloth Hat
+        UPDATE `item_template` SET `display_id` = 3960 WHERE `entry` = 3883;
+
+        -- Item Deprecated Cured Leather Cap
+        UPDATE `item_template` SET `display_id` = 4176 WHERE `entry` = 3884;
+
+        -- Item Deprecated Scalemail Cap
+        UPDATE `item_template` SET `display_id` = 3589 WHERE `entry` = 3885;
+
+        -- Item Deprecated Padded Cloth Hat
+        UPDATE `item_template` SET `display_id` = 3960 WHERE `entry` = 3886;
+
+        -- Item Deprecated Cuirboulli Cap
+        UPDATE `item_template` SET `display_id` = 4176 WHERE `entry` = 3887;
+
+        -- Item Deprecated Polished Scale Cap
+        UPDATE `item_template` SET `display_id` = 3589 WHERE `entry` = 3888;
+
+        -- Item Embroidered Hat
+        UPDATE `item_template` SET `display_id` = 3960 WHERE `entry` = 3892;
+
+        -- Item Crochet Boots
+        UPDATE `item_template` SET `display_id` = 9672 WHERE `entry` = 3937;
+
+        -- Item Crochet Vest
+        UPDATE `item_template` SET `display_id` = 10113 WHERE `entry` = 3943;
+
+        -- Item Twill Belt
+        UPDATE `item_template` SET `display_id` = 8375 WHERE `entry` = 3944;
+
+        -- Item Twill Boots
+        UPDATE `item_template` SET `display_id` = 9788 WHERE `entry` = 3945;
+
+        -- Item Twill Pants
+        UPDATE `item_template` SET `display_id` = 7587 WHERE `entry` = 3949;
+
+        -- Item Mesh Belt
+        UPDATE `item_template` SET `display_id` = 9888 WHERE `entry` = 3952;
+
+        -- Item Mesh Boots
+        UPDATE `item_template` SET `display_id` = 1911 WHERE `entry` = 3953;
+
+        -- Item Mesh Gloves
+        UPDATE `item_template` SET `display_id` = 10508 WHERE `entry` = 3956;
+
+        -- Item Thick Leather Shoulderpads
+        UPDATE `item_template` SET `display_id` = 4968 WHERE `entry` = 3967;
+
+        -- Item Smooth Leather Belt
+        UPDATE `item_template` SET `display_id` = 5827 WHERE `entry` = 3969;
+
+        -- Item Smooth Leather Bracers
+        UPDATE `item_template` SET `display_id` = 3381 WHERE `entry` = 3971;
+
+        -- Item Smooth Leather Gloves
+        UPDATE `item_template` SET `display_id` = 3081 WHERE `entry` = 3973;
+
+        -- Item Smooth Leather Pants
+        UPDATE `item_template` SET `display_id` = 3078 WHERE `entry` = 3974;
+
+        -- Item Strapped Pants
+        UPDATE `item_template` SET `display_id` = 5947 WHERE `entry` = 3982;
+
+        -- Item Overlinked Chain Shoulderpads
+        UPDATE `item_template` SET `display_id` = 10166 WHERE `entry` = 4006;
+
+        -- Item Sterling Chain Armor
+        UPDATE `item_template` SET `display_id` = 4412 WHERE `entry` = 4015;
+
+        -- Item Frostweave Robe
+        UPDATE `item_template` SET `display_id` = 3734 WHERE `entry` = 4035;
+
+        -- Item Mistscape Boots
+        UPDATE `item_template` SET `display_id` = 9771 WHERE `entry` = 4047;
+
+        -- Item Emblazoned Helm
+        UPDATE `item_template` SET `display_id` = 4381 WHERE `entry` = 4048;
+
+        -- Item Insignia Helm
+        UPDATE `item_template` SET `display_id` = 3589 WHERE `entry` = 4052;
+
+        -- Item Imperial Leather Bracers
+        UPDATE `item_template` SET `display_id` = 11655 WHERE `entry` = 4061;
+
+        -- Item Imperial Leather Pants
+        UPDATE `item_template` SET `display_id` = 11661 WHERE `entry` = 4062;
+
+        -- Item Imperial Leather Gloves
+        UPDATE `item_template` SET `display_id` = 11656 WHERE `entry` = 4063;
+
+        -- Item Mail Combat Helm
+        UPDATE `item_template` SET `display_id` = 3044 WHERE `entry` = 4077;
+
+        -- Item Blackforge Gauntlets
+        UPDATE `item_template` SET `display_id` = 2951 WHERE `entry` = 4083;
+
+        -- Item Robe of Crystal Waters
+        UPDATE `item_template` SET `display_id` = 11635 WHERE `entry` = 4120;
+
+        -- Item Cap of Harmony
+        UPDATE `item_template` SET `display_id` = 4386 WHERE `entry` = 4124;
+
+        -- Item Deprecated Feathered Helm
+        UPDATE `item_template` SET `display_id` = 3135 WHERE `entry` = 4193;
+
+        -- Item Dark Leather Shoulders
+        UPDATE `item_template` SET `display_id` = 9528 WHERE `entry` = 4252;
+
+        -- Item Heavy Woolen Gloves
+        UPDATE `item_template` SET `display_id` = 11036 WHERE `entry` = 4310;
+
+        -- Item TEST QUEST HELM
+        UPDATE `item_template` SET `display_id` = 5084 WHERE `entry` = 4853;
+
+        -- Item Razormane Backstabber
+        UPDATE `item_template` SET `display_id` = 5069 WHERE `entry` = 5093;
+
+        -- Item Empty Greater Bloodstone
+        UPDATE `item_template` SET `display_id` = 5333 WHERE `entry` = 5229;
+
+        -- Item Deprecated Skipper's Hat
+        UPDATE `item_template` SET `display_id` = 7529 WHERE `entry` = 5307;
+
+        -- Item Deprecated Whisperwind Headdress
+        UPDATE `item_template` SET `display_id` = 7670 WHERE `entry` = 5358;
+
+        -- Item Shane Test (DELETE ME)
+        UPDATE `item_template` SET `display_id` = 7712 WHERE `entry` = 5378;
+
+        -- Item Fast Test Thrown
+        UPDATE `item_template` SET `display_id` = 8124 WHERE `entry` = 5559;
+
+        -- Item Deprecated Band of the Order
+        UPDATE `item_template` SET `display_id` = 8446 WHERE `entry` = 5625;
+
+        -- Item Snow Boots
+        UPDATE `item_template` SET `display_id` = 10935 WHERE `entry` = 6173;
+
+        -- Item Twain Random Sword
+        UPDATE `item_template` SET `display_id` = 10356 WHERE `entry` = 6174;
+
+        -- Item 15 Pound Mud Snapper
+        UPDATE `item_template` SET `display_id` = 10816 WHERE `entry` = 6295;
+
+        -- Item 22 Pound Catfish
+        UPDATE `item_template` SET `display_id` = 3572 WHERE `entry` = 6311;
+
+        -- Item 26 Pound Catfish
+        UPDATE `item_template` SET `display_id` = 3572 WHERE `entry` = 6363;
+
+        -- Item 32 Pound Catfish
+        UPDATE `item_template` SET `display_id` = 3572 WHERE `entry` = 6364;
+
+        insert into applied_updates values ('061020241');
+    end if;
 end $
 delimiter ;
