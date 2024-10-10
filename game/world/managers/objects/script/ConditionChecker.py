@@ -143,7 +143,7 @@ class ConditionChecker:
             return False
 
         parent_zone_id = target.get_map().get_parent_zone_id(target.zone)
-        return target.zone == condition.value1 or (parent_zone_id and target.zone == parent_zone_id)
+        return target.zone == condition.value1 or (parent_zone_id and condition.value1 == parent_zone_id)
 
     @staticmethod
     def check_condition_reputation_rank_min(_condition, _source, _target):
