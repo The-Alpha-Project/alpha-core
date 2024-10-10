@@ -53,6 +53,9 @@ def release_process(active_process):
     Logger.info(f'{active_process.name} released.')
 
 
+# When debugging with some versions of PyCharm and different versions of python, the output console will
+# get stuck waiting for user input, preventing the normal initialization process from starting.
+# https://stackoverflow.com/questions/38634988/check-if-program-runs-in-debug-mode
 def debug_enabled():
     try:
         if sys.gettrace() is not None:

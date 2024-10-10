@@ -149,6 +149,8 @@ class TransportManager(GameObjectManager):
         return self.auto_close_secs / 0x10000
 
     def _get_time(self):
+        if not self.total_time:
+            return 0
         return int(WorldManager.get_seconds_since_startup() * 1000) % self.total_time
 
     # override
