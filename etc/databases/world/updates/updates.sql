@@ -920,6 +920,12 @@ begin not atomic
         -- Update Kitari flags
         UPDATE `creature_template` SET `npc_flags` = 10, `flags_extra` = 524298 WHERE (`entry` = 4157);
 
+        -- Minor update Maginor Dumas to look less random
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 331) AND (`spawn_id` IN (26835));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (26835, 331, 0, 0, 0, 0, -9007.831, 871.797, 129.692, 5.472, 490, 490, 0, 100, 100, 0, 0, 0, 0);
+
+
         insert into applied_updates values ('221020241');
     end if;
 end $
