@@ -898,5 +898,43 @@ begin not atomic
         
         insert into applied_updates values ('101020241');
     end if;
+
+    -- 11/11/2024 1
+    if (select count(*) from applied_updates where id='111120241') = 0 then
+        -- Deprecated Captain Sander's Eyepatch - Remove deprecated status, change quality to white, and add proper level requirement and displayID
+        UPDATE `item_template` SET `name` = "Captain Sander's Eyepatch", `display_id` = 1166, `quality` = 1, `flags` = 0, `required_level` = 5 WHERE (`entry` = 1363);
+        -- Add Captain Sander's Eyepatch as a reward from Captain Sander's Hidden Treasure, replacing Silver Bar
+        UPDATE `quest_template` SET `RewItemId1` = 1363, `RewItemCount1` = 1, WHERE (`entry` = 140);
+
+        -- Add Aegis of Westfall as a reward to The Defias Brotherhood
+        UPDATE `quest_template` SET `RewChoiceItemId4` = 2040, `RewChoiceItemCount4` = 1, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 166);
+
+        -- Add Mark of the Kirin Tor to Dalaran Summoner's loot table with a low drop chance, which is in-line with similar drop items
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 2358) AND (`item` IN (5004));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (2358, 5004, 5, 0, 1, 1, 0);
+
+        -- Deprecated Whisperwind Headress - Remove deprecated status, change quality to green, add a proper level requirement, and give it the stats of the release headdress
+        UPDATE `item_template` SET `name` = 'Whisperwind Headdress', `quality` = 2, `flags` = 0, `required_level` = 22, `stat_type1` = 5, `stat_value1` = 3, `stat_type2` = 6, `stat_value2` = 4, `stat_type3` = 1, `stat_value3` = 15 WHERE (`entry` = 5358);
+        -- Add Whisperwind Headdress as a reward from Isha Hawk, which it seems to have been connected to (rewards have identical item level, ID of Whisperwind Headdress is immediately after the IDs of the rewards from it)
+        UPDATE `quest_template` SET `RewChoiceItemId3` = 5358, `RewChoiceItemCount3` = 1, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 873);
+
+        --Deprecated Overseer's Helm - Remove deprecated status, change quality to white, and add proper level requirement and displayID
+        UPDATE `item_template` SET `name` = "Overseer's Helm", `quality` = 1, `flags` = 0 WHERE (`entry` = 1192);
+        --Add Overseer's Helm to Riverpaw Overseer's loot table with a drop chance identical to the other "Overseer's" drops
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 125) AND (`item` IN (1192));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (125, 1192, 0.5, 0, 1, 1, 0);
+
+        --Flayed Demon Skin (old) - Remove deprecated status (should also start the quest "The Corruptor", but this quest doesn't exist in 0.5.3, needs investigation)
+        UPDATE `item_template` SET `name` = "Flayed Demon Skin", `flags` = 0 WHERE (`entry` = 6437);
+
+        --Unholy Avenger - Remove deprecated status, replace chance-on-hit spells with equivalents that exist in 0.5.3
+        DELETE FROM `item_template` WHERE (`entry` = 3687);
+        INSERT INTO `item_template` (`entry`, `name`, `class`, `subclass`, `description`, `display_id`, `quality`, `flags`, `buy_count`, `buy_price`, `sell_price`, `inventory_type`, `allowable_class`, `allowable_race`, `item_level`, `required_level`, `required_skill`, `required_skill_rank`, `required_spell`, `required_honor_rank`, `required_city_rank`, `required_reputation_faction`, `required_reputation_rank`, `max_count`, `stackable`, `container_slots`, `stat_type1`, `stat_value1`, `stat_type2`, `stat_value2`, `stat_type3`, `stat_value3`, `stat_type4`, `stat_value4`, `stat_type5`, `stat_value5`, `stat_type6`, `stat_value6`, `stat_type7`, `stat_value7`, `stat_type8`, `stat_value8`, `stat_type9`, `stat_value9`, `stat_type10`, `stat_value10`, `delay`, `range_mod`, `ammo_type`, `dmg_min1`, `dmg_max1`, `dmg_type1`, `dmg_min2`, `dmg_max2`, `dmg_type2`, `dmg_min3`, `dmg_max3`, `dmg_type3`, `dmg_min4`, `dmg_max4`, `dmg_type4`, `dmg_min5`, `dmg_max5`, `dmg_type5`, `block`, `armor`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spellid_1`, `spelltrigger_1`, `spellcharges_1`, `spellppmrate_1`, `spellcooldown_1`, `spellcategory_1`, `spellcategorycooldown_1`, `spellid_2`, `spelltrigger_2`, `spellcharges_2`, `spellppmrate_2`, `spellcooldown_2`, `spellcategory_2`, `spellcategorycooldown_2`, `spellid_3`, `spelltrigger_3`, `spellcharges_3`, `spellppmrate_3`, `spellcooldown_3`, `spellcategory_3`, `spellcategorycooldown_3`, `spellid_4`, `spelltrigger_4`, `spellcharges_4`, `spellppmrate_4`, `spellcooldown_4`, `spellcategory_4`, `spellcategorycooldown_4`, `spellid_5`, `spelltrigger_5`, `spellcharges_5`, `spellppmrate_5`, `spellcooldown_5`, `spellcategory_5`, `spellcategorycooldown_5`, `bonding`, `page_text`, `page_language`, `page_material`, `start_quest`, `lock_id`, `material`, `sheath`, `random_property`, `set_id`, `max_durability`, `area_bound`, `map_bound`, `duration`, `bag_family`, `disenchant_id`, `food_type`, `min_money_loot`, `max_money_loot`, `extra_flags`, `ignored`) VALUES (3687, 'Unholy Avenger', 2, 8, '', 3092, 6, 0, 1, 288592, 57718, 17, -1, -1, 40, 35, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3000, 0, 0, 97, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 172, 2, 0, 0, -1, 0, -1, 3140, 2, 0, 0, -1, 0, -1, 1096, 2, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0);
+        --Add Unholy Avenger to Dreadlord Malganis, who seems to be the only reasonable source for this item.
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 929) AND (`item` IN (3687));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (929, 3687, 20, 0, 1, 1, 0);
+
+        inset into applied_updates values ('111120241');
+    end if;
 end $
 delimiter ;
