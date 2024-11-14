@@ -424,48 +424,68 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_effect_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_EFFECT, aura.spell_effect.misc_value,
-                                   source_id=aura.index, immune=not remove)
+        if remove:
+            effect_target.remove_immunity(SpellImmunity.IMMUNITY_EFFECT, aura.index)
+            return
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_EFFECT, 1 << aura.spell_effect.misc_value, aura.index)
 
     @staticmethod
     def handle_state_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_AURA, aura.spell_effect.misc_value,
-                                   source_id=aura.index, immune=not remove)
+        if remove:
+            effect_target.remove_immunity(SpellImmunity.IMMUNITY_AURA, aura.index)
+            return
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_AURA, 1 << aura.spell_effect.misc_value, aura.index)
 
     @staticmethod
     def handle_school_immunity(aura, effect_target, remove):
-        school = aura.spell_effect.misc_value
-        if school == -1:
-            school = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
-        elif school == -2:
-            school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
-        else:
-            school = 1 << school
+        if remove:
+            effect_target.remove_immunity(SpellImmunity.IMMUNITY_SCHOOL, aura.index)
+            return
 
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, school, source_id=aura.index, immune=not remove)
+        school_mask = aura.spell_effect.misc_value
+        if school_mask == -1:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
+        elif school_mask == -2:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        else:
+            school_mask = 1 << school_mask
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, school_mask, aura.index)
 
     @staticmethod
     def handle_damage_immunity(aura, effect_target, remove):
-        school = aura.spell_effect.misc_value
-        if school == -1:
-            school = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
-        elif school == -2:
-            # Not used in the database, but kept for consistency.
-            school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
-        else:
-            school = 1 << school
+        if remove:
+            effect_target.remove_immunity(SpellImmunity.IMMUNITY_DAMAGE, aura.index)
+            return
 
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_DAMAGE, school, source_id=aura.index, immune=not remove)
+        school_mask = aura.spell_effect.misc_value
+        if school_mask == -1:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
+        elif school_mask == -2:
+            # Not used in the database, but kept for consistency.
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        else:
+            school_mask = 1 << school_mask
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_DAMAGE, school_mask, aura.index)
 
     @staticmethod
     def handle_dispel_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, aura.spell_effect.misc_value,
-                                   source_id=aura.index, immune=not remove)
+        if remove:
+            effect_target.remove_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, aura.index)
+            return
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, 1 << aura.spell_effect.misc_value, aura.index)
 
     @staticmethod
     def handle_mechanic_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, 1 << aura.spell_effect.misc_value,
-                                   source_id=aura.index, immune=not remove)
+        if remove:
+            effect_target.remove_immunity(SpellImmunity.IMMUNITY_MECHANIC, aura.index)
+            return
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, 1 << aura.spell_effect.misc_value, aura.index)
 
     # Stat modifiers
 
