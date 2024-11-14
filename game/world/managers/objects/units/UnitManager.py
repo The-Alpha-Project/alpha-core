@@ -1548,16 +1548,16 @@ class UnitManager(ObjectManager):
         damage = damage_info.base_damage
         return int(damage if absorb >= 0 else damage - abs(absorb))
 
-    def set_immunity(self, immunity_type: SpellImmunity, source_id, immunity_arg: int = -1, immune=True):
+    def set_immunity(self, immunity_type: SpellImmunity, immunity_value: int, source_id = -1, immune=True):
         # Note: source ID can be an aura slot or -1 for an innate immunity.
         immunities = self._immunities.get(immunity_type, {})
         if immune:
-            immunities[source_id] = immunity_arg
+            immunities[source_id] = immunity_value
         elif source_id in immunities:
             immunities.pop(source_id)
         self._immunities[immunity_type] = immunities
 
-        if not immune:
+        if not immune or source_id == -1:
             return
 
         # Remove auras that collide with this immunity if needed.
@@ -1582,7 +1582,8 @@ class UnitManager(ObjectManager):
                      source=None, is_friendly=False):
         type_immunities = self._immunities.get(immunity_type, {})
 
-        if not is_mask and immunity_type in {SpellImmunity.IMMUNITY_DAMAGE, SpellImmunity.IMMUNITY_SCHOOL}:
+        if not is_mask and immunity_type in \
+                {SpellImmunity.IMMUNITY_DAMAGE, SpellImmunity.IMMUNITY_SCHOOL, SpellImmunity.IMMUNITY_MECHANIC}:
             immunity_arg = 1 << immunity_arg
             is_mask = True
 

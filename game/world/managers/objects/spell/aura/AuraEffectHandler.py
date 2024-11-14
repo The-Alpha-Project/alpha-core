@@ -424,13 +424,13 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_effect_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_EFFECT, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_EFFECT, aura.spell_effect.misc_value,
+                                   source_id=aura.index, immune=not remove)
 
     @staticmethod
     def handle_state_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_AURA, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_AURA, aura.spell_effect.misc_value,
+                                   source_id=aura.index, immune=not remove)
 
     @staticmethod
     def handle_school_immunity(aura, effect_target, remove):
@@ -442,7 +442,7 @@ class AuraEffectHandler:
         else:
             school = 1 << school
 
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, aura.index, immunity_arg=school, immune=not remove)
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, school, source_id=aura.index, immune=not remove)
 
     @staticmethod
     def handle_damage_immunity(aura, effect_target, remove):
@@ -455,17 +455,17 @@ class AuraEffectHandler:
         else:
             school = 1 << school
 
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_DAMAGE, aura.index, immunity_arg=school, immune=not remove)
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_DAMAGE, school, source_id=aura.index, immune=not remove)
 
     @staticmethod
     def handle_dispel_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, aura.spell_effect.misc_value,
+                                   source_id=aura.index, immune=not remove)
 
     @staticmethod
     def handle_mechanic_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, 1 << aura.spell_effect.misc_value,
+                                   source_id=aura.index, immune=not remove)
 
     # Stat modifiers
 
