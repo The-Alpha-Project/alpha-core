@@ -60,7 +60,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
     ports:
-      - "3606:3306"
+      - "3306:3306"
     volumes:
       - ./etc/databases/:/etc/databases/
     restart: on-failure
