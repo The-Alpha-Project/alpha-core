@@ -18,6 +18,7 @@ services:
   main:
     image: ${PROJECT}:${OS_TAG}
     container_name: ${PROJECT}
+    ipc: "host"
     build: {context: ., dockerfile: etc/docker/main/Dockerfile}
     ports:
       - "3443:3443"
@@ -30,6 +31,7 @@ services:
   world:
     image: ${PROJECT}-world:${OS_TAG}
     container_name: ${PROJECT}-world
+    ipc: "host"
     build: {context: ., dockerfile: etc/docker/world/Dockerfile}
     ports:
       - "3443:3443"
@@ -42,6 +44,7 @@ services:
   realm:
     image: ${PROJECT}-realm:${OS_TAG}
     container_name: ${PROJECT}-realm
+    ipc: "host"
     build: {context: ., dockerfile: etc/docker/realm/Dockerfile}
     ports:
       - "9090:9090"
@@ -57,7 +60,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
     ports:
-      - "3306:3306"
+      - "3606:3306"
     volumes:
       - ./etc/databases/:/etc/databases/
     restart: on-failure
