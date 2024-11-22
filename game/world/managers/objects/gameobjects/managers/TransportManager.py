@@ -7,6 +7,7 @@ from bisect import bisect_left
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.MiscCodes import GameObjectStates, HighGuid
 
 
@@ -92,11 +93,18 @@ class TransportManager(GameObjectManager):
 
     def _calculate_progress(self):
         self.path_progress = self._get_time()
-        next_node = self.get_next_node(self.path_progress)
-        prev_node = self.get_previous_node(self.path_progress)
+        try:
+            next_node = self.get_next_node(self.path_progress)
+            prev_node = self.get_previous_node(self.path_progress)
+        except IndexError:
+            Logger.error(f'Unable to retrieve node information for transport with entry {self.entry} and spawn id '
+                         f'{self.spawn_id} at {self.path_progress} progress.')
+            return
+
         # No progress.
         if not next_node or not prev_node:
             return
+
         self.current_segment = prev_node.TimeIndex
         prev_pos = Vector(prev_node.X, prev_node.Y, prev_node.Z)
         next_pos = Vector(next_node.X, next_node.Y, next_node.Z)
