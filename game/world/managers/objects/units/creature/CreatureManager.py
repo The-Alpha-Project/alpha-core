@@ -3,6 +3,7 @@ from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import CreatureTemplate
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
@@ -23,7 +24,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
     MoveType, EmoteUnitState
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -86,7 +87,7 @@ class CreatureManager(UnitManager):
         is_morph = self.fully_loaded
 
         self.entry = creature_template.entry
-        self.creature_template = creature_template
+        self.creature_template: CreatureTemplate = creature_template
         self.entry = self.creature_template.entry
         self.class_ = self.creature_template.unit_class
         self.npc_flags = self.creature_template.npc_flags
@@ -112,6 +113,12 @@ class CreatureManager(UnitManager):
         # NPC is immune to player characters.
         if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_PLAYER:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC, active=True)
+
+        # Innate school and mechanic immunities.
+        if self.creature_template.mechanic_immune_mask:
+            self.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, self.creature_template.mechanic_immune_mask)
+        if self.creature_template.school_immune_mask:
+            self.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.creature_template.school_immune_mask)
 
         if self.is_totem() or self.is_critter() or not self.can_have_target():
             self.react_state = CreatureReactStates.REACT_PASSIVE
