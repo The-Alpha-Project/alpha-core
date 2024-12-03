@@ -899,12 +899,112 @@ begin not atomic
         insert into applied_updates values ('101020241');
     end if;
 
+    -- 22/10/2024 1
+    if (select count(*) from applied_updates where id='221020241') = 0 then
+
+        -- TODO: Adjust Tharil'zun quest #1452
+        UPDATE `quest_template` SET `Details` = 'Blackrock Outrunners and Renegades are running ambushes between here and Stonewatch Keep.  The leader of the Outrunners is an orc named Tharil''zun--we want this orc and his subordinates neutralized.$B$BKill the Blackrock outrunners and bring me the head of Tharil''zun.', `Objectives` = 'Kill 12 Blackrock Outrunners, and bring the head of their leader Tharil''zun back to Marshal Marris in Redridge.', `RequestItemsText` = 'Orc pressure from Blackrock is still tense. But have you at least rid us of Tharil''zun and his Outrunners?', `ReqCreatureOrGOId1` = 485, `ReqCreatureOrGOCount1` = 12, `RewChoiceItemId1` = 0, `RewChoiceItemId2` = 0, `RewChoiceItemCount1` = 0, `RewChoiceItemCount2` = 0, `RewOrReqMoney` = 1600, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 19);
+
+        -- TODO: Move rewards from Thrali'zun quest to Shadow Magic quest. #1451 AND Adjust Shadow Magic quests's objective #1450
+        UPDATE `quest_template` SET `Details` = 'The Blackrock orcs enlisted shadowcasters to aid their attacks in Redridge, and they have brought with them devices of dark power--midnight orbs.  These orbs have struck telling blows against Redridge''s defenders, and it''s imperative we remove the demon-tainted items from the conflict.$B$BFind and deliver to me 4 midnight orbs from slain Blackrock Shadowcasters.  I will then have them disposed of, for this world would be a better place without them!', `Objectives` = 'Bring 4 Midnight Orbs to Marshal Marris in Lakeshire.', `ReqItemCount1` = 4, `RewItemId1` = 1276, `RewItemId2` = 6093, `RewItemCount1` = 1, `RewItemCount2` = 1, `RewOrReqMoney` = 300, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 115);
+        
+        -- TODO: Update Jawn Highmesa location #1394
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4876) AND (`spawn_id` IN (21144));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (21144, 4876, 0, 0, 0, 1, -5466.456, -2419.391, 89.3, 5.658, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- PARTIAL Kitari Farseeker Cartography TODO: Investigate on these Darnassus NPCs #1304
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (0, 4157, 0, 0, 0, 1, 10129.023, 2425.787, 1331.881, 4.22, 300, 300, 0, 1, 0, 0, 0, 0, 0);
+
+        -- Update Kitari flags #1304
+        UPDATE `creature_template` SET `npc_flags` = 10, `flags_extra` = 524298 WHERE (`entry` = 4157);
+
+        -- Ally Binder Plains #1457
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (0, 2281, 0, 0, 0, 37, -445.944, -1023.479, 430.9, 0.937, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Horde Binder Plains #1457
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (0, 2282, 0, 0, 0, 37, -663.799, -487.706, 385.853, 5.782, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Nerra #1456
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 3699) AND (`spawn_id` IN (400079));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (400079, 3699, 0, 0, 0, 1, 10687.85, 1922.595, 1336.384, 4.457, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Nadyia #1456
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 3605) AND (`spawn_id` IN (46193));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46193, 3605, 0, 0, 0, 1, 10662.588, 1852.964, 1323.54, 2.926, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Alanna #1456
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 3606) AND (`spawn_id` IN (46194));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46194, 3606, 0, 0, 0, 1, 10279.62, 1198.137, 1456.751, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Thisleheart #1454
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 5171) AND (`spawn_id` IN (1804));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (1804, 5171, 0, 0, 0, 0, -4749.271, -1032.367, 499.107, 3.773, 540, 540, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Rhahk'zor #1430
+        UPDATE `creature_template` SET `level_min` = 20, `level_max` = 20 WHERE (`entry` = 644);
+
+        -- Sneed #1430
+        UPDATE `creature_template` SET `level_min` = 21, `level_max` = 21 WHERE (`entry` = 643);
+
+        -- Van Cleef #1430
+        UPDATE `creature_template` SET `level_min` = 22, `level_max` = 22 WHERE (`entry` = 639);
+
+        -- Defias Miner #1430
+        UPDATE `creature_template` SET `rank` = 1 WHERE (`entry` = 598);
+
+        -- Defias Strip Miner #1430
+        UPDATE `creature_template` SET `rank` = 1 WHERE (`entry` = 4416);
+
+        -- Defias Worker #1430
+        UPDATE `creature_template` SET `rank` = 1 WHERE (`entry` = 1727);
+
+        -- Adjust Shaia spawn #1163
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4178) AND (`spawn_id` IN (400118));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (400118, 4178, 0, 0, 0, 1, 9700.307, 2337.542, 1331.97, 0.6, 120, 120, 5, 100, 100, 0, 0, 0, 0);
+
+        -- Shaia flags #1163
+        UPDATE `creature_template` SET `npc_flags` = 131, `type_flags` = 102, `flags_extra` = 524298 WHERE (`entry` = 4178);
+
+        -- Shaia Mail vendor items based on Melea #1163
+        INSERT INTO npc_vendor (entry, item, maxcount, incrtime, itemflags, slot)
+        SELECT 4178, item, maxcount, incrtime, itemflags, slot
+        FROM npc_vendor
+        WHERE entry = 4177;
+
+        -- Lewin flags #1163
+        UPDATE `creature_template` SET `npc_flags` = 131, `type_flags` = 102, `flags_extra` = 524298 WHERE (`entry` = 4239);
+
+        -- Lewin Leather vendor items based on Cyridan #1163
+        INSERT INTO npc_vendor (entry, item, maxcount, incrtime, itemflags, slot)
+        SELECT 4239, item, maxcount, incrtime, itemflags, slot
+        FROM npc_vendor
+        WHERE entry = 4236;
+
+        -- Maginor, from screenshot
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 331) AND (`spawn_id` IN (26835));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (26835, 331, 0, 0, 0, 0, -9018.157, 866.797, 148.618, 0.583, 490, 490, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Myrmidon Signet #1449
+        UPDATE `item_template` SET `display_id` = 896, `item_level` = 40, `required_level` = 35, `stat_value1` = 5, `stat_value2` = 6, `stat_type3` = 0, `stat_value3` = 0 WHERE (`entry` = 2246);
+        insert into applied_updates values ('221020241');
+    end if;
+
     -- 11/11/2024 1
     if (select count(*) from applied_updates where id='111120241') = 0 then
         -- Deprecated Captain Sander's Eyepatch - Remove deprecated status, change quality to white, and add proper level requirement and displayID
         UPDATE `item_template` SET `name` = "Captain Sander's Eyepatch", `display_id` = 1166, `quality` = 1, `flags` = 0, `required_level` = 5 WHERE (`entry` = 1363);
         -- Add Captain Sander's Eyepatch as a reward from Captain Sander's Hidden Treasure, replacing Silver Bar
-        UPDATE `quest_template` SET `RewItemId1` = 1363, `RewItemCount1` = 1, WHERE (`entry` = 140);
+        UPDATE `quest_template` SET `RewItemId1` = 1363, `RewItemCount1` = 1 WHERE (`entry` = 140);
 
         -- Add Aegis of Westfall as a reward to The Defias Brotherhood
         UPDATE `quest_template` SET `RewChoiceItemId4` = 2040, `RewChoiceItemCount4` = 1, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 166);
@@ -918,23 +1018,23 @@ begin not atomic
         -- Add Whisperwind Headdress as a reward from Isha Hawk, which it seems to have been connected to (rewards have identical item level, ID of Whisperwind Headdress is immediately after the IDs of the rewards from it)
         UPDATE `quest_template` SET `RewChoiceItemId3` = 5358, `RewChoiceItemCount3` = 1, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 873);
 
-        --Deprecated Overseer's Helm - Remove deprecated status, change quality to white, and add proper level requirement and displayID
-        UPDATE `item_template` SET `name` = "Overseer's Helm", `quality` = 1, `flags` = 0 WHERE (`entry` = 1192);
-        --Add Overseer's Helm to Riverpaw Overseer's loot table with a drop chance identical to the other "Overseer's" drops
+        -- Deprecated Overseer's Helm - Remove deprecated status, change quality to white
+        UPDATE `item_template` SET `name` = 'Overseer''s Helm', `quality` = 1, `flags` = 0 WHERE (`entry` = 1192);
+        -- Add Overseer's Helm to Riverpaw Overseer's loot table with a drop chance identical to the other "Overseer's" drops
         DELETE FROM `creature_loot_template` WHERE (`entry` = 125) AND (`item` IN (1192));
         INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (125, 1192, 0.5, 0, 1, 1, 0);
 
-        --Flayed Demon Skin (old) - Remove deprecated status (should also start the quest "The Corruptor", but this quest doesn't exist in 0.5.3, needs investigation)
+        -- Flayed Demon Skin (old) - Remove deprecated status (should also start the quest "The Corruptor", but this quest doesn't exist in 0.5.3, needs investigation)
         UPDATE `item_template` SET `name` = "Flayed Demon Skin", `flags` = 0 WHERE (`entry` = 6437);
 
-        --Unholy Avenger - Remove deprecated status, replace chance-on-hit spells with equivalents that exist in 0.5.3
+        -- Unholy Avenger - Remove deprecated status, replace chance-on-hit spells with equivalents that exist in 0.5.3
         DELETE FROM `item_template` WHERE (`entry` = 3687);
         INSERT INTO `item_template` (`entry`, `name`, `class`, `subclass`, `description`, `display_id`, `quality`, `flags`, `buy_count`, `buy_price`, `sell_price`, `inventory_type`, `allowable_class`, `allowable_race`, `item_level`, `required_level`, `required_skill`, `required_skill_rank`, `required_spell`, `required_honor_rank`, `required_city_rank`, `required_reputation_faction`, `required_reputation_rank`, `max_count`, `stackable`, `container_slots`, `stat_type1`, `stat_value1`, `stat_type2`, `stat_value2`, `stat_type3`, `stat_value3`, `stat_type4`, `stat_value4`, `stat_type5`, `stat_value5`, `stat_type6`, `stat_value6`, `stat_type7`, `stat_value7`, `stat_type8`, `stat_value8`, `stat_type9`, `stat_value9`, `stat_type10`, `stat_value10`, `delay`, `range_mod`, `ammo_type`, `dmg_min1`, `dmg_max1`, `dmg_type1`, `dmg_min2`, `dmg_max2`, `dmg_type2`, `dmg_min3`, `dmg_max3`, `dmg_type3`, `dmg_min4`, `dmg_max4`, `dmg_type4`, `dmg_min5`, `dmg_max5`, `dmg_type5`, `block`, `armor`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spellid_1`, `spelltrigger_1`, `spellcharges_1`, `spellppmrate_1`, `spellcooldown_1`, `spellcategory_1`, `spellcategorycooldown_1`, `spellid_2`, `spelltrigger_2`, `spellcharges_2`, `spellppmrate_2`, `spellcooldown_2`, `spellcategory_2`, `spellcategorycooldown_2`, `spellid_3`, `spelltrigger_3`, `spellcharges_3`, `spellppmrate_3`, `spellcooldown_3`, `spellcategory_3`, `spellcategorycooldown_3`, `spellid_4`, `spelltrigger_4`, `spellcharges_4`, `spellppmrate_4`, `spellcooldown_4`, `spellcategory_4`, `spellcategorycooldown_4`, `spellid_5`, `spelltrigger_5`, `spellcharges_5`, `spellppmrate_5`, `spellcooldown_5`, `spellcategory_5`, `spellcategorycooldown_5`, `bonding`, `page_text`, `page_language`, `page_material`, `start_quest`, `lock_id`, `material`, `sheath`, `random_property`, `set_id`, `max_durability`, `area_bound`, `map_bound`, `duration`, `bag_family`, `disenchant_id`, `food_type`, `min_money_loot`, `max_money_loot`, `extra_flags`, `ignored`) VALUES (3687, 'Unholy Avenger', 2, 8, '', 3092, 6, 0, 1, 288592, 57718, 17, -1, -1, 40, 35, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3000, 0, 0, 97, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 172, 2, 0, 0, -1, 0, -1, 3140, 2, 0, 0, -1, 0, -1, 1096, 2, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0);
-        --Add Unholy Avenger to Dreadlord Malganis, who seems to be the only reasonable source for this item.
+        -- Add Unholy Avenger to Dreadlord Malganis, who seems to be the only reasonable source for this item.
         DELETE FROM `creature_loot_template` WHERE (`entry` = 929) AND (`item` IN (3687));
         INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (929, 3687, 20, 0, 1, 1, 0);
 
-        inset into applied_updates values ('111120241');
+        insert into applied_updates values ('111120241');
     end if;
 
     -- 22/11/2024 1
