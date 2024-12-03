@@ -936,5 +936,138 @@ begin not atomic
 
         inset into applied_updates values ('111120241');
     end if;
+
+    -- 22/11/2024 1
+    if (select count(*) from applied_updates where id='111120241') = 0 then
+        --NOTE: THE RESTORED DEPRECATED WEAPONS MAY HAVE INCORRECT DAMAGE VALUES, AS THE ONLY SOURCE OF THEM CAME FROM 1.12. I HAVE DECIDED TO INCLUDE THEM, BUT THEY MAY NEED RESCALING. ITEMS THAT MAY HAVE STATS ARE NOT INCLUDED, THEY ARE TO BE DISCUSSED FIRST.
+
+        -- Deprecated Light Soldier Boots : Remove deprecated tag
+        UPDATE `item_template` SET `name` = 'Light Soldier Boots', `flags` = 0 WHERE (`entry` = 1174);
+        -- Make Light Soldier Boots a reward from Princess Must Die!
+        UPDATE `quest_template` SET `RewChoiceItemId3` = 1174, `RewChoiceItemCount3` = 1 WHERE (`entry` = 88);
+
+        -- Deprecated Militia Handaxe : Change quality to common, remove deprecated tag
+        UPDATE `item_template` SET `name` = 'Militia Handaxe', `quality` = 1, `flags` = 0 WHERE (`entry` = 1157);
+        -- Make Militia Handaxe a reward from Brotherhood of Thieves
+        UPDATE `quest_template` SET `RewChoiceItemId6` = 1157, `RewChoiceItemCount6` = 1 WHERE (`entry` = 18);
+
+        --Red Linen Bag : Change to White Linen Bag, which matches period sources, as well as displayID to unused one with low ID and similar but more matching icon (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/goblinworkshop.com/web.archive.org/web/20040806111029/http:/www.goblinworkshop.com/items.html%3FCategoryID=17.html)
+        UPDATE `item_template` SET `name` = 'White Linen Bag', `display_id` = 925 WHERE (`entry` = 5762);
+        -- Pattern: Red Linen Bag : Change to Pattern: White Linen Bag, which matches period sources (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/goblinworkshop.com/web.archive.org/web/20040806111029/http:/www.goblinworkshop.com/items.html%3FCategoryID=31.html)
+        UPDATE `item_template` SET `name` = 'Pattern: White Linen Bag' WHERE (`entry` = 5771);
+        -- Deprecated Red Linen Shirt : Remove deprecated status
+        UPDATE `item_template` SET `name` = 'Red Linen Shirt', `flags` = 0 WHERE (`entry` = 964);
+        -- Deprecated Red Linen Sack : Remove deprecated status
+        UPDATE `item_template` SET `name` = 'Red Linen Sack', `flags` = 0 WHERE (`entry` = 965);
+        -- Add Red Linen Shirt and Red Linen Sack as quest rewards from Red Linen Goods, with Red Linen Shirt replacing the craftable one
+        UPDATE `quest_template` SET `RewItemId1` = 964, `RewItemId3` = 965, `RewItemCount3` = 1 WHERE (`entry` = 83);
+
+        -- Deprecated Busted Elemental Bracer : Remove deprecated status
+        UPDATE `item_template` SET `name` = 'Busted Elemental Bracer', `flags` = 0 WHERE (`entry` = 5450);
+        -- Deprecated Cracked Elemental Bracer : Remove deprecated status
+        UPDATE `item_template` SET `name` = 'Cracked Elemental Bracer', `flags` = 0 WHERE (`entry` = 5449);
+        -- Deprecated Shattered Elemental Bracer : Remove deprecated status
+        UPDATE `item_template` SET `name` = 'Shattered Elemental Bracer', `flags` = 0 WHERE (`entry` = 5453);
+        -- Deprecated Split Elemental Bracer : Remove deprecated status
+        UPDATE `item_template` SET `name` = 'Split Elemental Bracer', `flags` = 0 WHERE (`entry` = 5454);
+        --Add the Elemental Bracers as drops from Befouled Water Elementals with similar drop chances to the other non-broken ones
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 3917) AND (`item` IN (5450, 5449, 5453, 5454));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (3917, 5450, 13.4531, 0, 1, 1, 0), (3917, 5449, 13.1707, 0, 1, 1, 0), (3917, 5453, 13.1065, 0, 1, 1, 0), (3917, 5454, 13.0103, 0, 1, 1, 0);
+
+        -- Hooded Cowl : Rename to Cowl of Serenity to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Hillsbrad%20Foothills/septembre2003-48.jpg)
+        UPDATE `item_template` SET `name` = 'Cowl of Serenity' WHERE (`entry` = 3732);
+
+        --Change the stats of Olmann Sewar to match period sources (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WDB/version_3596_items2.html)
+        UPDATE `item_template` SET `stat_value1` = 7 WHERE (`entry` = 4116);
+        -- Add Olmann Sewar as a reward from The Green Hills of Stranglethorn, replacing the Superior Healing Poitons, which matches period sources (https://web.archive.org/web/20040917223745/http://wow.allakhazam.com/db/quest.html?wquest=338)
+        UPDATE `quest_template` SET `RewItemId1` = 4116, `RewItemId3` = 0, `RewItemCount1` = 1, `RewItemCount3` = 0, `parse_timestamp` = '2004-06-22' WHERE (`entry` = 338);
+
+        --Brewing Rod : Add level requirement and proper placeholder displayID
+        UPDATE `item_template` SET `display_id` = 5099, `required_level` = 15, `stat_type1` = 1, `stat_value1` = 20 WHERE (`entry` = 3738);
+        --  Add Brewing Rod as a reward from Souvenirs of Death
+        UPDATE `quest_template` SET `RewItemId2` = 3738, `RewItemCount2` = 1 WHERE (`entry` = 546);
+
+        --Scorched Bands: Name changed to "Frost Wyrm Scorched Bands" to match period sources, add level requirement (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/Ogaming/ogaming_item_wdb.htm) and placeholder model
+        UPDATE `item_template` SET `name` = 'Frost Wyrm Scorched Bands', `display_id` = 10401, `required_level` = 40 WHERE (`entry` = 4990);
+        -- Mage Dragon Robes : Add level requirement
+        UPDATE `item_template` SET `required_level` = 40 WHERE (`entry` = 4989);
+        -- Burning Obsidian Band : Add level requirement
+        UPDATE `item_template` SET `required_level` = 40 WHERE (`entry` = 4988);
+        -- Add Mage Dragon Robes and and Frost Wyrm Scorched Bands as rewards from Tremors of the Earth and Broken Alliances
+        UPDATE `quest_template` SET `RewChoiceItemId1` = 4988, `RewChoiceItemId2` = 4989, `RewChoiceItemId3` = 4990, `RewChoiceItemCount1` = 1, `RewChoiceItemCount2` = 1, `RewChoiceItemCount3` = 1, WHERE (`entry` = 717);
+
+        -- Master Hunter's Bow : Add level requirement, remove deprecated status
+        UPDATE `item_template` SET `flags` = 0, `required_level` = 40 WHERE (`entry` = 4110);
+        -- Master Hunter's Gun : Add level requirement, remove deprecated status
+        UPDATE `item_template` SET `flags` = 0, `required_level` = 40 WHERE (`entry` = 4111);
+        -- Add Master Hunter's Bow and Master Hunter's Gun as rewards from Big Game Hunter, add quest level accurate to period sources (https://web.archive.org/web/20041121002253/http://wow.allakhazam.com/db/quest.html?wquest=208)
+        UPDATE `quest_template` SET `QuestLevel` = 45, `RewChoiceItemId1` = 4110, `RewChoiceItemId2` = 4111, `RewChoiceItemCount1` = 1, `RewChoiceItemCount2` = 1, `parse_timestamp` = '2004-11-21' WHERE (`entry` = 208);
+
+        -- Deprecated Scarlet Captain's Pauldrons : Remove deprecated status
+        UPDATE `item_template` SET `name` = "Scarlet Captain's Pauldrons", `flags` = 0 WHERE (`entry` = 3333);
+        -- Add Scarlet Captain's Pauldrons as a drop from Captain Vachon with a drop chance similar to the Scarlet Boots
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 1664) AND (`item` IN (3333));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (1664, 3333, 4, 0, 1, 1, 0);
+
+        -- Lightforge Staff : Remove deprecated tag
+        UPDATE `item_template` SET `name` = 'Lightforge Staff', `flags` = 0 WHERE (`entry` = 2811);
+        -- Lightforge Dagger : Remove deprecated tag
+        UPDATE `item_template` SET `name` = 'Lightforge Dagger', `flags` = 0 WHERE (`entry` = 2812);
+        -- Lightforge Hammer : Remove deprecated tag
+        UPDATE `item_template` SET `name` = 'Lightforge Hammer', `flags` = 0 WHERE (`entry` = 2814);
+        -- Add Lightforge Staff, Lightforge Dagger, and Lightforge Hammer as rewards from Blessed Arm
+        UPDATE `quest_template` SET `RewChoiceItemId1` = 2811, `RewChoiceItemId2` = 2812, `RewChoiceItemId3` = 2814, `RewChoiceItemCount1` = 1, `RewChoiceItemCount2` = 1, `RewChoiceItemCount3` = 1 WHERE (`entry` = 322);
+        --Armed and Ready : Edit quest objective text to match period sources (https://web.archive.org/web/20040706011330/http://wow.allakhazam.com/db/quest.html?wquest=325)
+        UPDATE `quest_template` SET `Details` = "You're all ready, $N. Best of luck to you, and I look forward to your tale of glory!", `Objectives` = 'Now that you have your weapon, return to Sven in Duskwood.' WHERE (`entry` = 325);
+        --Morbent Fel (quest) : Edit quest text and quest level to match period sources (https://web.archive.org/web/20040706013721/http://wow.allakhazam.com/db/quest.html?wquest=55)
+        UPDATE `quest_template` SET `QuestLevel` = 33, `Details` = 'Morbent Fel hides in his lair, the house perched atop the hill to the east overlooking the Raven Hill Cemetary. His time in this land is drawing to an end...$b$bSlay him. Slay him, and save us from his wickedness. Be the instrument of my revenge, and a hero of Duskwood!', `Objectives` = 'Kill Morbent Fel, then return to Sven at his camp.' WHERE (`entry` = 55);
+        -- Morbent Fel: Immunity to phyiscal damage to match his description in quest text, fill in for missing shield spell, and ensure that Lightforge weapons serve their purpose in the questline (they deal only holy damage).
+        UPDATE `creature_template` SET `school_immune_mask` = 1 WHERE (`entry` = 1200);
+
+        -- Oslow's Toolbox : Change displayID to that of Deprecated version (as its current displayID doesn't exist in 0.5.3)
+        UPDATE `item_template` SET `display_id` = 1244 WHERE (`entry` = 1309);
+        -- Deprecated Oslow's Wood Cutter : Remove deprecated tag, change quality to white
+        UPDATE `item_template` SET `name` = "Oslow's Wood Cutter", `quality` = 1, `flags` = 0, `required_level` = 8 WHERE (`entry` = 1311);
+        -- Deprecated Oslow's Hammer : Remove deprecated tag, change quality to white
+        UPDATE `item_template` SET `name` = "Oslow's Hammer", `quality` = 1, `flags` = 0, `required_level` = 8 WHERE (`entry` = 1312);
+        -- Deprecated Oslow's Ice Pick : Remove deprecated tag, change quality to white
+        UPDATE `item_template` SET `name` = "Oslow's Ice Pick", `quality` = 1, `flags` = 0, `required_level` = 8 WHERE (`entry` = 1313);
+        -- Make Oslow's Wood Cutter, Oslow's Hammer, and Oslow's Ice Pick rewards from The Lost Tools
+        UPDATE `quest_template` SET `RewChoiceItemId1` = 1311, `RewChoiceItemId2` = 1312, `RewChoiceItemId3` = 1313, `RewChoiceItemCount1` = 1, `RewChoiceItemCount2` = 1, `RewChoiceItemCount3` = 1 WHERE (`entry` = 125);
+
+        -- Deprecated Quilted Mantle : Remove deprecated status, add level requirement
+        UPDATE `item_template` SET `name` = 'Quilted Mantle', `flags` = 0, `required_level` = 1 WHERE (`entry` = 3436);
+        -- Scarlet Insignia Ring : Add placeholder model
+        UPDATE `item_template` SET `display_id` = 9834 WHERE (`entry` = 2875);
+        -- Add Quilted Mantle as a quest reward from Proof of Demise
+        UPDATE `quest_template` SET `RewChoiceItemId3` = 3436, `RewChoiceItemCount3` = 1 WHERE (`entry` = 374);
+
+        -- Hands of the New Moon : Remove deprecated status, add level requirement
+        UPDATE `item_template` SET `name` = 'Hands of the New Moon', `flags` = 0, `required_level` = 7 WHERE (`entry` = 5294);
+        -- Hands of the Crescent Moon : Remove deprecated status, add level requirement
+        UPDATE `item_template` SET `name` = 'Hands of the Crescent Moon', `flags` = 0, `required_level` = 8 WHERE (`entry` = 5295);
+        -- Hands of the Quarter Moon : Remove deprecated status, add level requirement
+        UPDATE `item_template` SET `name` = 'Hands of the Quarter Moon', `flags` = 0, `required_level` = 10 WHERE (`entry` = 5296);
+        -- Hands of the Gibbous Moon : Remove deprecated status, add level requirement
+        UPDATE `item_template` SET `name` = 'Hands of the Gibbous Moon', `flags` = 0, `required_level` = 12 WHERE (`entry` = 5297);
+        --Hands of the Full Moon : Remove deprecated status, add level requirement
+        UPDATE `item_template` SET `name` = 'Hands of the Full Moon', `flags` = 0, `required_level` = 13 WHERE (`entry` = 5298);
+
+        -- Hands of the New Moon : Add as reward from Plainstrider Menace
+        UPDATE `quest_template` SET `RewItemId1` = 5294, `RewItemCount1` = 1 WHERE (`entry` = 844);
+
+        -- Hands of the Crescent Moon : Add as a reward from The Zhevra, change quest name and description to match period sources (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WarcraftStrategy/quest_details_june_2004.html)
+        UPDATE `quest_template` SET `Title` = 'Zhevra Dependence', `Details` = "There is an interdependency between the zhevra and the plainstriders. The plainstriders' constant scratching and pecking of the land tills the soil, allowing the plants that the zhevra eat to grow and flourish.$b$bWithout steady food, the zhevra have become agitated and encroach upon our field grains. Though your initial path was faulty, we must continue.$b$bSlay the zhevra runners to the north and bring me four zhevra hooves.", `RewItemId1` = 5295, `RewItemCount1` = 1, `parse_timestamp` = '2004-05-20' WHERE (`entry` = 845);
+
+        -- Hands of the Quarter Moon : Add as a reward from Prowlers of the Barrens, change quest description to match period sources (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WarcraftStrategy/quest_details_june_2004.html)
+        UPDATE `quest_template` SET `Details` = 'It would seem our previous actions return to haunt us. With the zhevra and plainstrider game diminished, the savannah prowlers have turned upon our people as they use the southern road.$b$bGo south and collect seven prowler claws and we just might reach an equilibrium again.', `Objectives` = 'Collect 7 Prowler Claws from Savannah Prowlers for Sergra Darkthorn in the Crossroads.', `RequestItemsText` = 'Hurry, young one. The lives of those around the Crossroads are in your hands. Do you have the 7 Prowler Claws I requested?', `ReqItemCount1` = 7, `RewItemId1` = 5296, `RewItemCount1` = 1, `parse_timestamp` = '2004-05-20' WHERE (`entry` = 903);
+
+        -- Hands of the Gibbous Moon : Add as a reward from The Angry Scytheclaws
+        UPDATE `quest_template` SET `RewItemId1` = 5297, `RewItemCount1` = 1, `parse_timestamp` = '2004-05-20' WHERE (`entry` = 905);
+
+        -- Hands of the Full moon : Add as a reward from Enranged Stormsnouts and add money reward to match period sources (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WarcraftStrategy/quest_details_june_2004.html)
+        UPDATE `quest_template` SET `RewItemId1` = 5298, `RewItemCount1` = 1, `RewOrReqMoney` = 1070, `parse_timestamp` = '2004-05-20' WHERE (`entry` = 907);
+
+    end if;
 end $
 delimiter ;
