@@ -199,7 +199,7 @@ class UnitManager(ObjectManager):
         # School absorb.
         self._school_absorbs = {}
         # Effects modifying unit flags.
-        self._flag_effects = dict(dict())  # Enum: (Flag: set())
+        self._flag_effects = dict(dict())  # Enum: (Flag: set(source id))
 
         self.movement_info = MovementInfo(self)
         self.has_moved = False
@@ -1548,16 +1548,13 @@ class UnitManager(ObjectManager):
         damage = damage_info.base_damage
         return int(damage if absorb >= 0 else damage - abs(absorb))
 
-    def set_immunity(self, immunity_type: SpellImmunity, source_id, immunity_arg: int = -1, immune=True):
+    def set_immunity(self, immunity_type: SpellImmunity, immunity_mask: int, source_id = -1):
         # Note: source ID can be an aura slot or -1 for an innate immunity.
         immunities = self._immunities.get(immunity_type, {})
-        if immune:
-            immunities[source_id] = immunity_arg
-        elif source_id in immunities:
-            immunities.pop(source_id)
+        immunities[source_id] = immunity_mask
         self._immunities[immunity_type] = immunities
 
-        if not immune:
+        if source_id == -1:
             return
 
         # Remove auras that collide with this immunity if needed.
@@ -1578,38 +1575,33 @@ class UnitManager(ObjectManager):
             if aura.spell_effect.is_target_immune(aura.target):
                 self.aura_manager.remove_aura(aura)
 
+    def remove_immunity(self, immunity_type: SpellImmunity, source_id: int):
+        immunities = self._immunities.get(immunity_type, {})
+        immunities.pop(source_id, None)
+        self._immunities[immunity_type] = immunities
+
     def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False,
                      source=None, is_friendly=False):
         type_immunities = self._immunities.get(immunity_type, {})
 
-        if not is_mask and immunity_type in {SpellImmunity.IMMUNITY_DAMAGE, SpellImmunity.IMMUNITY_SCHOOL}:
+        if not is_mask:
             immunity_arg = 1 << immunity_arg
-            is_mask = True
 
-        is_immune = immunity_arg in type_immunities.values() or \
-            (is_mask and any(immunity_arg & mask for mask in type_immunities.values()))
-
-        if not is_immune:
-            return False
+        immunity_sources = [source_id for source_id, mask in type_immunities.items() if
+                            immunity_arg & mask]
+        if not immunity_sources:
+            return False  # No immunity.
 
         if not is_friendly and (not source or source.can_attack_target(self)):
-            return True  # Immune, hostile source.
+            return True  # Hostile/neutral source.
 
-        # Immune, friendly source. Check for friendly immunity.
-        return self.has_friendly_immunity(immunity_type, immunity_arg, is_mask)
+        # Friendly source. Check if immunity applies for helpful spells.
+        for source_id in immunity_sources:
+            source_aura = self.aura_manager.get_aura_by_index(source_id)
+            if source_aura and source_aura.source_spell.grants_positive_immunity():
+                return True
 
-    def has_friendly_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False):
-        type_immunities = self._immunities.get(immunity_type, {})
-
-        if not is_mask and immunity_type in {SpellImmunity.IMMUNITY_DAMAGE, SpellImmunity.IMMUNITY_SCHOOL}:
-            immunity_arg = 1 << immunity_arg
-            is_mask = True
-
-        immunity_matches = [aura_slot for aura_slot, imm_arg in type_immunities.items() if
-                            imm_arg == immunity_arg and not is_mask or imm_arg & immunity_arg and is_mask]
-
-        return any([self.aura_manager.get_aura_by_index(aura_slot).source_spell.grants_positive_immunity()
-                    for aura_slot in immunity_matches])
+        return False
 
     def has_damage_immunity(self, school, casting_spell=None, is_mask=False) -> bool:
         if casting_spell and casting_spell.ignores_immunity():

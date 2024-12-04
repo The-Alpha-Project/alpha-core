@@ -1036,9 +1036,9 @@ begin not atomic
 
         insert into applied_updates values ('111120241');
     end if;
-
+    
     -- 22/11/2024 1
-    if (select count(*) from applied_updates where id='111120241') = 0 then
+    if (select count(*) from applied_updates where id='041220241') = 0 then
         --NOTE: THE RESTORED DEPRECATED WEAPONS MAY HAVE INCORRECT DAMAGE VALUES, AS THE ONLY SOURCE OF THEM CAME FROM 1.12. I HAVE DECIDED TO INCLUDE THEM, BUT THEY MAY NEED RESCALING. ITEMS THAT MAY HAVE STATS ARE NOT INCLUDED, THEY ARE TO BE DISCUSSED FIRST.
 
         -- Deprecated Light Soldier Boots : Remove deprecated tag
@@ -1168,6 +1168,8 @@ begin not atomic
         -- Hands of the Full moon : Add as a reward from Enranged Stormsnouts and add money reward to match period sources (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WarcraftStrategy/quest_details_june_2004.html)
         UPDATE `quest_template` SET `RewItemId1` = 5298, `RewItemCount1` = 1, `RewOrReqMoney` = 1070, `parse_timestamp` = '2004-05-20' WHERE (`entry` = 907);
 
+        insert into applied_updates values ('041220241');
     end if;
+
 end $
 delimiter ;
