@@ -25,7 +25,6 @@ class TransportManager(GameObjectManager):
         self.total_time = 0.0
         self.current_segment = 0
         self.path_nodes: dict[int, TransportAnimation] = {}
-        self.load_path_nodes()
         self.stationary_position = self.location.copy()
         self.auto_close_secs = 0
 
@@ -33,6 +32,7 @@ class TransportManager(GameObjectManager):
     def initialize_from_gameobject_template(self, gobject_template):
         super().initialize_from_gameobject_template(gobject_template)
         self.auto_close_secs = self.get_data_field(3, int)
+        self.load_path_nodes()
 
     # override
     def update(self, now):
@@ -40,7 +40,7 @@ class TransportManager(GameObjectManager):
             if self.is_active_object() and self.has_passengers():
                 self._calculate_progress()
                 self._update_passengers()
-            super().update(now)
+        super().update(now)
 
     def load_path_nodes(self):
         for node in DbcDatabaseManager.TransportAnimationHolder.animations_by_entry(self.get_entry()):
