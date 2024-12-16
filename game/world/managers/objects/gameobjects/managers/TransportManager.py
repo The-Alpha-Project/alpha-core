@@ -20,7 +20,8 @@ class TransportManager(GameObjectManager):
         super().__init__(**kwargs)
 
         self.passengers = {}
-        self.current_anim_position = self.location
+        self.new_passengers = set()
+        self.current_anim_position = self.location.copy()
         self.path_progress = 0.0
         self.total_time = 0.0
         self.current_segment = 0
@@ -132,19 +133,19 @@ class TransportManager(GameObjectManager):
     def _update_passengers(self):
         for unit in list(self.passengers.values()):
             self.calculate_passenger_position(unit)
-            unit.movement_info.send_surrounding_update()
+            if unit.guid in self.new_passengers:
+                self.new_passengers.discard(unit.guid)
+                unit.movement_info.send_surrounding_update()
 
     def add_passenger(self, unit):
         self.passengers[unit.guid] = unit
+        self.new_passengers.add(unit.guid)
 
     def remove_passenger(self, unit):
         if unit.guid not in self.passengers:
             return
         self.passengers.pop(unit.guid)
-
-    def update_passengers(self):
-        if len(self.passengers) == 0:
-            return
+        self.new_passengers.discard(unit.guid)
 
     def _debug_position(self, location):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder

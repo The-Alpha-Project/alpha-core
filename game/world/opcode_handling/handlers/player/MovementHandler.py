@@ -25,6 +25,7 @@ class MovementHandler:
             try:
                 # Get the player or its possessed unit.
                 unit_mover = player_mgr if not player_mgr.possessed_unit else player_mgr.possessed_unit
+                prev_transport = unit_mover.transport_id
                 move_info = unit_mover.movement_info.update(reader, unit_mover)
 
                 # Hacky way to prevent random teleports when colliding with elevators.
@@ -48,8 +49,14 @@ class MovementHandler:
                             player_mgr.stand_state != StandState.UNIT_STANDING:
                         player_mgr.set_stand_state(StandState.UNIT_STANDING)
 
+                transport_changed = prev_transport != unit_mover.transport_id
+                if transport_changed or move_info.transport and player_mgr.guid in move_info.transport.new_passengers:
+                    # Don't send movement update for transport changes and synchronize updates with transport update.
+                    # This is a hacky way to prevent players disappearing for each other when interacting with transports.
+                    return 0
+
                 # Broadcast unit mover movement to surroundings.
-                move_info.send_surrounding_update(opcode=OpCode(reader.opcode))
+                move_info.send_surrounding_update(OpCode(reader.opcode))
 
             except (AttributeError, error):
                 Logger.error(f'Error while handling {reader.opcode_str()}, skipping. Data: {reader.data}')
