@@ -11,8 +11,9 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import GameObjectStates, HighGuid
 
 
-# TODO: Players automatically desync to other player viewers when inside transports.
-#  this seems to be all client related since we've tried many changes based on other cores and nothing seems to work.
+# TODO: The current way of handling movement updates within transports is hacky.
+#  Players seem to disappear for each other if updates aren't synchronized with the transport's update.
+#  It's likely that the client's implementation for calculating positions within transports is flawed:
 #  From 0.5.4 patch notes. 'fixed problems with elevators.'
 #  From 0.7.1 patch notes. 'fixed multiple crashes related to both players and pets on elevators'
 class TransportManager(GameObjectManager):
