@@ -227,6 +227,7 @@ class WorldServerSessionHandler:
             WorldServerSessionHandler.build_scheduler('Player', WorldSessionStateHandler.update_players, 0.1, 1),
             WorldServerSessionHandler.build_scheduler('Creature', MapManager.update_creatures, 0.2, 1),
             WorldServerSessionHandler.build_scheduler('Gameobject', MapManager.update_gameobjects, 1.0, 1),
+            WorldServerSessionHandler.build_scheduler('Transport', MapManager.update_transports, 0.1, 1),
             WorldServerSessionHandler.build_scheduler('DynObject', MapManager.update_dynobjects, 1.0, 1),
             WorldServerSessionHandler.build_scheduler('Spawn', MapManager.update_spawns, 1.0, 1),
             WorldServerSessionHandler.build_scheduler('Corpse', MapManager.update_corpses, 10.0, 1),

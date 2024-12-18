@@ -595,6 +595,12 @@ class MapManager:
                 instance_map.update_gameobjects()
 
     @staticmethod
+    def update_transports():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
+                instance_map.update_transports()
+
+    @staticmethod
     def update_dynobjects():
         for map_id, instances in list(MAPS.items()):
             for instance_map in list(instances.values()):

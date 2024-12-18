@@ -286,6 +286,9 @@ class Map:
     def update_gameobjects(self):
         self.grid_manager.update_gameobjects()
 
+    def update_transports(self):
+        self.grid_manager.update_transports()
+
     def update_dynobjects(self):
         self.grid_manager.update_dynobjects()
 
