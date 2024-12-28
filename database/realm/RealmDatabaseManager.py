@@ -8,8 +8,7 @@ from database.realm.RealmModels import *
 from game.realm.AccountManager import AccountManager
 from utils.ConfigManager import *
 from utils.constants.ItemCodes import InventorySlots
-from utils.constants.MiscCodes import HighGuid
-
+from utils.constants.MiscCodes import HighGuid, AuthType
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
@@ -35,6 +34,13 @@ class RealmDatabaseManager(object):
     # Account-
 
     @staticmethod
+    def account_get(username):
+        realm_db_session = SessionHolder()
+        account = realm_db_session.query(Account).filter_by(name=username).first()
+        realm_db_session.close()
+        return account
+
+    @staticmethod
     def account_try_login(username, password, ip):
         realm_db_session = SessionHolder()
         account = realm_db_session.query(Account).filter_by(name=username).first()
@@ -56,10 +62,13 @@ class RealmDatabaseManager(object):
         return status, account_mgr
 
     @staticmethod
-    def account_create(username, password, ip):
+    def account_create(username, password, ip, salt="0", verifier="0", auth_method=AuthType.SHA256):
         realm_db_session = SessionHolder()
         account = Account(name=username, password=password, ip=ip,
-                          gmlevel=int(config.Server.Settings.auto_create_gm_accounts))
+                          gmlevel=int(config.Server.Settings.auto_create_gm_accounts),
+                          salt=salt,
+                          verifier=verifier,
+                          auth_method=auth_method)
         realm_db_session.add(account)
         realm_db_session.flush()
         realm_db_session.commit()

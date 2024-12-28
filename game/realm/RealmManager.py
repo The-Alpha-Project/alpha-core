@@ -77,7 +77,7 @@ class RealmManager:
             real_binding = server_socket.getsockname()
             # Make sure all characters have online = 0 on realm start.
             RealmDatabaseManager.character_set_all_offline()
-            Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}')
+            Logger.success(f'Realm server started, listening on {real_binding[0]}:{real_binding[1]}')
             realm_server_ready.value = 1
 
             try:
@@ -94,7 +94,7 @@ class RealmManager:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("Login server turned off.")
+        Logger.info("Realm server turned off.")
 
     @staticmethod
     def start_proxy(running, proxy_server_ready):

@@ -7,6 +7,7 @@ import threading
 from sys import platform
 from time import sleep
 
+from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
 from game.world import WorldManager
 from game.world.managers.CommandManager import CommandManager
@@ -107,11 +108,17 @@ def wait_proxy_server():
         sleep(1)
 
 
+def wait_login_server():
+    while not LOGIN_SERVER_READY.value and RUNNING.value:
+        sleep(1)
+
+
 CONSOLE_THREAD = None
 RUNNING = None
 WORLD_SERVER_READY = None
 REALM_SERVER_READY = None
 PROXY_SERVER_READY = None
+LOGIN_SERVER_READY = None
 ACTIVE_PROCESSES = []
 
 
@@ -149,6 +156,7 @@ if __name__ == '__main__':
     WORLD_SERVER_READY = context.Value('i', 0)
     REALM_SERVER_READY = context.Value('i', 0)
     PROXY_SERVER_READY = context.Value('i', 0)
+    LOGIN_SERVER_READY = context.Value('i', 0)
 
     # Print active env vars.
     for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
@@ -188,8 +196,11 @@ if __name__ == '__main__':
     else:
         WORLD_SERVER_READY.value = 1
 
+    ACTIVE_PROCESSES.append((context.Process(name='Login process', target=LoginManager.start_login,
+                                             args=(RUNNING, LOGIN_SERVER_READY)), wait_login_server))
+
     if launch_realm:
-        ACTIVE_PROCESSES.append((context.Process(name='Login process', target=RealmManager.start_realm,
+        ACTIVE_PROCESSES.append((context.Process(name='Realm process', target=RealmManager.start_realm,
                                                  args=(RUNNING, REALM_SERVER_READY)), wait_realm_server))
         ACTIVE_PROCESSES.append((context.Process(name='Proxy process', target=RealmManager.start_proxy,
                                                  args=(RUNNING, PROXY_SERVER_READY)), wait_proxy_server))

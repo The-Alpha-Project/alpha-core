@@ -1070,6 +1070,11 @@ class PoolType(IntEnum):
     GAMEOBJECT = 1
 
 
+class AuthType(IntEnum):
+    SHA256 = 0
+    SRP6 = 1
+
+
 class MapsNoNavs(IntEnum):
 
     @classmethod
