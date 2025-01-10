@@ -62,13 +62,13 @@ class RealmDatabaseManager(object):
         return status, account_mgr
 
     @staticmethod
-    def account_create(username, password, ip, salt="0", verifier="0", auth_method=AuthType.SHA256):
+    def account_create(username, password, ip, salt, verifier):
         realm_db_session = SessionHolder()
         account = Account(name=username, password=password, ip=ip,
                           gmlevel=int(config.Server.Settings.auto_create_gm_accounts),
                           salt=salt,
-                          verifier=verifier,
-                          auth_method=auth_method)
+                          verifier=verifier
+                          )
         realm_db_session.add(account)
         realm_db_session.flush()
         realm_db_session.commit()

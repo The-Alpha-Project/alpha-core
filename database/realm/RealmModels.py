@@ -18,7 +18,6 @@ class Account(Base):
     gmlevel = Column(TINYINT(4), nullable=False, server_default=text("1"))
     salt = Column(String(256), nullable=False)
     verifier = Column(String(256), nullable=False)
-    auth_method = Column(TINYINT(4), nullable=False)
 
 
 class AppliedUpdate(Base):

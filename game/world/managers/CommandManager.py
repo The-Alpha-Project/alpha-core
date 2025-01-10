@@ -1,3 +1,5 @@
+import hashlib
+import os
 from datetime import datetime, timedelta
 from os import path
 from pathlib import Path
@@ -14,6 +16,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
+from utils.Srp6 import Srp6
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
@@ -30,6 +33,18 @@ class CommandManager(object):
     DEV_LOC_LOG_FILE_NAME = 'locations.log'
 
     DEV_LOC_LOG_FULL_PATH = path.join(DEV_LOG_PATH, DEV_LOC_LOG_FILE_NAME)
+
+    @staticmethod
+    def handle_conole_command(command_msg):
+        terminator_index = command_msg.find(' ') if ' ' in command_msg else len(command_msg)
+        command = command_msg[0:terminator_index].strip()
+        args = command_msg[terminator_index:].strip()
+
+        if command in CONSOLE_COMMAND_DEFINITIONS:
+            command_func = CONSOLE_COMMAND_DEFINITIONS[command][0]
+            return command_func(args)
+
+        return -1, 'Invalid command'
 
     @staticmethod
     def handle_command(world_session, command_msg):
@@ -1093,6 +1108,25 @@ class CommandManager(object):
         world_session.player_mgr.set_gm_tag(enable, reload=True)
 
         return 0, f'<GM> tag {"enabled" if enable else "disabled"}.'
+
+    @staticmethod
+    def create_account(args):
+        args = str(args).strip().split()
+        if len(args) != 2:
+            return -1, 'please use it like: createacc username password'
+        username, password = args
+        salt = os.urandom(32)
+        verifier = Srp6.calculate_password_verifier(username, password, salt)
+        account = RealmDatabaseManager.account_create(username, hashlib.sha256(password.encode('utf-8')).hexdigest(),
+                                                      "127.0.0.1", salt.hex(), verifier.hex())
+        if not account:
+            return -1, 'unable to create account'
+        return 0, 'account created'
+
+
+CONSOLE_COMMAND_DEFINITIONS = {
+    'createacc' : [CommandManager.create_account, 'create srp6 account']
+}
 
 
 PLAYER_COMMAND_DEFINITIONS = {

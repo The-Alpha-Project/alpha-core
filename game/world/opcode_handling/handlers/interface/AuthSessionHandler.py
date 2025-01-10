@@ -17,12 +17,18 @@ class AuthSessionHandler(object):
         username = PacketReader.read_string(reader.data, 9, user_length - 1).strip()
         account = RealmDatabaseManager.account_get(username)
 
-        # TODO: Need proper packet structure here.
-        if not account or account.auth_method != AuthType.SRP6:
-            data = pack('<I', 0)
-            # We directly send this through the socket, skipping queue model.
-            world_session.client_socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))
-            return -1
+        # Can't auto generate from here, we have no plain password.
+        if not account:
+            data = pack('<1B', 21)
+            world_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
+            return 0
+
+        salt = bytes.fromhex(account.salt)
+        verifier = bytes.fromhex(account.verifier)
+        private_key = os.urandom(32)
+        public_key = Srp6.calculate_server_public_key(verifier, private_key)
+
+        # TODO: LogonChallenge
 
         return -1
 
@@ -38,7 +44,6 @@ class AuthSessionHandler(object):
 
         try:
             username, password = PacketReader.read_string(reader.data, 8).strip().split()
-            password = hashlib.sha256(password.encode('utf-8')).hexdigest()
         except ValueError:
             auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
 
@@ -47,13 +52,21 @@ class AuthSessionHandler(object):
 
         if username and password:
             login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(
-                username, password, world_session.client_socket.getpeername()[0])
+                username, hashlib.sha256(password.encode('utf-8')).hexdigest(),
+                world_session.client_socket.getpeername()[0])
             if login_res == 0:
                 auth_code = AuthCode.AUTH_INCORRECT_PASSWORD
             elif login_res == -1:
                 if config.Server.Settings.auto_create_accounts:
-                    world_session.account_mgr = RealmDatabaseManager.account_create(
-                        username=username, password=password, ip=world_session.client_socket.getpeername()[0])
+                    salt = os.urandom(32)
+                    verifier = Srp6.calculate_password_verifier(username, password, salt)
+                    world_session.account_mgr = (
+                        RealmDatabaseManager.account_create(username,
+                                                            hashlib.sha256(password.encode('utf-8')).hexdigest(),
+                                                            world_session.client_socket.getpeername()[0],
+                                                            salt.hex(),
+                                                            verifier.hex())
+                    )
                 else:
                     auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
 

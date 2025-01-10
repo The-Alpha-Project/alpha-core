@@ -2,8 +2,6 @@ import multiprocessing
 import os
 import argparse
 import signal
-import sys
-import threading
 from sys import platform
 from time import sleep
 
@@ -54,29 +52,19 @@ def release_process(active_process):
     Logger.info(f'{active_process.name} released.')
 
 
-# When debugging with some versions of PyCharm and different versions of python, the output console will
-# get stuck waiting for user input, preventing the normal initialization process from starting.
-# https://stackoverflow.com/questions/38634988/check-if-program-runs-in-debug-mode
-def debug_enabled():
-    try:
-        if sys.gettrace() is not None:
-            return True
-    except AttributeError:
-        pass
-
-    try:
-        if sys.monitoring.get_tool(sys.monitoring.DEBUGGER_ID) is not None:
-            return True
-    except AttributeError:
-        pass
-
-    return False
-
-
 def handle_console_commands():
     try:
-        while input() != 'exit':
-            Logger.error("Invalid command.")
+        command = input()
+        while command != 'exit':
+            try:
+                res, msg = CommandManager.handle_conole_command(command)
+                if not res:
+                    Logger.info(msg)
+                else:
+                    Logger.error(f'Invalid command [{command}], [{msg}].')
+            except:
+                Logger.error(f'Invalid command [{command}].')
+            command = input()
     except:
         pass
     RUNNING.value = 0
@@ -169,11 +157,6 @@ if __name__ == '__main__':
     console_mode = os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
                              config.Server.Settings.console_mode) in [True, 'True', 'true']
 
-    # Turn off console mode while debugging.
-    if console_mode and debug_enabled():
-        Logger.debug(f'Debugger detected, disabled console mode.')
-        console_mode = False
-
     if not launch_world and not launch_realm:
         Logger.error('Realm and World launch are disabled.')
         exit()
@@ -181,11 +164,6 @@ if __name__ == '__main__':
     # Hook exit signals.
     signal.signal(signal.SIGINT, handler_stop_signals)
     signal.signal(signal.SIGTERM, handler_stop_signals)
-
-    # Handle console mode.
-    if console_mode:
-        CONSOLE_THREAD = threading.Thread(target=handle_console_commands, daemon=True)
-        CONSOLE_THREAD.start()
 
     # Process launching starts here.
     if launch_world:
@@ -217,9 +195,13 @@ if __name__ == '__main__':
     # Bell sound character.
     Logger.info('Alpha core is now running.\a')
 
-    # Wait on main thread for stop signal or 'exit' command.
-    while RUNNING.value:
-        sleep(2)
+    # Handle console mode.
+    if console_mode and RUNNING.value:
+        handle_console_commands()
+    else:
+        # Wait on main thread for stop signal or 'exit' command.
+        while RUNNING.value:
+            sleep(2)
 
     # Exit.
     Logger.info('Shutting down the core, please wait...')
