@@ -1094,7 +1094,7 @@ begin not atomic
         -- Burning Obsidian Band : Add level requirement
         UPDATE `item_template` SET `required_level` = 40 WHERE (`entry` = 4988);
         -- Add Mage Dragon Robes and and Frost Wyrm Scorched Bands as rewards from Tremors of the Earth and Broken Alliances
-        UPDATE `quest_template` SET `RewChoiceItemId1` = 4988, `RewChoiceItemId2` = 4989, `RewChoiceItemId3` = 4990, `RewChoiceItemCount1` = 1, `RewChoiceItemCount2` = 1, `RewChoiceItemCount3` = 1, WHERE (`entry` = 717);
+        UPDATE `quest_template` SET `RewChoiceItemId1` = 4988, `RewChoiceItemId2` = 4989, `RewChoiceItemId3` = 4990, `RewChoiceItemCount1` = 1, `RewChoiceItemCount2` = 1, `RewChoiceItemCount3` = 1 WHERE (`entry` = 717);
 
         -- Master Hunter's Bow : Add level requirement, remove deprecated status
         UPDATE `item_template` SET `flags` = 0, `required_level` = 40 WHERE (`entry` = 4110);
