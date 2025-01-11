@@ -1037,7 +1037,7 @@ begin not atomic
         insert into applied_updates values ('111120241');
     end if;
     
-    -- 22/11/2024 1
+    -- 04/12/2024 1
     if (select count(*) from applied_updates where id='041220241') = 0 then
         --NOTE: THE RESTORED DEPRECATED WEAPONS MAY HAVE INCORRECT DAMAGE VALUES, AS THE ONLY SOURCE OF THEM CAME FROM 1.12. I HAVE DECIDED TO INCLUDE THEM, BUT THEY MAY NEED RESCALING. ITEMS THAT MAY HAVE STATS ARE NOT INCLUDED, THEY ARE TO BE DISCUSSED FIRST.
 
