@@ -1,4 +1,5 @@
 from database.realm.RealmDatabaseManager import *
+from game.login.Srp6Session import Srp6Session
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
@@ -19,22 +20,68 @@ class AuthSessionHandler(object):
 
         # Can't auto generate from here, we have no plain password.
         if not account:
-            data = pack('<1B', 21)
+            data = pack('<2B', 21, 0)
             world_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return 0
 
+        world_session.account_mgr = account
+
         salt = bytes.fromhex(account.salt)
         verifier = bytes.fromhex(account.verifier)
-        private_key = os.urandom(32)
-        public_key = Srp6.calculate_server_public_key(verifier, private_key)
+        server_private_key = os.urandom(32)
+        server_public_key = Srp6.calculate_server_public_key(verifier, server_private_key)
+        account.srp6_session = Srp6Session(server_public_key, server_private_key)
+        g = 7
+        N = 0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
 
-        # TODO: LogonChallenge
+        data = pack('<2B', 12, 0)
+        data += pack('<B', 1)
+        data += g.to_bytes(1, byteorder='little')
+        data += pack('<B', 32)
+        data += N.to_bytes(32, byteorder='little')
+        data += salt
+        data += server_public_key
+        world_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
 
-        return -1
+        return 0
+
+    @staticmethod
+    def handle_srp6_proof(world_session, reader):
+        client_public_key = reader.data[:32]
+        c_M1 = reader.data[32:52]
+
+        xorNg = bytes([
+             221, 123, 176, 58, 56, 172, 115, 17, 3, 152, 124,
+             90, 80, 111, 202, 150, 108, 123, 194, 167,
+         ])
+
+        u = Srp6.calculate_u(client_public_key, world_session.account_mgr.srp6_session.server_public_key)
+        s_S = Srp6.calculate_server_S_key(client_public_key, bytes.fromhex(world_session.account_mgr.verifier), u,
+                                          world_session.account_mgr.srp6_session.server_private_key)
+        s_K = Srp6.calculate_interleaved(s_S)
+        s_M1 = Srp6.calculate_client_proof(xorNg, world_session.account_mgr.name, s_K, client_public_key,
+                                           world_session.account_mgr.srp6_session.server_public_key,
+                                           bytes.fromhex(world_session.account_mgr.salt))
+
+        # Invalid password.
+        if not s_M1 == c_M1:
+            data = pack('<2B', 22, 1)
+            world_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
+            return 0
+
+        # Server proof.
+        s_M2 = Srp6.calculate_server_proof(client_public_key, s_M1, s_K)
+
+        data = pack('<2B', 12, 1)
+        data += s_M2
+        data += pack('<I', 0)
+        world_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
+
+        return 0
 
     @staticmethod
     def handle(world_session, reader):
-        version, login = unpack(
+        version, login_server_id = unpack(
             '<II', reader.data[:8]
         )
 
@@ -46,6 +93,12 @@ class AuthSessionHandler(object):
             username, password = PacketReader.read_string(reader.data, 8).strip().split()
         except ValueError:
             auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
+
+        # Through launcher (WoW.exe)
+        if not username and not password:
+            username = PacketReader.read_string(reader.data, 8)
+            client_seed = unpack('<I', reader.data[len(username) + 8:len(username) + 12])[0]
+            client_digest = reader.data[len(username) + 12:-1]
 
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH
