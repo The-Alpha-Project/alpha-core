@@ -20,6 +20,7 @@ from utils.constants.AuthCodes import AuthCode
 
 STARTUP_TIME = time()
 WORLD_ON = True
+SERVER_SEED = os.urandom(4)
 MAX_PACKET_BYTES = 4096
 
 
@@ -143,10 +144,9 @@ class WorldServerSessionHandler:
 
     # We handle auth_challenge before launching queue threads and anything else.
     def auth_challenge(self, sck):
-        data = pack('<I', 0)  # Server seed, not used.
         try:
             sck.settimeout(10)  # Set a 10-second timeout.
-            sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))  # Request challenge
+            sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, SERVER_SEED))  # Request challenge
             reader = self.receive_client_message(sck)
             if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
                 handler, found = Definitions.get_handler_from_packet(self, reader.opcode)

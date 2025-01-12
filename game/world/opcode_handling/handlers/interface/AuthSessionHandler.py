@@ -1,5 +1,6 @@
 from database.realm.RealmDatabaseManager import *
 from game.login.Srp6Session import Srp6Session
+from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
@@ -121,9 +122,11 @@ class AuthSessionHandler(object):
                 #  CDataStore::PutData( & resp, localDigest, 0x14u); - 20 byte digest.
                 client_seed = reader.data[len(username) + 8:len(username) + 12]
                 client_digest = reader.data[len(username) + 12:-1]
-                server_seed = os.urandom(4)
-                server_auth = Srp6.calculate_world_server_proof(username, client_seed, server_seed,
+                server_digest = Srp6.calculate_world_server_proof(username, client_seed, WorldManager.SERVER_SEED,
                                                                 bytes.fromhex(account_mgr.sessionkey))
+                # TODO: Does not match.
+                if client_digest == server_digest:
+                    pass
 
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH
