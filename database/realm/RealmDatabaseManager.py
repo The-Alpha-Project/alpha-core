@@ -34,7 +34,7 @@ class RealmDatabaseManager(object):
     # Account-
 
     @staticmethod
-    def account_get(username):
+    def account_try_get(username):
         realm_db_session = SessionHolder()
         account_mgr = None
         account = realm_db_session.query(Account).filter_by(name=username).first()
