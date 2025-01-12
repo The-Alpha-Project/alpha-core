@@ -92,9 +92,12 @@ class MovementInfo:
         return map_.get_surrounding_gameobject_by_guid(self.owner, self.owner.transport_id)
 
     def _get_bytes(self):
+        # Client seems to expect local coordinates in place of world coordinates for players on transports.
+        location = self.owner.transport_location if self.transport else self.owner.location
+
         data = pack('<2Q9fI', self.owner.guid, self.owner.transport_id, self.owner.transport_location.x,
                     self.owner.transport_location.y, self.owner.transport_location.z, self.owner.transport_location.o,
-                    self.owner.location.x, self.owner.location.y, self.owner.location.z, self.owner.location.o,
+                    location.x, location.y, location.z, location.o,
                     self.owner.pitch, self.owner.movement_flags)
 
         if self.owner.movement_spline:

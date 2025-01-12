@@ -11,8 +11,9 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import GameObjectStates, HighGuid
 
 
-# TODO: Players automatically desync to other player viewers when inside transports.
-#  this seems to be all client related since we've tried many changes based on other cores and nothing seems to work.
+# TODO: The current way of handling movement updates within transports is hacky.
+#  Players seem to disappear for each other if updates aren't synchronized with the transport's update.
+#  It's likely that the client's implementation for calculating positions within transports is flawed:
 #  From 0.5.4 patch notes. 'fixed problems with elevators.'
 #  From 0.7.1 patch notes. 'fixed multiple crashes related to both players and pets on elevators'
 class TransportManager(GameObjectManager):
@@ -20,12 +21,12 @@ class TransportManager(GameObjectManager):
         super().__init__(**kwargs)
 
         self.passengers = {}
-        self.current_anim_position = self.location
+        self.new_passengers = set()
+        self.current_anim_position = self.location.copy()
         self.path_progress = 0.0
         self.total_time = 0.0
         self.current_segment = 0
         self.path_nodes: dict[int, TransportAnimation] = {}
-        self.load_path_nodes()
         self.stationary_position = self.location.copy()
         self.auto_close_secs = 0
 
@@ -33,6 +34,7 @@ class TransportManager(GameObjectManager):
     def initialize_from_gameobject_template(self, gobject_template):
         super().initialize_from_gameobject_template(gobject_template)
         self.auto_close_secs = self.get_data_field(3, int)
+        self.load_path_nodes()
 
     # override
     def update(self, now):
@@ -40,7 +42,7 @@ class TransportManager(GameObjectManager):
             if self.is_active_object() and self.has_passengers():
                 self._calculate_progress()
                 self._update_passengers()
-            super().update(now)
+        super().update(now)
 
     def load_path_nodes(self):
         for node in DbcDatabaseManager.TransportAnimationHolder.animations_by_entry(self.get_entry()):
@@ -132,19 +134,19 @@ class TransportManager(GameObjectManager):
     def _update_passengers(self):
         for unit in list(self.passengers.values()):
             self.calculate_passenger_position(unit)
-            unit.movement_info.send_surrounding_update()
+            if unit.guid in self.new_passengers:
+                self.new_passengers.discard(unit.guid)
+                unit.movement_info.send_surrounding_update()
 
     def add_passenger(self, unit):
         self.passengers[unit.guid] = unit
+        self.new_passengers.add(unit.guid)
 
     def remove_passenger(self, unit):
         if unit.guid not in self.passengers:
             return
         self.passengers.pop(unit.guid)
-
-    def update_passengers(self):
-        if len(self.passengers) == 0:
-            return
+        self.new_passengers.discard(unit.guid)
 
     def _debug_position(self, location):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
