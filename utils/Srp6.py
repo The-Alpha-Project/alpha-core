@@ -23,18 +23,17 @@ LS  Login Server
 WS  World Server
 '''
 
-g = 7
-N = 0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
-k = 3
-xorNg = bytes([
-    221, 123, 176, 58, 56, 172, 115, 17, 3, 152, 124,
-    90, 80, 111, 202, 150, 108, 123, 194, 167,
-])
 zero = bytes([0, 0, 0, 0])
-
 SHA1 = hashlib.sha1
 
 class Srp6:
+    g = 7
+    N = 0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
+    k = 3
+    xorNg = bytes([
+        221, 123, 176, 58, 56, 172, 115, 17, 3, 152, 124,
+        90, 80, 111, 202, 150, 108, 123, 194, 167,
+    ])
 
     @staticmethod
     def calculate_x(U:str, p:str, s:bytes) -> bytes:
@@ -46,12 +45,16 @@ class Srp6:
         return x
 
     @staticmethod
+    def generate_salt():
+        return os.urandom(32)
+
+    @staticmethod
     def calculate_password_verifier(U:str, p:str, s:bytes) -> bytes:
         """
         v = g^x % N
         """
         x = int.from_bytes(Srp6.calculate_x(U, p, s), byteorder='little')
-        v = pow(g, x, N)
+        v = pow(Srp6.g, x, Srp6.N)
         return int.to_bytes(v, 32, 'little')
 
     @staticmethod
@@ -61,8 +64,8 @@ class Srp6:
         """
         v = int.from_bytes(v, byteorder='little')
         b = int.from_bytes(b, byteorder='little')
-        B = (k * v + pow(g, b, N)) % N
-        assert B % N != 0
+        B = (Srp6.k * v + pow(Srp6.g, b, Srp6.N)) % Srp6.N
+        assert B % Srp6.N != 0
         return int.to_bytes(B, 32, 'little')
 
     @staticmethod
@@ -74,7 +77,7 @@ class Srp6:
         B = int.from_bytes(B, byteorder='little')
         x = int.from_bytes(x, byteorder='little')
         u = int.from_bytes(u, byteorder='little')
-        S = pow((B - k * pow(g, x, N)), (a + u * x), N)
+        S = pow((B - Srp6.k * pow(Srp6.g, x, Srp6.N)), (a + u * x), Srp6.N)
         return int.to_bytes(S, 32, 'little')
 
     @staticmethod
@@ -86,7 +89,7 @@ class Srp6:
         v = int.from_bytes(v, byteorder='little')
         u = int.from_bytes(u, byteorder='little')
         b = int.from_bytes(b, byteorder='little')
-        S = pow((A * pow(v, u, N)), b, N)
+        S = pow((A * pow(v, u, Srp6.N)), b, Srp6.N)
         return int.to_bytes(S, 32, 'little')
 
     @staticmethod
@@ -124,7 +127,7 @@ class Srp6:
         """
         SHA1(N) XOR SHA1(g)
         """
-        x1 = int.to_bytes(g, 1, 'little')
+        x1 = int.to_bytes(Srp6.g, 1, 'little')
         x2 = bytes.fromhex('894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7')[::-1]
         t1 = SHA1(x1).digest()
         t2 = SHA1(x2).digest()
@@ -149,8 +152,8 @@ class Srp6:
         A = g^a % N
         '''
         a = int.from_bytes(a, byteorder='little')
-        A = pow(g, a, N)
-        assert A % N != 0
+        A = pow(Srp6.g, a, Srp6.N)
+        assert A % Srp6.N != 0
         return int.to_bytes(A, 32, 'little')
 
     @staticmethod
@@ -201,7 +204,7 @@ class Srp6:
         '''
         SHA1( username | 0 | client_seed | server_seed | session_key )
         '''
-        return SHA1(username.upper().encode() + zero + client_seed + server_seed + session_key).digest()
+        return SHA1(username.upper().encode() + zero + client_seed + zero + server_seed + session_key).digest()
 
 
 

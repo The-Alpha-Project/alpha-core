@@ -20,8 +20,6 @@ class Account(Base):
     verifier = Column(String(256), nullable=False)
     sessionkey = Column(String(256), nullable=False)
 
-    srp6_session = None
-
 
 class AppliedUpdate(Base):
     __tablename__ = 'applied_updates'

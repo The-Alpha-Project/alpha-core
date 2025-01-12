@@ -36,18 +36,21 @@ class RealmDatabaseManager(object):
     @staticmethod
     def account_get(username):
         realm_db_session = SessionHolder()
+        account_mgr = None
         account = realm_db_session.query(Account).filter_by(name=username).first()
+        if account:
+            account_mgr = AccountManager(account)
         realm_db_session.close()
-        return account
+        return account_mgr
 
     @staticmethod
-    def account_try_login(username, password, ip):
+    def account_try_login(username, password, ip, client_digest, server_digest):
         realm_db_session = SessionHolder()
         account = realm_db_session.query(Account).filter_by(name=username).first()
         status = -1
         account_mgr = None
         if account:
-            if account.password == password:
+            if account.password == password or (client_digest and client_digest == server_digest):
                 status = 1
                 account.ip = ip
                 account_mgr = AccountManager(account)
