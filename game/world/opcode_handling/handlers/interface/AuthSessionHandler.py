@@ -43,12 +43,12 @@ class AuthSessionHandler(object):
         if not s_M1 == c_M1:
             data = pack('<2B', 22, 1)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
-            return 0
+            return -1
 
         if not auth_session.account_mgr.save_session_key():
             data = pack('<2B', 22, 1)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
-            return 0
+            return -1
 
         # Send server proof, at this point client is authenticated.
         auth_session.client_socket.sendall(auth_session.account_mgr.get_srp6_server_proof_packet())
