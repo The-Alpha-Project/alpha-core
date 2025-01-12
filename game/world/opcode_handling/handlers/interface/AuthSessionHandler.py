@@ -66,7 +66,6 @@ class AuthSessionHandler(object):
         auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
         username = ''
         password = ''
-        client_seed = b''
         client_digest = b''
         server_digest = b''
 
