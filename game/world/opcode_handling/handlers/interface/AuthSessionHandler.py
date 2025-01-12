@@ -69,6 +69,11 @@ class AuthSessionHandler(object):
             world_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return 0
 
+        if not RealmDatabaseManager.account_try_update_session_key(world_session.account_mgr.name, s_K.hex()):
+            data = pack('<2B', 22, 1)
+            world_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
+            return 0
+
         # Server proof.
         s_M2 = Srp6.calculate_server_proof(client_public_key, s_M1, s_K)
 
@@ -97,23 +102,28 @@ class AuthSessionHandler(object):
         # Through launcher (WoW.exe)
         if not username and not password:
             username = PacketReader.read_string(reader.data, 8)
-            # TODO: Figure how do we validate launcher authentication using the data below.
-            #  CDataStore::Put(&resp, 478); - Opcode
-            #  CDataStore::Put(&resp, 3368); - Version
-            #  CDataStore::Put(&resp, this->m_loginData.m_loginServerID); - 0
-            #  CDataStore::PutString(&resp, this->m_loginData.m_account); - Username
-            #  localChallenge = NTempest::CRandom::uint32_(&g_rndSeed); - Seed
-            #  CDataStore::Put(&resp, localChallenge);
-            #  SHA1_Update((const char *) & ctx, this->m_loginData.m_account, v6);
-            #  SHA1_Update((const char *) & ctx, (char *) & msgId, 4u);
-            #  SHA1_Update((const char *) & ctx, (char *) & localChallenge, 4u);
-            #  SHA1_Update((const char *) & ctx, (char *) & loginServerID, 4u);
-            #  SHA1_Update((const char *) & ctx, (char *) & challenge, 4u);
-            #  SHA1_Update((const char *) & ctx, this->m_loginData.m_sessionKey, 0x28u);
-            #  SHA1_Final((SHA1_CONTEXT *)localDigest, (int) & ctx);
-            #  CDataStore::PutData( & resp, localDigest, 0x14u); - 20 byte digest.
-            client_seed = unpack('<I', reader.data[len(username) + 8:len(username) + 12])[0]
-            client_digest = reader.data[len(username) + 12:-1]
+            account_mgr = RealmDatabaseManager.account_get(username.lower())
+            if account_mgr:
+                # TODO: Figure how do we validate launcher authentication using the data below.
+                #  CDataStore::Put(&resp, 478); - Opcode
+                #  CDataStore::Put(&resp, 3368); - Version
+                #  CDataStore::Put(&resp, this->m_loginData.m_loginServerID); - 0
+                #  CDataStore::PutString(&resp, this->m_loginData.m_account); - Username
+                #  localChallenge = NTempest::CRandom::uint32_(&g_rndSeed); - Seed
+                #  CDataStore::Put(&resp, localChallenge);
+                #  SHA1_Update((const char *) & ctx, this->m_loginData.m_account, v6);
+                #  SHA1_Update((const char *) & ctx, (char *) & msgId, 4u);
+                #  SHA1_Update((const char *) & ctx, (char *) & localChallenge, 4u);
+                #  SHA1_Update((const char *) & ctx, (char *) & loginServerID, 4u);
+                #  SHA1_Update((const char *) & ctx, (char *) & challenge, 4u);
+                #  SHA1_Update((const char *) & ctx, this->m_loginData.m_sessionKey, 0x28u);
+                #  SHA1_Final((SHA1_CONTEXT *)localDigest, (int) & ctx);
+                #  CDataStore::PutData( & resp, localDigest, 0x14u); - 20 byte digest.
+                client_seed = reader.data[len(username) + 8:len(username) + 12]
+                client_digest = reader.data[len(username) + 12:-1]
+                server_seed = os.urandom(4)
+                server_auth = Srp6.calculate_world_server_proof(username, client_seed, server_seed,
+                                                                bytes.fromhex(account_mgr.sessionkey))
 
         if version != config.Server.Settings.supported_client:
             auth_code = AuthCode.AUTH_VERSION_MISMATCH

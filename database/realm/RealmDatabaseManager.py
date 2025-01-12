@@ -77,6 +77,24 @@ class RealmDatabaseManager(object):
         return AccountManager(account)
 
     @staticmethod
+    def account_try_update_session_key(username, session_key):
+        realm_db_session = SessionHolder()
+        try:
+            account = realm_db_session.query(Account).filter_by(name=username).first()
+            if not account:
+                return False
+
+            account.sessionkey = session_key
+
+            realm_db_session.merge(account)
+            realm_db_session.flush()
+            realm_db_session.commit()
+        finally:
+            realm_db_session.close()
+
+        return True
+
+    @staticmethod
     def account_try_update_password(username, old_password, new_password):
         realm_db_session = SessionHolder()
         try:
