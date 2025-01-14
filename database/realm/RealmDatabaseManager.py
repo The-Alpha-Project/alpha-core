@@ -50,7 +50,7 @@ class RealmDatabaseManager(object):
         status = -1
         account_mgr = None
         if account:
-            if account.password == password or (client_digest and client_digest == server_digest):
+            if (password and account.password == password) or (client_digest and client_digest == server_digest):
                 status = 1
                 account.ip = ip
                 account_mgr = AccountManager(account)
