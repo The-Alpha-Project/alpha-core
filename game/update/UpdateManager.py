@@ -2,12 +2,12 @@ import socket
 import threading
 import traceback
 
-from game.login.LoginSessionStateHandler import LoginSessionStateHandler
+from game.update.UpdateSessionStateHandler import UpdateSessionStateHandler
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
-class LoginManager:
+class UpdateManager:
     @staticmethod
     def build_socket(address, port):
         socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -21,23 +21,23 @@ class LoginManager:
         return socket_
 
     @staticmethod
-    def start_login(running, login_server_ready):
-        login_host = config.Server.Connection.Login.host
-        login_port = config.Server.Connection.Login.port
-        with LoginManager.build_socket(login_host, login_port) as server_socket:
+    def start_update(running, update_server_ready):
+        update_host = config.Server.Connection.Update.host
+        update_port = config.Server.Connection.Update.port
+        with UpdateManager.build_socket(update_host, update_port) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
-            Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}')
-            login_server_ready.value = 1
+            Logger.success(f'Update server started, listening on {real_binding[0]}:{real_binding[1]}')
+            update_server_ready.value = 1
 
             try:
                 while running.value:
                     try:
                         client_socket, client_address = server_socket.accept()
-                        server_handler = LoginSessionStateHandler(client_socket, client_address)
-                        auth_session_thread = threading.Thread(target=server_handler.handle)
-                        auth_session_thread.daemon = True
-                        auth_session_thread.start()
+                        server_handler = UpdateSessionStateHandler(client_socket, client_address)
+                        update_session_thread = threading.Thread(target=server_handler.handle)
+                        update_session_thread.daemon = True
+                        update_session_thread.start()
                     except socket.timeout:
                         pass  # Non blocking.
             except OSError:
@@ -45,4 +45,4 @@ class LoginManager:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("Login server turned off.")
+        Logger.info("Update server turned off.")

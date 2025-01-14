@@ -7,6 +7,7 @@ from time import sleep
 
 from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
+from game.update.UpdateManager import UpdateManager
 from game.world import WorldManager
 from game.world.managers.CommandManager import CommandManager
 from game.world.managers.maps.MapManager import MapManager
@@ -101,12 +102,18 @@ def wait_login_server():
         sleep(1)
 
 
+def wait_update_server():
+    while not UPDATE_SERVER_READY.value and RUNNING.value:
+        sleep(1)
+
+
 CONSOLE_THREAD = None
 RUNNING = None
 WORLD_SERVER_READY = None
 REALM_SERVER_READY = None
 PROXY_SERVER_READY = None
 LOGIN_SERVER_READY = None
+UPDATE_SERVER_READY = None
 ACTIVE_PROCESSES = []
 
 
@@ -145,6 +152,7 @@ if __name__ == '__main__':
     REALM_SERVER_READY = context.Value('i', 0)
     PROXY_SERVER_READY = context.Value('i', 0)
     LOGIN_SERVER_READY = context.Value('i', 0)
+    UPDATE_SERVER_READY = context.Value('i', 0)
 
     # Print active env vars.
     for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
@@ -174,6 +182,11 @@ if __name__ == '__main__':
     else:
         WORLD_SERVER_READY.value = 1
 
+    # Update server.
+    ACTIVE_PROCESSES.append((context.Process(name='Update process', target=UpdateManager.start_update,
+                                             args=(RUNNING, UPDATE_SERVER_READY)), wait_update_server))
+
+    # SRP login server.
     ACTIVE_PROCESSES.append((context.Process(name='Login process', target=LoginManager.start_login,
                                              args=(RUNNING, LOGIN_SERVER_READY)), wait_login_server))
 
