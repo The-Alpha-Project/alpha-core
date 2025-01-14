@@ -1,6 +1,17 @@
 from enum import IntEnum
 
 
+class Srp6Operation(IntEnum):
+    MessageChallenge = 51
+    MessageProof = 52
+    MessageReproof = 53
+
+
+class Srp6ResponseType(IntEnum):
+    AuthChallenge = 0
+    AuthProof = 1
+
+
 class AuthCode(IntEnum):
     AUTH_OK = 0x0C
     AUTH_FAILED = 0x0D

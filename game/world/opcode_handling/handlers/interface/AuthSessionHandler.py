@@ -20,13 +20,14 @@ class AuthSessionHandler(object):
 
         # Can't auto generate from here, we have no plain password.
         if not account_mgr:
-            data = pack('<2B', 21, 0)
+            data = pack('<2B', AuthCode.AUTH_UNKNOWN_ACCOUNT, Srp6ResponseType.AuthChallenge)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
 
         auth_session.account_mgr = account_mgr
         account_mgr.update_server_public_private_keys()
-        auth_session.client_socket.sendall(account_mgr.get_srp6_logon_challenge_packet())
+        logon_challenge_packet = account_mgr.get_srp6_logon_challenge_packet()
+        auth_session.client_socket.sendall(logon_challenge_packet)
 
         return 0
 
@@ -36,22 +37,24 @@ class AuthSessionHandler(object):
 
         # Client proof.
         c_M1 = reader.data[32:52]
-        # Server proof.
+        # Client Server proof.
         s_M1 = auth_session.account_mgr.calculate_client_server_proof(client_public_key)
 
         # Invalid password.
         if not s_M1 == c_M1:
-            data = pack('<2B', 22, 1)
+            data = pack('<2B', AuthCode.AUTH_INCORRECT_PASSWORD, Srp6ResponseType.AuthProof)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
 
         if not auth_session.account_mgr.save_session_key():
-            data = pack('<2B', 22, 1)
+            data = pack('<2B', AuthCode.AUTH_INCORRECT_PASSWORD, Srp6ResponseType.AuthProof)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
 
         # Send server proof, at this point client is authenticated.
-        auth_session.client_socket.sendall(auth_session.account_mgr.get_srp6_server_proof_packet())
+        server_proof_packet = auth_session.account_mgr.get_srp6_server_proof_packet()
+        auth_session.client_socket.sendall(server_proof_packet)
+        auth_session.client_socket.close()
 
         return 0
 
