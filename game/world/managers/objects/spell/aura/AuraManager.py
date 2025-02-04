@@ -469,7 +469,8 @@ class AuraManager:
             self.current_flags &= ~(0x9 << byte)
 
         field_index = UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3)
-        self.unit_mgr.set_uint32(field_index, self.current_flags, force=is_refresh or clear)
+        force_update = is_refresh or clear and self.unit_mgr.is_player()
+        self.unit_mgr.set_uint32(field_index, self.current_flags, force=force_update)
 
     def get_next_aura_index(self, aura) -> int:
         if aura.passive:

@@ -1215,11 +1215,12 @@ class UnitManager(ObjectManager):
     def set_stunned(self, active=True, index=-1) -> bool:
         self.set_rooted(active, index)
 
-        was_stunned = self.unit_state & UnitStates.STUNNED
-        is_stunned = self.set_unit_state(UnitStates.STUNNED, active, index)
+        was_stunned = bool(self.unit_state & UnitStates.STUNNED)
+        is_stunned = bool(self.set_unit_state(UnitStates.STUNNED, active, index))
         self.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active, index)
 
         if not was_stunned and is_stunned:
+            self.movement_manager.stop()
             self.spell_manager.remove_casts(remove_active=False)
             self.set_current_target(0)
         elif was_stunned and not is_stunned:
