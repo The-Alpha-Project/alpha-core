@@ -70,7 +70,8 @@ class RealmDatabaseManager(object):
         account = Account(name=username, password=password, ip=ip,
                           gmlevel=int(config.Server.Settings.auto_create_gm_accounts),
                           salt=salt,
-                          verifier=verifier
+                          verifier=verifier,
+                          sessionkey=""
                           )
         realm_db_session.add(account)
         realm_db_session.flush()
