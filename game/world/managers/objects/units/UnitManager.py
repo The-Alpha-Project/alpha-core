@@ -1911,6 +1911,9 @@ class UnitManager(ObjectManager):
             surrounding_units = surrounding_units.values()
 
         for unit in surrounding_units:
+            if unit.unit_state & UnitStates.STUNNED:
+                continue
+
             unit_is_player = unit.is_player()
             unit_has_ooc_los_events = not unit_is_player and unit.object_ai.ai_event_handler.has_ooc_los_events()
 
