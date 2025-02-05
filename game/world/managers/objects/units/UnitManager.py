@@ -1912,7 +1912,7 @@ class UnitManager(ObjectManager):
             surrounding_units = surrounding_units.values()
 
         for unit in surrounding_units:
-            if unit.unit_state & UnitStates.STUNNED:
+            if unit.unit_state & UnitStates.STUNNED or unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
                 continue
 
             unit_is_player = unit.is_player()
