@@ -1186,6 +1186,8 @@ begin not atomic
         
         UPDATE `creature_template` SET `level_min` = '15', `level_max` = '15' WHERE (`entry` = '3681');
 
+        UPDATE `spawns_creatures` SET `position_x` = '10686.3', `position_y` = '1917.5', `position_z` = '1336.62', `orientation` = '0.998' WHERE (`spawn_id` = '46193');
+
         insert into applied_updates values ('020520251');
     end if;
 end $
