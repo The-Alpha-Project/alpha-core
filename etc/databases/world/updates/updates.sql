@@ -1171,5 +1171,18 @@ begin not atomic
         insert into applied_updates values ('041220241');
     end if;
 
+    -- 02/05/2025 1
+    if (select count(*) from applied_updates where id='020520251') = 0 then
+        -- Events list for Venture Co. Taskmaster
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2977;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (297701, 2977, 0, 2, 0, 100, 0, 15, 0, 0, 0, 297701, 0, 0, 'Venture Co. Taskmaster - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (297702, 2977, 0, 11, 0, 100, 0, 0, 0, 0, 0, 297702, 0, 0, 'Venture Co. Taskmaster - Cast Torch Burn Upon Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=297702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (297702, 0, 0, 15, 5680, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Taskmaster  - Cast Torch Burn');
+
+        insert into applied_updates values ('020520251');
+    end if;
 end $
 delimiter ;
