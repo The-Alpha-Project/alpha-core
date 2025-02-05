@@ -1220,6 +1220,7 @@ class UnitManager(ObjectManager):
         self.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active, index)
 
         if not was_stunned and is_stunned:
+            # Force move behavior stop.
             self.movement_manager.stop()
             self.spell_manager.remove_casts(remove_active=False)
             self.set_current_target(0)
