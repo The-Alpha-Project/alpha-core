@@ -332,7 +332,7 @@ class SpellThreatMechanics:
         6358 # Seduction.
     )
 
-    # According to evidence from screenshots, neither Sleep nor Sap gets the player in combat.
+    # According to evidence from screenshots, neither Sleep, Sap nor Seduction gets the player in combat.
     @staticmethod
     def spell_should_generate_threat(spell_id) -> bool:
         return spell_id not in SpellThreatMechanics._NON_COMBAT_STUN_SPELLS
