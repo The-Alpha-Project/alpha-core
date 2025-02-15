@@ -314,6 +314,7 @@ class ObjectManager:
         return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
     def set_int32(self, index, value, force=False):
+        force = force and self.is_player()
         if force or self.update_packet_factory.should_update(index, value, 'i'):
             self.update_packet_factory.update(index, value, 'i')
             if force and self.is_in_world(): # Changes should apply immediately.
@@ -325,6 +326,7 @@ class ObjectManager:
         return self._get_value_by_type_at('i', index)
 
     def set_uint32(self, index, value, force=False):
+        force = force and self.is_player()
         if force or self.update_packet_factory.should_update(index, value, 'I'):
             self.update_packet_factory.update(index, value, 'I')
             if force and self.is_in_world(): # Changes should apply immediately.
@@ -336,6 +338,7 @@ class ObjectManager:
         return self._get_value_by_type_at('I', index)
 
     def set_int64(self, index, value, force=False):
+        force = force and self.is_player()
         if force or self.update_packet_factory.should_update(index, value, 'q'):
             self.update_packet_factory.update(index, value, 'q')
             if force and self.is_in_world(): # Changes should apply immediately.
@@ -347,6 +350,7 @@ class ObjectManager:
         return self._get_value_by_type_at('q', index)
 
     def set_uint64(self, index, value, force=False):
+        force = force and self.is_player()
         if force or self.update_packet_factory.should_update(index, value, 'Q'):
             self.update_packet_factory.update(index, value, 'Q')
             if force and self.is_in_world(): # Changes should apply immediately.
@@ -358,6 +362,7 @@ class ObjectManager:
         return self._get_value_by_type_at('Q', index)
 
     def set_float(self, index, value, force=False):
+        force = force and self.is_player()
         if force or self.update_packet_factory.should_update(index, value, 'f'):
             self.update_packet_factory.update(index, value, 'f')
             if force and self.is_in_world(): # Changes should apply immediately.
