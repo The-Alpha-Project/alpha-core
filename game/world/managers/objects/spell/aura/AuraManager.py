@@ -39,10 +39,9 @@ class AuraManager:
 
         # Application threat and negative aura application interrupts.
         if aura.harmful and self.unit_mgr != aura.caster and self.unit_mgr.can_attack_target(aura.caster):
-            threat = aura.get_effect_points()
             # Add threat for non-player targets against unit casters if the caster and target are not the same.
-            if aura.caster.is_unit(by_mask=True) and aura.source_spell.generates_threat() and threat:
-                self.unit_mgr.threat_manager.add_threat(aura.caster, abs(aura.get_effect_points()))
+            if aura.caster.is_unit(by_mask=True) and aura.source_spell.generates_threat():
+                self.unit_mgr.threat_manager.add_threat(aura.caster)
 
             self.check_aura_interrupts(negative_aura_applied=True)
 

@@ -312,6 +312,8 @@ class SpellEffectMechanics:
     # Sleep uses stun but is a distinct mechanic; use IDs instead.
     _SLEEP_MECHANIC_SPELLS = (700, 1090, 2937)
 
+    _SAP_SPELLS = (2070, 6770, 6771)
+
     @staticmethod
     def get_mechanic_for_aura_effect(aura_type, spell_id) -> Optional[SpellMechanic]:
         if not aura_type:
@@ -322,3 +324,8 @@ class SpellEffectMechanics:
 
         return SpellMechanic.MECHANIC_SLEEP if \
             spell_id in SpellEffectMechanics._SLEEP_MECHANIC_SPELLS else None
+
+    # According to evidence from screenshots, neither Sleep nor Sap gets the player in combat.
+    @staticmethod
+    def aura_effect_should_generate_threat(spell_id) -> bool:
+        return spell_id not in SpellEffectMechanics._SLEEP_MECHANIC_SPELLS + SpellEffectMechanics._SAP_SPELLS

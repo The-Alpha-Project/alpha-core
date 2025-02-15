@@ -11,7 +11,7 @@ from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObje
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
-from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers
+from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers, SpellEffectMechanics
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
@@ -291,7 +291,8 @@ class CastingSpell:
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT
 
     def generates_threat(self):
-        return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
+        return (not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
+                and SpellEffectMechanics.aura_effect_should_generate_threat(self.spell_entry.ID))
 
     def generates_threat_on_miss(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_THREAT_ON_MISS
