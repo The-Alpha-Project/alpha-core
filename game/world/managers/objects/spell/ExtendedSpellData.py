@@ -325,7 +325,11 @@ class SpellEffectMechanics:
         return SpellMechanic.MECHANIC_SLEEP if \
             spell_id in SpellEffectMechanics._SLEEP_MECHANIC_SPELLS else None
 
+class SpellThreatMechanics:
+    _SLEEP_SPELLS = (700, 1090, 2937)
+    _SAP_SPELLS = (2070, 6770, 6771)
+
     # According to evidence from screenshots, neither Sleep nor Sap gets the player in combat.
     @staticmethod
-    def aura_effect_should_generate_threat(spell_id) -> bool:
-        return spell_id not in SpellEffectMechanics._SLEEP_MECHANIC_SPELLS + SpellEffectMechanics._SAP_SPELLS
+    def spell_should_generate_threat(spell_id) -> bool:
+        return spell_id not in SpellThreatMechanics._SLEEP_SPELLS and spell_id not in SpellThreatMechanics._SAP_SPELLS
