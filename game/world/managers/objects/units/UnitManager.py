@@ -1217,7 +1217,6 @@ class UnitManager(ObjectManager):
 
         was_stunned = bool(self.unit_state & UnitStates.STUNNED)
         is_stunned = bool(self.set_unit_state(UnitStates.STUNNED, active, index))
-        self.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active, index)
 
         if not was_stunned and is_stunned:
             # Force move behavior stop.
@@ -1228,6 +1227,8 @@ class UnitManager(ObjectManager):
             # Restore combat target on stun remove.
             if self.combat_target and self.combat_target.is_alive:
                 self.set_current_target(self.combat_target.guid)
+
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active, index)
 
         return is_stunned
 
