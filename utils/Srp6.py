@@ -28,7 +28,9 @@ SHA1 = hashlib.sha1
 
 class Srp6:
     g = 7
+    g_bytes = g.to_bytes(1, byteorder='little')
     N = 0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7
+    N_Bytes = N.to_bytes(32, byteorder='little')
     k = 3
     xorNg = bytes([
         221, 123, 176, 58, 56, 172, 115, 17, 3, 152, 124,
