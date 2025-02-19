@@ -7,7 +7,7 @@ class UpdateSessionStateHandler:
         self.client_socket = client_socket
         self.client_address = client_address
 
-    # TODO: UpdateServer seems to use some kind of RSYNC protocol for files.
+    # TODO: UpdateServer seems to use some kind of RSYNC protocol for file patching.
     def handle(self):
         self.disconnect()
 
