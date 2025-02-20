@@ -358,10 +358,10 @@ class ObjectManager:
 
         return unpack(f'<{value_type}', value)[0]
 
-    def _set_value(self, index, value, signature, force=False):
+    def _set_value(self, index, value, value_type, force=False):
         force = force and self.is_player()
-        if force or self.update_packet_factory.should_update(index, value, signature):
-            self.update_packet_factory.update(index, value, signature)
+        if force or self.update_packet_factory.should_update(index, value, value_type):
+            self.update_packet_factory.update(index, value, value_type)
             if force and self.is_in_world():  # Changes should apply immediately.
                 self.get_map().update_object(self, has_changes=True)
             return True, force
