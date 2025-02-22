@@ -21,6 +21,10 @@ class PacketWriter(object):
             return b'\x00'
 
     @staticmethod
+    def get_srp6_packet(data=b''):
+        return pack('>H', len(data)) + data
+
+    @staticmethod
     def get_packet(opcode, data=b''):
         if data is None:
             data = b''

@@ -762,7 +762,7 @@ class PlayerManager(UnitManager):
         stealthed = super().set_stealthed(active, index)
         if not stealthed:
             # Notify surrounding units about fading stealth for proximity aggro.
-            self._on_relocation()
+            self.pending_relocation = True
 
     # override
     def set_sanctuary(self, active=True, time_secs=0):

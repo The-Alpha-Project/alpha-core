@@ -95,7 +95,7 @@ class ChaseMovement(BaseMovement):
 
     # override
     def reset(self):
-        # Make sure the last known position gets updated.
         if self.spline:
+            # Make sure the last known position gets updated.
             self.spline.update_to_now()
-        self.spline = None
+            self.spline = None
