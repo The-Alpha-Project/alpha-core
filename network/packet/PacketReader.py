@@ -28,11 +28,13 @@ class PacketReader(object):
         return tmp_string
 
     @staticmethod
-    def read_string(packet, start, terminator='\x00'):
+    def read_string(packet, start, terminator='\x00', fixed_length=0):
         char_list = []
+        chars = 0
         for ci in packet[start:]:
             cc = chr(ci)
-            if cc == terminator:
+            if cc == terminator or (fixed_length and chars >= fixed_length):
                 break
             char_list.append(cc)
+            chars += 1
         return ''.join(char_list)

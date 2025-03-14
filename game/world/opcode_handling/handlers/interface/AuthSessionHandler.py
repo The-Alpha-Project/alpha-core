@@ -15,7 +15,7 @@ class AuthSessionHandler(object):
             '<IIB', reader.data[:9]
         )
 
-        username = PacketReader.read_string(reader.data, 9, user_length - 1).strip()
+        username = PacketReader.read_string(reader.data, 9, fixed_length=user_length - 1).strip()
         account_mgr = RealmDatabaseManager.account_try_get(username)
 
         # Can't auto generate from here, we have no plain password.
@@ -36,12 +36,12 @@ class AuthSessionHandler(object):
         client_public_key = reader.data[:32]
 
         # Client proof.
-        c_M1 = reader.data[32:52]
+        c_m1 = reader.data[32:52]
         # Client Server proof.
-        s_M1 = auth_session.account_mgr.calculate_client_server_proof(client_public_key)
+        s_m1 = auth_session.account_mgr.calculate_client_server_proof(client_public_key)
 
         # Invalid password.
-        if not s_M1 == c_M1:
+        if not s_m1 == c_m1:
             data = pack('<2B', AuthCode.AUTH_INCORRECT_PASSWORD, Srp6ResponseType.AuthProof)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
