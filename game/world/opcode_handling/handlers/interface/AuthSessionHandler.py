@@ -15,7 +15,7 @@ class AuthSessionHandler(object):
             '<IIB', reader.data[:9]
         )
 
-        username = PacketReader.read_string(reader.data, 9, fixed_length=user_length - 1).strip()
+        username = PacketReader.read_string(reader.data, 9).strip()
         account_mgr = RealmDatabaseManager.account_try_get(username)
 
         # Can't auto generate from here, we have no plain password.
@@ -66,7 +66,6 @@ class AuthSessionHandler(object):
             AuthSessionHandler.send_result(world_session, AuthCode.AUTH_VERSION_MISMATCH)
             return -1
 
-        auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
         username = ''
         password = ''
         client_digest = b''
