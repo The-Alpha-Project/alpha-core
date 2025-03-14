@@ -3,6 +3,7 @@ import os, hashlib
 '''
 N	Large safe prime
 g	Generator
+k	K value
 '''
 
 zero = bytes([0, 0, 0, 0])
