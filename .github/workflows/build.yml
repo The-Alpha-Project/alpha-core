@@ -42,10 +42,11 @@ jobs:
       
     - name: Create dir
       working-directory: ${{github.workspace}}/
-      run: mkdir alpha_core
-      run: mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
-      run: rm -rf ${{github.workspace}}/contrib/namigator/build
-      run: rm -rf ${{github.workspace}}/contrib/namigator/install
+      run:
+      mkdir alpha_core
+      mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
+      rm -rf ${{github.workspace}}/contrib/namigator/build
+      rm -rf ${{github.workspace}}/contrib/namigator/install
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
