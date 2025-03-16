@@ -29,10 +29,12 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/contrib/namigator/build --config ${{env.BUILD_TYPE}}
+      working-directory: ./contrib/namigator
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Install
-      run: cmake --install ${{github.workspace}}/contrib/namigator/build --prefix ${{github.workspace}}/install
+      working-directory: ./contrib/namigator
+      run: cmake --install ${{github.workspace}}/build --prefix ${{github.workspace}}/install
       
     - name: Test
       working-directory: ${{github.workspace}}/contrib/namigator/install
@@ -40,9 +42,10 @@ jobs:
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
+      working-directory: ./contrib/namigator
       with:
         name: namigator_linux
-        path: ${{github.workspace}}/contrib/namigator/install/
+        path: ${{github.workspace}}/install/
         retention-days: 5
 
   windows:
@@ -61,21 +64,25 @@ jobs:
         architecture: 'x64'
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/contrib/namigator/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      working-directory: ./contrib/namigator
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/contrib/namigator/build --config ${{env.BUILD_TYPE}}
+      working-directory: ./contrib/namigator
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Install
-      run: cmake --install ${{github.workspace}}/contrib/namigator/build --prefix ${{github.workspace}}/install
+      working-directory: ./contrib/namigator
+      run: cmake --install ${{github.workspace}}/build --prefix ${{github.workspace}}/install
       
     - name: Test
       working-directory: ${{github.workspace}}/contrib/namigator/install
       run: python test/smoke_tests.py
       
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
+      working-directory: ./contrib/namigator
       with:
         name: namigator_windows
-        path: ${{github.workspace}}/contrib/namigator/install/
+        path: ${{github.workspace}}/install/
         retention-days: 5
