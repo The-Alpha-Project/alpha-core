@@ -43,7 +43,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        path: ${{github.workspace}}/contrib/namigator/
         submodules: true
 
     - name: Build wheels
@@ -51,7 +50,7 @@ jobs:
       env:
         MACOSX_DEPLOYMENT_TARGET: "10.15"
       with:
-        package-dir: ${{github.workspace}}/contrib/namigator/
+        # package-dir: ${{github.workspace}}/contrib/namigator/
         output-dir: ${{github.workspace}}/contrib/namigator/wheelhouse
         config-file: ${{github.workspace}}/contrib/namigator/pyproject.toml       
 
