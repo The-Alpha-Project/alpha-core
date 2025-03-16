@@ -45,6 +45,11 @@ jobs:
       with:
         submodules: true
 
+    - uses: actions/checkout@v4
+      with:
+        path: ${{github.workspace}}/contrib/namigator
+        submodules: true
+
     - name: Build wheels
       uses: pypa/cibuildwheel@v2.16.5
       env:
