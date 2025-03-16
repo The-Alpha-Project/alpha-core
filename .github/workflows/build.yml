@@ -42,10 +42,9 @@ jobs:
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
-      working-directory: ./contrib/namigator
       with:
         name: namigator_linux
-        path: ${{github.workspace}}/install/
+        path: ${{github.workspace}}contrib/namigator/install/
         retention-days: 5
 
   windows:
@@ -81,8 +80,7 @@ jobs:
       
     - name: Upload artifact
       uses: actions/upload-artifact@v4
-      working-directory: ./contrib/namigator
       with:
         name: namigator_windows
-        path: ${{github.workspace}}/install/
+        path: ${{github.workspace}}contrib/namigator/install/
         retention-days: 5
