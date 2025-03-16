@@ -34,7 +34,7 @@ jobs:
 
     - name: Install
       working-directory: ${{github.workspace}}/contrib/namigator/
-      run: cmake --install build --prefix /install
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
       
     - name: Test
       working-directory: ${{github.workspace}}/contrib/namigator/install/
