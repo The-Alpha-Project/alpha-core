@@ -51,7 +51,7 @@ jobs:
         MACOSX_DEPLOYMENT_TARGET: "10.15"
       with:
         path: ${{github.workspace}}/contrib/namigator/
-        # config-file: "${{github.workspace}}/contrib/namigator/pyproject.toml"
+        config-file: ${{github.workspace}}/contrib/namigator/pyproject.toml
 
     - uses: actions/upload-artifact@v4
       with:
