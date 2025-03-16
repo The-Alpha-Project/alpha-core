@@ -39,12 +39,20 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/contrib/namigator/install/
       run: test/smoke_tests.py
+      
+    - name: Create dir
+      working-directory: ${{github.workspace}}/
+      run: |
+      mkdir alpha_core
+      mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
+      rm -rf ${{github.workspace}}/contrib/namigator/build
+      rm -rf ${{github.workspace}}/contrib/namigator/install
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: namigator_linux
-        path: ${{github.workspace}}/contrib/namigator/install/
+        path: ${{github.workspace}}
         retention-days: 5
 
   windows:
