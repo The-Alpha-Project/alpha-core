@@ -1,0 +1,3 @@
+[submodule "namigator"]
+	path = contrib/namigator
+	url = https://github.com/The-Alpha-Project/namigator.git
