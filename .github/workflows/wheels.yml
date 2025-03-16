@@ -20,14 +20,16 @@ jobs:
         submodules: true
 
     - name: Build SDist
+      working-directory: ${{github.workspace}}/contrib/namigator/
       run: pipx run build --sdist
 
     - name: Check metadata
+      working-directory: ${{github.workspace}}/contrib/namigator/
       run: pipx run twine check dist/*
 
     - uses: actions/upload-artifact@v4
       with:
-        path: dist/*.tar.gz
+        path: ${{github.workspace}}/contrib/namigator/dist/*.tar.gz
 
 
   build_wheels:
@@ -50,7 +52,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        path: wheelhouse/*.whl
+        path: ${{github.workspace}}/contrib/namigator/wheelhouse/*.whl
 
 
   upload_all:
@@ -63,7 +65,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: artifact
-        path: dist
+        path: ${{github.workspace}}/contrib/namigator/dist
 
     - uses: pypa/gh-action-pypi-publish@release/v1
       with:
