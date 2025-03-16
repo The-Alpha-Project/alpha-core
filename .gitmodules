@@ -1,3 +1,3 @@
 [submodule "namigator"]
-	path = namigator
-	url = https://github.com/The-Alpha-Project/namigator.git
+	path = namigator_src
+	url = https://github.com/namreeb/namigator.git
