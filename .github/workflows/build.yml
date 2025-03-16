@@ -25,19 +25,19 @@ jobs:
         sudo apt-get install python3 python3-dev
 
     - name: Configure CMake
-      working-directory: ${{github.workspace}}/contrib/namigator
-      run: cmake -B /build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      working-directory: ${{github.workspace}}/contrib/namigator
-      run: cmake --build /build --config ${{env.BUILD_TYPE}}
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Install
-      working-directory: ${{github.workspace}}/contrib/namigator
-      run: cmake --install /build --prefix /install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix /install
       
     - name: Test
-      working-directory: ${{github.workspace}}/contrib/namigator/install
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
       run: test/smoke_tests.py
 
     - name: Upload artifact
