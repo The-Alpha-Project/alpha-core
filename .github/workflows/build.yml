@@ -72,12 +72,11 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
+        tag_name: ${{ steps.date.outputs.date }}
+        release_name: ${{ steps.date.outputs.date }}
         files: alpha_core_linux.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.date.outputs.date }}
-        release_name: ${{ steps.date.outputs.date }}
 
   windows:
     runs-on: windows-latest
