@@ -54,7 +54,8 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: namigator_linux
+        name: alpha_core_linux
+        compression-level: 9
         path: ${{github.workspace}}
         retention-days: 5
 
@@ -105,6 +106,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: namigator_windows
-        path: ${{github.workspace}}/contrib/namigator/install/
+        name: alpha_core_windows
+        compression-level: 9
+        path: ${{github.workspace}}
         retention-days: 5
