@@ -20,9 +20,9 @@ jobs:
       run: git submodule update --init --recursive
     
     - name: Install python
-      run: |
-        sudo apt-get -y update
-        sudo apt-get install python3 python3-dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}/contrib/namigator/
@@ -43,7 +43,6 @@ jobs:
     - name: Create dir
       working-directory: ${{github.workspace}}/
       run: |
-        mkdir alpha_core
         mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
         cd ${{github.workspace}}/namigator/
         find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
@@ -88,6 +87,15 @@ jobs:
       working-directory: ${{github.workspace}}/contrib/namigator/install/
       run: python test/smoke_tests.py
       
+    - name: Create dir
+      working-directory: ${{github.workspace}}/
+      run: |
+        mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
+        cd ${{github.workspace}}/namigator/
+        find . -iname "*mapbuild*" -execdir mv {} mapbuild.pyd \;
+        find . -iname "*pathfind*" -execdir mv {} pathfind.pyd \;
+        rm -rf ${{github.workspace}}/contrib
+        
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
