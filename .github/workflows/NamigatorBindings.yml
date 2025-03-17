@@ -1,0 +1,407 @@
+name: NamigatorBindings
+
+on:
+  push:
+    branches: [ Nam ]
+  pull_request:
+    branches: [ Nam ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  linux3.9:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        
+    - name: Checkout submodules
+      run: git submodule update --init --recursive      
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+    
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
+        find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python3.9 test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: zip -r namigator_nix_3.9.zip . 
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.9.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  linux3.10:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        
+    - name: Checkout submodules
+      run: git submodule update --init --recursive      
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+    
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
+        find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python3.10 test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: zip -r namigator_nix_3.10.zip . 
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.10.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  linux3.11:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Checkout submodules
+      run: git submodule update --init --recursive      
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+    
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
+        find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python3.11 test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: zip -r namigator_nix_3.11.zip . 
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.11.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  linux3.12:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        
+    - name: Checkout submodules
+      run: git submodule update --init --recursive      
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+    
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
+        find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python3.12 test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: zip -r namigator_nix_3.12.zip . 
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.12.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  windows3.9:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+    
+    - name: Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        architecture: 'x64'
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+      
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        Get-ChildItem -Recurse -Name "*mapbuild*" | Rename-Item -NewName mapbuild.pyd
+        Get-ChildItem -Recurse -Name "*pathfind*" | Rename-Item -NewName pathfind.pyd
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: Compress-Archive -Path ./* -Destination namigator_win_3.9.zip
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.9.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  windows3.10:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+    
+    - name: Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        architecture: 'x64'
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+      
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        Get-ChildItem -Recurse -Name "*mapbuild*" | Rename-Item -NewName mapbuild.pyd
+        Get-ChildItem -Recurse -Name "*pathfind*" | Rename-Item -NewName pathfind.pyd
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: Compress-Archive -Path ./* -Destination namigator_win_3.10.zip
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.10.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  windows3.11:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+    
+    - name: Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        architecture: 'x64'
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+      
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        Get-ChildItem -Recurse -Name "*mapbuild*" | Rename-Item -NewName mapbuild.pyd
+        Get-ChildItem -Recurse -Name "*pathfind*" | Rename-Item -NewName pathfind.pyd
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: Compress-Archive -Path ./* -Destination namigator_win_3.11.zip
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.11.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  windows3.12:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Checkout submodules
+      run: git submodule update --init --recursive
+    
+    - name: Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        architecture: 'x64'
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}/contrib/namigator/
+      run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
+      
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        Get-ChildItem -Recurse -Name "*mapbuild*" | Rename-Item -NewName mapbuild.pyd
+        Get-ChildItem -Recurse -Name "*pathfind*" | Rename-Item -NewName pathfind.pyd
+        
+    - name: Test
+      working-directory: ${{github.workspace}}/contrib/namigator/install/
+      run: python test/smoke_tests.py
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: Compress-Archive -Path ./* -Destination namigator_win_3.12.zip
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: Latest
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.12.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
