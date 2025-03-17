@@ -10,7 +10,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  linux3_9:
+  nix_py3_9:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -59,7 +59,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  linux3_10:
+  nix_py3_10:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -108,7 +108,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  linux3_11:
+  nix_py3_11:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -157,7 +157,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  linux3_12:
+  nix_py3_12:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -206,7 +206,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  linux3_13:
+  nix_py3_13:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -255,7 +255,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3_9:
+  win_py3_9:
     runs-on: windows-latest
 
     steps:
@@ -305,7 +305,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3_10:
+  win_py3_10:
     runs-on: windows-latest
 
     steps:
@@ -355,7 +355,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3_11:
+  win_py3_11:
     runs-on: windows-latest
 
     steps:
@@ -405,7 +405,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3_12:
+  win_py3_12:
     runs-on: windows-latest
 
     steps:
@@ -455,7 +455,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3_13:
+  win_py3_13:
     runs-on: windows-latest
 
     steps:
