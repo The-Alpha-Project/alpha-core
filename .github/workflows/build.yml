@@ -100,7 +100,7 @@ jobs:
       working-directory: ${{github.workspace}}/
       run: |
         mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
-        rm -rf ${{github.workspace}}/contrib
+        Remove-Item -Recurse -Force ${{github.workspace}}/contrib
         
     - name: Upload artifact
       uses: actions/upload-artifact@v4
