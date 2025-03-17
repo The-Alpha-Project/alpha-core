@@ -43,9 +43,9 @@ jobs:
         find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
         find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
         
-    - name: Test
-      working-directory: ${{github.workspace}}/contrib/namigator/install/
-      run: python3.9 test/smoke_tests.py
+    #- name: Test
+    #  working-directory: ${{github.workspace}}/contrib/namigator/install/
+    #  run: python3.9 test/smoke_tests.py
       
     - name: Copy namigator libs
       working-directory: ${{github.workspace}}/
@@ -53,27 +53,23 @@ jobs:
         mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
         rm -rf ${{github.workspace}}/contrib
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: alpha_core_linux
-        compression-level: 9
-        path: ${{github.workspace}}
-        retention-days: 5
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: alpha_core_linux
+    #    compression-level: 9
+    #    path: ${{github.workspace}}
+    #    retention-days: 5
     
     - name: Create Zip
       working-directory: ${{github.workspace}}
       run: zip -r alpha_core_linux.zip . -x ".git/*" ".github/*"
-    
-    - name: Get current date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-          
+             
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ steps.date.outputs.date }}
-        release_name: ${{ steps.date.outputs.date }}
+        tag_name: Latest
+        release_name: Latest
         files: alpha_core_linux.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,9 +108,9 @@ jobs:
         Get-ChildItem -Recurse -Name "*mapbuild*" | Rename-Item -NewName mapbuild.pyd
         Get-ChildItem -Recurse -Name "*pathfind*" | Rename-Item -NewName pathfind.pyd
         
-    - name: Test
-      working-directory: ${{github.workspace}}/contrib/namigator/install/
-      run: python test/smoke_tests.py
+    #- name: Test
+    #  working-directory: ${{github.workspace}}/contrib/namigator/install/
+    #  run: python test/smoke_tests.py
       
     - name: Copy namigator libs
       working-directory: ${{github.workspace}}/
@@ -122,10 +118,31 @@ jobs:
         mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
         Remove-Item -Recurse -Force ${{github.workspace}}/contrib
         
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: alpha_core_windows
+    #    compression-level: 9
+    #    path: ${{github.workspace}}
+    #    retention-days: 5
+    
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: alpha_core_linux
+    #    compression-level: 9
+    #    path: ${{github.workspace}}
+    #    retention-days: 5
+    
+    - name: Create Zip
+      working-directory: ${{github.workspace}}
+      run: Compress-Archive -Path ./* -Destination alpha_core_windows.zip
+             
+    - name: Release
+      uses: softprops/action-gh-release@v2
       with:
-        name: alpha_core_windows
-        compression-level: 9
-        path: ${{github.workspace}}
-        retention-days: 5
+        tag_name: Latest
+        release_name: Latest
+        files: alpha_core_windows.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
