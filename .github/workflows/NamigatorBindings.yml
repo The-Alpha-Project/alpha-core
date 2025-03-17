@@ -2,9 +2,9 @@ name: NamigatorBindings
 
 on:
   push:
-    branches: [ Nam ]
+    branches: [ master ]
   pull_request:
-    branches: [ Nam ]
+    branches: [ master ]
 
 env:
   BUILD_TYPE: Release
