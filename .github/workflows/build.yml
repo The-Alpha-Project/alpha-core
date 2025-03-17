@@ -64,9 +64,8 @@ jobs:
         retention-days: 5
     
     - name: Create Zip
-      uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r alpha_core_linux.zip dir
+      working-directory: ${{github.workspace}}
+      run: zip -r alpha_core_linux.zip . -x ".git/*" ".github/*"
     
     - name: Release
       uses: softprops/action-gh-release@v2
