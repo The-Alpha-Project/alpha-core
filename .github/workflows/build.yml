@@ -43,7 +43,7 @@ jobs:
         
     - name: Test
       working-directory: ${{github.workspace}}/contrib/namigator/install/
-      run: test/smoke_tests.py
+      run: python3.9 test/smoke_tests.py
       
     - name: Copy namigator libs
       working-directory: ${{github.workspace}}/
