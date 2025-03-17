@@ -54,7 +54,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.9.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -103,7 +103,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.10.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -152,7 +152,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.11.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -201,7 +201,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.12.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -250,7 +250,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.13.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -350,7 +350,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.10.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -400,7 +400,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.11.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -450,7 +450,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.12.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -500,7 +500,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: Latest
+        tag_name: Namigator
         files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.13.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
