@@ -10,7 +10,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  linux3.9:
+  linux3_9:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -59,7 +59,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  linux3.10:
+  linux3_10:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -108,7 +108,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  linux3.11:
+  linux3_11:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -157,7 +157,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  linux3.12:
+  linux3_12:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -206,7 +206,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3.9:
+  windows3_9:
     runs-on: windows-latest
 
     steps:
@@ -256,7 +256,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3.10:
+  windows3_10:
     runs-on: windows-latest
 
     steps:
@@ -306,7 +306,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3.11:
+  windows3_11:
     runs-on: windows-latest
 
     steps:
@@ -356,7 +356,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-  windows3.12:
+  windows3_12:
     runs-on: windows-latest
 
     steps:
