@@ -69,7 +69,7 @@ jobs:
         args: zip -qq -r alpha_core_linux.zip dir
     
     - name: Release
-        uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v2
         with:
           files: alpha_core_linux.zip
         env:
