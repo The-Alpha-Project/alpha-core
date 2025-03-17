@@ -45,8 +45,9 @@ jobs:
       run: |
         mkdir alpha_core
         mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
-        find . -iname "*mapbuild*" -exec mv {} mapbuild \;
-        find . -iname "*pathfind*" -exec mv {} pathfind \;
+        cd ${{github.workspace}}/namigator/
+        find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
+        find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
         rm -rf ${{github.workspace}}/contrib
 
     - name: Upload artifact
