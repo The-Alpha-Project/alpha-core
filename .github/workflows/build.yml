@@ -47,30 +47,28 @@ jobs:
     #  working-directory: ${{github.workspace}}/contrib/namigator/install/
     #  run: python3.9 test/smoke_tests.py
       
-    - name: Copy namigator libs
-      working-directory: ${{github.workspace}}/
-      run: |
-        mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
-        rm -rf ${{github.workspace}}/contrib
+    #- name: Copy namigator libs
+    #  working-directory: ${{github.workspace}}/
+    #  run: |
+    #    mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
 
     #- name: Upload artifact
     #  uses: actions/upload-artifact@v4
     #  with:
     #    name: alpha_core_linux
     #    compression-level: 9
-    #    path: ${{github.workspace}}
+    #    path: ${{github.workspace}}/contrib/namigator/install/namigator/
     #    retention-days: 5
     
     - name: Create Zip
-      working-directory: ${{github.workspace}}
-      run: zip -r alpha_core_linux.zip . -x ".git/*" ".github/*"
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: zip -r namigator_nix_3.9.zip . 
              
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: Latest
-        release_name: Latest
-        files: alpha_core_linux.zip
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_nix_3.9.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -112,37 +110,28 @@ jobs:
     #  working-directory: ${{github.workspace}}/contrib/namigator/install/
     #  run: python test/smoke_tests.py
       
-    - name: Copy namigator libs
-      working-directory: ${{github.workspace}}/
-      run: |
-        mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
-        Remove-Item -Recurse -Force ${{github.workspace}}/contrib
+    #- name: Copy namigator libs
+    #  working-directory: ${{github.workspace}}/
+    #  run: |
+    #    mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
+    #    Remove-Item -Recurse -Force ${{github.workspace}}/contrib
         
     #- name: Upload artifact
     #  uses: actions/upload-artifact@v4
     #  with:
     #    name: alpha_core_windows
     #    compression-level: 9
-    #    path: ${{github.workspace}}
-    #    retention-days: 5
-    
-    #- name: Upload artifact
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: alpha_core_linux
-    #    compression-level: 9
-    #    path: ${{github.workspace}}
+    #    path: ${{github.workspace}}/contrib/namigator/install/namigator/
     #    retention-days: 5
     
     - name: Create Zip
-      working-directory: ${{github.workspace}}
-      run: Compress-Archive -Path ./* -Destination alpha_core_windows.zip
+      working-directory: ${{github.workspace}}/contrib/namigator/install/namigator/
+      run: Compress-Archive -Path ./* -Destination namigator_win_3.9.zip
              
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: Latest
-        release_name: Latest
-        files: alpha_core_windows.zip
+        files: ${{github.workspace}}/contrib/namigator/install/namigator/namigator_win_3.9.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
