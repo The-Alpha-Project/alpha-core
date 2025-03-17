@@ -61,31 +61,23 @@ jobs:
         path: ${{github.workspace}}
         retention-days: 5
     
-    #- name: Create Zip
-    #  working-directory: ${{github.workspace}}
-    #  run: zip -r alpha_core_linux.zip . -x ".git/*" ".github/*"
+    - name: Create Zip
+      working-directory: ${{github.workspace}}
+      run: zip -r alpha_core_linux.zip . -x ".git/*" ".github/*"
     
     - name: Get current date
       id: date
       run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      
-    - name: Release snapshot
-      id: release-snapshot
-      uses: actions/create-release@latest
+          
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: alpha_core_linux.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.date.outputs.date }}
         release_name: ${{ steps.date.outputs.date }}
-        draft: false
-        prerelease: false
-          
-    #- name: Release
-    #  uses: softprops/action-gh-release@v2
-    #  with:
-    #    files: alpha_core_linux.zip
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   windows:
     runs-on: windows-latest
