@@ -33,19 +33,22 @@ jobs:
     - name: Install
       working-directory: ${{github.workspace}}/contrib/namigator/
       run: cmake --install build --prefix ${{github.workspace}}/contrib/namigator/install
-      
+    
+    - name: Rename libs
+      working-directory: ${{github.workspace}}/
+      run: |
+        cd ${{github.workspace}}/contrib/namigator/install/namigator/
+        find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
+        find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
+        
     - name: Test
       working-directory: ${{github.workspace}}/contrib/namigator/install/
       run: test/smoke_tests.py
       
-    - name: Create dir
+    - name: Copy namigator libs
       working-directory: ${{github.workspace}}/
       run: |
         mv ${{github.workspace}}/contrib/namigator/install/namigator/* ${{github.workspace}}/namigator/
-        cd ${{github.workspace}}/namigator/
-        find . -iname "*mapbuild*" -execdir mv {} mapbuild.so \;
-        find . -iname "*pathfind*" -execdir mv {} pathfind.so \;
-        rm -rf ${{github.workspace}}/contrib
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
