@@ -1,4 +1,4 @@
-name: BuildTestDeploy
+name: NamigatorBindings
 
 on:
   push:
