@@ -3,8 +3,12 @@ name: NamigatorBindings
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'contrib/namigator'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'contrib/namigator'
 
 env:
   BUILD_TYPE: Release
