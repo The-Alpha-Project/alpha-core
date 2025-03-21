@@ -1215,17 +1215,20 @@ class UnitManager(ObjectManager):
     def set_stunned(self, active=True, index=-1) -> bool:
         self.set_rooted(active, index)
 
-        was_stunned = self.unit_state & UnitStates.STUNNED
-        is_stunned = self.set_unit_state(UnitStates.STUNNED, active, index)
-        self.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active, index)
+        was_stunned = bool(self.unit_state & UnitStates.STUNNED)
+        is_stunned = bool(self.set_unit_state(UnitStates.STUNNED, active, index))
 
         if not was_stunned and is_stunned:
+            # Force move behavior stop.
+            self.movement_manager.stop()
             self.spell_manager.remove_casts(remove_active=False)
             self.set_current_target(0)
         elif was_stunned and not is_stunned:
             # Restore combat target on stun remove.
             if self.combat_target and self.combat_target.is_alive:
                 self.set_current_target(self.combat_target.guid)
+
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active, index)
 
         return is_stunned
 
@@ -1910,6 +1913,9 @@ class UnitManager(ObjectManager):
             surrounding_units = surrounding_units.values()
 
         for unit in surrounding_units:
+            if unit.unit_state & UnitStates.STUNNED or unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+                continue
+
             unit_is_player = unit.is_player()
             unit_has_ooc_los_events = not unit_is_player and unit.object_ai.ai_event_handler.has_ooc_los_events()
 

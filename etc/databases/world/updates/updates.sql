@@ -1171,5 +1171,24 @@ begin not atomic
         insert into applied_updates values ('041220241');
     end if;
 
+    -- 02/05/2025 1
+    if (select count(*) from applied_updates where id='020520251') = 0 then
+        -- Events list for Venture Co. Taskmaster
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2977;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (297701, 2977, 0, 2, 0, 100, 0, 15, 0, 0, 0, 297701, 0, 0, 'Venture Co. Taskmaster - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (297702, 2977, 0, 11, 0, 100, 0, 0, 0, 0, 0, 297702, 0, 0, 'Venture Co. Taskmaster - Cast Torch Burn Upon Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=297702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (297702, 0, 0, 15, 5680, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Taskmaster  - Cast Torch Burn');
+        
+        UPDATE `quest_template` SET `Details` = 'I would charge you with a task, $N.$B$BI was on my boat, rowing over the submerged ruins of Zoram, when naga attacked me, surging from the water and tearing at me with their claws! I fled, carrying what supplies I could to make this meager camp.$B$BBut when I reached the shore and ran... my prized possession was lost.$B$BPlease, $N, find the site of my ambush and search for an ancient statuette.  It is the reason I have braved the dangers of the Zoram Strand.', `RewOrReqMoney` = '750' WHERE (`entry` = '1007');
+        
+        UPDATE `creature_template` SET `level_min` = '15', `level_max` = '15' WHERE (`entry` = '3681');
+
+        UPDATE `spawns_creatures` SET `position_x` = '10686.3', `position_y` = '1917.5', `position_z` = '1336.62', `orientation` = '0.998' WHERE (`spawn_id` = '46193');
+
+        insert into applied_updates values ('020520251');
+    end if;
 end $
 delimiter ;

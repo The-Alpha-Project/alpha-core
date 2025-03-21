@@ -4,6 +4,7 @@ import traceback
 
 from game.world.WorldSessionStateHandler import RealmDatabaseManager
 from network.packet.PacketWriter import *
+from network.sockets.SocketBuilder import SocketBuilder
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import EnvVars
@@ -13,17 +14,7 @@ REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.realm_get_l
 
 
 class RealmManager:
-    @staticmethod
-    def build_socket(address, port):
-        socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            socket_.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-        # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
-        except AttributeError:
-            socket_.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        socket_.bind((address, port))
-        socket_.settimeout(2)
-        return socket_
+
 
     @staticmethod
     def serve_realmlist(sck):
@@ -72,12 +63,12 @@ class RealmManager:
     @staticmethod
     def start_realm(running, realm_server_ready):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        with RealmManager.build_socket(local_realm.realm_address, local_realm.realm_port) as server_socket:
+        with SocketBuilder.build_socket(local_realm.realm_address, local_realm.realm_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
             # Make sure all characters have online = 0 on realm start.
             RealmDatabaseManager.character_set_all_offline()
-            Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}')
+            Logger.success(f'Realm server started, listening on {real_binding[0]}:{real_binding[1]}')
             realm_server_ready.value = 1
 
             try:
@@ -94,12 +85,12 @@ class RealmManager:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("Login server turned off.")
+        Logger.info("Realm server turned off.")
 
     @staticmethod
     def start_proxy(running, proxy_server_ready):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        with RealmManager.build_socket(local_realm.proxy_address, local_realm.proxy_port) as server_socket:
+        with SocketBuilder.build_socket(local_realm.proxy_address, local_realm.proxy_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
             Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}')

@@ -10,7 +10,6 @@ from utils.ConfigManager import *
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.MiscCodes import HighGuid
 
-
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
 DB_HOST = os.getenv('MYSQL_HOST', config.Database.Connection.host)
@@ -35,13 +34,23 @@ class RealmDatabaseManager(object):
     # Account-
 
     @staticmethod
-    def account_try_login(username, password, ip):
+    def account_try_get(username):
+        realm_db_session = SessionHolder()
+        account_mgr = None
+        account = realm_db_session.query(Account).filter_by(name=username).first()
+        if account:
+            account_mgr = AccountManager(account)
+        realm_db_session.close()
+        return account_mgr
+
+    @staticmethod
+    def account_try_login(username, password, ip, client_digest, server_digest):
         realm_db_session = SessionHolder()
         account = realm_db_session.query(Account).filter_by(name=username).first()
         status = -1
         account_mgr = None
         if account:
-            if account.password == password:
+            if (password and account.password == password) or (client_digest and client_digest == server_digest):
                 status = 1
                 account.ip = ip
                 account_mgr = AccountManager(account)
@@ -56,16 +65,38 @@ class RealmDatabaseManager(object):
         return status, account_mgr
 
     @staticmethod
-    def account_create(username, password, ip):
+    def account_create(username, password, ip, salt, verifier):
         realm_db_session = SessionHolder()
         account = Account(name=username, password=password, ip=ip,
-                          gmlevel=int(config.Server.Settings.auto_create_gm_accounts))
+                          gmlevel=int(config.Server.Settings.auto_create_gm_accounts),
+                          salt=salt,
+                          verifier=verifier,
+                          sessionkey=""
+                          )
         realm_db_session.add(account)
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.refresh(account)
         realm_db_session.close()
         return AccountManager(account)
+
+    @staticmethod
+    def account_try_update_session_key(username, session_key):
+        realm_db_session = SessionHolder()
+        try:
+            account = realm_db_session.query(Account).filter_by(name=username).first()
+            if not account:
+                return False
+
+            account.sessionkey = session_key
+
+            realm_db_session.merge(account)
+            realm_db_session.flush()
+            realm_db_session.commit()
+        finally:
+            realm_db_session.close()
+
+        return True
 
     @staticmethod
     def account_try_update_password(username, old_password, new_password):

@@ -171,6 +171,9 @@ from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 
 HANDLER_DEFINITIONS = {
+    # Auth
+    OpCode.CMSG_AUTH_SRP6_BEGIN: AuthSessionHandler.handle_srp6_begin,
+    OpCode.CMSG_AUTH_SRP6_PROOF: AuthSessionHandler.handle_srp6_proof,
     OpCode.CMSG_AUTH_SESSION: AuthSessionHandler.handle,
     OpCode.CMSG_PING: PingHandler.handle,
     OpCode.CMSG_CHAR_ENUM: CharEnumHandler.handle,
