@@ -62,7 +62,6 @@ class NavExtractor:
 
                 # Wait for process.
                 NavExtractor._show_progress(process, map_name)
-                return
         except:
             Logger.warning(traceback.format_exc())
 
