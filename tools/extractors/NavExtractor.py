@@ -69,6 +69,7 @@ class NavExtractor:
     @staticmethod
     def _show_progress(process, map_name):
         total = NavExtractor.maps_navs[map_name]
+        progress = 0
         while process.is_alive():
             progress = NavExtractor._get_progress(map_name)
             if progress:
@@ -76,8 +77,8 @@ class NavExtractor:
             sleep(1)
 
         # Final progress.
-        progress = NavExtractor._get_progress(map_name)
-        if progress:
+        if progress and progress != total:
+            progress = NavExtractor._get_progress(map_name)
             Logger.progress(f'[NavExtractor] Building nav files for {map_name} ...', progress, total)
 
     @staticmethod
