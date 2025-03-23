@@ -18,6 +18,7 @@ from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.maps.helpers.Namigator import Namigator
 from utils.ConfigManager import config
+from utils.GitUtils import GitUtils
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 from utils.constants.MiscCodes import MapsNoNavs, MapTileStates
@@ -235,6 +236,16 @@ class MapManager:
             return True
 
         if not MapTile.validate_version():
+            return False
+
+        return True
+
+    @staticmethod
+    def validate_namigator_bindings():
+        if not config.Server.Settings.use_nav_tiles:
+            return True
+
+        if not GitUtils.check_download_namigator_bindings():
             return False
 
         return True

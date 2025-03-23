@@ -12,7 +12,7 @@ from game.world import WorldManager
 from game.world.managers.CommandManager import CommandManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
-from tools.map_extractor.MapExtractor import MapExtractor
+from tools.extractors.Extractor import Extractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.PathManager import PathManager
@@ -133,12 +133,16 @@ if __name__ == '__main__':
         exit()
 
     if args.extract:
-        MapExtractor.run()
+        Extractor.run()
         exit()
 
     # Validate if maps available and if version match.
     if not MapManager.validate_map_files():
         Logger.error(f'Invalid maps version or maps missing, expected version {MapTile.EXPECTED_VERSION}')
+        exit()
+
+    if not MapManager.validate_namigator_bindings():
+        Logger.error(f'Invalid namigator bindings.')
         exit()
 
     # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.

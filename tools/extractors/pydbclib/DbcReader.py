@@ -3,7 +3,7 @@ from io import BytesIO
 from struct import unpack
 from typing import Optional
 from utils.Logger import Logger
-from tools.map_extractor.pydbclib.structs.DbcHeader import DbcHeader
+from tools.extractors.pydbclib.structs.DbcHeader import DbcHeader
 
 
 class DbcReader:

@@ -1,6 +1,6 @@
 from io import BytesIO
 from struct import unpack
-from tools.map_extractor.pympqlib.MpqFlags import MpqFlags
+from tools.extractors.pympqlib.MpqFlags import MpqFlags
 
 
 class MpqEntry:

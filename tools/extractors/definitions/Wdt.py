@@ -2,10 +2,10 @@ from io import BytesIO
 
 from game.world.managers.maps.helpers.Constants import BLOCK_SIZE
 from utils.Logger import Logger
-from tools.map_extractor.definitions.Adt import Adt
-from tools.map_extractor.helpers.Constants import Constants
-from tools.map_extractor.definitions.chunks.TileHeader import TileHeader
-from tools.map_extractor.definitions.reader.StreamReader import StreamReader
+from tools.extractors.definitions.Adt import Adt
+from tools.extractors.helpers.Constants import Constants
+from tools.extractors.definitions.chunks.TileHeader import TileHeader
+from tools.extractors.definitions.reader.StreamReader import StreamReader
 
 
 class Wdt:
