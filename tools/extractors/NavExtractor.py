@@ -45,7 +45,7 @@ class NavExtractor:
             os.mkdir(nav_path)
 
         try:
-            threads = 1
+            threads = int(input("Number of threads?:"))
             Logger.info('[NavExtractor] Building bhv files...')
             NavExtractor._extract_bhv(data_path, mapbuild)
 
@@ -67,6 +67,7 @@ class NavExtractor:
 
     @staticmethod
     def _show_progress(process, map_name):
+        Logger.info(f'[NavExtractor] Building nav files for {map_name} ...')
         total = NavExtractor.maps_navs[map_name]
         progress = 0
         while process.is_alive():
