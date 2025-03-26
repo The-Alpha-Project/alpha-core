@@ -476,7 +476,7 @@ class SpellManager:
 
                 if info.result == SpellMissReason.MISS_REASON_NONE:
                     SpellEffectHandler.apply_effect(casting_spell, effect, spell_caster, spell_target)
-                elif target.is_unit() and casting_spell.generates_threat() and \
+                elif target.is_unit() and casting_spell.generates_threat_on_miss() and \
                         casting_spell.spell_caster.can_attack_target(target):  # Add threat for failed hostile casts.
                     target.threat_manager.add_threat(casting_spell.spell_caster)
 

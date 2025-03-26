@@ -2,10 +2,10 @@ import os
 from io import BytesIO
 from struct import unpack
 from utils.Logger import Logger
-from tools.map_extractor.pympqlib.MpqHash import MpqHash
-from tools.map_extractor.pympqlib.MpqEntry import MpqEntry
-from tools.map_extractor.pympqlib.MpqHeader import MpqHeader
-from tools.map_extractor.pympqlib.MpqReader import MpqReader
+from tools.extractors.pympqlib.MpqHash import MpqHash
+from tools.extractors.pympqlib.MpqEntry import MpqEntry
+from tools.extractors.pympqlib.MpqHeader import MpqHeader
+from tools.extractors.pympqlib.MpqReader import MpqReader
 
 
 class MpqArchive:

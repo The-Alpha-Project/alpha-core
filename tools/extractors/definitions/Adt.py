@@ -3,12 +3,12 @@ from struct import pack
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 from network.packet.PacketWriter import PacketWriter
-from tools.map_extractor.helpers.Constants import Constants
-from tools.map_extractor.helpers.DataHolders import DataHolders
-from tools.map_extractor.helpers.HeightField import HeightField
-from tools.map_extractor.helpers.LiquidAdtWriter import LiquidAdtWriter
-from tools.map_extractor.definitions.chunks.TileHeader import TileHeader
-from tools.map_extractor.definitions.chunks.TileInformation import TileInformation
+from tools.extractors.helpers.Constants import Constants
+from tools.extractors.helpers.DataHolders import DataHolders
+from tools.extractors.helpers.HeightField import HeightField
+from tools.extractors.helpers.LiquidAdtWriter import LiquidAdtWriter
+from tools.extractors.definitions.chunks.TileHeader import TileHeader
+from tools.extractors.definitions.chunks.TileInformation import TileInformation
 
 
 class Adt:

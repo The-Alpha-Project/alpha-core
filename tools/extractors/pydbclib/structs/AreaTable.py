@@ -1,6 +1,6 @@
 from struct import pack
 from dataclasses import dataclass
-from tools.map_extractor.pydbclib.helpers.VanillaAreaHelper import VanillaAreaHelper
+from tools.extractors.pydbclib.helpers.VanillaAreaHelper import VanillaAreaHelper
 
 
 @dataclass

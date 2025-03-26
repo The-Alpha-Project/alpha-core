@@ -2,17 +2,17 @@ import multiprocessing
 import os
 import argparse
 import signal
-import sys
-import threading
 from sys import platform
 from time import sleep
 
+from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
+from game.update.UpdateManager import UpdateManager
 from game.world import WorldManager
 from game.world.managers.CommandManager import CommandManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
-from tools.map_extractor.MapExtractor import MapExtractor
+from tools.extractors.Extractor import Extractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.PathManager import PathManager
@@ -53,29 +53,19 @@ def release_process(active_process):
     Logger.info(f'{active_process.name} released.')
 
 
-# When debugging with some versions of PyCharm and different versions of python, the output console will
-# get stuck waiting for user input, preventing the normal initialization process from starting.
-# https://stackoverflow.com/questions/38634988/check-if-program-runs-in-debug-mode
-def debug_enabled():
-    try:
-        if sys.gettrace() is not None:
-            return True
-    except AttributeError:
-        pass
-
-    try:
-        if sys.monitoring.get_tool(sys.monitoring.DEBUGGER_ID) is not None:
-            return True
-    except AttributeError:
-        pass
-
-    return False
-
-
 def handle_console_commands():
     try:
-        while input() != 'exit':
-            Logger.error("Invalid command.")
+        command = input()
+        while command != 'exit':
+            try:
+                res, msg = CommandManager.handle_conole_command(command)
+                if not res:
+                    Logger.info(msg)
+                else:
+                    Logger.error(f'Invalid command [{command}], [{msg}].')
+            except:
+                Logger.error(f'Invalid command [{command}].')
+            command = input()
     except:
         pass
     RUNNING.value = 0
@@ -107,11 +97,23 @@ def wait_proxy_server():
         sleep(1)
 
 
+def wait_login_server():
+    while not LOGIN_SERVER_READY.value and RUNNING.value:
+        sleep(1)
+
+
+def wait_update_server():
+    while not UPDATE_SERVER_READY.value and RUNNING.value:
+        sleep(1)
+
+
 CONSOLE_THREAD = None
 RUNNING = None
 WORLD_SERVER_READY = None
 REALM_SERVER_READY = None
 PROXY_SERVER_READY = None
+LOGIN_SERVER_READY = None
+UPDATE_SERVER_READY = None
 ACTIVE_PROCESSES = []
 
 
@@ -131,12 +133,16 @@ if __name__ == '__main__':
         exit()
 
     if args.extract:
-        MapExtractor.run()
+        Extractor.run()
         exit()
 
     # Validate if maps available and if version match.
     if not MapManager.validate_map_files():
         Logger.error(f'Invalid maps version or maps missing, expected version {MapTile.EXPECTED_VERSION}')
+        exit()
+
+    if not MapManager.validate_namigator_bindings():
+        Logger.error(f'Invalid namigator bindings.')
         exit()
 
     # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
@@ -149,6 +155,8 @@ if __name__ == '__main__':
     WORLD_SERVER_READY = context.Value('i', 0)
     REALM_SERVER_READY = context.Value('i', 0)
     PROXY_SERVER_READY = context.Value('i', 0)
+    LOGIN_SERVER_READY = context.Value('i', 0)
+    UPDATE_SERVER_READY = context.Value('i', 0)
 
     # Print active env vars.
     for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
@@ -161,11 +169,6 @@ if __name__ == '__main__':
     console_mode = os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
                              config.Server.Settings.console_mode) in [True, 'True', 'true']
 
-    # Turn off console mode while debugging.
-    if console_mode and debug_enabled():
-        Logger.debug(f'Debugger detected, disabled console mode.')
-        console_mode = False
-
     if not launch_world and not launch_realm:
         Logger.error('Realm and World launch are disabled.')
         exit()
@@ -173,11 +176,6 @@ if __name__ == '__main__':
     # Hook exit signals.
     signal.signal(signal.SIGINT, handler_stop_signals)
     signal.signal(signal.SIGTERM, handler_stop_signals)
-
-    # Handle console mode.
-    if console_mode:
-        CONSOLE_THREAD = threading.Thread(target=handle_console_commands, daemon=True)
-        CONSOLE_THREAD.start()
 
     # Process launching starts here.
     if launch_world:
@@ -188,8 +186,16 @@ if __name__ == '__main__':
     else:
         WORLD_SERVER_READY.value = 1
 
+    # Update server.
+    ACTIVE_PROCESSES.append((context.Process(name='Update process', target=UpdateManager.start_update,
+                                             args=(RUNNING, UPDATE_SERVER_READY)), wait_update_server))
+
+    # SRP login server.
+    ACTIVE_PROCESSES.append((context.Process(name='Login process', target=LoginManager.start_login,
+                                             args=(RUNNING, LOGIN_SERVER_READY)), wait_login_server))
+
     if launch_realm:
-        ACTIVE_PROCESSES.append((context.Process(name='Login process', target=RealmManager.start_realm,
+        ACTIVE_PROCESSES.append((context.Process(name='Realm process', target=RealmManager.start_realm,
                                                  args=(RUNNING, REALM_SERVER_READY)), wait_realm_server))
         ACTIVE_PROCESSES.append((context.Process(name='Proxy process', target=RealmManager.start_proxy,
                                                  args=(RUNNING, PROXY_SERVER_READY)), wait_proxy_server))
@@ -206,9 +212,13 @@ if __name__ == '__main__':
     # Bell sound character.
     Logger.info('Alpha core is now running.\a')
 
-    # Wait on main thread for stop signal or 'exit' command.
-    while RUNNING.value:
-        sleep(2)
+    # Handle console mode.
+    if console_mode and RUNNING.value:
+        handle_console_commands()
+    else:
+        # Wait on main thread for stop signal or 'exit' command.
+        while RUNNING.value:
+            sleep(2)
 
     # Exit.
     Logger.info('Shutting down the core, please wait...')

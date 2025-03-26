@@ -38,7 +38,10 @@ class WanderingMovement(BaseMovement):
 
     # override
     def reset(self):
-        self.spline = None
+        if self.spline:
+            # Make sure the last known position gets updated.
+            self.spline.update_to_now()
+            self.spline = None
         self.wait_time_seconds = randint(1, 12)
         self.last_wandering_movement = time.time()
 

@@ -103,7 +103,10 @@ class WaypointMovement(BaseMovement):
 
     # override
     def reset(self):
-        self.spline = None
+        if self.spline:
+            # Make sure the last known position gets updated.
+            self.spline.update_to_now()
+            self.spline = None
         self.wait_time_seconds = 0
         self.last_waypoint_movement = 0
 

@@ -1,55 +1,40 @@
 import os
+
+
 from utils.Logger import Logger
-from utils.ConfigManager import config
 from utils.PathManager import PathManager
 
-from tools.map_extractor.definitions.Wdt import Wdt
-from tools.map_extractor.pydbclib.structs.Map import Map
-from tools.map_extractor.pydbclib.DbcReader import DbcReader
-from tools.map_extractor.helpers.DataHolders import DataHolders
-from tools.map_extractor.pympqlib.MpqArchive import MpqArchive
-from tools.map_extractor.pydbclib.structs.AreaTable import AreaTable
+from tools.extractors.definitions.Wdt import Wdt
+from tools.extractors.pydbclib.structs.Map import Map
+from tools.extractors.pydbclib.DbcReader import DbcReader
+from tools.extractors.helpers.DataHolders import DataHolders
+from tools.extractors.pympqlib.MpqArchive import MpqArchive
+from tools.extractors.pydbclib.structs.AreaTable import AreaTable
 
-WOW_DATA_FOLDER = 'Data'
-WOW_MAPS_FOLDER = 'World/Maps'
+
 REQUIRED_DBC = 'dbc.MPQ'
 
 
 class MapExtractor:
 
     @staticmethod
-    def run():
-        # Validate WoW root.
-        if not config.Extractor.Maps.wow_root_path:
-            Logger.error('No wow root path provided. (World of Warcraft base directory)')
-            exit()
-        # Validate its existence.
-        elif not os.path.exists(config.Extractor.Maps.wow_root_path):
-            Logger.error(f'Data path "{config.Extractor.Maps.wow_root_path}" does not exist.')
-            exit()
-
-        # Validate /Data/.
-        data_path = os.path.join(config.Extractor.Maps.wow_root_path, WOW_DATA_FOLDER)
-        if not os.path.exists(data_path):
-            Logger.error(f'Unable to locate {data_path}.')
-            exit()
+    def run(data_path, wow_maps_folder):
+        # Validate /etc/maps.
+        map_files_path = PathManager.get_maps_path()
+        if not os.path.exists(map_files_path):
+            Logger.error(f'Unable to locate {map_files_path}.')
+            return
 
         # Validate dbc.MPQ.
         dbc_path = os.path.join(data_path, REQUIRED_DBC)
         if not os.path.exists(dbc_path):
             Logger.error(f'Unable to locate {dbc_path}.')
-            exit()
+            return
 
-        maps_path = os.path.join(data_path, WOW_MAPS_FOLDER)
+        maps_path = os.path.join(data_path, wow_maps_folder)
         if not os.path.exists(dbc_path):
-            Logger.error(f'Unable to locate {WOW_MAPS_FOLDER}.')
-            exit()
-
-        # Validate /etc/maps.
-        map_files_path = PathManager.get_maps_path()
-        if not os.path.exists(map_files_path):
-            Logger.error(f'Unable to locate {map_files_path}.')
-            exit()
+            Logger.error(f'Unable to locate {wow_maps_folder}.')
+            return
 
         # Flush existent files.
         filelist = [f for f in os.listdir(map_files_path) if f.endswith(".map")]
@@ -58,7 +43,7 @@ class MapExtractor:
             if input().lower() in ['y', '']:
                 [os.remove(os.path.join(map_files_path, file)) for file in filelist]
             else:
-                exit()
+                return
 
         # Extract available maps and area tables from dbc.
         with MpqArchive(dbc_path) as archive:
@@ -82,11 +67,11 @@ class MapExtractor:
         # Validate we have maps.
         if not DataHolders.MAPS:
             Logger.error(f'Unable to read maps from {dbc_path}.')
-            exit()
+            return
 
         if not DataHolders.AREA_TABLES_BY_MAP:
             Logger.error(f'Unable to read area tables from {dbc_path}.')
-            exit()
+            return
 
         for dbc_map in DataHolders.get_maps():
             # Interested in ADT based maps, not WMO based.

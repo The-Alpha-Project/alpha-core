@@ -1,5 +1,5 @@
 Version:
-    current: 18
+    current: 19
 
 Database:
     Connection:
@@ -15,6 +15,14 @@ Database:
 
 Server:
     Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work
+        Update:
+            host: 0.0.0.0
+            port: 9081
+
+        Login:
+            host: 0.0.0.0
+            port: 3724
+
         Realm:
             local_realm_id: 1  # id of the realm running on this machine (realmlist table)
 

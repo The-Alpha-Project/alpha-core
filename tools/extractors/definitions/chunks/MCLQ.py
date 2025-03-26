@@ -1,4 +1,4 @@
-from tools.map_extractor.definitions.enums.LiquidFlags import LiquidFlags
+from tools.extractors.definitions.enums.LiquidFlags import LiquidFlags
 
 
 class MCLQ:

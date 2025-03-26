@@ -16,6 +16,9 @@ class Account(Base):
     password = Column(String(256), nullable=False)
     ip = Column(String(256), nullable=False)
     gmlevel = Column(TINYINT(4), nullable=False, server_default=text("1"))
+    salt = Column(String(256), nullable=False)
+    verifier = Column(String(256), nullable=False)
+    sessionkey = Column(String(256), nullable=False)
 
 
 class AppliedUpdate(Base):

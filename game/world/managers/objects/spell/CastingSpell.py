@@ -11,13 +11,13 @@ from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObje
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
-from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers
+from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers, SpellThreatMechanics
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo
+from utils.constants.MiscCodes import  AttackTypes, HitInfo
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags, \
@@ -291,7 +291,11 @@ class CastingSpell:
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT
 
     def generates_threat(self):
-        return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
+        return (not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
+                and SpellThreatMechanics.spell_should_generate_threat(self.spell_entry.ID))
+
+    def generates_threat_on_miss(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_THREAT_ON_MISS
 
     def requires_implicit_initial_unit_target(self):
         # Some spells are self casts, but require an implicit unit target when casted.

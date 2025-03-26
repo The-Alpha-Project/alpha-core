@@ -1,7 +1,7 @@
 from struct import pack
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
-from tools.map_extractor.helpers.Constants import Constants
+from tools.extractors.helpers.Constants import Constants
 from utils.Float16 import Float16
 
 Z_RESOLUTION = 256

@@ -241,5 +241,15 @@ begin not atomic
         insert into applied_updates values ('120620241');
     end if;
 
+    -- 10/01/2025 1
+    if (select count(*) from applied_updates where id='100120251') = 0 then
+        ALTER TABLE `accounts` 
+        ADD COLUMN `salt` VARCHAR(256) NOT NULL AFTER `gmlevel`,
+        ADD COLUMN `verifier` VARCHAR(256) NOT NULL AFTER `salt`,
+        ADD COLUMN `sessionkey` VARCHAR(256) NOT NULL AFTER `verifier`;
+
+        insert into applied_updates values ('100120251');
+    end if;
+
 end $
 delimiter ;

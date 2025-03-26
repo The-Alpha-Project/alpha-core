@@ -76,7 +76,10 @@ class PetMovement(BaseMovement):
 
     # override
     def reset(self):
-        self.spline = None
+        if self.spline:
+            # Make sure the last known position gets updated.
+            self.spline.update_to_now()
+            self.spline = None
         self.pet_range_move = None
 
     # External call.

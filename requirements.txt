@@ -4,3 +4,4 @@ colorama
 SQLAlchemy
 pymysql
 apscheduler
+requests
