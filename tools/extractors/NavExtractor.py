@@ -43,7 +43,17 @@ class NavExtractor:
         SysUtils.modify_file_limit()
 
         try:
-            threads = int(input("Number of threads?:"))
+            available_threads = multiprocessing.cpu_count()
+            while True:
+                try:
+                    threads = int(input("Number of threads?:"))
+                    if not threads or threads > available_threads or threads < 1:
+                        raise ValueError
+                    break
+                except:
+                    Logger.error(f'Invalid number of threads, value must be between 1 and {available_threads}.')
+                    continue
+
             Logger.info('[NavExtractor] Building bhv files...')
             NavExtractor._extract_bhv(data_path)
 
