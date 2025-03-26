@@ -8,8 +8,8 @@ from utils.Logger import Logger
 WOW_DATA_FOLDER = 'Data/'
 WOW_MAPS_FOLDER = 'World/Maps/'
 
-class Extractor:
 
+class Extractor:
     @staticmethod
     def run():
         # Validate WoW root.

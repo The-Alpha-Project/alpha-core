@@ -1,4 +1,5 @@
-import os, hashlib
+import os
+import hashlib
 
 '''
 N	Large safe prime
@@ -8,6 +9,7 @@ k	K value
 
 zero = bytes([0, 0, 0, 0])
 SHA1 = hashlib.sha1
+
 
 class Srp6:
     g = 7
@@ -21,7 +23,7 @@ class Srp6:
     ])
 
     @staticmethod
-    def calculate_x(username:str, password:str, salt:bytes) -> bytes:
+    def calculate_x(username: str, password: str, salt: bytes) -> bytes:
         """
         x = SHA1( salt | SHA1( username | : | password ))
         """
@@ -34,7 +36,7 @@ class Srp6:
         return os.urandom(32)
 
     @staticmethod
-    def calculate_password_verifier(username:str, password:str, salt:bytes) -> bytes:
+    def calculate_password_verifier(username: str, password: str, salt: bytes) -> bytes:
         """
         password_verifier = g^x % N
         """
@@ -43,7 +45,7 @@ class Srp6:
         return int.to_bytes(v, 32, 'little')
 
     @staticmethod
-    def calculate_server_public_key(password_verifier:bytes, server_private_key:bytes) -> bytes:
+    def calculate_server_public_key(password_verifier: bytes, server_private_key: bytes) -> bytes:
         """
         server_public_key = (k * password_verifier + (g^server_private_key % N)) % N
         """
@@ -54,7 +56,7 @@ class Srp6:
         return int.to_bytes(server_public_key, 32, 'little')
 
     @staticmethod
-    def calculate_client_s_key(client_private_key:bytes, server_public_key:bytes, x:bytes, u:bytes) ->bytes:
+    def calculate_client_s_key(client_private_key: bytes, server_public_key: bytes, x: bytes, u: bytes) -> bytes:
         """
         s_key = (server_public_key - (k * (g^x % N)))^(client_private_key + u * x) % N
         """
@@ -78,15 +80,15 @@ class Srp6:
         return int.to_bytes(s_key, 32, 'little')
 
     @staticmethod
-    def calculate_u(client_public_key:bytes, server_public_key:bytes) -> bytes:
+    def calculate_u(client_public_key: bytes, server_public_key: bytes) -> bytes:
         """
         u = SHA1( client_public_key | server_public_key )
         """
-        u = SHA1(client_public_key+ server_public_key).digest()
+        u = SHA1(client_public_key + server_public_key).digest()
         return u
 
     @staticmethod
-    def calculate_interleaved(s_key:bytes) -> bytes:
+    def calculate_interleaved(s_key: bytes) -> bytes:
         """
         session key
         """
@@ -100,7 +102,7 @@ class Srp6:
         return session_key
 
     @staticmethod
-    def calculate_server_proof(client_public_key:bytes, m1:bytes, session_key:bytes) -> bytes:
+    def calculate_server_proof(client_public_key: bytes, m1: bytes, session_key: bytes) -> bytes:
         """
         m2 = SHA1(client_public_key | m1 | session_key)
         """
@@ -108,8 +110,8 @@ class Srp6:
         return m2
 
     @staticmethod
-    def calculate_client_proof(x:bytes, username:str, session_key:bytes, client_public_key:bytes,
-                               server_public_key:bytes, salt:bytes) -> bytes:
+    def calculate_client_proof(x: bytes, username: str, session_key: bytes, client_public_key: bytes,
+                               server_public_key: bytes, salt: bytes) -> bytes:
         """
         m1 = SHA1( x | SHA1(username) | salt | client_public_key | server_public_key | session_key )
         """
@@ -118,7 +120,7 @@ class Srp6:
         return m1
 
     @staticmethod
-    def calculate_client_public_key(a:bytes) -> bytes:
+    def calculate_client_public_key(a: bytes) -> bytes:
         """
         client_public_key = generator^private_client_key % N
         """
@@ -128,7 +130,7 @@ class Srp6:
         return int.to_bytes(client_public_key, 32, 'little')
 
     @staticmethod
-    def calculate_world_server_proof(username:str, client_seed:bytes, server_seed:bytes, session_key:bytes) -> bytes:
+    def calculate_world_server_proof(username: str, client_seed: bytes, server_seed: bytes, session_key: bytes) -> bytes:
         """
         SHA1( username | 0 | client_seed | server_seed | session_key )
         """

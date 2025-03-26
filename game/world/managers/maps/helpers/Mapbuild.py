@@ -20,5 +20,3 @@ class Mapbuild:
     # Checks if gameobjects exist. If `True` the gameobjects will not need to be built.
     def bvh_files_exist(self, output_path):
         pass
-
-

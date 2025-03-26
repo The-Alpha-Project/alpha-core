@@ -9,6 +9,7 @@ from os import path
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
+
 class GitUtils:
     HEAD_FILE_NAME = 'HEAD'
     CONFIG_FILE_NAME = 'config'

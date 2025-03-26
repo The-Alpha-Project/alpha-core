@@ -1,5 +1,6 @@
 import socket
 
+
 class SocketBuilder:
 
     @staticmethod

@@ -7,24 +7,24 @@ from utils.GitUtils import GitUtils
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
-class NavExtractor:
 
+class NavExtractor:
     maps_navs = {
-        'DeadminesInstance' : 36,
-        'GnomeragonInstance' : 1,
-        'Monastery' : 1,
-        'RazorfenDowns' : 1,
-        'RazorfenKraulInstance' : 6,
-        'Blackfathom' : 1,
-        'StormwindJail' : 1,
-        'StormwindPrison' : 1,
-        'SunkenTemple' : 1,
-        'Uldaman' : 1,
-        'WailingCaverns' : 1,
-        'Kalidar' : 56,
-        'Shadowfang' : 25,
-        'Kalimdor' : 951,
-        'Azeroth' : 685
+        'DeadminesInstance': 36,
+        'GnomeragonInstance': 1,
+        'Monastery': 1,
+        'RazorfenDowns': 1,
+        'RazorfenKraulInstance': 6,
+        'Blackfathom': 1,
+        'StormwindJail': 1,
+        'StormwindPrison': 1,
+        'SunkenTemple': 1,
+        'Uldaman': 1,
+        'WailingCaverns': 1,
+        'Kalidar': 56,
+        'Shadowfang': 25,
+        'Kalimdor': 951,
+        'Azeroth': 685
     }
 
     @staticmethod

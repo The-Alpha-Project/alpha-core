@@ -10,6 +10,8 @@ class LoginSessionStateHandler:
         self.client_socket = client_socket
         self.client_address = client_address
 
+        self.keep_alive = False
+
     def handle(self):
         try:
             self.keep_alive = True

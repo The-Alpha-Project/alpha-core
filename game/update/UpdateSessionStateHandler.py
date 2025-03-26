@@ -1,4 +1,5 @@
 import socket
+
 MAX_PACKET_BYTES = 4096
 
 
