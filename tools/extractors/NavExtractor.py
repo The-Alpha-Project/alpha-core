@@ -44,6 +44,7 @@ class NavExtractor:
 
         try:
             available_threads = multiprocessing.cpu_count()
+            threads = 1
             while True:
                 try:
                     threads = int(input(f"Number of threads?: [1-{available_threads}]"))
