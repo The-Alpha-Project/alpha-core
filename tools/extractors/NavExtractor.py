@@ -47,7 +47,7 @@ class NavExtractor:
             threads = 1
             while True:
                 try:
-                    threads = int(input(f"Number of threads?: [1-{available_threads}]"))
+                    threads = int(input(f"Number of threads? [1-{available_threads}]: "))
                     if not threads or threads > available_threads or threads < 1:
                         raise ValueError
                     break
