@@ -203,14 +203,14 @@ if __name__ == '__main__':
         REALM_SERVER_READY.value = 1
         PROXY_SERVER_READY.value = 1
 
-    Logger.info('Booting Alpha core, please wait...')
+    Logger.info('Booting Alpha Core, please wait...')
     # Start processes.
     for process, wait_call in ACTIVE_PROCESSES:
         process.start()
         wait_call()
 
     # Bell sound character.
-    Logger.info('Alpha core is now running.\a')
+    Logger.info('Alpha Core is now running.\a')
 
     # Handle console mode.
     if console_mode and RUNNING.value:
