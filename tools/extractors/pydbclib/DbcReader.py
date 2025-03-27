@@ -41,7 +41,10 @@ class DbcReader:
         file_name = f'{object_type.__name__}.dbc'
         total = self.header.record_count
         for r in range(total):
+            begin = self.reader.tell()
             records.append(self.read(object_type))
+            # Make sure we move pointer to next record in case not everything was parsed.
+            self.reader.seek(begin + self.header.record_size)
             Logger.progress(f'{file_name} reading entries...', r + 1, total, divisions=1)
         return records
 
