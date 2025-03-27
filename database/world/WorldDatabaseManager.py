@@ -902,7 +902,7 @@ class WorldDatabaseManager(object):
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry].append(template)
 
         @staticmethod
-        def get_creature_spell_by_spell_list_id(spell_list_id) -> Optional[list[CreatureSpell]]:
+        def get_creature_spell_by_spell_list_id(spell_list_id) -> Optional[list[CreatureSpellsEntry]]:
             return WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE.get(spell_list_id)
 
     @staticmethod

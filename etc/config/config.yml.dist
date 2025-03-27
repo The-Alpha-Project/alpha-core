@@ -46,18 +46,20 @@ Server:
         view_distance: 100  # Define the maximum distance to determine if an object should be considered visible.
         console_mode: True  # Set it to False if you intend to run the server on background
         # MapTiles:
+        # Extract running main.py -e, files should be automatically placed over '/etc/maps/'
         # Enables terrain Z calculations, improving npc units movement.
         # Enables water related features like fishing, underwater breathing and fatigue.
         # Enables zone exploration feature.
-        use_map_tiles: False  # If True, place 0.5.3 .map files at '/etc/maps/'
+        use_map_tiles: False
         # Float16:
         # True if .map files were extracted using 16bit floats.
         # In order to reduce size and ram, heightfield and liquids can be extracted using half precision 16bit floats.
         use_float_16: False
-        # Nav tiles:
-        # If True, place *nix '.so' or Windows '.pyd' from Namigator inside './namigator'. (https://github.com/The-Alpha-Project/namigator)
-        # Also, place extracted BHV and NAVS data inside 'etc/navs/'. They need to be extracted with the MapBuilder tool
-        # of Namigator.
+        # NavTiles:
+        # Extract running main.py -e, files should be automatically placed over '/etc/navs/'
+        # Enables more precise terrain Z calculations, further improving npc units movement.
+        # Enables path finding for units.
+        # Enables line of sight checks for spell casting and units detection.
         use_nav_tiles: False
 
         debug_movement: False  # Moving NPCs will leave a trail of temporary gameobjects.

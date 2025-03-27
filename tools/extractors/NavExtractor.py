@@ -6,6 +6,7 @@ from time import sleep
 from utils.GitUtils import GitUtils
 from utils.Logger import Logger
 from utils.PathManager import PathManager
+from utils.SysUtils import SysUtils
 
 
 class NavExtractor:
@@ -33,21 +34,29 @@ class NavExtractor:
             Logger.error(f'Unable to locate/download namigator bindings.')
             return
 
-        try:
-            from namigator import mapbuild
-        except:
-            Logger.warning(traceback.format_exc())
-            return
-
         # Internal namigator 'Nav' folder.
         nav_path = os.path.join(PathManager.get_navs_path(), 'Nav')
         if not os.path.exists(nav_path):
             os.mkdir(nav_path)
 
+        # Verify os file limit to avoid 'Errno 24: Too many open files' on nix/mac.
+        SysUtils.modify_file_limit()
+
         try:
-            threads = int(input("Number of threads?:"))
+            available_threads = multiprocessing.cpu_count()
+            threads = 1
+            while True:
+                try:
+                    threads = int(input(f"Number of threads? [1-{available_threads}]: "))
+                    if not threads or threads > available_threads or threads < 1:
+                        raise ValueError
+                    break
+                except:
+                    Logger.error(f'Invalid number of threads, value must be between 1 and {available_threads}.')
+                    continue
+
             Logger.info('[NavExtractor] Building bhv files...')
-            NavExtractor._extract_bhv(data_path, mapbuild)
+            NavExtractor._extract_bhv(data_path)
 
             Logger.info(f'[NavExtractor] Building navs, using {threads} threads.')
             for map_name in NavExtractor.maps_navs.keys():
@@ -57,7 +66,7 @@ class NavExtractor:
 
                 # Extractor process.
                 process = multiprocessing.Process(target=NavExtractor._extract_map,
-                                                  args=(data_path, map_name, threads, mapbuild))
+                                                  args=(data_path, map_name, threads))
                 process.start()
 
                 # Wait for process.
@@ -70,24 +79,20 @@ class NavExtractor:
         Logger.info(f'[NavExtractor] Building nav files for {map_name} ...')
         total = NavExtractor.maps_navs[map_name]
         progress = 0
-        while process.is_alive():
+        while progress != total or process.is_alive():
             progress = NavExtractor._get_progress(map_name)
             if progress:
                 Logger.progress(f'[NavExtractor] Building nav files for {map_name} ...', progress, total)
             sleep(1)
-
-        # Final progress.
-        if progress and progress != total:
-            progress = NavExtractor._get_progress(map_name)
-            Logger.progress(f'[NavExtractor] Building nav files for {map_name} ...', progress, total)
 
     @staticmethod
     def _get_progress(map_name):
         return len(os.listdir(os.path.join(PathManager.get_navs_path(), f'Nav/{map_name}/')))
 
     @staticmethod
-    def _extract_bhv(data_path, mapbuild):
+    def _extract_bhv(data_path):
         try:
+            from namigator import mapbuild
             if mapbuild.bvh_files_exist(PathManager.get_navs_path()):
                 Logger.info(f'[NavExtractor] Skipping bhv files, already found.')
                 return 0
@@ -98,8 +103,9 @@ class NavExtractor:
             Logger.warning(traceback.format_exc())
 
     @staticmethod
-    def _extract_map(data_path, map_name, threads, mapbuild):
+    def _extract_map(data_path, map_name, threads):
         try:
+            from namigator import mapbuild
             if mapbuild.map_files_exist(PathManager.get_navs_path(), map_name):
                 Logger.info(f'[NavExtractor] Skipping map {map_name}, already found.')
                 return

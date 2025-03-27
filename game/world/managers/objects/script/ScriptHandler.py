@@ -808,7 +808,7 @@ class ScriptHandler:
 
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_model_entry)
         if creature_template:
-            command.source.set_display_id(creature_template.display_id)
+            command.source.set_display_id(creature_template.display_id1)
         else:
             Logger.warning(f'ScriptHandler: No creature template found, {command.get_info()}.')
             return command.should_abort()
@@ -839,8 +839,8 @@ class ScriptHandler:
         elif creature_or_model_entry:
             creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
                 creature_or_model_entry)
-            if creature_template and creature_template.display_id:
-                command.source.mount(creature_template.display_id)
+            if creature_template and creature_template.display_id1:
+                command.source.mount(creature_template.display_id1)
             else:
                 command.source.unmount()
 

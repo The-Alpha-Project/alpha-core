@@ -1,4 +1,3 @@
-from tools.extractors.definitions.enums.LiquidFlags import LiquidFlags
 
 
 class MCLQ:

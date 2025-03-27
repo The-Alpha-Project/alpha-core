@@ -7,6 +7,7 @@ class PathManager:
     # Config.
     CONFIG_RELATIVE_PATH = 'etc/config/'
     CONFIG_FILE_NAME = 'config.yml'
+    DEFAULT_CONFIG_FILE_NAME = 'config.yml.dist'
 
     # Maps.
     MAPS_RELATIVE_PATH = 'etc/maps/'
@@ -28,6 +29,10 @@ class PathManager:
     @staticmethod
     def get_config_file_path():
         return path.join(PathManager.ROOT_PATH, PathManager.CONFIG_RELATIVE_PATH, PathManager.CONFIG_FILE_NAME)
+
+    @staticmethod
+    def get_default_config_path():
+        return  path.join(PathManager.ROOT_PATH, PathManager.CONFIG_RELATIVE_PATH, PathManager.DEFAULT_CONFIG_FILE_NAME)
 
     @staticmethod
     def get_navs_path():

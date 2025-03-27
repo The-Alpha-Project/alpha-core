@@ -1,6 +1,9 @@
 import json
+import os
+import shutil
 from collections import namedtuple
 import yaml
+
 from utils.PathManager import PathManager
 
 
@@ -12,6 +15,7 @@ class ConfigManager:
 
     # noinspection PyArgumentList
     def load(self):
+        self.create_default_config_file()
         with open(PathManager.get_config_file_path(), 'r') as stream:
             data = yaml.load(stream, Loader=yaml.Loader)
             self.config = json.loads(
@@ -19,6 +23,13 @@ class ConfigManager:
             )
             return self
 
+    def create_default_config_file(self):
+        if os.path.exists(PathManager.get_config_file_path()):
+            return
+        if not os.path.exists(PathManager.get_default_config_path()):
+            return
+        shutil.copy(PathManager.get_default_config_path(), PathManager.get_config_file_path())
+        print(f"Created default configuration file at {PathManager.get_default_config_path()}")
 
 # Config data holder
 config = ConfigManager().load().config
