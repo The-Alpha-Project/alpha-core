@@ -11,8 +11,8 @@ from utils.Logger import Logger
 class UpdateManager:
     @staticmethod
     def start_update(running, update_server_ready):
-        update_host = config.Server.Connection.Update.host
-        update_port = config.Server.Connection.Update.port
+        update_host = config.Server.Connection.UpdateServer.host
+        update_port = config.Server.Connection.UpdateServer.port
         with SocketBuilder.build_socket(update_host, update_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()

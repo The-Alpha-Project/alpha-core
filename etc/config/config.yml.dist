@@ -1,5 +1,5 @@
 Version:
-    current: 19
+    current: 20
 
 Database:
     Connection:
@@ -15,16 +15,16 @@ Database:
 
 Server:
     Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work
-        Update:
+        Realm:
+            local_realm_id: 1  # id of the realm running on this machine (realmlist table)
+
+        UpdateServer:
             host: 0.0.0.0
             port: 9081
 
-        Login:
+        LoginServer:
             host: 0.0.0.0
             port: 3724
-
-        Realm:
-            local_realm_id: 1  # id of the realm running on this machine (realmlist table)
 
         WorldServer:
             # You can use the FORWARD_ADDRESS_OVERRIDE environment variable to define a different forward IP address
