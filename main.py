@@ -5,6 +5,7 @@ import signal
 from sys import platform
 from time import sleep
 
+
 from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
 from game.update.UpdateManager import UpdateManager
@@ -158,12 +159,6 @@ if __name__ == '__main__':
     LOGIN_SERVER_READY = context.Value('i', 0)
     UPDATE_SERVER_READY = context.Value('i', 0)
 
-    # Print active env vars.
-    for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
-        env_var = os.getenv(env_var_name, '')
-        if env_var:
-            Logger.info(f'Environment variable {env_var_name}: {env_var}')
-
     launch_realm = not args.launch or args.launch == 'realm'
     launch_world = not args.launch or args.launch == 'world'
     console_mode = os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
@@ -208,6 +203,12 @@ if __name__ == '__main__':
     for process, wait_call in ACTIVE_PROCESSES:
         process.start()
         wait_call()
+
+    # Print active env vars.
+    for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
+        env_var = os.getenv(env_var_name, '')
+        if env_var:
+            Logger.info(f'Environment variable {env_var_name}: {env_var}')
 
     # Bell sound character.
     Logger.info('Alpha Core is now running.\a')
