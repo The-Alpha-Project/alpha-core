@@ -3,7 +3,6 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import Group, GroupMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.Formulas import Distances

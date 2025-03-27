@@ -5,7 +5,7 @@ import time
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType, MoveFlags
+from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import UnitFlags
 

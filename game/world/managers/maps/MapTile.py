@@ -1,5 +1,4 @@
 import os
-import traceback
 from os import path
 from struct import unpack
 

@@ -1,6 +1,5 @@
 from struct import unpack
 from utils.constants.UnitCodes import UnitFlags
-from utils.constants.UpdateFields import *
 
 
 class LootRequestHandler(object):

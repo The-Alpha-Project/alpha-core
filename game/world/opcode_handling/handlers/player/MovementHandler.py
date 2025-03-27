@@ -1,7 +1,6 @@
 from struct import error
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
-from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
