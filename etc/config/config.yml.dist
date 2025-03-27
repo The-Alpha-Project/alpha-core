@@ -55,7 +55,7 @@ Server:
         # True if .map files were extracted using 16bit floats.
         # In order to reduce size and ram, heightfield and liquids can be extracted using half precision 16bit floats.
         use_float_16: False
-        # Nav tiles:
+        # NavTiles:
         # Extract running main.py -e, files should be automatically placed over '/etc/navs/'
         # Enables more precise terrain Z calculations, further improving npc units movement.
         # Enables path finding for units.
