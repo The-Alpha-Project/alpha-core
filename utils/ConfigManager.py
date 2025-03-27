@@ -29,7 +29,8 @@ class ConfigManager:
         if not os.path.exists(PathManager.get_default_config_path()):
             return
         shutil.copy(PathManager.get_default_config_path(), PathManager.get_config_file_path())
-        print(f"Created default configuration file at {PathManager.get_default_config_path()}")
+        print(f'Created default configuration file at {PathManager.get_default_config_path()}')
+
 
 # Config data holder
 config = ConfigManager().load().config
