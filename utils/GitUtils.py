@@ -20,32 +20,43 @@ class GitUtils:
     @staticmethod
     def check_download_namigator_bindings():
         try:
-            if os.name == 'nt':
-                ext = 'pyd'
-                os_prefix = 'win'
-            else:
-                ext = 'so'
-                os_prefix = 'nix'
+            ext = 'pyd' if os.name == 'nt' else 'so'
+            os_prefix = 'win' if os.name == 'nt' else 'nix'
+            pathfind_path = f'namigator/{GitUtils.PATHFIND_FILE_NAME}.{ext}'
+            mapbuild_path = f'namigator/{GitUtils.MAPBUILD_FILE_NAME}.{ext}'
 
-            # TODO: lib naming which includes python version in order to check if we need to update/downgrade.
-            if (os.path.isfile('namigator/' + GitUtils.MAPBUILD_FILE_NAME + '.' + ext)
-                    and os.path.isfile('namigator/' + GitUtils.PATHFIND_FILE_NAME + '.' + ext)):
-                Logger.info('[Namigator] Found python bindings.')
+            # TODO: Improve this logic?
+            if os.path.isfile(pathfind_path):
+                Logger.info('[Namigator] Found Python bindings.')
+                if not os.path.isfile(mapbuild_path):
+                    Logger.warning(
+                        f"[Namigator] {GitUtils.MAPBUILD_FILE_NAME}.{ext} not found; "
+                        "map extraction won't be possible. Please clear the namigator folder "
+                        "to automatically download all required dependencies."
+                    )
                 return True
 
-            py_runtime = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
-            filename = 'namigator_' + os_prefix + '_' + py_runtime + '.zip'
-            download_url = GitUtils.BASE_NAMIGATOR_URL + filename
+            py_runtime = f"{sys.version_info[0]}.{sys.version_info[1]}"
+            filename = f'namigator_{os_prefix}_{py_runtime}.zip'
+            download_url = f'{GitUtils.BASE_NAMIGATOR_URL}{filename}'
 
+            Logger.info(f'[Namigator] Attempting to download {download_url}')
             zip_data = requests.get(download_url)
-            Logger.info('[Namigator] Attempting to download ' + download_url)
+            zip_data.raise_for_status()  # Ensure we catch HTTP errors.
+
             with zipfile.ZipFile(BytesIO(zip_data.content)) as zip_file:
                 zip_file.extractall('namigator')
-            Logger.info('[Namigator] Binding installed.')
 
+            Logger.info('[Namigator] Binding installed.')
             return True
-        except:
-            return False
+        except requests.RequestException as e:
+            Logger.error(f'[Namigator] Download failed: {e}')
+        except zipfile.BadZipFile:
+            Logger.error('[Namigator] Invalid zip file format.')
+        except Exception as e:
+            Logger.error(f'[Namigator] Unexpected error: {e}')
+
+        return False
 
     @staticmethod
     def get_head_path():
