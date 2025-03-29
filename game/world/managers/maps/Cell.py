@@ -61,6 +61,8 @@ class Cell:
 
     @staticmethod
     def _object_in_visible_range(source, world_object):
+        if source is world_object or world_object.is_transport():
+            return True
         return source.location.distance(world_object.location) <= VIEW_DISTANCE
 
     def has_players(self):
