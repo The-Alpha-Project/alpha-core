@@ -88,12 +88,12 @@ class AuthSessionHandler(object):
         account_mgr = RealmDatabaseManager.account_try_get(username)
         # Can only auto generate accounts through old wow.ses which exposes plain password.
         if not account_mgr and config.Server.Settings.auto_create_accounts and password:
-            salt = Srp6.generate_salt().hex()
+            salt = Srp6.generate_salt()
             verifier = Srp6.calculate_password_verifier(username, password, salt).hex()
             account_mgr = RealmDatabaseManager.account_create(username,
                                                               hashlib.sha256(password.encode('utf-8')).hexdigest(),
                                                               world_session.client_socket.getpeername()[0],
-                                                              salt, verifier)
+                                                              salt.hex(), verifier)
 
         if not account_mgr:
             AuthSessionHandler.send_result(world_session, AuthCode.AUTH_UNKNOWN_ACCOUNT)
