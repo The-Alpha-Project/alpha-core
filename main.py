@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import argparse
 import signal
+import sys
 from sys import platform
 from time import sleep
 
@@ -74,6 +75,7 @@ def handle_console_commands():
 
 def handler_stop_signals(signum, frame):
     RUNNING.value = 0
+    sys.stdin.write('exit\n')
 
 
 def wait_world_server():
