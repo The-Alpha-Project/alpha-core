@@ -59,6 +59,14 @@ class StreamReader:
 
         return unpack('<I', self.stream.read(4))[0]
 
+    def read_uint32(self, seek=0, skip=0):
+        if seek:
+            self.set_position(seek)
+        if skip:
+            self.move_forward(skip)
+
+        return unpack('<i', self.stream.read(4))[0]
+
     def read_float(self, seek=0, skip=0):
         if seek:
             self.set_position(seek)
@@ -66,3 +74,12 @@ class StreamReader:
             self.move_forward(skip)
 
         return unpack('<f', self.stream.read(4))[0]
+
+    def read_string(self, terminator='\x00'):
+        tmp_string = ''
+        tmp_char = chr(unpack('<B', self.stream.read(1))[0])
+        while tmp_char != terminator:
+            tmp_string += tmp_char
+            tmp_char = chr(unpack('<B', self.stream.read(1))[0])
+
+        return tmp_string

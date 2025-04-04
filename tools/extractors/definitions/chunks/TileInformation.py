@@ -4,9 +4,11 @@ from tools.extractors.definitions.enums.LiquidFlags import LiquidFlags
 
 
 class TileInformation:
-    def __init__(self, flags, has_liquids, area_number, holes_low_mask, mcvt, mclq):
+    def __init__(self, flags, has_liquids, area_number, holes_low_mask, d_refs, w_refs, mcvt, mclq):
         self.flags: int = flags
         self.has_liquids: bool = has_liquids
+        self.doodad_refs = d_refs
+        self.wmo_refs = w_refs
         self.area_number: int = area_number
         self.holes_low_mask: int = holes_low_mask
         self.mcvt: MCVT = mcvt  # Heightfield.
@@ -16,11 +18,27 @@ class TileInformation:
     def from_reader(stream_reader):
         flags = stream_reader.read_int()
         has_liquids = flags & LiquidFlags.HAS_LIQUID != 0
-        offs_height = stream_reader.read_int(skip=20)
-        area_number = stream_reader.read_int(skip=28)
-        holes_low_mask = stream_reader.read_uint16(skip=4)
+        doodad_count = stream_reader.read_int(skip=16)
+        offs_height = stream_reader.read_int()
+        offs_mcrf = stream_reader.read_int(skip=8)
+        area_number = stream_reader.read_int(skip=16)
+        wmo_count = stream_reader.read_int()
+        holes_low_mask = stream_reader.read_uint16()
         offs_liquids = stream_reader.read_int(skip=34)
         header_offset = stream_reader.get_position(skip=24)
+
+        d_refs = None
+        w_refs = None
+        if offs_mcrf and (doodad_count or wmo_count):
+            stream_reader.set_position(offs_mcrf + header_offset)
+            # Move to next token.
+            error, token, size = stream_reader.read_chunk_information('MCRF')
+            if error:
+                return
+            if doodad_count:
+                d_refs = [stream_reader.read_uint32() for _ in range(doodad_count)]
+            if wmo_count:
+                w_refs = [stream_reader.read_uint32() for _ in range(wmo_count)]
 
         # Read MCVT.
         stream_reader.set_position(offs_height + header_offset)
@@ -33,4 +51,4 @@ class TileInformation:
                 liquids.append(MCLQ.from_reader(stream_reader, flag))
             has_liquids = len(liquids) > 0
 
-        return TileInformation(flags, has_liquids, area_number, holes_low_mask, mcvt, liquids)
+        return TileInformation(flags, has_liquids, area_number, holes_low_mask, d_refs, w_refs, mcvt, liquids)

@@ -1,3 +1,4 @@
+import os
 from os import path
 
 
@@ -12,11 +13,17 @@ class PathManager:
     # Maps.
     MAPS_RELATIVE_PATH = 'etc/maps/'
 
-    # Navs
+    # Navs.
     NAVS_RELATIVE_PATH = 'etc/navs/'
 
     # Git.
     GIT_RELATIVE_PATH = '.git/'
+
+    # File path cache.
+    FILE_PATHS = dict()
+
+    # Mdx.
+    MDX_RELATIVE_PATH = 'etc/mdx/'
 
     @staticmethod
     def set_root_path(root_path):
@@ -51,5 +58,28 @@ class PathManager:
         return path.join(PathManager.get_maps_path(), map_file)
 
     @staticmethod
+    def get_mdx_path():
+        return path.join(PathManager.ROOT_PATH, PathManager.MDX_RELATIVE_PATH)
+
+    @staticmethod
     def get_git_path():
         return path.join(PathManager.ROOT_PATH, PathManager.GIT_RELATIVE_PATH)
+
+    @staticmethod
+    def find_mpq_path(directory, file_name):
+        file_name = file_name.lower()
+
+        # Fill file paths cache.
+        if not PathManager.FILE_PATHS:
+            PathManager._fill_file_paths(directory, PathManager.FILE_PATHS)
+
+        if file_name in PathManager.FILE_PATHS:
+            return PathManager.FILE_PATHS[file_name]
+
+        return None
+
+    @staticmethod
+    def _fill_file_paths(directory, cache):
+        for base, _, files in os.walk(directory):
+            for f in files:
+                cache[path.basename(f).lower().replace('.mpq', '')] = path.join(base, f)

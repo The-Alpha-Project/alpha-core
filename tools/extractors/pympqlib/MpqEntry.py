@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 from struct import unpack
 from tools.extractors.pympqlib.MpqFlags import MpqFlags
@@ -17,11 +18,15 @@ class MpqEntry:
         self._file_offset = 0
         self.file_pos = 0
         self.filename = ''
+        self.file_path = ''
 
     def set_filename(self, filename):
         self.filename = filename
         self.encryption_seed = self.calculate_encryption_seed()
-        self.filename = self.filename.rsplit("\\")[-1]
+        n_path = os.path.normpath(filename)
+        n_path = n_path.replace('\\', '/')
+        self.file_path = n_path
+        self.filename = os.path.basename(n_path)
 
     def is_encrypted(self):
         return self.flags & MpqFlags.Encrypted

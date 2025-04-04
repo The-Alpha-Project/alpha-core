@@ -1,6 +1,10 @@
+import os
 from io import BytesIO
 
 from game.world.managers.maps.helpers.Constants import BLOCK_SIZE
+from tools.extractors.definitions.chunks.MDNM import MDMN
+from tools.extractors.definitions.chunks.MONM import MONM
+from tools.extractors.definitions.chunks.MPHD import MPHD
 from utils.Logger import Logger
 from tools.extractors.definitions.Adt import Adt
 from tools.extractors.helpers.Constants import Constants
@@ -9,12 +13,17 @@ from tools.extractors.definitions.reader.StreamReader import StreamReader
 
 
 class Wdt:
-    def __init__(self, dbc_map, mpq_reader):
+    def __init__(self, dbc_map, mpq_reader, wow_data_path, mdx_data_path):
         self.name = dbc_map.name
         self.mpq_reader = mpq_reader
         self.stream_reader = None
         self.dbc_map = dbc_map
         self.adt_version = 0  # 18
+        self.map_header = None
+        self.wmo_filenames = []
+        self.doodad_filenames = []
+        self.wow_data_path = wow_data_path
+        self.mdx_data_path = mdx_data_path
         self.tile_information = [[type[TileHeader] for _ in range(64)] for _ in range(64)]
         self.adt_data = [[type[Adt] for _ in range(64)] for _ in range(64)]
 
@@ -49,8 +58,10 @@ class Wdt:
             Logger.warning(f'{error}')
             return
 
+        self.map_header = MPHD.from_reader(stream_reader=self.stream_reader)
+
         # Move to next token.
-        error, token, size = self.stream_reader.read_chunk_information('MAIN', skip=size)
+        error, token, size = self.stream_reader.read_chunk_information('MAIN')
         if error:
             Logger.warning(f'{error}')
             return
@@ -65,14 +76,22 @@ class Wdt:
             Logger.warning(f'{error}')
             return
 
+        with MDMN(stream_reader=self.stream_reader, size=size, data_path=self.mdx_data_path) as chunk:
+            for filename in chunk.doodad_filenames:
+                self.doodad_filenames.append(filename)
+
         # Move to next token.
-        error, token, size = self.stream_reader.read_chunk_information('MONM', skip=size)
+        error, token, size = self.stream_reader.read_chunk_information('MONM')
         if error:
             Logger.warning(f'{error}')
             return
 
+        with MONM(stream_reader=self.stream_reader, size=size, data_path=self.wow_data_path) as chunk:
+            for filename in chunk.wmo_filenames:
+                self.wmo_filenames.append(filename)
+
         # Move to next token.
-        error, token, size = self.stream_reader.read_chunk_information('MODF', skip=size)
+        error, token, size = self.stream_reader.read_chunk_information('MODF')
         # Optional for WMO based.
         if error and token != 'MHDR':
             Logger.warning(f'Map [{self.dbc_map.name}] is WMO based, skipping.')
@@ -91,4 +110,4 @@ class Wdt:
                 self.stream_reader.set_position(tile_info.offset)
                 # Parse and write .map file for this adt.
                 with Adt.from_reader(self.dbc_map.id, x, y, self.stream_reader) as adt:
-                    adt.write_to_map_file()
+                    adt.write_to_map_file(self.doodad_filenames, self.wmo_filenames, self.wow_data_path, self.mdx_data_path)

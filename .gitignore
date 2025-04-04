@@ -26,3 +26,4 @@ venv
 # Compiled libs
 **.pyd
 **.so
+/etc/mdx

@@ -73,11 +73,16 @@ class MpqArchive:
             return False
 
         with MpqReader(self, mpq_entry) as mpq_reader:
+            i = 0
+            total = len(self.mpq_entries)
             while not mpq_reader.end_of_stream():
+                i += 1
+                Logger.progress(f'{self.name} processing (listfile) ...', i, total, divisions=1)
                 filename = mpq_reader.read_line()
                 hash_entry = self._try_get_hash_entry(filename)
                 if hash_entry:
                     self.mpq_entries[hash_entry.block_index].set_filename(filename)
+            Logger.progress(f'{self.name} processing (listfile) ...', total, total, divisions=1)
 
         return True
 
@@ -147,7 +152,7 @@ class MpqArchive:
             for i in range(0, self.header.block_table_size):
                 mpq_entry = MpqEntry.from_data(self, stream)
                 self.mpq_entries.append(mpq_entry)
-                Logger.progress(f'{self.name} unpacking data...', i + 1, self.header.block_table_size, divisions=1)
+                Logger.progress(f'{self.name} reading mpq entries ...', i + 1, self.header.block_table_size, divisions=1)
 
     def build_storm_buffer(self):
         seed = 0x100001

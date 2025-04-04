@@ -1,5 +1,9 @@
 import os
 from struct import pack
+
+from tools.extractors.definitions.chunks.MDDF import MDDF
+from tools.extractors.definitions.chunks.MHDR import MHDR
+from tools.extractors.definitions.chunks.MODF import MODF
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 from network.packet.PacketWriter import PacketWriter
@@ -17,6 +21,9 @@ class Adt:
         self.adt_x = x
         self.adt_y = y
         self.is_flat = True
+        self.header = None
+        self.wmo_placements = None
+        self.doodad_placements = None
         self.chunks_information = [[type[TileHeader] for _ in range(16)] for _ in range(16)]
         self.tiles = [[type[TileInformation] for _ in range(16)] for _ in range(16)]
 
@@ -24,6 +31,8 @@ class Adt:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.wmo_placements = None
+        self.header = None
         self.chunks_information.clear()
         self.chunks_information = None
         self.tiles.clear()
@@ -33,18 +42,42 @@ class Adt:
         filename = f'{self.map_id:03}{self.adt_x:02}{self.adt_y:02}.map'
         return os.path.join(PathManager.get_maps_path(), filename)
 
-    def write_to_map_file(self):
+    def write_to_map_file(self, doodad_filenames, wmo_filenames, wow_data_path, mdx_data_path):
         with open(self.get_filepath(), 'wb') as file_writer:
             # Write version.
             file_writer.write(PacketWriter.string_to_bytes(Constants.MAPS_VERSION))
             # Write heightfield.
-            with HeightField(self) as heightfield:
-                heightfield.write_to_file(file_writer)
+            self._write_heightfield(file_writer)
             # Write area information.
             self._write_area_information(file_writer)
             # Write liquids.
-            with LiquidAdtWriter(self) as liquids:
-                liquids.write_to_file(file_writer)
+            self._write_liquids(file_writer)
+
+            if self.wmo_placements and wmo_filenames:
+                self.wmo_placements.sort(key=lambda x: x.unique_id)
+                for wmo_placement in self.wmo_placements:
+                    print(wmo_filenames[wmo_placement.name_id])
+                    print(wmo_placement.position)
+                    print(wmo_placement.rotation)
+                    print(wmo_placement.extents.min)
+                    print(wmo_placement.extents.max)
+                    print(str(wmo_placement.unique_id) + '\n')
+
+            if self.doodad_placements and doodad_filenames:
+                self.doodad_placements.sort(key=lambda x: x.unique_id)
+                for doodad_placement in self.doodad_placements:
+                    print(doodad_filenames[doodad_placement.name_id])
+                    print(doodad_placement.position)
+                    print(doodad_placement.rotation)
+                    print(str(doodad_placement.unique_id) + '\n')
+
+    def _write_heightfield(self, file_writer):
+        with HeightField(self) as heightfield:
+            heightfield.write_to_file(file_writer)
+
+    def _write_liquids(self, file_writer):
+        with LiquidAdtWriter(self) as liquids:
+            liquids.write_to_file(file_writer)
 
     def _write_area_information(self, file_writer):
         for cy in range(Constants.TILE_SIZE):
@@ -66,8 +99,10 @@ class Adt:
             Logger.warning(f'{error}')
             return
 
-        # 16x16 chunk map.
-        error, token, size = stream_reader.read_chunk_information('MCIN', skip=size)
+        adt.adt_header = MHDR.from_reader(stream_reader=stream_reader)
+
+        # 256 Entries, so a 16*16 Chunk map.
+        error, token, size = stream_reader.read_chunk_information('MCIN')
         if error:
             Logger.warning(f'{error}')
             return
@@ -76,22 +111,31 @@ class Adt:
             for y in range(Constants.TILE_SIZE):
                 adt.chunks_information[x][y] = TileHeader.from_reader(stream_reader)
 
+        # List of textures used for texturing the terrain in this map tile.
         error, token, size = stream_reader.read_chunk_information('MTEX')
         if error:
             Logger.warning(f'{error}')
             return
 
         # Move to next token. (Optional)
+        # Placement information for doodads.
         error, token, size = stream_reader.read_chunk_information('MDDF', skip=size)
         if error:
             Logger.warning(f'{error}')
             return
 
+        if size:
+            adt.doodad_placements = MDDF.from_reader(stream_reader, size=size)
+
         # Move to next token. (Optional)
-        error, token, size = stream_reader.read_chunk_information('MODF', skip=size)
+        # Placement information for WMOs.
+        error, token, size = stream_reader.read_chunk_information('MODF')
         if error:
             Logger.warning(f'{error}')
             return
+
+        if size:
+            adt.wmo_placements = MODF.from_reader(stream_reader, size=size)
 
         # ADT data.
         for x in range(Constants.TILE_SIZE):
