@@ -50,34 +50,38 @@ class Adt:
             self._write_heightfield(file_writer)
             # Write area information.
             self._write_area_information(file_writer)
-            # Write liquids.
-            self._write_liquids(file_writer)
-
-            if self.wmo_placements and wmo_filenames:
-                self.wmo_placements.sort(key=lambda x: x.unique_id)
-                for wmo_placement in self.wmo_placements:
-                    print(wmo_filenames[wmo_placement.name_id])
-                    print(wmo_placement.position)
-                    print(wmo_placement.rotation)
-                    print(wmo_placement.extents.min)
-                    print(wmo_placement.extents.max)
-                    print(str(wmo_placement.unique_id) + '\n')
-
-            if self.doodad_placements and doodad_filenames:
-                self.doodad_placements.sort(key=lambda x: x.unique_id)
-                for doodad_placement in self.doodad_placements:
-                    print(doodad_filenames[doodad_placement.name_id])
-                    print(doodad_placement.position)
-                    print(doodad_placement.rotation)
-                    print(str(doodad_placement.unique_id) + '\n')
+            # Write adt liquids.
+            self._write_adt_liquids(file_writer)
+            # Write wmo liquids.
+            self._write_wmo_liquids(file_writer, wmo_filenames, doodad_filenames)
 
     def _write_heightfield(self, file_writer):
         with HeightField(self) as heightfield:
             heightfield.write_to_file(file_writer)
 
-    def _write_liquids(self, file_writer):
+    def _write_adt_liquids(self, file_writer):
         with LiquidAdtWriter(self) as liquids:
             liquids.write_to_file(file_writer)
+
+    def _write_wmo_liquids(self, file_writer, wmo_filenames, doodad_filenames):
+
+        if self.wmo_placements and wmo_filenames:
+            self.wmo_placements.sort(key=lambda x: x.unique_id)
+            for wmo_placement in self.wmo_placements:
+                print(wmo_filenames[wmo_placement.name_id])
+                print(wmo_placement.position)
+                print(wmo_placement.rotation)
+                print(wmo_placement.extents.min)
+                print(wmo_placement.extents.max)
+                print(str(wmo_placement.unique_id) + '\n')
+
+        if self.doodad_placements and doodad_filenames:
+            self.doodad_placements.sort(key=lambda x: x.unique_id)
+            for doodad_placement in self.doodad_placements:
+                print(doodad_filenames[doodad_placement.name_id])
+                print(doodad_placement.position)
+                print(doodad_placement.rotation)
+                print(str(doodad_placement.unique_id) + '\n')
 
     def _write_area_information(self, file_writer):
         for cy in range(Constants.TILE_SIZE):
