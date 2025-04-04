@@ -8,6 +8,9 @@
 etc/config/config.yml
 etc/logs
 
+# Extractor
+etc/mdx
+
 # virtualenv folder
 venv
 
@@ -22,8 +25,9 @@ venv
 **.nav
 **.bvh
 **.idx
+**.mdx
 
 # Compiled libs
 **.pyd
 **.so
-/etc/mdx
+
