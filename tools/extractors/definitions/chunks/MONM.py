@@ -27,7 +27,7 @@ class MONM:
     def _find_path(self, entry):
         n_path = os.path.normpath(entry)
         n_path = n_path.replace('\\', '/')
-        res = PathManager.find_mpq_path(self.data_path, os.path.basename(n_path))
+        res = PathManager.find_mpq_path(self.data_path, os.path.basename(n_path), is_wmo=True)
         return res
 
     def __exit__(self, exc_type, exc_value, traceback):

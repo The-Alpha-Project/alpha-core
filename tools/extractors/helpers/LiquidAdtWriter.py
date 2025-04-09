@@ -6,11 +6,12 @@ from utils.Float16 import Float16
 
 
 class LiquidAdtWriter:
-    def __init__(self, adt):
+    def __init__(self, adt, wmo_lq_heights):
         self.adt = adt
         self.use_float_16 = config.Extractor.Maps.use_float_16
         self.lq_show = [[False for _ in range(Constants.GRID_SIZE)] for _ in range(Constants.GRID_SIZE)]
         self.lq_height = [[0.0 for _ in range(Constants.GRID_SIZE + 1)] for _ in range(Constants.GRID_SIZE + 1)]
+        self.wmo_lq_heights = wmo_lq_heights
         self.lq_flags = [[0 for _ in range(Constants.GRID_SIZE + 1)] for _ in range(Constants.GRID_SIZE + 1)]
 
     def __enter__(self):
@@ -61,12 +62,17 @@ class LiquidAdtWriter:
         for y in range(Constants.GRID_SIZE):
             for x in range(Constants.GRID_SIZE):
                 if self.lq_show[y][x] is True:
-                    file_writer.write(pack('<b', self.lq_flags[y][x]))
-                    # 32 bit Full precision.
-                    if not self.use_float_16:
-                        file_writer.write(pack('<f', self.lq_height[y][x]))
-                        continue
-                    # 16 bit Half precision.
-                    file_writer.write(pack('>h', Float16.compress(self.lq_height[y][x])))
-                else:
+                    self._write_cell_liquid(file_writer, self.lq_height[y][x], self.lq_flags[y][x])
+                elif self.wmo_lq_heights and self.wmo_lq_heights[y][x]:
+                    self._write_cell_liquid(file_writer, self.wmo_lq_heights[y][x], LiquidFlags.FLAG_LQ_RIVER.value)
+                else:  # Empty cell.
                     file_writer.write(pack('<b', -1))
+
+    def _write_cell_liquid(self, file_writer, height, flag):
+        file_writer.write(pack('<b', flag))
+        # 32 bit Full precision.
+        if not self.use_float_16:
+            file_writer.write(pack('<f', height))
+            return
+        # 16 bit Half precision.
+        file_writer.write(pack('>h', Float16.compress(height)))

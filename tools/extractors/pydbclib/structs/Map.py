@@ -22,14 +22,14 @@ class Map:
         return os.path.exists(self.get_wdt_path(root_path))
 
     def get_wdt_path(self, root_path):
-        return os.path.join(os.path.join(root_path, self.directory), self.name) + '.wdt.MPQ'
+        return os.path.join(os.path.join(root_path, self.directory), self.directory) + '.wdt.MPQ'
 
     @staticmethod
     def from_bytes(dbc_reader):
-        id_ = dbc_reader.read_int()
+        id_ = dbc_reader.read_int32()
         directory = dbc_reader.read_string()
-        pvp = dbc_reader.read_int()
-        is_in_map = dbc_reader.read_int()
+        pvp = dbc_reader.read_int32()
+        is_in_map = dbc_reader.read_int32()
         name_en_us = dbc_reader.read_string()
         name_en_gb = dbc_reader.read_string()
         name_ko_kr = dbc_reader.read_string()
@@ -38,7 +38,7 @@ class Map:
         name_en_cn = dbc_reader.read_string()
         name_zh_ch = dbc_reader.read_string()
         name_en_tw = dbc_reader.read_string()
-        mask = dbc_reader.read_int()
+        mask = dbc_reader.read_int32()
 
         return Map(id_, directory, pvp, is_in_map, name_en_us, name_en_gb, name_ko_kr, name_fr_fr, name_de_de,
                    name_en_cn, name_zh_ch, name_en_tw, mask)

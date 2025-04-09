@@ -1,17 +1,36 @@
+import math
+
 from tools.extractors.definitions.objects.CAaBox import CAaBox
 from tools.extractors.definitions.objects.Vector3 import Vector3
+from utils.Matrix import Matrix
 
 
 class MODF:
     def __init__(self):
         self.name_id = 0
         self.unique_id = 0
-        self.position = 0
-        self.rotation = 0
-        self.extents = 0
+        self.position = None
+        self.rotation = None
+        self.extents = None
         self.flags = 0
         self.doodadSet = 0
         self.name_set = 0
+
+    def get_transform_matrix(self):
+        mid = 32.0 * 533.3333
+
+        rot_x = self.rotation.Z * (math.pi / 180.0)
+        rot_y = self.rotation.X * (math.pi / 180.0)
+        rot_z = (self.rotation.Y + 180.0) * (math.pi / 180.0)
+
+        base_position = Vector3(mid - self.position.Z, mid - self.position.X, self.position.Y)
+        translation_matrix = Matrix.create_translation_matrix(base_position)
+
+        matrix = (translation_matrix * Matrix.create_rotation_z(rot_z)
+                  * Matrix.create_rotation_y(rot_y)
+                  * Matrix.create_rotation_x(rot_x))
+
+        return matrix
 
     @staticmethod
     def from_reader(stream_reader, size):

@@ -48,7 +48,7 @@ class Wdt:
             Logger.warning(f'{error}')
             return
 
-        self.adt_version = self.stream_reader.read_int()
+        self.adt_version = self.stream_reader.read_int32()
         if self.adt_version != 18:
             Logger.warning('Wrong ADT version.')
             return
@@ -90,12 +90,15 @@ class Wdt:
             for filename in chunk.wmo_filenames:
                 self.wmo_filenames.append(filename)
 
-        # Move to next token.
+        # Move to next token. (Optional)
         error, token, size = self.stream_reader.read_chunk_information('MODF')
-        # Optional for WMO based.
         if error and token != 'MHDR':
-            Logger.warning(f'Map [{self.dbc_map.name}] is WMO based, skipping.')
+            Logger.warning(f'{error}')
             return
+        # Optional for WMO based.
+        elif token == 'MODF':
+            Logger.warning(f'Map [{self.dbc_map.name}] is WMO based, skipping.')
+            pass  # TODO, wmo based.
 
         # ADT data.
         total = Constants.TILE_BLOCK_SIZE * Constants.TILE_BLOCK_SIZE
@@ -109,5 +112,5 @@ class Wdt:
                     continue
                 self.stream_reader.set_position(tile_info.offset)
                 # Parse and write .map file for this adt.
-                with Adt.from_reader(self.dbc_map.id, x, y, self.stream_reader) as adt:
+                with Adt.from_reader(self.dbc_map.id, x, y, self.wmo_filenames, self.stream_reader) as adt:
                     adt.write_to_map_file(self.doodad_filenames, self.wmo_filenames, self.wow_data_path, self.mdx_data_path)

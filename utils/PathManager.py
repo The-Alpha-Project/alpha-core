@@ -19,8 +19,11 @@ class PathManager:
     # Git.
     GIT_RELATIVE_PATH = '.git/'
 
-    # File path cache.
-    FILE_PATHS = dict()
+    # MDX file path cache.
+    MDX_FILE_PATHS = dict()
+
+    # WMO file path cache.
+    WMO_FILE_PATHS = dict()
 
     # Mdx.
     MDX_RELATIVE_PATH = 'etc/mdx/'
@@ -66,15 +69,16 @@ class PathManager:
         return path.join(PathManager.ROOT_PATH, PathManager.GIT_RELATIVE_PATH)
 
     @staticmethod
-    def find_mpq_path(directory, file_name):
+    def find_mpq_path(directory, file_name, is_wmo=False):
         file_name = file_name.lower()
+        cache = PathManager.MDX_FILE_PATHS if not is_wmo else PathManager.WMO_FILE_PATHS
 
         # Fill file paths cache.
-        if not PathManager.FILE_PATHS:
-            PathManager._fill_file_paths(directory, PathManager.FILE_PATHS)
+        if not cache:
+            PathManager._fill_file_paths(directory, cache)
 
-        if file_name in PathManager.FILE_PATHS:
-            return PathManager.FILE_PATHS[file_name]
+        if file_name in cache:
+            return cache[file_name]
 
         return None
 

@@ -93,7 +93,7 @@ class MapTile(object):
         return False
 
     def load_maps_data(self):
-        if not config.Server.Settings.use_map_tiles or self.map_.is_dungeon():  # No .map files for dungeons.
+        if not config.Server.Settings.use_map_tiles:  # No .map files for dungeons.
             return False
         filename = f'{self.map_id:03}{self.adt_x:02}{self.adt_y:02}.map'
         maps_path = PathManager.get_map_file_path(filename)
@@ -148,6 +148,7 @@ class MapTile(object):
                             height = unpack('<f', map_tiles.read(4))[0]
                         # noinspection PyTypeChecker
                         self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, height, use_f16)
+
         return True
 
     # noinspection PyMethodMayBeStatic

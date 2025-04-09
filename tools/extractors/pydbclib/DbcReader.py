@@ -51,7 +51,7 @@ class DbcReader:
     def read(self, object_type):
         return object_type.from_bytes(self)
 
-    def read_int(self):
+    def read_int32(self):
         return unpack('<I', self.reader.read(4))[0]
 
     def read_float(self):

@@ -16,15 +16,15 @@ class TileInformation:
 
     @staticmethod
     def from_reader(stream_reader):
-        flags = stream_reader.read_int()
+        flags = stream_reader.read_int32()
         has_liquids = flags & LiquidFlags.HAS_LIQUID != 0
-        doodad_count = stream_reader.read_int(skip=16)
-        offs_height = stream_reader.read_int()
-        offs_mcrf = stream_reader.read_int(skip=8)
-        area_number = stream_reader.read_int(skip=16)
-        wmo_count = stream_reader.read_int()
+        doodad_count = stream_reader.read_int32(skip=16)
+        offs_height = stream_reader.read_int32()
+        offs_mcrf = stream_reader.read_int32(skip=8)
+        area_number = stream_reader.read_int32(skip=16)
+        wmo_count = stream_reader.read_int32()
         holes_low_mask = stream_reader.read_uint16()
-        offs_liquids = stream_reader.read_int(skip=34)
+        offs_liquids = stream_reader.read_int32(skip=34)
         header_offset = stream_reader.get_position(skip=24)
 
         d_refs = None

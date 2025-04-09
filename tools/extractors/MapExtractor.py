@@ -14,6 +14,7 @@ from tools.extractors.pydbclib.structs.AreaTable import AreaTable
 
 REQUIRED_DBC = 'dbc.MPQ'
 REQUIRED_MODELS_DBC = 'model.MPQ'
+MAP_SKIP = ['Scott Test', 'CashTest', 'Under Mine', 'Azeroth', 'Kalimdor']
 
 
 class MapExtractor:
@@ -99,14 +100,12 @@ class MapExtractor:
                 with open(os.path.join(mdx_path, mpq_entry.file_path), 'wb') as f:
                     f.write(archive.read_file_bytes(mpq_entry))
 
-        for dbc_map in DataHolders.get_maps():
-            # Interested in ADT based maps, not WMO based.
-            if 'Dead' not in dbc_map.name:
-                continue
+        for dbc_map in [dbc_map for dbc_map in DataHolders.get_maps() if dbc_map.name not in MAP_SKIP]:
             # Check if Map.dbc data points to a valid wdt file.
             if not dbc_map.exists(root_path=maps_path):
                 Logger.warning(f'Map [{dbc_map.name}] does not exist as defined in Map.dbc, skipping.')
                 continue
+
             # Process wdt.
             with MpqArchive(dbc_map.get_wdt_path(root_path=maps_path)) as wdt_reader:
                 with Wdt(dbc_map, wdt_reader, wow_data_path=data_path, mdx_data_path=mdx_path) as wdt:

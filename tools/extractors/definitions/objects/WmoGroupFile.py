@@ -1,50 +1,165 @@
-from tools.extractors.definitions.reader.BinaryReader import BinaryReader
+from tools.extractors.definitions.chunks.MLIQ import MLIQ
+from tools.extractors.definitions.enums.LiquidFlags import MOGP_Flags, LiquidTypes
+from tools.extractors.definitions.objects.CAaBox import CAaBox
+from tools.extractors.definitions.reader.StreamReader import StreamReader
 
 
 class WmoGroupFile:
     def __init__(self):
         self.flags = 0
-        self.mopy = None
-        self.movi = None
-        self.movt = None
+        self.bounding = None
+        self.group_liquid = 0
         self.mliq = None
 
+    def has_liquids(self):
+        return self.mliq is not None
+
     @staticmethod
-    def from_reader(reader: BinaryReader, position):
-        reader.seek(position)
+    def from_reader(reader: StreamReader):
         wmo_group_file = WmoGroupFile()
 
-        mogp_loc = reader.get_chunk_location('MOGP', reader.tell())
-        if mogp_loc == -1:
-            raise ValueError('MOGP_NOT_FOUND.')
+        reader.read_int32()  # group_name_start
+        reader.read_int32()  # descriptive_group_name
+        flags = reader.read_uint32()
+        wmo_group_file.bounding = CAaBox.from_reader(reader)
+        reader.read_uint32()  # portal_start
+        reader.read_uint32()  # portal_count
+        reader.read_bytes(4)  # fogs_id
+        wmo_group_file.group_liquid = reader.read_int32()
 
-        reader.seek(mogp_loc + 4)
-        size = reader.read_uint()
+        # IntBatch.
+        for i in range(0, 4):
+            reader.read_uint16()  # Vert start.
+            reader.read_uint16()  # Vert count.
+            reader.read_uint16()  # Batch start.
+            reader.read_uint16()  # Batch count.
 
-        reader.seek(reader.tell() + 8)  # Flags.
-        wmo_group_file.flags = reader.read_uint()
+        # ExtBatch.
+        for i in range(0, 4):
+            reader.read_uint16()  # Vert start.
+            reader.read_uint16()  # Vert count.
+            reader.read_uint16()  # Batch start.
+            reader.read_uint16()  # Batch count.
 
-        mopy_loc = reader.get_chunk_location('MOPY', reader.tell())
-        if mopy_loc == -1:
-            raise ValueError('MOPY_NOT_FOUND.')
+        wmo_group_id = reader.read_uint32()
+        reader.move_forward(8)  # Padding.
 
-        wmo_group_file.mopy = MOPY.from_reader(reader, mopy_loc)
+        error, token, size = reader.read_chunk_information('MOPY')
+        if error:
+            raise ValueError(f'{error}')
+        reader.move_forward(size)
 
-        moin_loc = reader.get_chunk_location('MOIN', reader.tell())
-        if moin_loc == -1:
-            raise ValueError('MOIN_NOT_FOUND.')
+        error, token, size = reader.read_chunk_information('MOVT')
+        if error:
+            raise ValueError(f'{error}')
+        reader.move_forward(size)
 
-        wmo_group_file.movi = MOVI.from_reader(reader, moin_loc)
+        error, token, size = reader.read_chunk_information('MONR')
+        if error:
+            raise ValueError(f'{error}')
+        reader.move_forward(size)
 
-        movt_loc = reader.get_chunk_location('MOVT', mopy_loc)
-        if movt_loc == -1:
-            raise ValueError('MOVT_NOT_FOUND.')
+        error, token, size = reader.read_chunk_information('MOTV')
+        if error:
+            raise ValueError(f'{error}')
+        reader.move_forward(size)
 
-        wmo_group_file.movt = MOVT.from_reader(reader, movt_loc)
+        error, token, size = reader.read_chunk_information('MOLV')
+        if error:
+            raise ValueError(f'{error}')
+        reader.move_forward(size)
 
-        mliq_loc = reader.get_chunk_location('MLIQ', movt_loc)
-        if mliq_loc != -1:
-            wmo_group_file.mliq = MLIQ.from_reader(reader, mliq_loc)
+        error, token, size = reader.read_chunk_information('MOIN')
+        if error:
+            raise ValueError(f'{error}')
+        reader.move_forward(size)
+
+        error, token, size = reader.read_chunk_information('MOBA')
+        if error:
+            raise ValueError(f'{error}')
+        reader.move_forward(size)
+
+        # Optional Chunks.
+        if MOGP_Flags.HasLights & flags:
+            error, token, size = reader.read_chunk_information('MOLR')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+        if MOGP_Flags.HasDoodads & flags:
+            error, token, size = reader.read_chunk_information('MODR')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+        if MOGP_Flags.HasBSP & flags:
+            error, token, size = reader.read_chunk_information('MOBN')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+            error, token, size = reader.read_chunk_information('MOBR')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+        if MOGP_Flags.HasMPBX & flags:
+            error, token, size = reader.read_chunk_information('MPBV')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+            error, token, size = reader.read_chunk_information('MPBP')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+            error, token, size = reader.read_chunk_information('MPBI')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+            error, token, size = reader.read_chunk_information('MPBG')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+        if MOGP_Flags.HasVertexColors & flags:
+            error, token, size = reader.read_chunk_information('MOCV')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+        if MOGP_Flags.HasLightmap & flags:
+            error, token, size = reader.read_chunk_information('MOLM')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+            error, token, size = reader.read_chunk_information('MOLD')
+            if error:
+                raise ValueError(f'{error}')
+            reader.move_forward(size)
+
+        # TODO.
+        # WMOs can have liquid in them even if MLIQ is not present!
+        # If MOGP.groupLiquid is set but no MLIQ is present or
+        # xtiles = 0 or ytiles = 0 then entire group is filled with liquid.
+        # In this case liquid height is equal to MOGP.boundingBox.max.z.
+        # This seems to only happen if MOHD.flags.use_liquid_type_dbc_id is set.
+        #
+        # In older WMOs without the MOHD root flag flag_use_liquid_type_dbc_id set : if MOGP.groupLiquid == 15 (green lava),
+        # the tile flags legacyLiquidType are used to set the liquid type.
+        if MOGP_Flags.HasLiquids & flags:
+            error, token, size = reader.read_chunk_information('MLIQ')
+            if error:
+                raise ValueError(f'{error}')
+            wmo_group_file.mliq = []
+            final_position = reader.get_position() + size
+            while reader.get_position() < final_position:
+                wmo_group_file.mliq.append(MLIQ.from_reader(reader))
+        #elif group_liquid:
+        #    Logger.warning(f'TODO: Wmo group liquid with no MLIQ, height hint: {bounding.max.Z}')
 
         return wmo_group_file
 
