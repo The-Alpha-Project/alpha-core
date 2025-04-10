@@ -44,7 +44,6 @@ class WmoLiquidParser:
                             verts.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 1), c.Z))
 
                     for v in [Vector3.transform(vert, t_matrix) for vert in verts]:
-                        # Check which vertices lands on this ADT.
                         adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
                         # Initialize wmo liquids for adt if needed.
                         if not wmo_liquids[adt_x][adt_y]:

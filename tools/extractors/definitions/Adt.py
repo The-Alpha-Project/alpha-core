@@ -22,7 +22,7 @@ from tools.extractors.definitions.chunks.TileInformation import TileInformation
 
 
 class Adt:
-    def __init__(self, map_id, x, y, wmo_names, wmo_liquids):
+    def __init__(self, map_id, x, y, wmo_filenames, wmo_liquids):
         self.map_id = map_id
         self.adt_x = x
         self.adt_y = y
@@ -30,7 +30,7 @@ class Adt:
         self.header = None
         self.wmo_placements = None
         self.wmo_liquids = wmo_liquids
-        self.wmo_filenames = wmo_names
+        self.wmo_filenames = wmo_filenames
         self.doodad_placements = None
         self.chunks_information = [[type[TileHeader] for _ in range(16)] for _ in range(16)]
         self.tiles = [[type[TileInformation] for _ in range(16)] for _ in range(16)]
@@ -63,7 +63,7 @@ class Adt:
             self._write_area_information(file_writer)
             # Write Adt liquids.
             self._write_liquids(file_writer)
-            # Parse qmo liquids and write wmo liquids flag.
+            # Parse Wmo liquids and write Wmo liquids flag.
             # Wmo liquids are writen once all Wdt Adt's are parsed since liquids can overlap tiles.
             with WmoLiquidParser(self, self.wmo_liquids) as wmo_liquids:
                 file_writer.write(pack('<b', 1 if wmo_liquids.has_liquids else 0))

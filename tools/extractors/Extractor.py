@@ -27,8 +27,8 @@ class Extractor:
             Logger.error(f'Unable to locate {data_path}.')
             return
 
-        #if input('Extract .map files? [Y/N]').lower() == 'y':
-        MapExtractor.run(data_path, WOW_MAPS_FOLDER)
+        if input('Extract .map files? [Y/N]').lower() == 'y':
+            MapExtractor.run(data_path, WOW_MAPS_FOLDER)
 
-        #if input('Extract .nav files? [Y/N]').lower() == 'y':
-        #    NavExtractor.run(data_path)
+        if input('Extract .nav files? [Y/N]').lower() == 'y':
+            NavExtractor.run(data_path)

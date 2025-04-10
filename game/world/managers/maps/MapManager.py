@@ -524,8 +524,8 @@ class MapManager:
         try:
             adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
-            tile_status = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
-            if tile_status != MapTileStates.READY:
+            tile_state = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
+            if tile_state != MapTileStates.READY:
                 return None
 
             tile = MAPS_TILES[map_id][adt_x][adt_y]
