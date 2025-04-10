@@ -669,7 +669,7 @@ class ConditionChecker:
         # Condition_value2 = condition id.
         satisfied = True
         unit = _source if _source else _target
-        map_ = unit.get_map(unit.map_id, unit.instance_id)
+        map_ = unit.get_map()
         if not map_:
             return False
         scripted_event = map_.get_map_event_data(condition.value1)
