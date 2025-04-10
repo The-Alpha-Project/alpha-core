@@ -2,6 +2,7 @@ import math
 
 from tools.extractors.definitions.objects.CAaBox import CAaBox
 from tools.extractors.definitions.objects.Vector3 import Vector3
+from tools.extractors.helpers.Constants import Constants
 from utils.Matrix import Matrix
 
 
@@ -17,7 +18,7 @@ class MODF:
         self.name_set = 0
 
     def get_transform_matrix(self):
-        mid = 32.0 * 533.3333
+        mid = 32.0 * Constants.TILE_SIZE_YARDS
 
         rot_x = self.rotation.Z * (math.pi / 180.0)
         rot_y = self.rotation.X * (math.pi / 180.0)
