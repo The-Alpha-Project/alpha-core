@@ -38,7 +38,7 @@ class MLIQ:
         mliq.x_vertex_count = mliq.y_vertex_count
         mliq.y_vertex_count = tmp
 
-        mliq.material_id = reader.read_uint16()  # Material ID.
+        mliq.material_id = reader.read_uint16()
 
         mliq.heights = [[None for _ in range(mliq.x_vertex_count)] for _ in range(mliq.y_vertex_count)]
         for y in range(mliq.y_vertex_count):
