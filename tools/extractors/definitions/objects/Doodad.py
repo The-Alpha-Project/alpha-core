@@ -12,7 +12,7 @@ class Doodad:
     def __init__(self, file_path):
         self.file_path = file_path
         self.has_geometry = False
-        self.clid = None
+        self.clid = None  # Collision geometry.
         self._read()
 
     def _read(self):
@@ -36,7 +36,7 @@ class Doodad:
                     if not size:
                         break
 
-                    if token == 'CLID':
+                    if token == 'CLID':  # Collision geometry.
                         self.clid = CLID.from_reader(reader)
                     else:
                         reader.move_forward(size)
