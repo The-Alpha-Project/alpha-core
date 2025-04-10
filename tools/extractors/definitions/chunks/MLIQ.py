@@ -1,5 +1,7 @@
+from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_LIQUIDS
 from tools.extractors.definitions.objects.Vector3 import Vector3
 from tools.extractors.definitions.reader.StreamReader import StreamReader
+from tools.extractors.helpers.Constants import Constants
 
 
 class MLIQ:
@@ -11,6 +13,7 @@ class MLIQ:
         self.corner = None
         self.heights = None
         self.flags = None
+        self.material_id = 0
 
     @staticmethod
     def from_reader(reader: StreamReader):
@@ -23,7 +26,7 @@ class MLIQ:
 
         mliq.corner = Vector3.from_reader(reader)
 
-        tile_size = (533.0 + (1.0 / 3.0)) / 128.0
+        tile_size = Constants.UNIT_SIZE
 
         mliq.corner.X -= tile_size * mliq.y_tiles
 
@@ -35,7 +38,7 @@ class MLIQ:
         mliq.x_vertex_count = mliq.y_vertex_count
         mliq.y_vertex_count = tmp
 
-        reader.read_uint16()  # Material ID.
+        mliq.material_id = reader.read_uint16()  # Material ID.
 
         mliq.heights = [[None for _ in range(mliq.x_vertex_count)] for _ in range(mliq.y_vertex_count)]
         for y in range(mliq.y_vertex_count):

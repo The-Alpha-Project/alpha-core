@@ -1,13 +1,15 @@
 import os
 from struct import pack
 
-from game.world.managers.maps.helpers.Constants import RESOLUTION_LIQUIDS
+from game.world.managers.maps.helpers.Constants import RESOLUTION_LIQUIDS, ADT_SIZE
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from tools.extractors.definitions.chunks.MDDF import MDDF
 from tools.extractors.definitions.chunks.MHDR import MHDR
 from tools.extractors.definitions.chunks.MODF import MODF
 from tools.extractors.definitions.objects.Vector3 import Vector3
 from tools.extractors.definitions.objects.Wmo import Wmo
+from tools.extractors.helpers.WmoLiquidParser import WmoLiquidParser
+from tools.extractors.helpers.WmoLiquidWriter import WmoLiquidWriter
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 from network.packet.PacketWriter import PacketWriter
@@ -20,13 +22,15 @@ from tools.extractors.definitions.chunks.TileInformation import TileInformation
 
 
 class Adt:
-    def __init__(self, map_id, x, y):
+    def __init__(self, map_id, x, y, wmo_names, wmo_liquids):
         self.map_id = map_id
         self.adt_x = x
         self.adt_y = y
         self.is_flat = True
         self.header = None
         self.wmo_placements = None
+        self.wmo_liquids = wmo_liquids
+        self.wmo_filenames = wmo_names
         self.doodad_placements = None
         self.chunks_information = [[type[TileHeader] for _ in range(16)] for _ in range(16)]
         self.tiles = [[type[TileInformation] for _ in range(16)] for _ in range(16)]
@@ -41,64 +45,42 @@ class Adt:
         self.chunks_information = None
         self.tiles.clear()
         self.tiles = None
+        self.wmo_names = None
+        self.wmo_liquids = None
 
-    def get_filepath(self):
-        filename = f'{self.map_id:03}{self.adt_x:02}{self.adt_y:02}.map'
+    @staticmethod
+    def get_filepath(map_id, adt_x, adt_y):
+        filename = f'{map_id:03}{adt_x:02}{adt_y:02}.map'
         return os.path.join(PathManager.get_maps_path(), filename)
 
-    def write_to_map_file(self, doodad_filenames, wmo_filenames, wow_data_path, mdx_data_path):
-        with open(self.get_filepath(), 'wb') as file_writer:
+    def write_to_map_file(self):
+        with open(Adt.get_filepath(self.map_id, self.adt_x, self.adt_y), 'wb') as file_writer:
             # Write version.
             file_writer.write(PacketWriter.string_to_bytes(Constants.MAPS_VERSION))
             # Write heightfield.
             self._write_heightfield(file_writer)
             # Write area information.
             self._write_area_information(file_writer)
-            # Get wmo liquids.
-            wmo_lq_heights = self._get_wmo_liquids(wmo_filenames)
-            # Write adt/wmo liquids.
-            self._write_liquids(file_writer, wmo_lq_heights)
+            # Write Adt liquids.
+            self._write_liquids(file_writer)
+            # Parse qmo liquids and write wmo liquids flag.
+            # Wmo liquids are writen once all Wdt Adt's are parsed since liquids can overlap tiles.
+            with WmoLiquidParser(self, self.wmo_liquids) as wmo_liquids:
+                file_writer.write(pack('<b', 1 if wmo_liquids.has_liquids else 0))
 
     def _write_heightfield(self, file_writer):
         with HeightField(self) as heightfield:
             heightfield.write_to_file(file_writer)
 
-    def _write_liquids(self, file_writer, wmo_lq_heights):
-        with LiquidAdtWriter(self, wmo_lq_heights) as liquids:
+    def _write_liquids(self, file_writer):
+        with LiquidAdtWriter(self) as liquids:
             liquids.write_to_file(file_writer)
 
-    def _get_wmo_liquids(self, wmo_filenames):
-        if not self.wmo_placements or not wmo_filenames:
-            return
-
-        for wmo_placement in self.wmo_placements:
-            with Wmo(wmo_filenames[wmo_placement.name_id]) as wmo:
-                if not wmo.has_liquids():
-                    return None
-                lq_heights = [[0.0 for _ in range(Constants.GRID_SIZE + 1)] for _ in range(Constants.GRID_SIZE + 1)]
-                t_matrix = wmo_placement.get_transform_matrix()
-                verts = []
-                tile_size = (533.0 + (1.0 / 3.0)) / 128.0
-
-                for mliq in wmo.mliq:
-                    corner = Vector3(mliq.corner[0], mliq.corner[1], mliq.corner[2])
-
-                    for y in range(mliq.y_vertex_count):
-                        for x in range(mliq.x_vertex_count):
-                            verts.append(Vector3(corner.X + tile_size * (x + 0), corner.Y + tile_size * (y + 0), corner.Z))
-                            verts.append(Vector3(corner.X + tile_size * (x + 1), corner.Y + tile_size * (y + 0), corner.Z))
-                            verts.append(Vector3(corner.X + tile_size * (x + 0), corner.Y + tile_size * (y + 1), corner.Z))
-                            verts.append(Vector3(corner.X + tile_size * (x + 1), corner.Y + tile_size * (y + 1), corner.Z))
-
-                    for v in verts:
-                        v = Vector3.transform(v, t_matrix)
-                        adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
-                        if adt_x == self.adt_x and adt_y == self.adt_y:
-                            lq_heights[cell_x][cell_y] = v.Z
-
-                    verts.clear()
-
-                return lq_heights
+    @staticmethod
+    def write_wmo_liquids(map_id, adt_x, adt_y, wmo_liquids):
+        with open(Adt.get_filepath(map_id, adt_x, adt_y), 'ab') as file_writer:
+            with WmoLiquidWriter(wmo_liquids[adt_x][adt_y]) as liquids:
+                liquids.write_to_file(file_writer)
 
     def _write_area_information(self, file_writer):
         for cy in range(Constants.TILE_SIZE):
@@ -111,9 +93,9 @@ class Adt:
                     area_table.write_to_file(file_writer)
 
     @staticmethod
-    def from_reader(map_id, adt_x, adt_y, wmo_filenames, stream_reader):
+    def from_reader(map_id, adt_x, adt_y, wmo_filenames, wmo_liquids, stream_reader):
         # Initialize adt object.
-        adt = Adt(map_id, adt_x, adt_y)
+        adt = Adt(map_id, adt_x, adt_y, wmo_filenames, wmo_liquids)
 
         error, token, size = stream_reader.read_chunk_information('MHDR')
         if error:

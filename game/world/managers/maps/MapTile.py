@@ -12,7 +12,7 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.70'
+    EXPECTED_VERSION = 'ACMAP_1.71'
 
     def __init__(self, map_, adt_x, adt_y):
         self.map_ = map_
@@ -137,6 +137,23 @@ class MapTile(object):
                         self.area_information[x][y] = area_info
 
                 # Liquids
+                for x in range(RESOLUTION_LIQUIDS):
+                    for y in range(RESOLUTION_LIQUIDS):
+                        liquid_type = unpack('<b', map_tiles.read(1))[0]
+                        if liquid_type == -1:  # No liquid information / not rendered.
+                            continue
+                        if use_f16:
+                            height = unpack('>h', map_tiles.read(2))[0]
+                        else:
+                            height = unpack('<f', map_tiles.read(4))[0]
+                        # noinspection PyTypeChecker
+                        self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, height, use_f16)
+
+                has_wmo_liquids = unpack('<b', map_tiles.read(1))[0]
+                if not has_wmo_liquids:
+                    return True
+
+                # Wmo Liquids
                 for x in range(RESOLUTION_LIQUIDS):
                     for y in range(RESOLUTION_LIQUIDS):
                         liquid_type = unpack('<b', map_tiles.read(1))[0]

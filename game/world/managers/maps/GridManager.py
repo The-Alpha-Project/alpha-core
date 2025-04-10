@@ -4,6 +4,7 @@ import time
 
 from game.world.managers.maps.Cell import Cell
 from game.world.managers.maps.helpers.CellUtils import CELL_SIZE, CellUtils
+from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds

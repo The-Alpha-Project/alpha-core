@@ -25,7 +25,7 @@ class Wdt:
         self.wow_data_path = wow_data_path
         self.mdx_data_path = mdx_data_path
         self.tile_information = [[type[TileHeader] for _ in range(64)] for _ in range(64)]
-        self.adt_data = [[type[Adt] for _ in range(64)] for _ in range(64)]
+        self.wmo_liquids = [[None for _ in range(64) for _ in range(64)] for _ in range(64) for _ in range(64)]
 
     def __enter__(self):
         mpq_entry = self.mpq_reader.mpq_entries[0]
@@ -38,9 +38,8 @@ class Wdt:
         self.stream_reader = None
         self.mpq_reader = None
         self.tile_information.clear()
-        self.adt_data.clear()
         self.tile_information = None
-        self.adt_data = None
+        self.wmo_liquids = None
 
     def process(self):
         error, token, size = self.stream_reader.read_chunk_information('MVER')
@@ -70,6 +69,7 @@ class Wdt:
         for x in range(BLOCK_SIZE):
             for y in range(BLOCK_SIZE):
                 self.tile_information[x][y] = TileHeader.from_reader(self.stream_reader)
+
 
         error, token, size = self.stream_reader.read_chunk_information('MDNM')
         if error:
@@ -112,5 +112,13 @@ class Wdt:
                     continue
                 self.stream_reader.set_position(tile_info.offset)
                 # Parse and write .map file for this adt.
-                with Adt.from_reader(self.dbc_map.id, x, y, self.wmo_filenames, self.stream_reader) as adt:
-                    adt.write_to_map_file(self.doodad_filenames, self.wmo_filenames, self.wow_data_path, self.mdx_data_path)
+                with Adt.from_reader(self.dbc_map.id, x, y, self.wmo_filenames, self.wmo_liquids, self.stream_reader) as adt:
+                    adt.write_to_map_file()
+
+        for x in range(Constants.TILE_BLOCK_SIZE):
+            for y in range(Constants.TILE_BLOCK_SIZE):
+                current += 1
+                Logger.progress(f'Processing WMO liquids for [{self.dbc_map.name}]...', current, total, divisions=total)
+                if not self.wmo_liquids[x][y]:
+                    continue
+                Adt.write_wmo_liquids(self.dbc_map.id, x, y, self.wmo_liquids)

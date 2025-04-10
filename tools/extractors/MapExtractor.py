@@ -14,7 +14,7 @@ from tools.extractors.pydbclib.structs.AreaTable import AreaTable
 
 REQUIRED_DBC = 'dbc.MPQ'
 REQUIRED_MODELS_DBC = 'model.MPQ'
-MAP_SKIP = ['Scott Test', 'CashTest', 'Under Mine', 'Azeroth', 'Kalimdor']
+MAP_SKIP = ['Scott Test', 'CashTest', 'Under Mine']
 
 
 class MapExtractor:

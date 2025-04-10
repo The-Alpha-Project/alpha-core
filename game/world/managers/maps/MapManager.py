@@ -524,9 +524,13 @@ class MapManager:
         try:
             adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
-            if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
+            tile_status = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
+            if tile_status != MapTileStates.READY:
+                if tile_status == MapTileStates.UNUSABLE:
+                    print(f'Adt {adt_x},{adt_y} Cell {cell_x},{cell_y}')
                 return None
 
+            print(f'Liq info, Adt {adt_x},{adt_y} Cell: {cell_x}:{cell_y}')
             tile = MAPS_TILES[map_id][adt_x][adt_y]
             liquids = tile.get_liquids_at(cell_x, cell_y)
             return liquids if liquids and liquids.get_height() > z else liquids if liquids and ignore_z else None

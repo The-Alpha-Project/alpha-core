@@ -39,7 +39,7 @@ class Wmo:
 
                 version = reader.read_int32()
                 if version != 14:
-                    raise ValueError('UNSUPPORTED_ALPHA_WMO_VERSION.')
+                    raise ValueError('Wrong wmo version.')
 
                 # Rather than all chunks being top level, they have been wrapped in MOMO.
                 error, token, size = reader.read_chunk_information('MOMO')
