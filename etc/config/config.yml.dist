@@ -42,7 +42,7 @@ Server:
         load_pools: True  # If False, creatures and gameobject spawns will ignore pooling.
         supported_client: 3368
         realm_saving_interval_seconds: 60
-        cell_size: 96  # Shouldn't be much bigger than 200
+        cell_size: 64  # Shouldn't be much bigger than 200
         view_distance: 100  # Define the maximum distance to determine if an object should be considered visible.
         console_mode: True  # Set it to False if you intend to run the server on background
         # MapTiles:
