@@ -6,6 +6,7 @@ class StreamReader:
     def __init__(self, data_source):
         if not isinstance(data_source, BytesIO):
             data_source = BytesIO(data_source)
+        self.eof = data_source.getbuffer().nbytes
         self.stream = data_source
 
     def __enter__(self):
@@ -19,20 +20,29 @@ class StreamReader:
             self.stream.close()
         self.stream = None
 
-    def read_chunk_information(self, expected_token, skip=0, seek=0):
+    def is_eof(self):
+        return self.get_position() >= self.eof
+
+    def read_chunk_information(self, expected_token=None, skip=0, seek=0, backwards=True, expected_tokens=None):
         if seek:
             self.set_position(seek)
         if skip:
             self.move_forward(skip)
         token = self.read_bytes(4)
-        token_name = token.decode('utf8')[::-1]
+        token_name = token.decode('utf8')[::-1] if backwards else token.decode('utf8')
 
-        if token_name != expected_token:
+        if (expected_token and token_name != expected_token) or (expected_tokens and token_name not in expected_tokens):
             self.move_backwards(4)
             return f'Found token {token_name} expected {expected_token}', token_name, 0
 
         size = self.read_int32()
         return '', token_name, size
+
+    def assert_token(self, expected_token):
+        token = self.read_bytes(4)
+        token_name = token.decode('utf8').strip()
+        if token_name != expected_token:
+            raise ValueError(f'Invalid token, expected {expected_token}, got {token_name}')
 
     def set_position(self, position):
         self.stream.seek(position)

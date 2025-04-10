@@ -96,7 +96,7 @@ class MpqArchive:
     def read_file_bytes(self, mpq_entry=None):
         mpq_entry = mpq_entry if mpq_entry else max(self.mpq_entries, key=lambda x: x.file_size)
         if not mpq_entry:
-            raise f'Unable to locate valid mpq entry inside {self.filename}'
+            raise ValueError(f'Unable to locate valid mpq entry inside {self.filename}')
 
         with MpqReader(self, mpq_entry) as mpq_reader:
             return mpq_reader.data
