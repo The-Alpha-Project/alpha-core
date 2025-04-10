@@ -11,8 +11,6 @@ CHUNKS = {'MODL', 'SEQS', 'MTLS', 'TEXS', 'GEOS',
 class Doodad:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.vertices = []
-        self.indices = []
         self.has_geometry = False
         self.clid = None
         self._read()
