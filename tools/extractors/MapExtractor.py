@@ -20,7 +20,7 @@ MAP_SKIP = ['Scott Test', 'CashTest', 'Under Mine']
 class MapExtractor:
 
     @staticmethod
-    def run(data_path, wow_maps_folder):
+    def run(data_path, wow_maps_folder, adt_x, adt_y):
         # Validate /etc/maps.
         map_files_path = PathManager.get_maps_path()
         if not os.path.exists(map_files_path):
@@ -108,7 +108,7 @@ class MapExtractor:
 
             # Process wdt.
             with MpqArchive(dbc_map.get_wdt_path(root_path=maps_path)) as wdt_reader:
-                with Wdt(dbc_map, wdt_reader, wow_data_path=data_path, mdx_data_path=mdx_path) as wdt:
+                with Wdt(dbc_map, wdt_reader, data_path, mdx_path, adt_x, adt_y) as wdt:
                     wdt.process()
 
         # Finished.

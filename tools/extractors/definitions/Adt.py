@@ -46,7 +46,6 @@ class Adt:
         self.tiles.clear()
         self.tiles = None
         self.wmo_names = None
-        self.wmo_liquids = None
 
     @staticmethod
     def get_filepath(map_id, adt_x, adt_y):
@@ -63,10 +62,10 @@ class Adt:
             self._write_area_information(file_writer)
             # Write Adt liquids.
             self._write_liquids(file_writer)
-            # Parse Wmo liquids and write Wmo liquids flag.
-            # Wmo liquids are writen once all Wdt Adt's are parsed since liquids can overlap tiles.
-            with WmoLiquidParser(self, self.wmo_liquids) as wmo_liquids:
-                file_writer.write(pack('<b', 1 if wmo_liquids.has_liquids else 0))
+            # Parse Wmo liquids:
+            #  Wmo liquids are writen once all Wdt Adt's are parsed since liquids can overlap tiles.
+            with WmoLiquidParser(self) as wmo_liquids:
+                wmo_liquids.parse(self.wmo_liquids)
 
     def _write_heightfield(self, file_writer):
         with HeightField(self) as heightfield:
@@ -78,7 +77,19 @@ class Adt:
 
     @staticmethod
     def write_wmo_liquids(map_id, adt_x, adt_y, wmo_liquids):
+        map_path = Adt.get_filepath(map_id, adt_x, adt_y)
+        if not os.path.exists(map_path):
+            return
+
         with open(Adt.get_filepath(map_id, adt_x, adt_y), 'ab') as file_writer:
+
+            # Has no wmo liquids, only write flag.
+            if not wmo_liquids[adt_x][adt_y]:
+                file_writer.write(pack('<b', 0))
+                return
+
+            # Write flag and liquids.
+            file_writer.write(pack('<b', 1))
             with WmoLiquidWriter(wmo_liquids[adt_x][adt_y]) as liquids:
                 liquids.write_to_file(file_writer)
 

@@ -410,10 +410,10 @@ class SpellEffectHandler:
         map_ = caster.get_map()
         # TODO: Not sure if this check should be done here, an example of this: A creature spawning a camp fire
         #  behind a wall or inside another object with collision. @Fluglow
-        if isinstance(target, Vector) and not map_.los_check(caster.location, target):
+        if isinstance(target, Vector) and not map_.los_check(caster.get_ray_position(), target):
             Logger.error(f'Unable to resolve line of sight to vector target, go entry {object_entry},'
                          f' spell {casting_spell.spell_entry.ID},'
-                         f' caster {caster.get_name()}, spawn_id {caster.spawn_id}')
+                         f' caster {caster.get_name()}')
             return
 
         duration = casting_spell.get_duration()

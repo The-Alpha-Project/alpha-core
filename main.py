@@ -37,6 +37,22 @@ parser.add_argument(
     action='store_true',
     default=False
 )
+
+parser.add_argument(
+    '-x', '--adt_x',
+    help='-x in order to specify adt x extraction',
+    dest='adt_x',
+    type=int,
+    default=False
+)
+
+parser.add_argument(
+    '-y', '--adt_y',
+    help='-y in order to specify adt y extraction',
+    dest='adt_y',
+    type=int,
+    default=False
+)
 args = parser.parse_args()
 
 
@@ -136,7 +152,9 @@ if __name__ == '__main__':
         exit()
 
     if args.extract:
-        Extractor.run()
+        adt_x = args.adt_x if args.adt_x else -1
+        adt_y = args.adt_y if args.adt_y else -1
+        Extractor.run(adt_x, adt_y)
         exit()
 
     # Validate if maps available and if version match.

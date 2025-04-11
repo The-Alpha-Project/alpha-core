@@ -542,7 +542,7 @@ class MapManager:
 
         # Circular ref.
         from game.world.managers.abstractions.Vector import Vector
-        start_range = min_range
+        start_range = min(2, min_range)
         start_location = world_object.location
         map_ = world_object.get_map()
         liquids_vectors = []
@@ -552,7 +552,9 @@ class MapManager:
             fz = start_location.z
             liquid_info = map_.get_liquid_information(fx, fy, fz, ignore_z=True)
             if liquid_info:
-                liquids_vectors.append(Vector(fx, fy, liquid_info.get_height()))
+                liquid_vector = Vector(fx, fy, liquid_info.get_height())
+                if map_.los_check(world_object.get_ray_position(), liquid_vector):
+                    liquids_vectors.append(Vector(fx, fy, liquid_info.get_height()))
             start_range += 1
 
         if len(liquids_vectors) == 0:
