@@ -554,7 +554,7 @@ class MapManager:
             if liquid_info:
                 liquid_vector = Vector(fx, fy, liquid_info.get_height())
                 if map_.los_check(world_object.get_ray_position(), liquid_vector):
-                    liquids_vectors.append(Vector(fx, fy, liquid_info.get_height()))
+                    liquids_vectors.append(liquid_vector)
             start_range += 1
 
         if len(liquids_vectors) == 0:
