@@ -32,19 +32,19 @@ class AreaTable:
 
     @staticmethod
     def from_bytes(dbc_reader):
-        _id: int = dbc_reader.read_int()
-        area_number: int = dbc_reader.read_int()
-        continent_id: int = dbc_reader.read_int()
-        parent_area_number: int = dbc_reader.read_int()
-        area_bit: int = dbc_reader.read_int()
-        flags: int = dbc_reader.read_int()
-        sound_provider: int = dbc_reader.read_int()
-        sound_provider_water: int = dbc_reader.read_int()
-        midi_ambience: int = dbc_reader.read_int()
-        midi_ambience_water: int = dbc_reader.read_int()
-        zone_music: int = dbc_reader.read_int()
-        intro_sound: int = dbc_reader.read_int()
-        intro_priority: int = dbc_reader.read_int()
+        _id: int = dbc_reader.read_int32()
+        area_number: int = dbc_reader.read_int32()
+        continent_id: int = dbc_reader.read_int32()
+        parent_area_number: int = dbc_reader.read_int32()
+        area_bit: int = dbc_reader.read_int32()
+        flags: int = dbc_reader.read_int32()
+        sound_provider: int = dbc_reader.read_int32()
+        sound_provider_water: int = dbc_reader.read_int32()
+        midi_ambience: int = dbc_reader.read_int32()
+        midi_ambience_water: int = dbc_reader.read_int32()
+        zone_music: int = dbc_reader.read_int32()
+        intro_sound: int = dbc_reader.read_int32()
+        intro_priority: int = dbc_reader.read_int32()
         name: str = dbc_reader.read_string()
 
         # Skip locale names and name mask.

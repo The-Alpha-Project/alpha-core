@@ -524,7 +524,8 @@ class MapManager:
         try:
             adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
-            if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
+            tile_state = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
+            if tile_state != MapTileStates.READY:
                 return None
 
             tile = MAPS_TILES[map_id][adt_x][adt_y]
@@ -541,7 +542,7 @@ class MapManager:
 
         # Circular ref.
         from game.world.managers.abstractions.Vector import Vector
-        start_range = min_range
+        start_range = min(2, min_range)
         start_location = world_object.location
         map_ = world_object.get_map()
         liquids_vectors = []
@@ -551,7 +552,9 @@ class MapManager:
             fz = start_location.z
             liquid_info = map_.get_liquid_information(fx, fy, fz, ignore_z=True)
             if liquid_info:
-                liquids_vectors.append(Vector(fx, fy, liquid_info.get_height()))
+                liquid_vector = Vector(fx, fy, liquid_info.get_height())
+                if map_.los_check(world_object.get_ray_position(), liquid_vector):
+                    liquids_vectors.append(liquid_vector)
             start_range += 1
 
         if len(liquids_vectors) == 0:

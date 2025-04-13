@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import argparse
 import signal
+import sys
 from sys import platform
 from time import sleep
 
@@ -34,6 +35,22 @@ parser.add_argument(
     help='-e in order to extract .map files',
     dest='extract',
     action='store_true',
+    default=False
+)
+
+parser.add_argument(
+    '-x', '--adt_x',
+    help='-x in order to specify adt x extraction',
+    dest='adt_x',
+    type=int,
+    default=False
+)
+
+parser.add_argument(
+    '-y', '--adt_y',
+    help='-y in order to specify adt y extraction',
+    dest='adt_y',
+    type=int,
     default=False
 )
 args = parser.parse_args()
@@ -74,6 +91,7 @@ def handle_console_commands():
 
 def handler_stop_signals(signum, frame):
     RUNNING.value = 0
+    sys.stdin.write('exit\n')
 
 
 def wait_world_server():
@@ -134,7 +152,9 @@ if __name__ == '__main__':
         exit()
 
     if args.extract:
-        Extractor.run()
+        adt_x = args.adt_x if args.adt_x else -1
+        adt_y = args.adt_y if args.adt_y else -1
+        Extractor.run(adt_x, adt_y)
         exit()
 
     # Validate if maps available and if version match.

@@ -61,12 +61,15 @@ class LiquidAdtWriter:
         for y in range(Constants.GRID_SIZE):
             for x in range(Constants.GRID_SIZE):
                 if self.lq_show[y][x] is True:
-                    file_writer.write(pack('<b', self.lq_flags[y][x]))
-                    # 32 bit Full precision.
-                    if not self.use_float_16:
-                        file_writer.write(pack('<f', self.lq_height[y][x]))
-                        continue
-                    # 16 bit Half precision.
-                    file_writer.write(pack('>h', Float16.compress(self.lq_height[y][x])))
-                else:
+                    self._write_cell_liquid(file_writer, self.lq_height[y][x], self.lq_flags[y][x])
+                else:  # Empty cell.
                     file_writer.write(pack('<b', -1))
+
+    def _write_cell_liquid(self, file_writer, height, flag):
+        file_writer.write(pack('<b', flag))
+        # 32 bit Full precision.
+        if not self.use_float_16:
+            file_writer.write(pack('<f', height))
+            return
+        # 16 bit Half precision.
+        file_writer.write(pack('>h', Float16.compress(height)))

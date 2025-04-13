@@ -13,12 +13,14 @@ from tools.extractors.pydbclib.structs.AreaTable import AreaTable
 
 
 REQUIRED_DBC = 'dbc.MPQ'
+REQUIRED_MODELS_DBC = 'model.MPQ'
+MAP_SKIP = ['Scott Test', 'CashTest', 'Under Mine']
 
 
 class MapExtractor:
 
     @staticmethod
-    def run(data_path, wow_maps_folder):
+    def run(data_path, wow_maps_folder, adt_x, adt_y):
         # Validate /etc/maps.
         map_files_path = PathManager.get_maps_path()
         if not os.path.exists(map_files_path):
@@ -29,6 +31,12 @@ class MapExtractor:
         dbc_path = os.path.join(data_path, REQUIRED_DBC)
         if not os.path.exists(dbc_path):
             Logger.error(f'Unable to locate {dbc_path}.')
+            return
+
+        # Validate model.MPQ.
+        model_path = os.path.join(data_path, REQUIRED_MODELS_DBC)
+        if not os.path.exists(model_path):
+            Logger.error(f'Unable to locate {model_path}.')
             return
 
         maps_path = os.path.join(data_path, wow_maps_folder)
@@ -73,17 +81,34 @@ class MapExtractor:
             Logger.error(f'Unable to read area tables from {dbc_path}.')
             return
 
-        for dbc_map in DataHolders.get_maps():
-            # Interested in ADT based maps, not WMO based.
-            if not dbc_map.is_in_map:
-                continue
+        mdx_path = PathManager.get_mdx_path()
+        if not os.path.exists(mdx_path):
+            os.makedirs(mdx_path)
+
+        # Extract models data.
+        with MpqArchive(model_path) as archive:
+            mdx_files = [mpq_entry for mpq_entry in archive.mpq_entries if 'mdx' in mpq_entry.filename]
+            current = 0
+            total = len(mdx_files)
+            for mpq_entry in mdx_files:
+                final_path = os.path.join(mdx_path, mpq_entry.file_path)
+                # Create intermediary directories if needed.
+                os.makedirs(os.path.dirname(final_path), exist_ok=True)
+                current += 1
+                Logger.progress(f'{REQUIRED_MODELS_DBC.capitalize()} extracting mdx models ...', current, total, divisions=1)
+                # Extract file.
+                with open(os.path.join(mdx_path, mpq_entry.file_path), 'wb') as f:
+                    f.write(archive.read_file_bytes(mpq_entry))
+
+        for dbc_map in [dbc_map for dbc_map in DataHolders.get_maps() if dbc_map.name not in MAP_SKIP]:
             # Check if Map.dbc data points to a valid wdt file.
             if not dbc_map.exists(root_path=maps_path):
                 Logger.warning(f'Map [{dbc_map.name}] does not exist as defined in Map.dbc, skipping.')
                 continue
+
             # Process wdt.
             with MpqArchive(dbc_map.get_wdt_path(root_path=maps_path)) as wdt_reader:
-                with Wdt(dbc_map, wdt_reader) as wdt:
+                with Wdt(dbc_map, wdt_reader, data_path, mdx_path, adt_x, adt_y) as wdt:
                     wdt.process()
 
         # Finished.
