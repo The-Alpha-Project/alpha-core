@@ -254,8 +254,8 @@ begin not atomic
     -- 27/04/2025 1
     if (select count(*) from applied_updates where id='270420251') = 0 then
         ALTER TABLE realmlist
-	ADD COLUMN `public_realm_address` VARCHAR(255) DEFAULT NULL AFTER `realm_address`,
-	ADD COLUMN `public_proxy_address` VARCHAR(255) DEFAULT NULL AFTER `proxy_address`;
+	ADD COLUMN `public_realm_address` VARCHAR(255) DEFAULT '0.0.0.0' AFTER `realm_address`,
+	ADD COLUMN `public_proxy_address` VARCHAR(255) DEFAULT '0.0.0.0' AFTER `proxy_address`;
 
         insert into applied_updates values ('270420251');
     end if;
