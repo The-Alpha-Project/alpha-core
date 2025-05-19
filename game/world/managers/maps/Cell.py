@@ -1,4 +1,3 @@
-from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from threading import RLock
@@ -39,31 +38,24 @@ class Cell:
     def __hash__(self):
         return self.hash
 
-    def get_players(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.players.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+    def get_players(self, caller):
+        return self._get_objects(self.players, caller)
 
-    def get_creatures(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.creatures.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+    def get_creatures(self, caller):
+        return self._get_objects(self.creatures, caller)
 
-    def get_gameobjects(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.gameobjects.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+    def get_gameobjects(self, caller):
+        return self._get_objects(self.gameobjects, caller)
 
-    def get_dynamic_objects(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.dynamic_objects.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+    def get_dynamic_objects(self, caller):
+        return self._get_objects(self.dynamic_objects, caller)
 
-    def get_corpses(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.corpses.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+    def get_corpses(self, caller):
+        return self._get_objects(self.corpses, caller)
 
-    @staticmethod
-    def _object_in_visible_range(source, world_object):
-        if source is world_object or world_object.is_transport():
-            return True
-        return source.location.distance(world_object.location) <= VIEW_DISTANCE
+    # noinspection PyMethodMayBeStatic
+    def _get_objects(self, objects, caller):
+        return {k: v for k, v in list(objects.items())}
 
     def has_players(self):
         return len(self.players) > 0
