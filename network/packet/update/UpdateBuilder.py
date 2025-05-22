@@ -144,14 +144,26 @@ class UpdateBuilder:
         if not update_complete_bytes:
             return []
 
-        data = bytearray(pack('<I', len(update_complete_bytes)))  # Transaction count.
+        packets = []
+        transactions = 0
+        data = bytearray()
         for update_bytes in update_complete_bytes:
+            # If data exceeds uint16, split packets.
+            if len(data) + len(update_bytes) > 65535:
+                packet_bytes = bytearray(pack('<I', transactions)) + data
+                packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, bytes(packet_bytes)))
+                transactions = 0
+                data.clear()
             data.extend(update_bytes)
+            transactions += 1
 
-        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, bytes(data))
+        if data:
+            packet_bytes = bytearray(pack('<I', transactions)) + data
+            packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, bytes(packet_bytes)))
+
         data.clear()
 
-        return [packet]
+        return packets
 
     def _get_build_all_packets(self):
         with self.update_lock:
