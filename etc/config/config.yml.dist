@@ -1,5 +1,5 @@
 Version:
-    current: 21
+    current: 20
 
 Database:
     Connection:
@@ -43,6 +43,7 @@ Server:
         supported_client: 3368
         realm_saving_interval_seconds: 60
         cell_size: 64  # Shouldn't be much bigger than 200
+        view_distance: 100  # Define the maximum distance to determine if an object should be considered visible.
         console_mode: True  # Set it to False if you intend to run the server on background
         # MapTiles:
         # Extract running main.py -e, files should be automatically placed over '/etc/maps/'
