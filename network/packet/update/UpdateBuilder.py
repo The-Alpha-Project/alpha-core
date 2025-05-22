@@ -135,8 +135,8 @@ class UpdateBuilder:
         if movement_packet:
             self._add_packet(movement_packet, PacketType.MOVEMENT)
 
-    # Generates one SMSG_UPDATE_OBJECT which includes all create and partial messages available at tick end.
-    def _build_update_packet(self):
+    # Generates SMSG_UPDATE_OBJECT packets which includes all create and partial messages available at tick end.
+    def _build_update_packets(self):
         update_type_create = self._packets.get(PacketType.CREATE, [])
         update_type_partial = self._packets.get(PacketType.PARTIAL, [])
         update_complete_bytes = update_type_create + update_type_partial
@@ -167,7 +167,7 @@ class UpdateBuilder:
 
     def _get_build_all_packets(self):
         with self.update_lock:
-            packets = self._get_query_detail_packets() + self._build_update_packet() + self._get_movement_packets() + self._get_destroy_packets()
+            packets = self._get_query_detail_packets() + self._build_update_packets() + self._get_movement_packets() + self._get_destroy_packets()
             self._enqueue_deferred_and_flush()
             return packets
 
