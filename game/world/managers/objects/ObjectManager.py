@@ -431,7 +431,7 @@ class ObjectManager:
         return self.get_type_id() == ObjectTypeIds.ID_CONTAINER
 
     def is_transport(self):
-        return self.guid & HighGuid.HIGHGUID_TRANSPORT
+        return GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_TRANSPORT
 
     # override
     def get_query_details_packet(self):
