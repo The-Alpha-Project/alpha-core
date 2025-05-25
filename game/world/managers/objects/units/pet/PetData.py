@@ -111,23 +111,21 @@ class PetData:
         if not xp_amount:
             return 0
 
-        level_amount = 0
-        if self._experience + xp_amount < self.next_level_xp:  # Not enough xp to level up.
-            self._experience += xp_amount
-        else:
-            # Level up.
-            xp_to_level = self.next_level_xp - self._experience
-            # Do the actual XP conversion into level(s).
-            while xp_amount >= xp_to_level:
-                level_amount += 1
-                xp_amount -= xp_to_level
-                xp_to_level = PetData._get_xp_to_next_level_for(self._level + level_amount)
+        level_count = 0
+        # Level up.
+        xp_to_level = self.next_level_xp - self._experience
+        # Do the actual XP conversion into level(s).
+        while xp_amount >= xp_to_level:
+            level_count += 1
+            xp_amount -= xp_to_level
+            xp_to_level = PetData._get_xp_to_next_level_for(self._level + level_count)
 
-            self.set_level(self._level + level_amount)
-            self._experience = xp_amount  # Set the remaining amount XP as current.
+        if level_count:
+            self.set_level(self._level + level_count)
+        self._experience += xp_amount
 
         self.set_dirty()
-        return level_amount
+        return level_count
 
     def set_level(self, level: int):
         if not level:
