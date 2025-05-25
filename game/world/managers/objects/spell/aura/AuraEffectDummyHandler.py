@@ -13,10 +13,6 @@ class AuraEffectDummyHandler:
         return spell_id in PERIODIC_DUMMY_AURAS
 
     @staticmethod
-    def get_period(spell_id):
-        return PERIODIC_DUMMY_AURAS[spell_id]
-
-    @staticmethod
     def handle_killrogg_eye(aura, _effect_target, remove):
         if not remove:
             return
@@ -82,7 +78,7 @@ class AuraEffectDummyHandler:
 
 
 PERIODIC_DUMMY_AURAS = {
-    7057: 5000  # Haunting Spirits, 5 second tick.
+    7057  # Haunting Spirits.
 }
 
 DUMMY_AURA_EFFECTS = {
