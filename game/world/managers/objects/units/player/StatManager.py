@@ -655,9 +655,9 @@ class StatManager(object):
     def update_base_health_regen(self):
         unit_class = self.unit_mgr.class_
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        spirit_regen = int(CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class])
+        regen = CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class]
         # Values for spirit regen scaling are per tick.
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = max(0, spirit_regen) * 2.5
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = regen * 2.5
 
     def update_base_mana_regen(self):
         unit_class = self.unit_mgr.class_

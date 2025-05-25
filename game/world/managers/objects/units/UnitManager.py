@@ -694,7 +694,7 @@ class UnitManager(ObjectManager):
         if power_type not in {PowerTypes.TYPE_HEALTH, PowerTypes.TYPE_MANA} or \
             power_type == PowerTypes.TYPE_HEALTH and not self.in_combat or \
                 (power_type == PowerTypes.TYPE_MANA and self.mana_regen_timer >= 5):
-            regen_per_5 += self.stat_manager.get_total_stat(regen_stat, accept_negative=True)
+            regen_per_5 += self.stat_manager.get_total_stat(regen_stat, accept_negative=True, accept_float=True)
 
         # Health regen from sitting.
         if power_type == PowerTypes.TYPE_HEALTH and not self.in_combat and self.is_sitting():
