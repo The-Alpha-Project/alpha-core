@@ -828,9 +828,10 @@ class UnitManager(ObjectManager):
         if not self.is_alive:
             return False
 
-        if source is not self and not is_periodic and damage_info.total_damage > 0:
+        if source is not self and damage_info.total_damage > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
-            self.spell_manager.check_spell_interrupts(received_damage=True)
+            if not is_periodic:
+                self.spell_manager.check_spell_interrupts(received_damage=True)
 
         new_health = self.health - damage_info.total_damage
         if new_health <= 0:
