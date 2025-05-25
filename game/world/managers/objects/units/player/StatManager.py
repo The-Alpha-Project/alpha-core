@@ -1081,10 +1081,9 @@ class StatManager(object):
             resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START << spell_school)
         else:
             # Calculate resistance for creatures.
-            # This is the formula for innate resistance used for partial resists in VMaNGOS,
-            # with level adjusted 63->28.
+            # This is the formula for innate resistance used for partial resists in VMaNGOS.
             # (SpellCaster::GetSpellResistChance)
-            resist_mod = (8 * rating_difference * attacker_combat_rating) / 5 / 28
+            resist_mod = (8 * rating_difference * attacker_combat_rating) / 5 / 63
 
         resist_mod *= 0.15 / (attacker_combat_rating / 5)
         resist_mod = max(0.0, min(0.75, resist_mod))
