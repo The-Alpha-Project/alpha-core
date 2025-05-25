@@ -1190,5 +1190,15 @@ begin not atomic
 
         insert into applied_updates values ('020520251');
     end if;
+
+    -- 25/05/2025 1
+    if (select count(*) from applied_updates where id='250520251') = 0 then
+        UPDATE `trainer_template` SET reqlevel = 21 WHERE playerspell = 4772; -- Bruise Rank 2
+        UPDATE `trainer_template` SET reqlevel = 28 WHERE playerspell = 4773; -- Bruise Rank 3
+        UPDATE `trainer_template` SET reqlevel = 36 WHERE playerspell = 4774; -- Bruise Rank 4
+        UPDATE `trainer_template` SET reqlevel = 22 WHERE playerspell = 6577; -- Intimidating Growl
+        UPDATE `trainer_template` SET reqlevel = 22 WHERE playerspell = 6666; -- Survival Instinct
+        INSERT INTO applied_updates VALUES ('250520251');
+    end if;
 end $
 delimiter ;
