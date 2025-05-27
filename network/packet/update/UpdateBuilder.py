@@ -145,13 +145,14 @@ class UpdateBuilder:
         if not update_complete_bytes:
             return []
 
+        total_bytes = sum([len(b) for b in update_complete_bytes])
         packets = []
         transactions = 0
         data = bytearray()
         for update_bytes in update_complete_bytes:
             # If data exceeds uint16, split packets.
             if len(data) + len(update_bytes) > 65535:
-                Logger.warning(f'Split SMSG_UPDATE_OBJECT, total bytes: {sum([len(b) for b in update_complete_bytes])}'
+                Logger.warning(f'Split SMSG_UPDATE_OBJECT, total bytes: {total_bytes}'
                                f', map: {self._player_mgr.map_id}'
                                f', loc: {self._player_mgr.location}'
                                f', known objects: {len(self._player_mgr.known_objects)}')
