@@ -21,7 +21,7 @@ class GooberManager(GameObjectManager):
     def initialize_from_gameobject_template(self, gobject_template):
         super().initialize_from_gameobject_template(gobject_template)
         self.lock = self.get_data_field(0, int)
-        self.quest_id = self.get_data_field(1, bool)
+        self.quest_id = self.get_data_field(1, int)
         self.event_id = self.get_data_field(2, int)
         self.auto_close_secs = self.get_data_field(3, int)
         self._has_custom_animation = self.get_data_field(4, bool)
