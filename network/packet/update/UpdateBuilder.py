@@ -3,6 +3,7 @@ from enum import IntEnum
 from multiprocessing import RLock
 from struct import pack
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 
@@ -150,6 +151,10 @@ class UpdateBuilder:
         for update_bytes in update_complete_bytes:
             # If data exceeds uint16, split packets.
             if len(data) + len(update_bytes) > 65535:
+                Logger.warning(f'Split SMSG_UPDATE_OBJECT, total bytes: {sum([len(b) for b in update_complete_bytes])}'
+                               f', map: {self._player_mgr.map_id}'
+                               f', loc: {self._player_mgr.location}'
+                               f', known objects: {len(self._player_mgr.known_objects)}')
                 packet_bytes = bytearray(pack('<I', transactions)) + data
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, bytes(packet_bytes)))
                 transactions = 0
