@@ -289,7 +289,7 @@ class SpellManager:
 
         for item_spell in item.spell_stats:
             if not item_spell.spell_id:
-                break
+                continue
 
             if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_USE:
                 continue
