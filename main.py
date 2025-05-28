@@ -101,31 +101,31 @@ def wait_world_server():
         return
     # Wait for world start before starting realm/proxy sockets if needed.
     while not WORLD_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_realm_server():
     if not launch_realm:
         return
     while not REALM_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_proxy_server():
     if not launch_realm:
         return
     while not PROXY_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_login_server():
     while not LOGIN_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_update_server():
     while not UPDATE_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 CONSOLE_LISTENING = False
