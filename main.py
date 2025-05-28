@@ -86,6 +86,7 @@ def handle_console_commands():
             command = input()
     except:
         pass
+    Logger.info(f'Command listener released.')
     RUNNING.value = 0
 
 
