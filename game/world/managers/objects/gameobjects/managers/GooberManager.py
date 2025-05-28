@@ -41,8 +41,10 @@ class GooberManager(GameObjectManager):
         if player:
             if self.page_text:
                 self.send_page_text(player)
-            if self.quest_id:
-                player.quest_manager.handle_goober_use(self, self.quest_id)
+
+            # Check if object needed for given/any quest.
+            player.quest_manager.handle_goober_use(self, self.quest_id)
+
             if not from_script:
                 self.trigger_script(player)
 
