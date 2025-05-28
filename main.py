@@ -91,7 +91,9 @@ def handle_console_commands():
 
 def handler_stop_signals(signum, frame):
     RUNNING.value = 0
-    sys.stdin.write('exit\n')
+    # Console mode, we need to kill stdin input() listener.
+    if CONSOLE_LISTENING:
+        raise KeyboardInterrupt
 
 
 def wait_world_server():
@@ -126,7 +128,7 @@ def wait_update_server():
         sleep(1)
 
 
-CONSOLE_THREAD = None
+CONSOLE_LISTENING = False
 RUNNING = None
 WORLD_SERVER_READY = None
 REALM_SERVER_READY = None
@@ -235,6 +237,7 @@ if __name__ == '__main__':
 
     # Handle console mode.
     if console_mode and RUNNING.value:
+        CONSOLE_LISTENING = True
         handle_console_commands()
     else:
         # Wait on main thread for stop signal or 'exit' command.
