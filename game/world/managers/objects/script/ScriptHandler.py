@@ -502,6 +502,7 @@ class ScriptHandler:
                                 script_id=command.dataint2)
         # Attack target type.
         if command.dataint3 < ScriptTarget.TARGET_T_PROVIDED_TARGET:  # Can be -1.
+            creature_manager.set_has_moved(has_moved=True, has_turned=True)
             return False
 
         from game.world.managers.objects.script.ScriptManager import ScriptManager

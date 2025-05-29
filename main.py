@@ -86,12 +86,15 @@ def handle_console_commands():
             command = input()
     except:
         pass
+    Logger.info(f'Command listener released.')
     RUNNING.value = 0
 
 
 def handler_stop_signals(signum, frame):
     RUNNING.value = 0
-    sys.stdin.write('exit\n')
+    # Console mode, we need to kill stdin input() listener.
+    if CONSOLE_LISTENING:
+        raise KeyboardInterrupt
 
 
 def wait_world_server():
@@ -99,34 +102,34 @@ def wait_world_server():
         return
     # Wait for world start before starting realm/proxy sockets if needed.
     while not WORLD_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_realm_server():
     if not launch_realm:
         return
     while not REALM_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_proxy_server():
     if not launch_realm:
         return
     while not PROXY_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_login_server():
     while not LOGIN_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
 def wait_update_server():
     while not UPDATE_SERVER_READY.value and RUNNING.value:
-        sleep(1)
+        sleep(0.1)
 
 
-CONSOLE_THREAD = None
+CONSOLE_LISTENING = False
 RUNNING = None
 WORLD_SERVER_READY = None
 REALM_SERVER_READY = None
@@ -235,6 +238,7 @@ if __name__ == '__main__':
 
     # Handle console mode.
     if console_mode and RUNNING.value:
+        CONSOLE_LISTENING = True
         handle_console_commands()
     else:
         # Wait on main thread for stop signal or 'exit' command.

@@ -21,7 +21,7 @@ class GooberManager(GameObjectManager):
     def initialize_from_gameobject_template(self, gobject_template):
         super().initialize_from_gameobject_template(gobject_template)
         self.lock = self.get_data_field(0, int)
-        self.quest_id = self.get_data_field(1, bool)
+        self.quest_id = self.get_data_field(1, int)
         self.event_id = self.get_data_field(2, int)
         self.auto_close_secs = self.get_data_field(3, int)
         self._has_custom_animation = self.get_data_field(4, bool)
@@ -41,8 +41,10 @@ class GooberManager(GameObjectManager):
         if player:
             if self.page_text:
                 self.send_page_text(player)
-            if self.quest_id:
-                player.quest_manager.handle_goober_use(self, self.quest_id)
+
+            # Check if object needed for given/any quest.
+            player.quest_manager.handle_goober_use(self, self.quest_id)
+
             if not from_script:
                 self.trigger_script(player)
 
