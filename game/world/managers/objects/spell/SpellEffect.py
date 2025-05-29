@@ -258,8 +258,4 @@ class SpellEffect:
         self.misc_value = getattr(spell, f'EffectMiscValue_{index+1}')
         self.trigger_spell_id = getattr(spell, f'EffectTriggerSpell_{index+1}')
 
-        # Handle dummy aura effects custom periods.
-        if not self.aura_period and AuraEffectDummyHandler.is_periodic(spell.ID):
-            self.aura_period = AuraEffectDummyHandler.get_period(spell.ID)
-
         self.effect_index = index

@@ -655,9 +655,9 @@ class StatManager(object):
     def update_base_health_regen(self):
         unit_class = self.unit_mgr.class_
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        spirit_regen = int(CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class])
+        regen = CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class]
         # Values for spirit regen scaling are per tick.
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = max(0, spirit_regen) * 2.5
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = regen * 2.5
 
     def update_base_mana_regen(self):
         unit_class = self.unit_mgr.class_
@@ -1081,10 +1081,9 @@ class StatManager(object):
             resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START << spell_school)
         else:
             # Calculate resistance for creatures.
-            # This is the formula for innate resistance used for partial resists in VMaNGOS,
-            # with level adjusted 63->28.
+            # This is the formula for innate resistance used for partial resists in VMaNGOS.
             # (SpellCaster::GetSpellResistChance)
-            resist_mod = (8 * rating_difference * attacker_combat_rating) / 5 / 28
+            resist_mod = (8 * rating_difference * attacker_combat_rating) / 5 / 63
 
         resist_mod *= 0.15 / (attacker_combat_rating / 5)
         resist_mod = max(0.0, min(0.75, resist_mod))
