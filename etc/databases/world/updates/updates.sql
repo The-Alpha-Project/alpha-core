@@ -1212,6 +1212,8 @@ begin not atomic
     if (select count(*) from applied_updates where id='300520251') = 0 then
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1502
         UPDATE `item_template` SET `display_id` = 9388 WHERE (`entry` = 2854);
+        -- Runed Copper Breastplate
+        UPDATE `item_template` SET `display_id` = 9387 WHERE (`entry` = 2864);
 
         INSERT INTO applied_updates VALUES ('300520251');
     end if;
