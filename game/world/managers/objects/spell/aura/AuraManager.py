@@ -2,7 +2,7 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.objects.spell import ExtendedSpellData
+from game.world.managers.objects.spell.ExtendedSpellData import AuraTargetRestrictions, AuraSourceRestrictions
 from game.world.managers.objects.spell.aura.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
@@ -16,6 +16,9 @@ from utils.constants.UpdateFields import UnitFields
 
 
 class AuraManager:
+    # All applied single-target auras (sleep) by player guid.
+    SINGLE_TARGET_AURAS: dict[int, [AppliedAura]] = {}
+
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
         self.active_auras = {}  # (int: Aura) to have persistent indices.
@@ -68,6 +71,16 @@ class AuraManager:
 
         # Handle effects after possible stack increase/refresh to update stats properly.
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
+
+        if not is_refresh and AuraTargetRestrictions.is_single_target_aura(aura.spell_id):
+            # Find existing single target aura to remove.
+            existing_auras = AuraManager.SINGLE_TARGET_AURAS.get(aura.caster.guid, [])
+            colliding = [ex_aura for ex_aura in existing_auras if
+                         AuraTargetRestrictions.are_colliding_auras(aura.spell_id, ex_aura.spell_id)]
+
+            # Remove colliding aura if one exists.
+            [coll_aura.target.aura_manager.remove_aura(coll_aura) for coll_aura in colliding]
+            AuraManager.SINGLE_TARGET_AURAS[aura.caster.guid] = [aura]
 
         self.write_aura_to_unit(aura, is_refresh=is_refresh)
         return aura.index
@@ -231,7 +244,7 @@ class AuraManager:
             applied_aura_name = applied_spell_entry.Name_enUS
 
             # Paladin seals, warlock curses etc.
-            has_group_restriction = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id,
+            has_group_restriction = AuraSourceRestrictions.are_colliding_auras(aura.spell_id,
                                                                                                  applied_aura.spell_id)
             is_similar = applied_aura.spell_id == aura.spell_id or new_aura_name == applied_aura_name
             is_same_source = applied_aura.caster.guid == caster_guid
@@ -392,6 +405,12 @@ class AuraManager:
         # Some spells start cooldown on aura remove, handle that case here.
         if aura.source_spell.unlock_cooldown_on_trigger():
             self.unit_mgr.spell_manager.unlock_spell_cooldown(aura.spell_id)
+
+        # Remove tracked single-target aura.
+        if AuraTargetRestrictions.is_single_target_aura(aura.spell_id):
+            source_auras = AuraManager.SINGLE_TARGET_AURAS.get(aura.caster.guid) or []
+            source_auras.remove(aura)
+            AuraManager.SINGLE_TARGET_AURAS[aura.caster.guid] = source_auras
 
         self.write_aura_to_unit(aura, clear=True)
 

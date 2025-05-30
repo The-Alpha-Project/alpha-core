@@ -130,6 +130,22 @@ class AuraSourceRestrictions:
         return False
 
 
+class AuraTargetRestrictions:
+    # Only one target can be slept at a time.
+    SLEEP_SPELLS = {700, 1090, 2937}
+
+    GROUPS = [SLEEP_SPELLS]
+
+    @staticmethod
+    def is_single_target_aura(spell_id: int):
+        return any(spell_id in group for group in AuraTargetRestrictions.GROUPS)
+
+    @staticmethod
+    def are_colliding_auras(spell_id_1: int, spell_id_2: int):
+        return any(spell_id_1 in group and spell_id_2 in group
+                   for group in AuraTargetRestrictions.GROUPS)
+
+
 class CastPositionRestrictions:
     CASTABLE_FROM_BEHIND = {
         53, 2589, 2590, 2591, 7159, 7463,  # Backstab
