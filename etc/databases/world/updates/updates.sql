@@ -1200,5 +1200,12 @@ begin not atomic
         UPDATE `trainer_template` SET reqlevel = 22 WHERE playerspell = 6666; -- Survival Instinct
         INSERT INTO applied_updates VALUES ('250520251');
     end if;
+
+    -- 29/05/2025 1
+    if (select count(*) from applied_updates where id='290520251') = 0 then
+        UPDATE `spawns_creatures` SET `ignored` = '0', `position_x` = '-3828.561', `position_y` = '-1519.325', `position_z` = '92.818', `orientation` = '4.599' WHERE (`spawn_id` = '14367');
+        UPDATE `creature_template` SET `display_id1` = '1344' WHERE (`entry` = '3435');
+        INSERT INTO applied_updates VALUES ('290520251');
+    end if;
 end $
 delimiter ;
