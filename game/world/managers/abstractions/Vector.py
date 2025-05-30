@@ -70,12 +70,22 @@ class Vector(object):
         return round(math.sqrt(self.distance_sqrd(vector) if vector else
                                self.distance_sqrd(x=x, y=y, z=z)), decimals)
 
+    def distance_2d(self, vector=None, x=0, y=0, decimals=3):
+        return round(math.sqrt(self.distance_sqrd_2d(vector) if vector else
+                               self.distance_sqrd_2d(x=x, y=y)), decimals)
+
     def distance_sqrd(self, vector=None, x=0, y=0, z=0):
         d_x = self.x - (vector.x if vector else x)
         d_y = self.y - (vector.y if vector else y)
         d_z = self.z - (vector.z if vector else z)
 
         return d_x ** 2 + d_y ** 2 + d_z ** 2
+
+    def distance_sqrd_2d(self, vector=None, x=0, y=0):
+        d_x = self.x - (vector.x if vector else x)
+        d_y = self.y - (vector.y if vector else y)
+
+        return d_x ** 2 + d_y ** 2
 
     def angle(self, vector=None, x=0, y=0):
         if not vector:
