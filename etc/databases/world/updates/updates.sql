@@ -1207,5 +1207,13 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1` = '1344' WHERE (`entry` = '3435');
         INSERT INTO applied_updates VALUES ('290520251');
     end if;
+
+    -- 30/05/2025 1
+    if (select count(*) from applied_updates where id='300520251') = 0 then
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1502
+        UPDATE `item_template` SET `display_id` = 9388 WHERE (`entry` = 2854);
+
+        INSERT INTO applied_updates VALUES ('300520251');
+    end if;
 end $
 delimiter ;
