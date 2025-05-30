@@ -341,14 +341,15 @@ class SpellEffectMechanics:
         return SpellMechanic.MECHANIC_SLEEP if \
             spell_id in SpellEffectMechanics._SLEEP_MECHANIC_SPELLS else None
 
-class SpellThreatMechanics:
+
+class SpellThreatInfo:
     _NON_COMBAT_STUN_SPELLS = (
-        700, 1090, 2937, # Sleep.
-        2070, 6770, 6771, # Sap.
-        6358 # Seduction.
+        700, 1090, 2937,   # Sleep.
+        2070, 6770, 6771,  # Sap.
+        6358               # Seduction.
     )
 
     # According to evidence from screenshots, neither Sleep, Sap nor Seduction gets the player in combat.
     @staticmethod
-    def spell_should_generate_threat(spell_id) -> bool:
-        return spell_id not in SpellThreatMechanics._NON_COMBAT_STUN_SPELLS
+    def spell_generates_threat(spell_id) -> bool:
+        return spell_id not in SpellThreatInfo._NON_COMBAT_STUN_SPELLS
