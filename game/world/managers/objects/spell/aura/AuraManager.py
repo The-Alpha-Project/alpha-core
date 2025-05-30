@@ -10,7 +10,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ProcFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
-    SpellAttributesEx, SpellEffects, AuraState
+    SpellAttributesEx, SpellEffects, AuraState, AuraFlags
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -22,7 +22,6 @@ class AuraManager:
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
         self.active_auras = {}  # (int: Aura) to have persistent indices.
-        self.current_flags = 0x0
 
     def apply_spell_effect_aura(self, caster, casting_spell, spell_effect):
         aura = AppliedAura(caster, casting_spell, spell_effect, self.unit_mgr)
@@ -326,8 +325,8 @@ class AuraManager:
 
     def get_similar_applied_auras(self, aura, accept_all_ranks=True, accept_all_sources=True) -> list[AppliedAura]:
         return self.get_similar_applied_auras_by_effect(aura.spell_effect,
-                                                       accept_all_ranks=accept_all_ranks,
-                                                       accept_all_sources=accept_all_sources)
+                                                        accept_all_ranks=accept_all_ranks,
+                                                        accept_all_sources=accept_all_sources)
 
     def get_similar_applied_auras_by_effect(self, spell_effect, accept_all_ranks=True, accept_all_sources=True) -> list[AppliedAura]:
         aura_spell_template = spell_effect.casting_spell.spell_entry
@@ -467,6 +466,8 @@ class AuraManager:
         self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
     def write_aura_to_unit(self, aura, clear=False, is_refresh=False, send_duration=True):
+        self._write_aura_flag_to_unit(aura, clear=clear, is_refresh=is_refresh)
+
         if aura.passive:
             return  # Passive auras are server-side only.
 
@@ -474,21 +475,29 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
-
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
-        self._write_aura_flag_to_unit(aura, clear=clear, is_refresh=is_refresh)
 
     def _write_aura_flag_to_unit(self, aura, clear=False, is_refresh=False):
-        if not aura:
+        if not aura or (aura.passive and aura.active_aura_index == -1):
             return
-        byte = (aura.index & 7) << 2  # magic value for AuraFlags.
-        if not clear:
-            self.current_flags |= 0x9 << byte  # OR to current flags - from other server's source.
-        else:
-            self.current_flags &= ~(0x9 << byte)
 
-        field_index = UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3)
-        self.unit_mgr.set_uint32(field_index, self.current_flags, force=is_refresh or clear)
+        aura_flag = AuraFlags.AURA_FLAG_NONE
+        if not clear:
+            aura_attributes = aura.source_spell.spell_entry.Attributes
+            if not aura_attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL and not aura.harmful:
+                aura_flag |= AuraFlags.AURA_FLAG_CANCELABLE
+
+            aura_flag |= AuraFlags.AURA_FLAG_EFF_INDEX_0 >> aura.spell_effect.effect_index
+
+        aura_index = aura.active_aura_index if aura.passive else aura.index
+        offset = int(aura_index / 8)  # 4 bits for each aura slot, writing in 32 bit fields.
+        flags = self.unit_mgr.get_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + offset)
+
+        half_byte_index = aura_index & 7
+        aura_flag <<= 4 * half_byte_index
+        flags |= aura_flag
+
+        self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + offset, flags, force=is_refresh or clear)
 
     def get_next_aura_index(self, aura) -> int:
         if aura.passive:
