@@ -407,9 +407,12 @@ class AuraManager:
 
         # Remove tracked single-target aura.
         if AuraTargetRestrictions.is_single_target_aura(aura.spell_id):
-            source_auras = AuraManager.SINGLE_TARGET_AURAS.get(aura.caster.guid) or []
-            source_auras.remove(aura)
-            AuraManager.SINGLE_TARGET_AURAS[aura.caster.guid] = source_auras
+            source_auras = AuraManager.SINGLE_TARGET_AURAS.get(aura.caster.guid, [])
+            source_auras = [a for a in source_auras if a != aura]
+            if not source_auras:
+                AuraManager.SINGLE_TARGET_AURAS.pop(aura.caster.guid, None)
+            else:
+                AuraManager.SINGLE_TARGET_AURAS[aura.caster.guid] = source_auras
 
         self.write_aura_to_unit(aura, clear=True)
 
