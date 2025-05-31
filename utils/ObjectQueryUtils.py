@@ -19,7 +19,7 @@ class ObjectQueryUtils:
         elif isinstance(template, CreatureTemplate) or isinstance(instance, CreatureManager):
             return ObjectQueryUtils._get_unit_query_details(template, instance)
         else:
-            return None
+            raise ValueError("Invalid query details requested.")
 
     @staticmethod
     def _get_unit_query_details(creature_template=None, creature_mgr=None):
