@@ -1,4 +1,3 @@
-from functools import lru_cache
 from struct import pack
 from database.world.WorldModels import ItemTemplate, GameobjectTemplate, CreatureTemplate
 from game.world.managers.objects.item.Stats import Stat, DamageStat, SpellStat
@@ -9,7 +8,6 @@ from utils.constants.OpCodes import OpCode
 class ObjectQueryUtils:
 
     @staticmethod
-    @lru_cache
     def get_query_details_data(template=None, instance=None):
         from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
