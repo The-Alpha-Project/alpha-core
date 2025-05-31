@@ -1212,19 +1212,23 @@ class SpellManager:
         # Unit target checks.
         if casting_spell.initial_target_is_unit_or_player():
             # Basic effect harmfulness/attackability check.
-            # For unit-targeted AoE spells, skip validation for self casts.
             # The client checks this for player casts, but not pet casts.
+            # Skip for self-targeted AoE and explicitly self-targeting spells.
             is_harmful = casting_spell.has_only_harmful_effects()
             has_mixed_targets = not is_harmful and not casting_spell.has_only_helpful_effects()
 
-            if (not casting_spell.is_area_of_effect_spell() or validation_target is not self.caster) and \
-                    not has_mixed_targets and \
-                    is_harmful != self.caster.can_attack_target(validation_target):
+            self_targeted_aoe = casting_spell.is_area_of_effect_spell() and validation_target is self.caster
+            self_targeted_debuff = casting_spell.is_self_targeted() and is_harmful
+
+            if (not has_mixed_targets and
+                    not self_targeted_aoe and
+                    not self_targeted_debuff and
+                    is_harmful != self.caster.can_attack_target(validation_target)):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
             if validation_target.is_alive and \
-                casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_RESURRECT):
+               casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_RESURRECT):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_DEAD)
                 return False
 

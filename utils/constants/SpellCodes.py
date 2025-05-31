@@ -507,6 +507,16 @@ class AuraState(IntEnum):
     AURA_STATE_HEALTH_20_PERCENT = 2
 
 
+class AuraFlags(IntEnum):
+    AURA_FLAG_NONE                  = 0x00,
+    AURA_FLAG_CANCELABLE            = 0x01,
+    AURA_FLAG_EFF_INDEX_2           = 0x02,
+    AURA_FLAG_EFF_INDEX_1           = 0x04,
+    AURA_FLAG_EFF_INDEX_0           = 0x08,
+
+    AURA_FLAG_ALL                   = 0x0F
+
+
 class SpellImplicitTargets(IntEnum):
     TARGET_INITIAL = 0
     TARGET_SELF = 1
