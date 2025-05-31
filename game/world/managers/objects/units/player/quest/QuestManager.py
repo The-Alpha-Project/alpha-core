@@ -4,10 +4,8 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
-from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
@@ -15,6 +13,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
+from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.OpCodes import OpCode
@@ -500,7 +499,7 @@ class QuestManager(object):
         display_id = 0
         if item_template:
             display_id = item_template.display_id
-            query_data = ItemManager.generate_query_details_data(item_template)
+            query_data = ObjectQueryUtils.get_query_details_data(template=item_template)
             self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data))
 
         item_data = pack(
@@ -662,10 +661,7 @@ class QuestManager(object):
                 name_bytes = PacketWriter.string_to_bytes(template.name)
 
                 # Send query details for gameobjects and creatures in case they are out of range.
-                if is_go:
-                    self.player_mgr.enqueue_packet(GoQueryUtils.query_details(gobject_template=template))
-                else:
-                    self.player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template=template))
+                self.player_mgr.enqueue_packet(ObjectQueryUtils.get_query_details_data(template=template))
 
             data.extend(pack(
                 f'<4I{len(name_bytes)}s',

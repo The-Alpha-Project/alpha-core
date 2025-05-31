@@ -20,6 +20,7 @@ from utils.ByteUtils import ByteUtils
 from utils.Formulas import Distances
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
+from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
     MoveType, EmoteUnitState
@@ -949,8 +950,7 @@ class CreatureManager(UnitManager):
 
     # override
     def get_query_details_packet(self):
-        from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
-        return UnitQueryUtils.query_details(creature_mgr=self)
+        return ObjectQueryUtils.get_query_details_data(instance=self)
 
     # override
     def get_type_mask(self):

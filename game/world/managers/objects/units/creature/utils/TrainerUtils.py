@@ -8,6 +8,7 @@ from database.world.WorldModels import TrainerTemplate
 from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
+from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
@@ -111,7 +112,7 @@ class TrainerUtils:
         if item_templates:
             packets = []
             for item_template in item_templates:
-                query_data = ItemManager.generate_query_details_data(item_template)
+                query_data = ObjectQueryUtils.get_query_details_data(template=item_template)
                 query_packet = PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data)
                 packets.append(query_packet)
             player_mgr.enqueue_packets(packets)
