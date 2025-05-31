@@ -490,8 +490,8 @@ class QuestManager(object):
             # We can't detect dynamic flag changes, since it is unique for each observer.
             elif world_object.is_gameobject():
                 gameobject = world_object
-                if gameobject.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
-                        gameobject.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+                types = [GameObjectTypes.TYPE_CHEST, GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER]
+                if gameobject.gobject_template.type in types:
                     self.player_mgr.update_manager.update_gameobject_dynamic_flag(gameobject)
 
     # Send item query details and return item struct byte segments.
@@ -571,15 +571,15 @@ class QuestManager(object):
         ))
 
         # Reward choices
-        rew_choice_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest_template)))
-        rew_choice_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_count_list(quest_template)))
+        rew_choice_item_list = QuestHelpers.generate_rew_choice_item_list(quest_template)
+        rew_choice_count_list = QuestHelpers.generate_rew_choice_count_list(quest_template)
         data.extend(pack('<I', len(rew_choice_item_list)))
         for index, item in enumerate(rew_choice_item_list):
             data.extend(self._gen_item_struct(item, rew_choice_count_list[index]))
 
         # Reward items
-        rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(quest_template)))
-        rew_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(quest_template)))
+        rew_item_list = QuestHelpers.generate_rew_item_list(quest_template)
+        rew_count_list = QuestHelpers.generate_rew_count_list(quest_template)
         data.extend(pack('<I', len(rew_item_list)))
         for index, item in enumerate(rew_item_list):
             data.extend(self._gen_item_struct(item, rew_count_list[index]))
@@ -612,14 +612,18 @@ class QuestManager(object):
         # Rewards given no matter what.
         rew_item_list = QuestHelpers.generate_rew_item_list(quest)
         rew_item_count_list = QuestHelpers.generate_rew_count_list(quest)
-        for index, item in enumerate(rew_item_list):
-            data.extend(pack('<2I', item, rew_item_count_list[index]))
+        for index in range(4):
+            item = rew_item_list[index] if index < len(rew_item_list) else 0
+            count = rew_item_count_list[index] if index < len(rew_item_count_list) else 0
+            data.extend(pack('<2I', item, count))
 
         # Reward choices.
         rew_choice_item_list = QuestHelpers.generate_rew_choice_item_list(quest)
         rew_choice_count_list = QuestHelpers.generate_rew_choice_count_list(quest)
-        for index, item in enumerate(rew_choice_item_list):
-            data.extend(pack('<2I', item, rew_choice_count_list[index]))
+        for index in range(6):
+            item = rew_choice_item_list[index] if index < len(rew_choice_item_list) else 0
+            count = rew_choice_count_list[index] if index < len(rew_choice_count_list) else 0
+            data.extend(pack('<2I', item, count))
 
         title_bytes = PacketWriter.string_to_bytes(quest.Title)
         details_bytes = PacketWriter.string_to_bytes(quest.Details)
@@ -638,29 +642,39 @@ class QuestManager(object):
         ))
 
         # Required kills / Required items count.
-        req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(quest)
-        req_creatures_or_gos_count_list = QuestHelpers.generate_req_creature_or_go_count_list(quest)
+        req_units_or_gos = QuestHelpers.generate_req_unit_or_go_list(quest)
+        req_units_or_gos_count_list = QuestHelpers.generate_req_unit_or_go_count_list(quest)
         req_items = QuestHelpers.generate_req_item_list(quest)
         req_items_count_list = QuestHelpers.generate_req_item_count_list(quest)
-        for index, creature_or_go in enumerate(req_creatures_or_gos):
-            data.extend(pack(
-                '<4IB',
-                creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
-                req_creatures_or_gos_count_list[index],
-                req_items[index],
-                req_items_count_list[index],
-                0x0  # Unknown, if missing, multiple objective quests will not display properly.
-            ))
 
-            # Send query details for gameobjects and creatures in case they are out of range.
-            if creature_or_go < 0:
-                go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(-creature_or_go)
-                if go_template:
-                    self.player_mgr.enqueue_packet(GoQueryUtils.query_details(gobject_template=go_template))
-            elif creature_or_go > 0:
-                creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_go)
-                if creature_template:
-                    self.player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template=creature_template))
+        for index in range(4):
+            creature_or_go = req_units_or_gos[index] if index < len(req_units_or_gos) else 0
+            creature_or_go_count = req_units_or_gos_count_list[index] if index < len(req_units_or_gos_count_list) else 0
+            req_item = req_items[index] if index < len(req_items) else 0
+            req_item_count = req_items_count_list[index] if index < len(req_items_count_list) else 0
+            name_bytes = b'\x00'
+            is_go = creature_or_go < 0
+
+            if creature_or_go:
+                template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(-creature_or_go) \
+                    if is_go \
+                    else WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_go)
+                name_bytes = PacketWriter.string_to_bytes(template.name)
+
+                # Send query details for gameobjects and creatures in case they are out of range.
+                if is_go:
+                    self.player_mgr.enqueue_packet(GoQueryUtils.query_details(gobject_template=template))
+                else:
+                    self.player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template=template))
+
+            data.extend(pack(
+                f'<4I{len(name_bytes)}s',
+                creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
+                creature_or_go_count,
+                req_item,
+                req_item_count,
+                name_bytes,
+            ))
 
         # Objective texts.
         req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)
@@ -698,8 +712,8 @@ class QuestManager(object):
             close_on_cancel,  # Close Window after cancel
         ))
 
-        req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest)))
-        req_items_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest)))
+        req_items = QuestHelpers.generate_req_item_list(quest)
+        req_items_count_list = QuestHelpers.generate_req_item_count_list(quest)
         data.extend(pack('<I', len(req_items)))
         for index in range(len(req_items)):
             data.extend(self._gen_item_struct(req_items[index], req_items_count_list[index]))
@@ -750,8 +764,8 @@ class QuestManager(object):
 
         if QuestHelpers.has_pick_reward(quest):
             # Reward choices
-            rew_choice_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest)))
-            rew_choice_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_count_list(quest)))
+            rew_choice_item_list = QuestHelpers.generate_rew_choice_item_list(quest)
+            rew_choice_count_list = QuestHelpers.generate_rew_choice_count_list(quest)
             data.extend(pack('<I', len(rew_choice_item_list)))
             for index, item in enumerate(rew_choice_item_list):
                 data.extend(self._gen_item_struct(item, rew_choice_count_list[index]))
@@ -761,8 +775,8 @@ class QuestManager(object):
         #  Apart from available rewards to pick from, sometimes there are rewards you will also get, no matter what.
         if QuestHelpers.has_item_reward(quest):
             # Required items
-            rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(quest)))
-            rew_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(quest)))
+            rew_item_list = QuestHelpers.generate_rew_item_list(quest)
+            rew_count_list = QuestHelpers.generate_rew_count_list(quest)
             data.extend(pack('<I', len(rew_item_list)))
             for index, item in enumerate(rew_item_list):
                 data.extend(self._gen_item_struct(item, rew_count_list[index]))
@@ -938,14 +952,14 @@ class QuestManager(object):
 
         # Check chosen reward item.
         reward_items = {}
-        rew_item_choice_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest)))
-        rew_item_choice_count = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_count_list(quest)))
+        rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(quest)
+        rew_item_choice_count = QuestHelpers.generate_rew_choice_count_list(quest)
         if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
             reward_items[rew_item_choice_list[item_choice]] = rew_item_choice_count[item_choice]
 
         # Check not chosen reward item(s).
-        rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(quest)))
-        rew_item_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(quest)))
+        rew_item_list = QuestHelpers.generate_rew_item_list(quest)
+        rew_item_count_list = QuestHelpers.generate_rew_count_list(quest)
         for index, rew_item in enumerate(rew_item_list):
             reward_items[rew_item_list[index]] = rew_item_count_list[index]
 
@@ -954,8 +968,7 @@ class QuestManager(object):
         req_item_list = QuestHelpers.generate_req_item_list(quest)
         req_item_count = QuestHelpers.generate_req_item_count_list(quest)
         for index, req_item in enumerate(req_item_list):
-            if req_item != 0:
-                required_items[req_item] = req_item_count[index]
+            required_items[req_item] = req_item_count[index]
 
         # Check if the rewards will fit player inventory.
         remaining_inventory_space = self.player_mgr.inventory.get_remaining_space()
