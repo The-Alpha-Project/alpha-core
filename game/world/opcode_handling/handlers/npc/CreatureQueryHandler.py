@@ -1,6 +1,6 @@
 from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
+from utils.ObjectQueryUtils import ObjectQueryUtils
 
 
 class CreatureQueryHandler(object):
@@ -18,5 +18,5 @@ class CreatureQueryHandler(object):
             else:  # Fallback just in case.
                 creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
                 if creature_template:
-                    player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template=creature_template))
+                    player_mgr.enqueue_packet(ObjectQueryUtils.get_query_details_data(template=creature_template))
         return 0

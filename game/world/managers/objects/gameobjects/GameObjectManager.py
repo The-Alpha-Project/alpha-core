@@ -6,6 +6,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
+from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates, ScriptTypes
 from utils.constants.MiscFlags import GameObjectFlags
@@ -393,8 +394,7 @@ class GameObjectManager(ObjectManager):
 
     # override
     def get_query_details_packet(self):
-        from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
-        return GoQueryUtils.query_details(gameobject_mgr=self)
+        return ObjectQueryUtils.get_query_details_data(instance=self)
 
     # override
     def get_type_mask(self):

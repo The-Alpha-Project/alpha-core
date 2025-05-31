@@ -1,6 +1,6 @@
 from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
+from utils.ObjectQueryUtils import ObjectQueryUtils
 
 
 class GameObjectQueryHandler(object):
@@ -17,5 +17,5 @@ class GameObjectQueryHandler(object):
                 else:  # Fallback just in case.
                     go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry)
                     if go_template:
-                        player_mgr.enqueue_packet(GoQueryUtils.query_details(gobject_template=go_template))
+                        player_mgr.enqueue_packet(ObjectQueryUtils.get_query_details_data(template=go_template))
         return 0

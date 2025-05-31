@@ -15,6 +15,7 @@ from network.packet.PacketWriter import PacketWriter
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
+from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.OpCodes import OpCode
@@ -244,86 +245,7 @@ class ItemManager(ObjectManager):
         return None
 
     def query_details_data(self):
-        data = ItemManager.generate_query_details_data(
-            self.item_template,
-        )
-        return data
-
-    @staticmethod
-    def generate_query_details_data(item_template):
-        # Initialize stat values if none are supplied.
-        stats = Stat.generate_stat_list(item_template)
-        damage_stats = DamageStat.generate_damage_stat_list(item_template)
-        spell_stats = SpellStat.generate_spell_stat_list(item_template)
-
-        item_name_bytes = PacketWriter.string_to_bytes(item_template.name)
-        data = bytearray(pack(
-            f'<3I{len(item_name_bytes)}ssss6I2i7I',
-            item_template.entry,
-            item_template.class_,
-            item_template.subclass,
-            item_name_bytes, b'\x00', b'\x00', b'\x00',
-            item_template.display_id,
-            item_template.quality,
-            item_template.flags,
-            item_template.buy_price,
-            item_template.sell_price,
-            item_template.inventory_type,
-            item_template.allowable_class,
-            item_template.allowable_race,
-            item_template.item_level,
-            item_template.required_level,
-            item_template.required_skill,
-            item_template.required_skill_rank,
-            item_template.max_count,
-            item_template.stackable,
-            item_template.container_slots
-        ))
-
-        for stat in stats:
-            data.extend(pack('<2i', stat.stat_type, stat.value))
-
-        for damage_stat in damage_stats:
-            data.extend(pack('<3i', int(damage_stat.minimum), int(damage_stat.maximum), damage_stat.stat_type))
-
-        data.extend(pack(
-            '<6i3I',
-            item_template.armor,
-            item_template.holy_res,
-            item_template.fire_res,
-            item_template.nature_res,
-            item_template.frost_res,
-            item_template.shadow_res,
-            item_template.delay,
-            item_template.ammo_type,
-            0  # Durability, not implemented client side.
-        ))
-
-        for spell_stat in spell_stats:
-            data.extend(pack(
-                '<6i',
-                spell_stat.spell_id,
-                spell_stat.trigger,
-                spell_stat.charges,
-                spell_stat.cooldown,
-                spell_stat.category,
-                spell_stat.category_cooldown,
-            ))
-
-        description_bytes = PacketWriter.string_to_bytes(item_template.description)
-        data.extend(pack(
-            f'<I{len(description_bytes)}s5IiI',
-            item_template.bonding,
-            description_bytes,
-            item_template.page_text,
-            item_template.page_language,
-            item_template.page_material,
-            item_template.start_quest,
-            item_template.lock_id,
-            item_template.material,
-            item_template.sheath
-        ))
-
+        data = ObjectQueryUtils.get_query_details_data(template=self.item_template)
         return data
 
     # override
@@ -572,7 +494,7 @@ class ItemManager(ObjectManager):
         written_items = 0
         while item_templates:
             item = item_templates.pop()
-            item_bytes = ItemManager.generate_query_details_data(item)
+            item_bytes = ObjectQueryUtils.get_query_details_data(template=item)
 
             # Normal packet header + uint32 (written_items) + length of the total query + length of the current query.
             exceeds_max_length = PacketWriter.HEADER_SIZE + 4 + len(query_data) + len(item_bytes) > PacketWriter.MAX_PACKET_SIZE
