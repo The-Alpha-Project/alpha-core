@@ -673,7 +673,7 @@ class QuestManager(object):
                 creature_or_go_count,
                 req_item,
                 req_item_count,
-                name_bytes,
+                name_bytes
             ))
 
         # Objective texts.
