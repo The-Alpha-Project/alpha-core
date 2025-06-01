@@ -133,7 +133,7 @@ class ActiveQuest:
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
 
         # Notify the current objective count.
-        data = pack('<II2IQ',
+        data = pack('<4IQ',
                     self.db_state.quest,
                     world_object.entry if not world_object.is_gameobject() else (entry * -1) | 0x80000000,
                     current + value,
