@@ -1901,6 +1901,10 @@ class UnitManager(ObjectManager):
         if self.beast_master:
             return
 
+        charmer_or_summoner = self.get_charmer_or_summoner()
+        if charmer_or_summoner and charmer_or_summoner.beast_master:
+            return
+
         map_ = self.get_map()
         self_is_player = self.is_player()
         surrounding_units = map_.get_surrounding_units(self, not self_is_player)
@@ -1973,6 +1977,9 @@ class UnitManager(ObjectManager):
             if unit_is_player and not unit.pending_relocation and not unit.beast_master:
                 unit.pending_relocation = True
             elif not unit_is_player:
+                charmer_or_summoner = unit.get_charmer_or_summoner()
+                if charmer_or_summoner and charmer_or_summoner.beast_master:
+                    continue
                 unit.object_ai.move_in_line_of_sight(self)
 
     def set_has_moved(self, has_moved, has_turned, flush=False):
