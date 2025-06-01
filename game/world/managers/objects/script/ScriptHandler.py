@@ -7,6 +7,7 @@ from database.world.WorldModels import CreatureGroup
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
 from game.world.managers.objects.gameobjects.managers.DoorManager import DoorManager
+from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.Script import Script
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
@@ -1636,6 +1637,8 @@ class ScriptHandler:
             command.source.gameobject_instance.reset_door_state()
         elif isinstance(command.source.gameobject_instance, ButtonManager):
             command.source.gameobject_instance.reset_button_state()
+        elif isinstance(command.source.gameobject_instance, GooberManager):
+            command.source.gameobject_instance.reset_goober_state()
 
         return False
 

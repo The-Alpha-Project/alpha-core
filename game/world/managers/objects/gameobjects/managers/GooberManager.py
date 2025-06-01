@@ -1,6 +1,7 @@
 import time
 
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from utils.constants.MiscCodes import GameObjectStates
 from utils.constants.MiscFlags import GameObjectFlags
 
 
@@ -31,6 +32,27 @@ class GooberManager(GameObjectManager):
         self.total_cooldown = time.time() + self.cooldown
 
     # override
+    def update(self, now):
+        if now > self.last_tick > 0:
+            if self.is_active_object():
+                # Check if we need to reset the original state.
+                if self.is_active() and super().check_cooldown(now):
+                    self.reset_goober_state()
+        super().update(now)
+
+    def reset_goober_state(self):
+        self.switch_goober_state(active=False)
+        self.total_cooldown = 0
+
+    def switch_goober_state(self, active=True):
+        self.set_flag(GameObjectFlags.IN_USE, active)
+
+        if self.state == GameObjectStates.GO_STATE_READY:  # Closed
+            self.set_active()
+        else:
+            self.set_ready()
+
+    # override
     def use(self, player=None, target=None, from_script=False):
         if not super().check_cooldown(time.time()):
             return
@@ -48,14 +70,12 @@ class GooberManager(GameObjectManager):
             if not from_script:
                 self.trigger_script(player)
 
-        self.set_flag(GameObjectFlags.IN_USE, state=True)
-
         time_to_restore = self.get_auto_close_time()
 
         if self.has_custom_animation() or self._has_custom_animation and time_to_restore:
             self.send_custom_animation(0)
         else:
-            self.set_active()
+            self.switch_goober_state(active=True)
 
         self.cooldown = time_to_restore + time.time()
 

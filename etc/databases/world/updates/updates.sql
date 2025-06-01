@@ -1217,5 +1217,38 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('300520251');
     end if;
+
+    -- 31/05/2025 1
+    if (select count(*) from applied_updates where id='310520251') = 0 then
+        UPDATE `quest_template` SET `Details` = 'As my understanding of Arugal\'s magic grows so does my disdain for the hapless fool.  I am close to completing my research on his so called remedy.$b$bMy knowledge will be complete when I learn what enchantment is causing the strange behavior going on in Pyrewood Village.  By day, the peasants appear to be Human.  But when the sun goes down the townsfolk turn into Moonrage Worgen.$b$bI need to draw energy from the enchanted shackles Arugal cast on them.  Bring to me twelve enchanted Pyrewood Shackles, $N.', `Objectives` = 'Bring 12 Pyrewood Shackles to Dalar Dawnweaver at the Sepulcher.' WHERE (`entry` = '99');
+        -- Partial fixes for #1504, missing Sign post at: .port -48 -262 1 1 (Sunrock to the east, the Venture Co camp to the southeast and Windshar Craig to the northwest)
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '603.36', `spawn_positionY` = '325.836', `spawn_orientation` = '1.67552', `spawn_rotation0` = '0.034697', `spawn_rotation1` = '0.045045', `spawn_rotation2` = '0.741777', `spawn_rotation3` = '0.668232' WHERE (`spawn_id` = '47456');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.8' WHERE (`spawn_id` = '47450');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.8' WHERE (`spawn_id` = '47447');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47614');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47615');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47616');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44776');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44777');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '44807');
+        UPDATE `spawns_gameobjects` SET `spawn_orientation` = '2.36492', `spawn_rotation0` = '0.063403', `spawn_rotation1` = '0.166318', `spawn_rotation2` = '0.910467', `spawn_rotation3` = '0.373321' WHERE (`spawn_id` = '47449');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.548', `spawn_positionY` = '-139.245', `spawn_positionZ` = '9.54' WHERE (`spawn_id` = '47449');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1506
+        UPDATE `broadcast_text` SET `male_text` = '%s inspects the thresher hides...' WHERE (`entry` = '1085');
+        UPDATE `broadcast_text` SET `male_text` = '$N.  These hides tell me much, but I fear many more questions are now raised...' WHERE (`entry` = '1089');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1508
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '50.0159' WHERE (`spawn_id` = '38944');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '51.1986' WHERE (`spawn_id` = '43639');
+        UPDATE `spawns_gameobjects` SET `spawn_positionY` = '-4652.405', `spawn_positionZ` = '16.318' WHERE (`spawn_id` = '44108');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '91.6668' WHERE (`spawn_id` = '40266');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '99.5902' WHERE (`spawn_id` = '40274');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '97.924' WHERE (`spawn_id` = '40206');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '44.682', `spawn_positionY` = '-1724', `spawn_positionZ` = '105.110' WHERE (`spawn_id` = '40242');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_entry` = '123334');
+
+        INSERT INTO applied_updates VALUES ('310520251');
+    end if;
 end $
 delimiter ;

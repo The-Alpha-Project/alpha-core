@@ -76,12 +76,12 @@ class ActiveQuest:
         if self.is_quest_complete(quest_giver):
             return False
 
-        needed_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
+        needed_items = QuestHelpers.generate_req_item_list(self.quest)
         # Not required items for this quest.
         if len(needed_items) == 0:
             return False
 
-        req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
+        req_count = QuestHelpers.generate_req_item_count_list(self.quest)
         # Check if any needed items match the provided go_loot_template and if the player still needs them.
         for entry in go_loot_template:
             if entry.item not in needed_items:
@@ -98,8 +98,6 @@ class ActiveQuest:
         faction_reputation_rewards = QuestHelpers.generate_rew_faction_reputation_list(self.quest)
         faction_reputation_gain = QuestHelpers.generate_rew_faction_reputation_gain_list(self.quest)
         for index, faction in enumerate(faction_reputation_rewards):
-            if not faction:
-                continue
             gain = faction_reputation_gain[index]
             self.owner.reputation_manager.modify_reputation(faction, gain)
 
@@ -128,17 +126,23 @@ class ActiveQuest:
         # Creatures > 0, Gameobjects < 0.
         entry = world_object.entry if not world_object.is_gameobject() else -world_object.entry
 
-        creature_go_index = QuestHelpers.generate_req_creature_or_go_list(self.quest).index(entry)
-        required = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[creature_go_index]
+        creature_go_index = QuestHelpers.generate_req_unit_or_go_list(self.quest).index(entry)
+        required = QuestHelpers.generate_req_unit_or_go_count_list(self.quest)[creature_go_index]
         current = self._get_db_mob_or_go_count(creature_go_index)
         # Current < Required is already validated on requires_creature_or_go().
         self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
 
-        # Notify the current objective count to the player if this was a kill.
-        if not world_object.is_gameobject():
-            data = pack('<4IQ', self.db_state.quest, world_object.entry, current + value, required, world_object.guid)
-            packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
-            self.owner.enqueue_packet(packet)
+        # Notify the current objective count.
+        data = pack('<4IQ',
+                    self.db_state.quest,
+                    world_object.entry if not world_object.is_gameobject() else (entry * -1) | 0x80000000,
+                    current + value,
+                    required,
+                    world_object.guid)
+
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_KILL, data)
+        self.owner.enqueue_packet(packet)
+
         # Check if this makes it complete.
         if self.can_complete_quest():
             self.update_quest_state(QuestState.QUEST_REWARD)
@@ -219,15 +223,15 @@ class ActiveQuest:
             return False
 
         # Check for required kills / gameobjects.
-        required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
-        for i in range(4):
+        required_creature_go = QuestHelpers.generate_req_unit_or_go_count_list(self.quest)
+        for i in range(len(required_creature_go)):
             current_value = getattr(self.db_state, f'mobcount{i + 1}')
             if current_value < required_creature_go[i]:
                 return False
 
         # Check for required items.
         required_items_count = QuestHelpers.generate_req_item_count_list(self.quest)
-        for i in range(4):
+        for i in range(len(required_items_count)):
             current_value = getattr(self.db_state, f'itemcount{i + 1}')
             if current_value < required_items_count[i]:
                 return False
@@ -246,11 +250,11 @@ class ActiveQuest:
         # Creatures > 0, Gameobjects < 0.
         entry = world_object.entry if not world_object.is_gameobject() else -world_object.entry
         
-        req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(self.quest)
+        req_creatures_or_gos = QuestHelpers.generate_req_unit_or_go_list(self.quest)
         required = entry in req_creatures_or_gos
         if required:
             index = req_creatures_or_gos.index(entry)
-            required_qty = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)[index]
+            required_qty = QuestHelpers.generate_req_unit_or_go_count_list(self.quest)[index]
             current_qty = getattr(self.db_state, f'mobcount{index + 1}')
             return current_qty < required_qty
         return False
@@ -289,8 +293,8 @@ class ActiveQuest:
         return False
 
     def update_required_items_from_inventory(self):
-        req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
-        req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
+        req_items = QuestHelpers.generate_req_item_list(self.quest)
+        req_count = QuestHelpers.generate_req_item_count_list(self.quest)
         for index, item in enumerate(req_items):
             current_count = self.owner.inventory.get_item_count(item)
             self._update_db_item_count(index, current_count, req_count[index], override=True)
@@ -327,12 +331,10 @@ class ActiveQuest:
 
         total_count = 0
         # Creature or gameobject.
-        req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
-        req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
+        req_creature_or_go = QuestHelpers.generate_req_unit_or_go_list(self.quest)
+        req_creature_or_go_count = QuestHelpers.generate_req_unit_or_go_count_list(self.quest)
         offset = 0
         for index, creature_or_go in enumerate(req_creature_or_go):
-            if req_creature_or_go[index] == 0:
-                continue
             current_count = getattr(self.db_state, f'mobcount{index + 1}')
             required = req_creature_or_go_count[index]
             # Consider how many bits the previous creature required.

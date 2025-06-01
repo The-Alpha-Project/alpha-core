@@ -20,6 +20,7 @@ from utils.ByteUtils import ByteUtils
 from utils.Formulas import Distances
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
+from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
     MoveType, EmoteUnitState
@@ -452,6 +453,8 @@ class CreatureManager(UnitManager):
         if self.is_player_controlled_pet() or self.is_guardian():
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, True)
         self.object_ai.enter_combat(source)
+        self._update_swimming_state()
+        return True
 
     # override
     def leave_combat(self):
@@ -854,8 +857,8 @@ class CreatureManager(UnitManager):
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
-        # Not combat target and not evading, skip.
-        if not self.combat_target and not self.is_evading:
+        # Not in combat or evading, skip.
+        if not self.in_combat or self.is_evading:
             return
         is_under_water = self.is_under_water()
         if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
@@ -949,8 +952,7 @@ class CreatureManager(UnitManager):
 
     # override
     def get_query_details_packet(self):
-        from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
-        return UnitQueryUtils.query_details(creature_mgr=self)
+        return ObjectQueryUtils.get_query_details_data(instance=self)
 
     # override
     def get_type_mask(self):
