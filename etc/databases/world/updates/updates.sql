@@ -1217,5 +1217,11 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('300520251');
     end if;
+
+    -- 31/05/2025 1
+    if (select count(*) from applied_updates where id='310520251') = 0 then
+        UPDATE `alpha_world`.`quest_template` SET `Details` = 'As my understanding of Arugal\'s magic grows so does my disdain for the hapless fool.  I am close to completing my research on his so called remedy.$b$bMy knowledge will be complete when I learn what enchantment is causing the strange behavior going on in Pyrewood Village.  By day, the peasants appear to be Human.  But when the sun goes down the townsfolk turn into Moonrage Worgen.$b$bI need to draw energy from the enchanted shackles Arugal cast on them.  Bring to me twelve enchanted Pyrewood Shackles, $N.', `Objectives` = 'Bring 12 Pyrewood Shackles to Dalar Dawnweaver at the Sepulcher.' WHERE (`entry` = '99');
+        INSERT INTO applied_updates VALUES ('310520251');
+    end if;
 end $
 delimiter ;
