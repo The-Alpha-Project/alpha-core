@@ -1224,7 +1224,6 @@ begin not atomic
         -- Partial fixes for #1504, missing Sign post at: .port -48 -262 1 1 (Sunrock to the east, the Venture Co camp to the southeast and Windshar Craig to the northwest)
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '603.36', `spawn_positionY` = '325.836', `spawn_orientation` = '1.67552', `spawn_rotation0` = '0.034697', `spawn_rotation1` = '0.045045', `spawn_rotation2` = '0.741777', `spawn_rotation3` = '0.668232' WHERE (`spawn_id` = '47456');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.8' WHERE (`spawn_id` = '47450');
-        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.8' WHERE (`spawn_id` = '47449');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.8' WHERE (`spawn_id` = '47447');
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47614');
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '47615');
