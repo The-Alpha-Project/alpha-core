@@ -1234,6 +1234,10 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_orientation` = '2.36492', `spawn_rotation0` = '0.063403', `spawn_rotation1` = '0.166318', `spawn_rotation2` = '0.910467', `spawn_rotation3` = '0.373321' WHERE (`spawn_id` = '47449');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.548', `spawn_positionY` = '-139.245', `spawn_positionZ` = '9.54' WHERE (`spawn_id` = '47449');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1506
+        UPDATE `broadcast_text` SET `male_text` = '%s inspects the thresher hides...' WHERE (`entry` = '1085');
+        UPDATE `broadcast_text` SET `male_text` = '$N.  These hides tell me much, but I fear many more questions are now raised...' WHERE (`entry` = '1089');
+
         INSERT INTO applied_updates VALUES ('310520251');
     end if;
 end $
