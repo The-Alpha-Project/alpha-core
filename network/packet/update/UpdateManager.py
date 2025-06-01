@@ -50,7 +50,7 @@ class UpdateManager:
     def destroy_known_object(self, guid):
         known_object = self.player_mgr.known_objects.get(guid, None)
         if not known_object:
-            return False
+            return
         self.update_builder.add_destroy_update_from_object(known_object)
 
     def destroy_self(self):

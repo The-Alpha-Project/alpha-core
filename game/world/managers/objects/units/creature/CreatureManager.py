@@ -453,6 +453,8 @@ class CreatureManager(UnitManager):
         if self.is_player_controlled_pet() or self.is_guardian():
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, True)
         self.object_ai.enter_combat(source)
+        self._update_swimming_state()
+        return True
 
     # override
     def leave_combat(self):
@@ -855,8 +857,8 @@ class CreatureManager(UnitManager):
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
-        # Not combat target and not evading, skip.
-        if not self.combat_target and not self.is_evading:
+        # Not in combat or evading, skip.
+        if not self.in_combat or self.is_evading:
             return
         is_under_water = self.is_under_water()
         if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
