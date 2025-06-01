@@ -15,7 +15,6 @@ REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.realm_get_l
 
 class RealmManager:
 
-
     @staticmethod
     def serve_realmlist(sck):
         realmlist_bytes = pack('<B', len(REALMLIST))
