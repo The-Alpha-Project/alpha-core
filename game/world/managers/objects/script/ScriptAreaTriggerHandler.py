@@ -15,7 +15,7 @@ class ScriptAreaTriggerHandler:
     @staticmethod
     def handle_test_of_faith(unit):
         # Teleports player back to quest giver Dorn Plainstalker.
-        unit.teleport(unit.map_id, Vector(-5187.56, -2804.52, -8.37701, 5.761), delay_secs=2)
+        unit.teleport(unit.map_id, Vector(-5191.74, -2802.54, -8.1978, 5.792), delay_secs=3)
 
 
 AREA_TRIGGER_HANDLERS = {
