@@ -425,7 +425,7 @@ class PlayerManager(UnitManager):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
         return 'On' if self.collision_cheat else 'Off'
 
-    def teleport(self, map_id, location, recovery: float = -1.0):
+    def teleport(self, map_id, location, recovery: float = -1.0, delay_secs=0.0):
         dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         if not dbc_map:
             Logger.warning(f'Teleport, invalid map {map_id}.')
@@ -435,10 +435,10 @@ class PlayerManager(UnitManager):
             Logger.warning(f'Teleport, invalid destination, Map {map_id}, X {location.x} Y {location.y}.')
             return False
 
-        is_instant = self.map_id == map_id
+        is_long_distance = self.map_id != map_id
 
         # End duel and detach pets if this is a long-distance teleport.
-        if not is_instant:
+        if is_long_distance:
             # Set sanctuary, this will take care of leaving combat, removing casts, etc.
             self.set_sanctuary(True, time_secs=1)
             self.pet_manager.detach_active_pets()
@@ -459,11 +459,12 @@ class PlayerManager(UnitManager):
                                                      origin_location=self.location.copy(),
                                                      origin_map=self.map_id,
                                                      destination_location=location.copy(),
-                                                     destination_map=map_id)
+                                                     destination_map=map_id,
+                                                     execute_time=time.time() + delay_secs)
 
         self.pending_teleport_data.append(pending_teleport)
 
-        if is_instant:
+        if not is_long_distance and not delay_secs:
             self.trigger_teleport()
 
         return True
@@ -1550,7 +1551,8 @@ class PlayerManager(UnitManager):
             if self.online and has_changes or has_inventory_changes:
                 self.get_map().update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
-            elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
+            elif (not has_changes and not has_inventory_changes and self.pending_teleport_data
+                  and self.pending_teleport_data[0].can_trigger(now) and not self.update_lock):
                 self.trigger_teleport()
             # Do normal update.
             else:

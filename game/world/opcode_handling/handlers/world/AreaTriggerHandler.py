@@ -3,7 +3,7 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.units.ChatManager import ChatManager
+from game.world.managers.objects.script.ScriptAreaTriggerHandler import ScriptAreaTriggerHandler
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 from utils.constants.UnitCodes import UnitFlags
@@ -35,9 +35,11 @@ class AreaTriggerHandler(object):
                 Logger.debug(f'Player {player_mgr.get_name()} ignore Area Trigger ID {trigger_id} due distance.')
                 return 0
 
-            # TODO: ScriptManager -> OnAreaTrigger.
             # Reward quest exploration objective if any.
             player_mgr.quest_manager.reward_quest_exploration(trigger_id)
+
+            if ScriptAreaTriggerHandler.handle_area_trigger(trigger_id, player_mgr):
+                return 0
 
             area_trigger_teleport = WorldDatabaseManager.area_trigger_teleport_get_by_id(trigger_id)
             if not area_trigger_teleport:
