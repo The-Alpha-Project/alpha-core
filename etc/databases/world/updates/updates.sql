@@ -1250,17 +1250,5 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('310520251');
     end if;
-
-    -- 01/06/2025 1
-    if (select count(*) from applied_updates where id='010620251') = 0 then
-        -- https://github.com/The-Alpha-Project/alpha-core/issues/1512
-        DELETE FROM `quest_start_scripts` WHERE `id`=1149;
-        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(1149, 1, 0, 15, 6716, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dorn Plainstalker - Cast Test of Faith (Effect and Root)'),
-(1149, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1589, 0, 0, 0, 0, 0, 0, 0, 0, 'Dorn Plainstalker - Say Text 1'),
-(1149, 2, 0, 15, 6714, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dorn Plainstalker - Cast Test of Faith (Teleport)');
-
-        INSERT INTO applied_updates VALUES ('010620251');
-    end if;
 end $
 delimiter ;
