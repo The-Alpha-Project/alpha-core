@@ -505,7 +505,7 @@ class AuraManager:
             for effect in aura.source_spell.get_effects():
                 if effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
                                           SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}:
-                    effect_flag = AuraFlags.AURA_FLAG_EFF_INDEX_0 >> aura.spell_effect.effect_index
+                    effect_flag = AuraFlags.AURA_FLAG_EFF_INDEX_0 >> effect.effect_index
                     flags |= effect_flag << flag_offset
         else:
             flags &= ~(AuraFlags.AURA_FLAG_ALL << flag_offset)
