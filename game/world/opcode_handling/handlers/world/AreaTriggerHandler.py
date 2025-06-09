@@ -47,11 +47,11 @@ class AreaTriggerHandler(object):
                 Logger.debug(f'Player {player_mgr.get_name()} ignore invalid Area Trigger ID {trigger_id}, wrong map.')
                 return 0
 
-            # No level requirement.
-            # World of Warcraft Client Patch 1.4.1 (2005-05-03)
-            # Added minimum level requirements to all instances to prevent
-            # exploitive behavior.The minimum levels are very generous and should
-            # not affect the normal course of gameplay.
+            # No level requirement in 0.5.3. From 1.4.1 Patch Notes:
+            #     World of Warcraft Client Patch 1.4.1 (2005-05-03)
+            #     Added minimum level requirements to all instances to prevent
+            #     exploitive behavior. The minimum levels are very generous and should
+            #     not affect the normal course of gameplay.
 
             # Trigger teleport.
             player_mgr.teleport(area_trigger_teleport.target_map, Vector(area_trigger_teleport.target_position_x,

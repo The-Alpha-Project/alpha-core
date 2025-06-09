@@ -60,7 +60,7 @@ class GameObjectManager(ObjectManager):
             if self.is_active_object():
                 # Time to live checks for standalone instances.
                 if not self._check_time_to_live(elapsed):
-                    return # Object destroyed.
+                    return  # Object destroyed.
 
                 # SpellManager update.
                 self.spell_manager.update(now)

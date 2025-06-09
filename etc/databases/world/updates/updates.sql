@@ -1292,7 +1292,7 @@ begin not atomic
         UPDATE `gameobject_template` SET `displayId` = '353' WHERE (`entry` = '61936');
 
         -- Delete end quest (902) script, spells and gameobject do not exist.
-        DELETE FROM quest_end_scripts where id = 902
+        DELETE FROM quest_end_scripts where id = 902;
 
         INSERT INTO applied_updates VALUES ('080620251');
     end if;
