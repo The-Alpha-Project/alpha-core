@@ -1263,5 +1263,34 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('010620251');
     end if;
+
+    -- 08/06/2025 1
+    if (select count(*) from applied_updates where id='080620251') = 0 then
+        -- Set faction.
+        UPDATE `gameobject_template` SET `faction` = '35', `flags` = '4' WHERE (`entry` = '4072');
+
+        -- Make valves interactive only with quest.
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '61935');
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '61936');
+
+        -- Fix positions.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '778.975', `spawn_positionY` = '-2820.637', `spawn_positionZ` = '91.840' WHERE (`spawn_id` = '13167');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '788.938', `spawn_positionY` = '-2830.07', `spawn_positionZ` = '91.66', `spawn_orientation` = '2.4085', `spawn_rotation0` = '0.0', `spawn_rotation1` = '0.0' WHERE (`spawn_id` = '13339');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '807.016', `spawn_positionY` = '-2811.32', `spawn_positionZ` = '91.74', `spawn_orientation` = '3.1415', `spawn_rotation0` = '0.0', `spawn_rotation1` = '0.0', `spawn_rotation2` = '1.0', `spawn_rotation3` = '0.0' WHERE (`spawn_id` = '15080');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '786.796', `spawn_positionY` = '-2825.89', `spawn_positionZ` = '91.668', `spawn_orientation` = '1.47', `spawn_rotation0` = '0.0', `spawn_rotation1` = '0.0', `spawn_rotation2` = '0.0', `spawn_rotation3` = '0.0' WHERE (`spawn_id` = '15722');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '781.301', `spawn_positionY` = '-2836.60', `spawn_positionZ` = '93.0', `spawn_orientation` = '4.12', `spawn_rotation0` = '0.0', `spawn_rotation1` = '0.0', `spawn_rotation2` = '0.0', `spawn_rotation3` = '0.0' WHERE (`spawn_id` = '15730');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '791.449', `spawn_positionY` = '-2835.38', `spawn_positionZ` = '92.6', `spawn_orientation` = '5.30', `spawn_rotation0` = '0.0', `spawn_rotation1` = '0.0', `spawn_rotation2` = '0.0', `spawn_rotation3` = '0.0' WHERE (`spawn_id` = '15731');
+
+        -- Fix script spawns location after using main valve.
+        DELETE FROM `gameobject_scripts` WHERE `id`=15722;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (15722, 0, 0, 10, 3284, 180000, 1, 15, 0, 0, 0, 1, 8, 407201, -1, 2, 792.967, -2820.797, 91.6667, 3.985, 900, 'Main Control Valve - Summon Creature'),
+        (15722, 0, 0, 10, 3285, 180000, 1, 15, 0, 0, 0, 1, 8, 407201, -1, 2, 794.057, -2822.358, 91.6667, 3.643, 900, 'Main Control Valve - Summon Creature');
+
+        -- Delete end quest (902) script, spells and gameobject do not exist.
+        DELETE FROM quest_end_scripts where id = 902
+
+        INSERT INTO applied_updates VALUES ('080620251');
+    end if;
 end $
 delimiter ;

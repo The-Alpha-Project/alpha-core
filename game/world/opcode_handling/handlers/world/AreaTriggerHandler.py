@@ -3,7 +3,6 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.units.ChatManager import ChatManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 from utils.constants.UnitCodes import UnitFlags
@@ -48,14 +47,11 @@ class AreaTriggerHandler(object):
                 Logger.debug(f'Player {player_mgr.get_name()} ignore invalid Area Trigger ID {trigger_id}, wrong map.')
                 return 0
 
-            # TODO: Assuming there was no level requirement for dungeons since SMSG_AREA_TRIGGER_MESSAGE
-            #  doesn't exist in 0.5.3. Leaving this commented out here anyway.
-            #if world_session.player_mgr.level <= area_trigger_teleport.required_level and \
-            #        not world_session.account_mgr.is_gm():
-            #    # Missing SMSG_AREA_TRIGGER_MESSAGE.
-            #    message = f'You must be at least level {area_trigger_teleport.required_level} to enter.'
-            #    ChatManager.send_system_message(world_session, message)
-            #    return 0
+            # No level requirement.
+            # World of Warcraft Client Patch 1.4.1 (2005-05-03)
+            # Added minimum level requirements to all instances to prevent
+            # exploitive behavior.The minimum levels are very generous and should
+            # not affect the normal course of gameplay.
 
             # Trigger teleport.
             player_mgr.teleport(area_trigger_teleport.target_map, Vector(area_trigger_teleport.target_position_x,

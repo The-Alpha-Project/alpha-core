@@ -60,7 +60,7 @@ class GameObjectManager(ObjectManager):
             if self.is_active_object():
                 # Time to live checks for standalone instances.
                 if not self._check_time_to_live(elapsed):
-                    return False  # Object destroyed.
+                    return # Object destroyed.
 
                 # SpellManager update.
                 self.spell_manager.update(now)
@@ -73,6 +73,8 @@ class GameObjectManager(ObjectManager):
 
     def check_cooldown(self, now):
         cooldown = self.get_cooldown()
+        if not cooldown:
+            return True
         if cooldown > now:
             return False
         self.set_cooldown(now)
