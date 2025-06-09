@@ -1286,6 +1286,10 @@ begin not atomic
         INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (15722, 0, 0, 10, 3284, 180000, 1, 15, 0, 0, 0, 1, 8, 407201, -1, 2, 792.967, -2820.797, 91.6667, 3.985, 900, 'Main Control Valve - Summon Creature'),
         (15722, 0, 0, 10, 3285, 180000, 1, 15, 0, 0, 0, 1, 8, 407201, -1, 2, 794.057, -2822.358, 91.6667, 3.643, 900, 'Main Control Valve - Summon Creature');
+        
+        -- Valves display ids.
+        UPDATE `gameobject_template` SET `displayId` = '353' WHERE (`entry` = '61935');
+        UPDATE `gameobject_template` SET `displayId` = '353' WHERE (`entry` = '61936');
 
         -- Delete end quest (902) script, spells and gameobject do not exist.
         DELETE FROM quest_end_scripts where id = 902
