@@ -49,7 +49,8 @@ class VirtualItemsUtils:
             # Ranged.
             if slot == 2:
                 creature_mgr.wearing_ranged_weapon = (item_template.inventory_type == InventoryTypes.RANGED or
-                                                      item_template.inventory_type == InventoryTypes.RANGEDRIGHT)
+                                                      item_template.inventory_type == InventoryTypes.RANGEDRIGHT or
+                                                      item_template.inventory_type == InventoryTypes.THROWN)
         else:
             creature_mgr.virtual_item_info[slot] = VirtualItemInfoHolder()
 
