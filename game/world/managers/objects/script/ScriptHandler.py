@@ -230,7 +230,7 @@ class ScriptHandler:
             return command.should_abort()
 
         if angle:
-            command.source.movement_manager.set_face_angle(angle)
+            command.source.movement_manager.face_angle(angle)
         if location:
             command.source.movement_manager.move_to_point(location, speed)
 
