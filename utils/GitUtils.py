@@ -60,23 +60,24 @@ class GitUtils:
 
     @staticmethod
     def get_head_path():
+        # Returns the HEAD ref path (e.g. refs/heads/master) or a commit hash (detached HEAD).
         try:
-            with open(os.path.join(PathManager.get_git_path(), GitUtils.HEAD_FILE_NAME), 'r') as git_head_file:
-                # Contains e.g. ref: ref/heads/master if on "master".
-                git_head_data = str(git_head_file.read())
-                return git_head_data.split(' ')[1].strip()
-        except (FileNotFoundError, KeyError):
+            head_file_path = path.join(PathManager.get_git_path(), GitUtils.HEAD_FILE_NAME)
+            with open(head_file_path, 'r') as git_head_file:
+                head_data = git_head_file.read().strip()
+                if head_data.startswith('ref:'):
+                    return head_data.split(' ', 1)[1].strip()
+                return head_data  # Detached HEAD (commit hash).
+        except (FileNotFoundError, KeyError, IndexError):
             return None
 
     @staticmethod
     def get_current_branch():
+        # Returns the current branch name, or [DETACHED] if in detached HEAD state.
         head_path = GitUtils.get_head_path()
-        if head_path:
-            try:
-                return head_path.split('/')[-1]
-            except KeyError:
-                return None
-        return None
+        if head_path and head_path.startswith('refs/heads/'):
+            return head_path.split('/')[-1]
+        return '[DETACHED]'
 
     @staticmethod
     def get_current_commit_hash():
@@ -84,11 +85,14 @@ class GitUtils:
         if not head_path:
             return None
 
-        try:
-            refs_path = path.join(PathManager.get_git_path(), head_path)
-            # Get the commit hash.
-            with open(refs_path, 'r') as git_head_ref_file:
-                commit_id = git_head_ref_file.read()
-                return commit_id.strip()
-        except FileNotFoundError:
-            return None
+        if head_path.startswith('refs/'):
+            ref_file_path = path.join(PathManager.get_git_path(), head_path)
+            try:
+                with open(ref_file_path, 'r') as ref_file:
+                    # Return current commit hash id.
+                    return ref_file.read().strip()
+            except FileNotFoundError:
+                return None
+
+        # Already a commit hash (detached HEAD).
+        return head_path
