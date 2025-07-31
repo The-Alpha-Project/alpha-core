@@ -1003,7 +1003,17 @@ class CommandManager(object):
         server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         message += f'Server Time: {server_time}.\n'
 
-        server_uptime = str(timedelta(seconds=WorldManager.get_seconds_since_startup())).split('.')[0]
+        uptime_seconds = int(WorldManager.get_seconds_since_startup())
+        hours, remainder = divmod(uptime_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        uptime_parts = []
+        if hours:
+            uptime_parts.append(f"{hours} hour(s)")
+        if minutes:
+            uptime_parts.append(f"{minutes} minute(s)")
+        if seconds or not uptime_parts:
+            uptime_parts.append(f"{seconds} second(s)")
+        server_uptime = ' '.join(uptime_parts)
         message += f'Uptime: {server_uptime}.'
 
         return 0, message
