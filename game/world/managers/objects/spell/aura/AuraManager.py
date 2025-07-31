@@ -244,7 +244,7 @@ class AuraManager:
 
             # Paladin seals, warlock curses etc.
             has_group_restriction = AuraSourceRestrictions.are_colliding_auras(aura.spell_id,
-                                                                                                 applied_aura.spell_id)
+                                                                               applied_aura.spell_id)
             is_similar = applied_aura.spell_id == aura.spell_id or new_aura_name == applied_aura_name
             is_same_source = applied_aura.caster.guid == caster_guid
             is_dummy = aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_DUMMY
@@ -469,8 +469,6 @@ class AuraManager:
         self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_UPDATE_AURA_DURATION, data))
 
     def write_aura_to_unit(self, aura, clear=False, is_refresh=False, send_duration=True):
-        self._write_aura_flag_to_unit(aura, clear=clear, is_refresh=is_refresh)
-
         if aura.passive:
             return  # Passive auras are server-side only.
 
@@ -478,29 +476,41 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
+
+        # Clear field on refresh to trigger aura application visual.
+        if is_refresh:
+            self.unit_mgr.set_uint32(field_index, 0, force=True)
+
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
+        self._write_aura_flag_to_unit(aura, clear=clear, is_refresh=is_refresh)
 
     def _write_aura_flag_to_unit(self, aura, clear=False, is_refresh=False):
-        if not aura or (aura.passive and aura.active_aura_index == -1):
+        if not aura:
             return
-
-        aura_flag = AuraFlags.AURA_FLAG_NONE
-        if not clear:
-            aura_attributes = aura.source_spell.spell_entry.Attributes
-            if not aura_attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL and not aura.harmful:
-                aura_flag |= AuraFlags.AURA_FLAG_CANCELABLE
-
-            aura_flag |= AuraFlags.AURA_FLAG_EFF_INDEX_0 >> aura.spell_effect.effect_index
 
         aura_index = aura.active_aura_index if aura.passive else aura.index
         offset = int(aura_index / 8)  # 4 bits for each aura slot, writing in 32 bit fields.
         flags = self.unit_mgr.get_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + offset)
 
         half_byte_index = aura_index & 7
-        aura_flag <<= 4 * half_byte_index
-        flags |= aura_flag
+        flag_offset = 4 * half_byte_index
 
-        self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + offset, flags, force=is_refresh or clear)
+        if not clear:
+            # Cancelable flag.
+            aura_attributes = aura.source_spell.spell_entry.Attributes
+            if not aura_attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL and not aura.harmful:
+                flags |= AuraFlags.AURA_FLAG_CANCELABLE << flag_offset
+
+            # Active effect flags.
+            for effect in aura.source_spell.get_effects():
+                if effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
+                                          SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}:
+                    effect_flag = AuraFlags.AURA_FLAG_EFF_INDEX_0 >> effect.effect_index
+                    flags |= effect_flag << flag_offset
+        else:
+            flags &= ~(AuraFlags.AURA_FLAG_ALL << flag_offset)
+
+        self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURAFLAGS + offset, flags)
 
     def get_next_aura_index(self, aura) -> int:
         if aura.passive:

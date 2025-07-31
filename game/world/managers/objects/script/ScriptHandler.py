@@ -226,11 +226,11 @@ class ScriptHandler:
             target_point = command.source.location.get_point_in_radius_and_angle(distance, angle)
             location = Vector(target_point.x, target_point.y, target_point.z, command.o)
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RANDOM_POINT:
-            # Unclear how this works as the data doesn't seem to provide any information about the radius.
-            return command.should_abort()
+            distance = command.o
+            location = command.source.location.get_random_point_in_radius(distance, command.source.map_id)
 
         if angle:
-            command.source.movement_manager.set_face_angle(angle)
+            command.source.movement_manager.face_angle(angle)
         if location:
             command.source.movement_manager.move_to_point(location, speed)
 
