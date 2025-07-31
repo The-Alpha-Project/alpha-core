@@ -73,11 +73,11 @@ class GitUtils:
 
     @staticmethod
     def get_current_branch():
-        # Returns the current branch name, or [DETACHED] if in detached HEAD state.
+        # Returns the current branch name, or None if in detached HEAD state.
         head_path = GitUtils.get_head_path()
         if head_path and head_path.startswith('refs/heads/'):
             return head_path.split('/')[-1]
-        return '[DETACHED]'
+        return None
 
     @staticmethod
     def get_current_commit_hash():
