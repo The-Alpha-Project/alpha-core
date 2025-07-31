@@ -1000,10 +1000,10 @@ class CommandManager(object):
         current_branch = GitUtils.get_current_branch()
         message += f'Commit: [{current_branch}] {current_commit_hash}.\n'
 
-        server_time = f'{datetime.now()}'
+        server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         message += f'Server Time: {server_time}.\n'
 
-        server_uptime = timedelta(seconds=WorldManager.get_seconds_since_startup())
+        server_uptime = str(timedelta(seconds=WorldManager.get_seconds_since_startup())).split('.')[0]
         message += f'Uptime: {server_uptime}.'
 
         return 0, message
