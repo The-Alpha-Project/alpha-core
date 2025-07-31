@@ -490,9 +490,9 @@ class ScriptHandler:
         creature_manager = CreatureBuilder.create(command.datalong, Vector(command.x, command.y, command.z, command.o),
                                                   command.source.map_id, command.source.instance_id,
                                                   ttl=command.datalong2 / 1000,
-                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
                                                   if command.dataint4 > 0
-                                                  else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                                                  else CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
         if not creature_manager:
             return command.should_abort()
         map_.spawn_object(world_object_instance=creature_manager)
