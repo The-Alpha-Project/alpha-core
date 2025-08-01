@@ -997,7 +997,6 @@ class CommandManager(object):
         date_str = now.strftime('%Y-%m-%d %H:%M:%S')
         timezone = time.strftime('%z')
 
-        # Platform short string logic (C++ style)
         sys_platform = platform.system()
         if sys_platform == "Windows":
             platform_short = "Win64"
