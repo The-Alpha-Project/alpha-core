@@ -1,5 +1,6 @@
 import hashlib
 import os
+import time
 from datetime import datetime, timedelta
 from os import path
 from pathlib import Path
@@ -990,18 +991,29 @@ class CommandManager(object):
 
     @staticmethod
     def serverinfo(world_session, args):
-        os_platform = f'{platform.system()} {platform.release()} ({platform.version()})'
-        message = f'Platform: {os_platform}.\n'
+        short_rev = GitUtils.get_current_commit_hash()[:7]
+        branch = GitUtils.get_current_branch()
+        now = datetime.now()
+        date_str = now.strftime('%Y-%m-%d %H:%M:%S')
+        timezone = time.strftime('%z')
 
-        python_version = f'{platform.python_version()}'
-        message += f'Python Version: {python_version}.\n'
+        # Platform short string logic (C++ style)
+        sys_platform = platform.system()
+        if sys_platform == "Windows":
+            platform_short = "Win64"
+        elif sys_platform == "Darwin":
+            platform_short = "Apple"
+        elif sys_platform == "Linux":
+            platform_short = "Unix"
+        else:
+            platform_short = "Unknown"
 
-        current_commit_hash = GitUtils.get_current_commit_hash()
-        current_branch = GitUtils.get_current_branch()
-        message += f'Commit: [{current_branch}] {current_commit_hash}.\n'
-
-        server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        message += f'Server Time: {server_time}.\n'
+        platform_full = platform.platform(terse=True)
+        python_ver = platform.python_version()
+        revision = (
+            f"AlphaCore rev. {short_rev} {date_str} {timezone} "
+            f"({branch} branch) (Platform: {platform_short}, Python {python_ver})"
+        )
 
         uptime_seconds = int(WorldManager.get_seconds_since_startup())
         hours, remainder = divmod(uptime_seconds, 3600)
@@ -1014,8 +1026,11 @@ class CommandManager(object):
         if seconds or not uptime_parts:
             uptime_parts.append(f"{seconds} second(s)")
         server_uptime = ' '.join(uptime_parts)
-        message += f'Uptime: {server_uptime}.'
 
+        message = f"{revision}\nServer Uptime: {server_uptime}\n"
+        server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        message += f"Server Current Time: {server_time}.\n"
+        message += f"Running on: {platform_full}"
         return 0, message
 
     @staticmethod
