@@ -39,7 +39,7 @@ You need [Python](https://www.python.org/downloads/) 3.9 or higher, no matter th
 > "C:\Users\YourUsername\Documents\Github\alpha-core"
 
 
-## Installtion (Docker)
+## Installation (Docker)
 
 Minimum requirements are [docker](https://www.docker.com/products/docker-desktop/) 19.03 or higher, and docker-compose 1.28 or higher. 
 You can install `docker` through your OS package manager or [via download through the docker.com site](https://docs.docker.com/engine/install/) and `docker-compose` using `pip3 install docker-compose`.
