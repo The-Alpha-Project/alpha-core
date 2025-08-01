@@ -19,6 +19,8 @@ Based on `0.5.3` Alpha version of World of Warcraft, `alpha-core` is an experime
 
 In `etc\config` you will need to make a copy of `config.yml.dist` and rename the copy into `config.yml`, be free to edit the file as you see fit.
 
+You need [Python](https://www.python.org/downloads/) 3.9 or higher, no matter the installation you choose.
+
 To generate `.map` and `.nav` files, look for the `Extractor` settings inside `config.yml`, set `wow_root_path` and then run `main.py -e`, extract both `.map` and `.nav`, after that, enable `use_map_tiles` and `use_nav_tiles` settings, for linux users you will need have access to the windows client folder.
 
 If you're trying to run python scripts without having python `PATH` set (in the case of docker or new user of python in other platforms) make sure when running the extractor command you do `py main.py -e` (to force use of python before running the script).
@@ -33,7 +35,6 @@ In `etc\databases` you will see `create_databases.sql`, run this query with your
 
 For each folder `dbc`, `realm` and `world` in `etc\databases` you will have their respective `dbc`, `realm` and `world` SQL then their updates under `\updates` per database that matches the folder name, `dbc\updates` would be ran in your `alpha_dbc` database.
 
-You need [Python](https://www.python.org/downloads/) 3.9 or higher, no matter the installation you choose.
 
 ## Installation (Traditional)
 [MariaDB](https://mariadb.org/download/) server. For project requirements, install them with `pip3 install -r requirements.txt`.
