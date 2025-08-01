@@ -29,6 +29,8 @@ In `etc\databases` you will see `create_databases.sql`, run this query with your
 > [!NOTE]  
 > Keep in mind if you're using docker and you wish to use `alphapython` user you may need to change the `create_databases.sql` file from 'alphapython'@'localhost' to 'alphapython'@'IPv4OfYourDockerContainer', in the case it gves you an error.
 
+For each folder `dbc`, `realm` and `world` in `etc\databases` you will have their respective `dbc`, `realm` and `world` SQL then their updates under `\updates` per database that matches the folder name, `dbc\updates` would be ran in your `alpha_dbc` database.
+
 You need [Python](https://www.python.org/downloads/) 3.9 or higher, no matter the installation you choose.
 
 ## Installation (Traditional)
