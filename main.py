@@ -6,6 +6,11 @@ import sys
 from sys import platform
 from time import sleep
 
+# Initialize path FIRST, before any other imports that might use PathManager
+from utils.PathManager import PathManager
+if __name__ == '__main__':
+    root_path = os.path.dirname(os.path.realpath(__file__))
+    PathManager.set_root_path(root_path)
 
 from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
@@ -17,7 +22,6 @@ from game.world.managers.maps.MapTile import MapTile
 from tools.extractors.Extractor import Extractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
-from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
 
@@ -140,9 +144,6 @@ ACTIVE_PROCESSES = []
 
 
 if __name__ == '__main__':
-    # Initialize path.
-    PathManager.set_root_path(os.path.dirname(os.path.realpath(__file__)))
-
     # Validate configuration file version.
     # (Not using Logger since it can fail due to missing config options too).
     try:
