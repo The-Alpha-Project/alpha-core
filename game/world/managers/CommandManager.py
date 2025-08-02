@@ -991,27 +991,19 @@ class CommandManager(object):
 
     @staticmethod
     def serverinfo(world_session, args):
-        short_rev = GitUtils.get_current_commit_hash()[:7]
+        commit_hash = GitUtils.get_current_commit_hash()
+        short_rev = commit_hash[:7] if commit_hash else 'unknown'
         branch = GitUtils.get_current_branch()
         now = datetime.now()
         date_str = now.strftime('%Y-%m-%d %H:%M:%S')
         timezone = time.strftime('%z')
 
-        sys_platform = platform.system()
-        if sys_platform == "Windows":
-            platform_short = "Win64"
-        elif sys_platform == "Darwin":
-            platform_short = "Apple"
-        elif sys_platform == "Linux":
-            platform_short = "Unix"
-        else:
-            platform_short = "Unknown"
-
+        platform_short = platform.system()
         platform_full = platform.platform(terse=True)
         python_ver = platform.python_version()
         revision = (
-            f"AlphaCore rev. {short_rev} {date_str} {timezone} "
-            f"({branch} branch) (Platform: {platform_short}, Python {python_ver})"
+            f'alpha-core rev. {short_rev} {date_str} {timezone} '
+            f'({branch} branch) (Platform: {platform_short}, Python: {python_ver})'
         )
 
         uptime_seconds = int(WorldManager.get_seconds_since_startup())
@@ -1019,17 +1011,17 @@ class CommandManager(object):
         minutes, seconds = divmod(remainder, 60)
         uptime_parts = []
         if hours:
-            uptime_parts.append(f"{hours} hour(s)")
+            uptime_parts.append(f'{hours} hour(s)')
         if minutes:
-            uptime_parts.append(f"{minutes} minute(s)")
+            uptime_parts.append(f'{minutes} minute(s)')
         if seconds or not uptime_parts:
-            uptime_parts.append(f"{seconds} second(s)")
+            uptime_parts.append(f'{seconds} second(s)')
         server_uptime = ' '.join(uptime_parts)
 
-        message = f"{revision}\nServer Uptime: {server_uptime}\n"
+        message = f'{revision}\nServer Uptime: {server_uptime}\n'
         server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        message += f"Server Current Time: {server_time}.\n"
-        message += f"Running on: {platform_full}"
+        message += f'Server Current Time: {server_time}.\n'
+        message += f'Running on: {platform_full}'
         return 0, message
 
     @staticmethod
