@@ -90,15 +90,15 @@ When you login for the first time is recommended that you run the command `pwdch
 
 ## Commun Issues
 
-Can't start up the docker container or database service, example of text (this case docker):
-`Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:3306 -> 0.0.0.0:0: listen tcp 0.0.0.0:3306: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.`
+- Can't start up the docker container or database service, example of text (this case docker):
+  - `Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:3306 -> 0.0.0.0:0: listen tcp 0.0.0.0:3306: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.`
 Make sure the `port` used for `MariaDB` is not being used by another `MariaDB`, `MySQL` or similiar services.
 
-I get `Invalid realm list` assumed you've set the correct information in `config.yml` the server has probably not fully started yet.
-You will see something similiar in your `world` terminal: `2025-08-01 01:11:25 [INFO] [01/08/2025 01:11:25] Alpha Core is now running.` this means is ready to be logged into.
+- I get `Invalid realm list` assumed you've set the correct information in `config.yml` the server has probably not fully started yet.
+  - You will see something similiar in your `world` terminal: `2025-08-01 01:11:25 [INFO] [01/08/2025 01:11:25] Alpha Core is now running.` this means is ready to be logged into.
 
 > [!IMPORTANT]  
-> Keep in mind the client being old and being an experimental build, you will no find much stability or perfomance, this has nothing to do with the core, it's a client exclusive issue.
+> Please note that due to the age and experimental nature of the 0.5.3 client build, you may experience stability and performance issues. These issues are client-related and not caused by the core server implementation.
 
 ## Disclaimer
 
