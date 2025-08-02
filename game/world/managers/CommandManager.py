@@ -17,7 +17,6 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
-from utils.Logger import Logger
 from utils.Srp6 import Srp6
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
