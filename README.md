@@ -6,9 +6,9 @@
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R21LO82)
 
 
-## The Alpha Project - Alpha-core
+## The Alpha Project - alpha-core
 
-Based on `0.5.3` Alpha version of World of Warcraft, `alpha-core` is an experimental emulator written in Python.
+`alpha-core` is an experimental emulator written in Python for version `0.5.3` of the Friends & Family Alpha of World of Warcraft.
 
 - [Database Tool](https://db.thealphaproject.eu/)
 
@@ -104,11 +104,11 @@ You will see something similiar in your `world` terminal: `2025-08-01 01:11:25 [
 
 The `Alpha Project` does not distribute a client. You will need to find your own clean `0.5.3` client on the internet.
 
-The `Alpha Project` Team and Owners DO NOT in any case sponsor nor support illegal public servers. If you use these projects to run an illegal public server and not for testing and learning it is your personal choice.
+The `Alpha Project` Team and Owners DO NOT in any case sponsor nor support unofficial public servers. If you use these projects to run an unofficial public server and not for testing and learning it is your personal choice.
 
 
 ## License
 
-The `Alpha Project` - Alpha-core source components are released under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
+The `Alpha Project` - alpha-core source components are released under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
 
-The `Alpha Project` - Alpha-core is not an official Blizzard Entertainment product, and it is not affiliated with or endorsed by World of Warcraft or Blizzard Entertainment.
+The `Alpha Project` - alpha-core is not an official Blizzard Entertainment product, and it is not affiliated with or endorsed by World of Warcraft or Blizzard Entertainment.
