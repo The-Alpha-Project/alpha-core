@@ -992,8 +992,6 @@ class CommandManager(object):
 
     @staticmethod
     def serverinfo(world_session, args):
-        from datetime import datetime
-        
         commit_hash = GitUtils.get_current_commit_hash()
         short_rev = commit_hash[:7] if commit_hash else 'unknown'
 
