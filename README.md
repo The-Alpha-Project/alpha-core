@@ -17,7 +17,7 @@ Based on `0.5.3` Alpha version of World of Warcraft, `alpha-core` is an experime
 
 ## Configuration
 
-In `etc\config` you will need to make a copy of `config.yml.dist` and rename the copy into `config.yml`, be free to edit the file as you see fit.
+In `etc/config` you will need to make a copy of `config.yml.dist` and rename the copy into `config.yml`, be free to edit the file as you see fit.
 
 You need [Python](https://www.python.org/downloads/) 3.9 or higher, no matter the installation you choose.
 
@@ -28,12 +28,12 @@ If you're trying to run python scripts without having python `PATH` set (in the 
 > [!NOTE]  
 > If you're not using docker, make sure the information under Database => Connection, match your MariaDB's information, by default is `alphapython` username and password for localhost (127.0.0.1).
 
-In `etc\databases` you will see `create_databases.sql`, run this query with your root or equivalent super-user to create the relative user: `alphapython` and following databases: `alpha_realm`, `alpha_world` and `alpha_dbc`.
+In `etc/databases` you will see `create_databases.sql`, run this query with your root or equivalent super-user to create the relative user: `alphapython` and following databases: `alpha_realm`, `alpha_world` and `alpha_dbc`.
 
 > [!NOTE]  
 > Keep in mind if you're using docker and you wish to use `alphapython` user you may need to change the `create_databases.sql` file from 'alphapython'@'localhost' to 'alphapython'@'IPv4OfYourDockerContainer', in the case it gves you an error.
 
-For each folder `dbc`, `realm` and `world` in `etc\databases` you will have their respective `dbc`, `realm` and `world` SQL then their updates under `\updates` per database that matches the folder name, `dbc\updates` would be ran in your `alpha_dbc` database.
+For each folder `dbc`, `realm` and `world` in `etc/databases` you will have their respective `dbc`, `realm` and `world` SQL then their updates under `/updates` per database that matches the folder name, `dbc/updates` would be ran in your `alpha_dbc` database.
 
 
 ## Installation (Traditional)
@@ -41,7 +41,7 @@ For each folder `dbc`, `realm` and `world` in `etc\databases` you will have thei
 
 > [!NOTE]  
 > Make sure you're in your downloaded repository folder, example:
-> "C:\Users\YourUsername\Documents\Github\alpha-core"
+> "C:/Users/YourUsername/Documents/Github/alpha-core"
 
 
 ## Installation (Docker)
