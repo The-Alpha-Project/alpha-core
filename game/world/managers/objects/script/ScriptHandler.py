@@ -588,21 +588,32 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_command_activate_object(command):
-        # source = GameObject
-        # target = Unit
-        if command.target:
-            target = command.target
-        elif command.source:
-            target = command.source
-        else:
+        # source: Unit/GameObject.
+        # target: Unit/GameObject.
+        user = None
+        gameobject = None
+
+        # Determine the user (Unit).
+        if command.source and command.source.is_unit(by_mask=True):
+            user = command.source
+        elif command.target and command.target.is_unit(by_mask=True):
+            user = command.target
+
+        if not user:
             Logger.warning(f'ScriptHandler: No source or target, {command.get_info()}')
             return command.should_abort()
 
-        if not target.is_gameobject():
+        # Determine the GameObject.
+        if command.target and command.target.is_gameobject(by_mask=True):
+            gameobject = command.target
+        elif command.source and command.source.is_gameobject(by_mask=True):
+            gameobject = command.source
+
+        if not gameobject:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 
-        target.use(player=target, from_script=True)
+        gameobject.use(unit=user, from_script=True)
         return False
 
     @staticmethod

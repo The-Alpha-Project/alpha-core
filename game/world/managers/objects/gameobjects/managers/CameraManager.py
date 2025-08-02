@@ -22,13 +22,13 @@ class CameraManager(GameObjectManager):
         self.event_id = self.get_data_field(2, int)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
-        if self.cinematic_id and player:
+    def use(self, unit=None, target=None, from_script=False):
+        if self.cinematic_id and unit and unit.is_player():
             if DbcDatabaseManager.cinematic_sequences_get_by_id(self.cinematic_id):
                 packet = PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, pack('<I', self.cinematic_id))
-                player.enqueue_packet(packet)
+                unit.enqueue_packet(packet)
 
             if not from_script:
-                self.trigger_script(player)
+                self.trigger_script(unit)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)

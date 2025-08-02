@@ -24,10 +24,10 @@ class SpellFocusManager(GameObjectManager):
         super().update(now)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
-        if player and self.linked_trap:
-            self.trigger_linked_trap(self.linked_trap, player, self.radius)
-        super().use(player, target, from_script)
+    def use(self, unit=None, target=None, from_script=False):
+        if unit and self.linked_trap:
+            self.trigger_linked_trap(self.linked_trap, unit, self.radius)
+        super().use(unit, target, from_script)
 
     def _check_linked_trap(self):
         if not self.linked_trap or self.linked_trap_object:

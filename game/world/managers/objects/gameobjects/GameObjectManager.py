@@ -172,7 +172,7 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, casting_spell)
         target.receive_healing(value, self)
 
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         if from_script:
             self.set_active()
 
@@ -264,7 +264,7 @@ class GameObjectManager(ObjectManager):
             if self.location.distance(go_object.location) >= radius:
                 continue
             if isinstance(go_object, TrapManager) and go_object.is_spawned:
-                go_object.use(player=unit)
+                go_object.use(unit=unit)
                 break
 
     def cast_spell(self, spell_id, target):

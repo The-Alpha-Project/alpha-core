@@ -19,7 +19,7 @@ class ChairManager(GameObjectManager):
         self.height = self.get_data_field(1, int)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         lowest_distance = 90.0
         x_lowest = self.location.x
         y_lowest = self.location.y
@@ -31,13 +31,13 @@ class ChairManager(GameObjectManager):
                 x_i = self.location.x + relative_distance * cos(orthogonal_orientation)
                 y_i = self.location.y + relative_distance * sin(orthogonal_orientation)
 
-                player_slot_distance = player.location.distance(Vector(x_i, y_i, player.location.z))
-                if player_slot_distance <= lowest_distance:
-                    lowest_distance = player_slot_distance
+                unit_slot_distance = unit.location.distance(Vector(x_i, y_i, unit.location.z))
+                if unit_slot_distance <= lowest_distance:
+                    lowest_distance = unit_slot_distance
                     x_lowest = x_i
                     y_lowest = y_i
 
-            player.teleport(player.map_id, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
-            player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + self.height)
+            unit.teleport(unit.map_id, Vector(x_lowest, y_lowest, self.location.z, self.location.o))
+            unit.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + self.height)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)

@@ -1171,7 +1171,7 @@ class SpellManager:
                                       spell_focus_type)
                 return False
             if isinstance(spell_focus_object[0], SpellFocusManager):
-                spell_focus_object[0].use(player=self.caster)
+                spell_focus_object[0].use(unit=self.caster)
 
         # Target validation.
         validation_target = casting_spell.initial_target

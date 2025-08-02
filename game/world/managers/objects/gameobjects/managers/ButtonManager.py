@@ -32,7 +32,7 @@ class ButtonManager(GameObjectManager):
         super().update(now)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         if not super().check_cooldown(time.time()):
             return
 
@@ -40,12 +40,12 @@ class ButtonManager(GameObjectManager):
         self.set_cooldown(time.time())
 
         if not from_script:
-            self.trigger_script(player)
+            self.trigger_script(unit)
 
-        if self.linked_trap and player:
-            self.trigger_linked_trap(self.linked_trap, player)
+        if self.linked_trap and unit:
+            self.trigger_linked_trap(self.linked_trap, unit)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)
 
     def reset_button_state(self):
         self.switch_button_state(active=False)
