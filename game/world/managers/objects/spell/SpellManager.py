@@ -630,9 +630,13 @@ class SpellManager:
             SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT: moved,
             SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING: turned
         }
+
         for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 continue
+
+            # 0.5.3: Creatures dealing enough damage (crushing blow) will now fully interrupt casting.
+            crushing_interrupt = hit_info & HitInfo.CRUSHING and not casting_spell.is_ability()
 
             if casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
                 for flag, condition in channeling_spell_flag_cases.items():
@@ -640,9 +644,8 @@ class SpellManager:
                     if not (channel_flags & flag) or not condition:
                         continue
 
-                    # TODO Do crushing blows interrupt channeling too?
-                    if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and \
-                            not hit_info & HitInfo.CRUSHING:
+                    full_interrupt = channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT
+                    if not full_interrupt and not crushing_interrupt:
                         if flag & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE:
                             casting_spell.handle_partial_interrupt()
                             continue
@@ -651,7 +654,7 @@ class SpellManager:
                 continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
-                # If the spell is already active (area aura etc.), don't check SpellInterrupts.
+                # Ignore other spells that are already active (e.g. area auras).
                 continue
 
             for flag, condition in casting_spell_flag_cases.items():
@@ -659,8 +662,8 @@ class SpellManager:
                 if not (spell_flags & flag) or not condition:
                     continue
 
-                # - Creatures dealing enough damage (crushing blow) will now fully interrupt casting. (0.5.3 notes).
-                if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and not hit_info & HitInfo.CRUSHING:
+                partial_interrupt = spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL
+                if partial_interrupt and not crushing_interrupt:
                     if flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE:
                         casting_spell.handle_partial_interrupt()
                         continue
