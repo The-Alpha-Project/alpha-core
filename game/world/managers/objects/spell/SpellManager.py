@@ -142,18 +142,32 @@ class SpellManager:
         return True
 
     def unlearn_spell(self, spell_id, new_spell_id=0) -> bool:
-        if self.caster.is_player() and spell_id in self.spells:
-            if new_spell_id:
-                self.spells[spell_id].active = 0
-                RealmDatabaseManager.character_update_spell(self.spells[spell_id])
-            else:
-                if RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
-                    del self.spells[spell_id]
+        if not self.caster.is_player() or spell_id not in self.spells:
+            return False
 
-            self.remove_cast_by_id(spell_id)
-            self.supersede_spell(spell_id, new_spell_id)
-            return True
-        return False
+        spell_button = RealmDatabaseManager.character_get_spell_button(self.caster.guid, spell_id)
+        if spell_button:
+            RealmDatabaseManager.character_delete_spell_button(spell_button)
+
+        if new_spell_id:
+            self.spells[spell_id].active = 0
+            RealmDatabaseManager.character_update_spell(self.spells[spell_id])
+        else:
+            # Reactivate preceding spell if learned.
+            preceded_by_spell = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(
+                spell_id)
+            if self.spells[spell_id].active and preceded_by_spell and preceded_by_spell.Spell in self.spells:
+                self.spells[preceded_by_spell.Spell].active = 1
+                self.supersede_spell(spell_id, preceded_by_spell.Spell)
+                RealmDatabaseManager.character_update_spell(self.spells[preceded_by_spell.Spell])
+
+            if RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
+                del self.spells[spell_id]
+
+        self.remove_cast_by_id(spell_id)
+        self.supersede_spell(spell_id, new_spell_id)
+
+        return True
 
     # Replaces a given spell with another (Updates action bars and SpellBook), deletes if new spell is 0.
     def supersede_spell(self, old_spell_id, new_spell_id):
@@ -215,6 +229,9 @@ class SpellManager:
 
         data = bytearray(pack('<BH', 0, len(self.spells)))
         for spell_id, spell in self.spells.items():
+            if not spell.active:
+                continue
+
             index = spell_buttons[spell.spell] if spell.spell in spell_buttons else 0
             data.extend(pack('<2h', spell.spell, index))
         data.extend(pack('<H', 0))
