@@ -1017,7 +1017,7 @@ class CommandManager(object):
             faction = creature_template.faction if creature_template else player_mgr.faction
             creature_instance = CreatureBuilder.create(creature_entry, player_mgr.location.copy(),
                                                        player_mgr.map_id, player_mgr.instance_id,
-                                                       summoner=player_mgr, faction=faction)
+                                                       faction=faction)
 
             if not creature_instance:
                 return -1, f'creature entry {creature_entry} not found'
