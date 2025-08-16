@@ -28,28 +28,28 @@ class RitualManager(GameObjectManager):
         self.casters_grouped = self.get_data_field(6, bool)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
-        if player:
+    def use(self, unit=None, target=None, from_script=False):
+        if unit and unit.is_player():
             # Ritual should have a summoner.
             if not self.summoner:
-                Logger.warning(f'Player {player.get_name()} tried to use Ritual with no summoner set.')
-                player.spell_manager.send_cast_result(self.summon_spell_id, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                Logger.warning(f'Player {unit.get_name()} tried to use Ritual with no summoner set.')
+                unit.spell_manager.send_cast_result(self.summon_spell_id, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return
 
-            if player is self.summoner or player in self.ritual_participants:
+            if unit is self.summoner or unit in self.ritual_participants:
                 return  # No action needed for this player.
 
             # Make the player channel for summoning.
             channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(self.channel_spell_id)
-            spell = player.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
-                                                              validate=False)
+            spell = unit.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
+                                                            validate=False)
 
             # These triggered casts will skip the actual effects of the summoning spell, only starting the channel.
-            player.spell_manager.remove_colliding_casts(spell)
-            player.spell_manager.casting_spells.append(spell)
-            player.spell_manager.handle_channel_start(spell)
-            player.set_channel_object(self.guid)
-            self.ritual_participants.append(player)
+            unit.spell_manager.remove_colliding_casts(spell)
+            unit.spell_manager.casting_spells.append(spell)
+            unit.spell_manager.handle_channel_start(spell)
+            unit.set_channel_object(self.guid)
+            self.ritual_participants.append(unit)
 
             # Check if the ritual can be completed with the current participants.
             if len(self.ritual_participants) >= self.required_participants:
@@ -64,7 +64,7 @@ class RitualManager(GameObjectManager):
                     # Interrupt ritual channel if summon fails.
                     self.summoner.spell_manager.remove_cast_by_id(self.channel_spell_id)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)
 
     def channel_end(self, caster):
         # If the ritual caster interrupts channeling, interrupt others and remove the portal.

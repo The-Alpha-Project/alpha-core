@@ -490,9 +490,9 @@ class ScriptHandler:
         creature_manager = CreatureBuilder.create(command.datalong, Vector(command.x, command.y, command.z, command.o),
                                                   command.source.map_id, command.source.instance_id,
                                                   ttl=command.datalong2 / 1000,
-                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
                                                   if command.dataint4 > 0
-                                                  else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                                                  else CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
         if not creature_manager:
             return command.should_abort()
         map_.spawn_object(world_object_instance=creature_manager)
@@ -587,21 +587,32 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_command_activate_object(command):
-        # source = GameObject
-        # target = Unit
-        if command.target:
-            target = command.target
-        elif command.source:
-            target = command.source
-        else:
+        # source: Unit/GameObject.
+        # target: Unit/GameObject.
+        user = None
+        gameobject = None
+
+        # Determine the user (Unit).
+        if command.source and command.source.is_unit(by_mask=True):
+            user = command.source
+        elif command.target and command.target.is_unit(by_mask=True):
+            user = command.target
+
+        if not user:
             Logger.warning(f'ScriptHandler: No source or target, {command.get_info()}')
             return command.should_abort()
 
-        if not target.is_gameobject():
+        # Determine the GameObject.
+        if command.target and command.target.is_gameobject(by_mask=True):
+            gameobject = command.target
+        elif command.source and command.source.is_gameobject(by_mask=True):
+            gameobject = command.source
+
+        if not gameobject:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 
-        target.use(player=target, from_script=True)
+        gameobject.use(unit=user, from_script=True)
         return False
 
     @staticmethod

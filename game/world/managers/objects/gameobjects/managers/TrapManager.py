@@ -65,23 +65,23 @@ class TrapManager(GameObjectManager):
                                                                        self.radius)
 
         for unit in units.values():
-            if not self.use(player=unit):
+            if not self.use(unit=unit):
                 break
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         if not super().check_cooldown(time.time()):
             return False
 
         self.set_active()
-        self.cast_spell(self.spell_id, player)
+        self.cast_spell(self.spell_id, unit)
         if self.has_custom_animation():
             self.send_custom_animation(0)
         if self.charges == 1:
             self.despawn()
             return False
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)
         return True
 
     # override

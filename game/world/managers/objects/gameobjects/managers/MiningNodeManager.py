@@ -25,20 +25,21 @@ class MiningNodeManager(GameObjectManager):
         self.loot_manager = GameObjectLootManager(self)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         # Activate chest open animation, while active, it won't let any other player loot.
         self.set_active()
         self.set_flag(GameObjectFlags.IN_USE, True)
 
-        if player:
-            # Player kneel loot.
-            player.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=True)
+        if unit:
+            # Unit kneel loot.
+            unit.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=True)
 
-            # Generate loot if it's empty.
-            if not self.loot_manager.has_loot():
-                self.loot_manager.generate_loot(player)
+            if unit.is_player():
+                # Generate loot if it's empty.
+                if not self.loot_manager.has_loot():
+                    self.loot_manager.generate_loot(unit)
 
-            player.send_loot(self.loot_manager)
+                unit.send_loot(self.loot_manager)
 
     # override
     def handle_loot_release(self, player):

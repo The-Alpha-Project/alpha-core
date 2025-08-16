@@ -86,7 +86,14 @@ class PetManager:
         creature.leave_combat()
 
         self.send_pet_spell_info()
+
+        # Set level and initialize pet stats.
         active_pet.set_level(pet_level)
+
+        # Apply passive effects.
+        for spell in active_pet.get_pet_data().spells:
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell)
+            creature.spell_manager.apply_passive_spell_effects(spell_template)
 
         if pet_data.is_hunter_pet():
             creature.set_can_rename(pet_data.rename_time == 0)  # Only allow one rename.

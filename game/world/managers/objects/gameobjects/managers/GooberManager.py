@@ -53,22 +53,23 @@ class GooberManager(GameObjectManager):
             self.set_ready()
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         if not super().check_cooldown(time.time()):
             return
 
         if self.is_consumable:
             self.despawn()
 
-        if player:
-            if self.page_text:
-                self.send_page_text(player)
+        if unit:
+            if unit.is_player():
+                if self.page_text:
+                    self.send_page_text(unit)
 
-            # Check if object needed for given/any quest.
-            player.quest_manager.handle_goober_use(self, self.quest_id)
+                # Check if object needed for given/any quest.
+                unit.quest_manager.handle_goober_use(self, self.quest_id)
 
             if not from_script:
-                self.trigger_script(player)
+                self.trigger_script(unit)
 
         time_to_restore = self.get_auto_close_time()
 
@@ -80,9 +81,9 @@ class GooberManager(GameObjectManager):
         self.cooldown = time_to_restore + time.time()
 
         if self.spell_id:
-            self.cast_spell(self.spell_id, player)
+            self.cast_spell(self.spell_id, unit)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)
 
     # override
     def has_custom_animation(self):

@@ -45,18 +45,21 @@ class FishingNodeManager(GameObjectManager):
         self.send_custom_animation(0)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
+        if not unit.is_player():
+            return
+
         # Generate loot if it's empty.
         if not self.loot_manager.has_loot():
-            self.loot_manager.generate_loot(player)
+            self.loot_manager.generate_loot(unit)
 
-        if player:
-            if self.try_hook_attempt(player):
-                player.send_loot(self.loot_manager)
+        if unit:
+            if self.try_hook_attempt(unit):
+                unit.send_loot(self.loot_manager)
             # Remove cast.
-            player.spell_manager.remove_cast_by_id(self.spell_id)
+            unit.spell_manager.remove_cast_by_id(self.spell_id)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)
 
     def try_hook_attempt(self, player):
         if self.state != GameObjectStates.GO_STATE_ACTIVE:

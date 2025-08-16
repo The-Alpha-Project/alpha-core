@@ -33,7 +33,7 @@ class DoorManager(GameObjectManager):
         super().update(now)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         if not super().check_cooldown(time.time()):
             return
 
@@ -41,9 +41,9 @@ class DoorManager(GameObjectManager):
         self.set_cooldown(time.time())
 
         if not from_script:
-            self.trigger_script(player)
+            self.trigger_script(unit)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)
 
     def reset_door_state(self):
         self.switch_door_state(active=False)

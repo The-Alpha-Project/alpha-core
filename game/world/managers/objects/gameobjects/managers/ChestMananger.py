@@ -27,28 +27,29 @@ class ChestManager(GameObjectManager):
         self.loot_manager = GameObjectLootManager(self)
 
     # override
-    def use(self, player=None, target=None, from_script=False):
+    def use(self, unit=None, target=None, from_script=False):
         # Activate chest open animation, while active, it won't let any other player loot.
         self.set_active()
         self.set_flag(GameObjectFlags.IN_USE, True)
 
-        if player:
+        if unit:
             # Player kneel loot.
-            player.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=True)
+            unit.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=True)
 
-            # Generate loot if it's empty.
-            if not self.loot_manager.has_loot():
-                self.loot_manager.generate_loot(player)
+            if unit.is_player():
+                # Generate loot if it's empty.
+                if not self.loot_manager.has_loot():
+                    self.loot_manager.generate_loot(unit)
 
-            player.send_loot(self.loot_manager)
+                unit.send_loot(self.loot_manager)
 
-            if self.quest_id:
-                player.quest_manager.handle_goober_use(self, self.quest_id)
+                if self.quest_id:
+                    unit.quest_manager.handle_goober_use(self, self.quest_id)
 
             if not from_script:
-                self.trigger_script(player)
+                self.trigger_script(unit)
 
             if self.linked_trap:
-                self.trigger_linked_trap(self.linked_trap, player)
+                self.trigger_linked_trap(self.linked_trap, unit)
 
-        super().use(player, target, from_script)
+        super().use(unit, target, from_script)
