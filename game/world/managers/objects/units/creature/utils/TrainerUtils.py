@@ -5,7 +5,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import TrainerTemplate
-from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
@@ -240,7 +239,12 @@ class TrainerUtils:
         if template_req_skill:
             # Check player race/class masks with skill race/class masks.
             skill_race_mask = template_req_skill.RaceMask
+            if template_req_skill.ExcludeRace:
+                skill_race_mask = ~skill_race_mask
+
             skill_class_mask = template_req_skill.ClassMask
+            if template_req_skill.ExcludeClass:
+                skill_class_mask = ~skill_class_mask
 
             if skill_race_mask and not race_mask & skill_race_mask:
                 return False
