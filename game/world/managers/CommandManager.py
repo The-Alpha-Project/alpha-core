@@ -18,6 +18,7 @@ from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.Srp6 import Srp6
 from utils.TextUtils import GameTextFormatter
+from utils.constants import CustomCodes
 from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
@@ -1017,6 +1018,7 @@ class CommandManager(object):
             faction = creature_template.faction if creature_template else player_mgr.faction
             creature_instance = CreatureBuilder.create(creature_entry, player_mgr.location.copy(),
                                                        player_mgr.map_id, player_mgr.instance_id,
+                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
                                                        faction=faction)
 
             if not creature_instance:

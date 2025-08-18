@@ -132,7 +132,6 @@ class GridManager:
 
         # Notify surrounding players.
         if update_players:
-
             # Handle pet/guardian player summons, they need to be notified to owner immediately.
             owner = world_object.get_charmer_or_summoner()
             if owner and owner.is_player():

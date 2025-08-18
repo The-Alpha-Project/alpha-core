@@ -603,7 +603,8 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     def _check_destroy(self, elapsed):
-        if not self.is_alive and self.is_spawned and self.initialized:
+        if self.subtype != CustomCodes.CreatureSubtype.SUBTYPE_GENERIC and not self.is_alive and self.is_spawned\
+                and self.initialized:
             self.destroy_timer += elapsed
             if self.destroy_timer >= self.destroy_time:
                 self.despawn()
