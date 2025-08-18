@@ -233,7 +233,7 @@ class SkillManager(object):
         self.proficiencies = {}
 
         # Dictionary for all equipment proficiencies the player can learn.
-        # Used to determine which talents should be excluded from the player (ie. 2H talents from rogues).
+        # Used to determine which talents should be excluded from the player (e.g. 2H talents from rogues).
         self.full_proficiency_masks = {}
 
     def load_skills(self):

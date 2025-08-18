@@ -1296,5 +1296,16 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('080620251');
     end if;
+
+    -- 15/08/2025 1
+    if (select count(*) from applied_updates where id='150820251') = 0 then
+        -- Fix spell data and name for Minor Bloodstone
+        UPDATE `item_template` SET `name` = "Minor Bloodstone",
+           `spellid_1` = 6262, `spellcategory_1` = 30, `spellcategorycooldown_1` = 180000,
+           `spellid_2` = 0, `spellcategory_2` = 0, `spellcategorycooldown_2` = 0
+        WHERE entry = 5512;
+
+        INSERT INTO applied_updates VALUES ('150820251');
+    end if;
 end $
 delimiter ;

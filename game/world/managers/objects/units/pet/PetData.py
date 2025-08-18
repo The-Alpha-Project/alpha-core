@@ -204,10 +204,10 @@ class PetData:
         # Load spell info.
         line_spells = [DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell) for line in skill_line_abilities]
 
-        # Filter spells by pet level.
+        # Filter spells by pet level,
+        # ignore spells with no level information (pet talents).
         level = level_override if level_override != -1 else self._level
-        # TODO This level isn't always correct. We should do a lookup on the teaching spell instead.
-        return [spell.ID for spell in line_spells if ignore_level or spell.SpellLevel <= level]
+        return [spell.ID for spell in line_spells if spell.SpellLevel and (ignore_level or spell.SpellLevel <= level)]
 
     def can_learn_spell(self, spell_id):
         return spell_id in self.get_available_spells()

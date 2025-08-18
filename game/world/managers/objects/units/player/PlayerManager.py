@@ -909,7 +909,7 @@ class PlayerManager(UnitManager):
         self.reputation_manager.reward_reputation_on_kill(creature, rate)
 
     def give_xp(self, amounts, victim=None, notify=True):
-        if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
+        if not self.is_alive:
             return 0
 
         """
@@ -932,6 +932,13 @@ class PlayerManager(UnitManager):
             total_amount += amount
             amount_bytes += pack('<QI', self.guid, amount)
 
+        # Reward kill experience to pet.
+        if victim:
+            self.pet_manager.add_active_pet_experience(total_amount)
+
+        if self.level >= config.Unit.Player.Defaults.max_level:
+            return 0
+
         if notify:
             data = pack('<QI',
                         victim.guid if victim else self.guid,
@@ -939,10 +946,6 @@ class PlayerManager(UnitManager):
                         )
             data += amount_bytes
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOG_XPGAIN, data))
-
-        # Reward kill experience to pet.
-        if victim:
-            self.pet_manager.add_active_pet_experience(total_amount)
 
         if self.xp + total_amount >= self.next_level_xp:  # Level up!
             xp_to_level = self.next_level_xp - self.xp
