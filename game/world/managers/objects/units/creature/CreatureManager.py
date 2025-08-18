@@ -603,7 +603,7 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     def _check_destroy(self, elapsed):
-        if self.summoner and not self.is_alive and self.is_spawned and self.initialized:
+        if not self.is_alive and self.is_spawned and self.initialized:
             self.destroy_timer += elapsed
             if self.destroy_timer >= self.destroy_time:
                 self.despawn()
