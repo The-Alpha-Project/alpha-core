@@ -1521,7 +1521,7 @@ begin not atomic
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=397062;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (397062, 0, 0, 11, 400006, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Open Door'),
+        (397062, 0, 0, 11, 400006, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Open Door');
 
         -- Events list for High Inquisitor Whitemane
         DELETE FROM `creature_ai_events` WHERE `creature_id`=3977;
@@ -1942,7 +1942,7 @@ begin not atomic
         (500005, 4289, 0, 0, 0, 44, 235.238, 15.798, 30.823, 3.099, 18000, 18000, 0, 100, 0, 0, 0, 0, 0);
 
 
-        insert into applied_updates values ('160820251')
+        insert into applied_updates values ('160820251');
     end if;
 
 end $
