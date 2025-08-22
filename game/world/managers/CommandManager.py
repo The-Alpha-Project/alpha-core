@@ -1,5 +1,6 @@
 import hashlib
 import os
+import time
 from datetime import datetime, timedelta
 from os import path
 from pathlib import Path
@@ -991,22 +992,53 @@ class CommandManager(object):
 
     @staticmethod
     def serverinfo(world_session, args):
-        os_platform = f'{platform.system()} {platform.release()} ({platform.version()})'
-        message = f'Platform: {os_platform}.\n'
+        commit_hash = GitUtils.get_current_commit_hash()
+        short_rev = commit_hash[:7] if commit_hash else 'unknown'
 
-        python_version = f'{platform.python_version()}'
-        message += f'Python Version: {python_version}.\n'
+        if commit_hash:
+            branch = GitUtils.get_current_branch() or 'unknown'
+            
+            commit_date = GitUtils.get_current_commit_date()
+            if commit_date:
+                try:
+                    dt = datetime.strptime(commit_date[:19], '%Y-%m-%d %H:%M:%S')
+                    date_str = dt.strftime('%Y-%m-%d %H:%M:%S')
+                    timezone = commit_date[20:] if len(commit_date) > 20 else '+0000'
+                except (ValueError, IndexError):
+                    date_str = 'unknown'
+                    timezone = '+0000'
+            else:
+                date_str = 'unknown'
+                timezone = '+0000'
+        else:
+            branch = 'no git found'
+            date_str = '1970-01-01 00:00:00'
+            timezone = '+0000'
+        
+        platform_short = platform.system()
+        platform_full = platform.platform(terse=True)
+        python_ver = platform.python_version()
+        revision = (
+            f'alpha-core rev. {short_rev} {date_str} {timezone} '
+            f'({branch} branch) (Platform: {platform_short}, Python: {python_ver})'
+        )
 
-        current_commit_hash = GitUtils.get_current_commit_hash()
-        current_branch = GitUtils.get_current_branch()
-        message += f'Commit: [{current_branch}] {current_commit_hash}.\n'
+        uptime_seconds = int(WorldManager.get_seconds_since_startup())
+        hours, remainder = divmod(uptime_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        uptime_parts = []
+        if hours:
+            uptime_parts.append(f'{hours} hour(s)')
+        if minutes:
+            uptime_parts.append(f'{minutes} minute(s)')
+        if seconds or not uptime_parts:
+            uptime_parts.append(f'{seconds} second(s)')
+        server_uptime = ' '.join(uptime_parts)
 
-        server_time = f'{datetime.now()}'
-        message += f'Server Time: {server_time}.\n'
-
-        server_uptime = timedelta(seconds=WorldManager.get_seconds_since_startup())
-        message += f'Uptime: {server_uptime}.'
-
+        message = f'{revision}\nServer Uptime: {server_uptime}\n'
+        server_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        message += f'Server Current Time: {server_time}.\n'
+        message += f'Running on: {platform_full}'
         return 0, message
 
     @staticmethod
@@ -1099,7 +1131,7 @@ class CommandManager(object):
             return 0, 'Location saved.'
         else:
             return -1, 'please use it like: .sloc comment'
-        
+
     @staticmethod
     def gmtag(world_session, args):
         arg = str(args).strip().lower()

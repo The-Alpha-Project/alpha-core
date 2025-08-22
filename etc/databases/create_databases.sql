@@ -1,0 +1,14 @@
+DROP USER IF EXISTS 'alphapython'@'localhost';
+CREATE USER 'alphapython'@'localhost' IDENTIFIED BY 'alphapython' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0;
+
+CREATE DATABASE IF NOT EXISTS `alpha_realm` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_unicode_ci;
+
+CREATE DATABASE IF NOT EXISTS `alpha_world` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_unicode_ci;
+
+CREATE DATABASE IF NOT EXISTS `alpha_dbc` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_unicode_ci;
+
+GRANT ALL PRIVILEGES ON `alpha_realm` . * TO 'alphapython'@'localhost' WITH GRANT OPTION;
+
+GRANT ALL PRIVILEGES ON `alpha_world` . * TO 'alphapython'@'localhost' WITH GRANT OPTION;
+
+GRANT ALL PRIVILEGES ON `alpha_dbc` . * TO 'alphapython'@'localhost' WITH GRANT OPTION;
