@@ -1,114 +1,198 @@
 # ![logo](.github/logo-small.png) Alpha Core
 
+---
 
-# Enjoy or want to support the project?
+## ❤️ Enjoy the Project or Want to Support?
 
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R21LO82)
+[![Ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R21LO82)
 
+---
 
-## The Alpha Project - alpha-core
+## The Alpha Project - `alpha-core`
 
-`alpha-core` is an experimental emulator written in Python for version `0.5.3` of the Friends & Family Alpha of World of Warcraft.
+`alpha-core` is an experimental emulator written in Python for version `0.5.3` of the **Friends & Family Alpha** of *World of Warcraft*.
 
 - [Database Tool](https://db.thealphaproject.eu/)
+- [Discord Community](https://discord.gg/RzBMAKU)
 
-- [Discord](https://discord.gg/RzBMAKU)
+---
 
+## ⚙️ Configuration
 
-## Configuration
+1. In `etc/config`, create a copy of `config.yml.dist` and rename it to `config.yml`.  
+   Edit the file as needed for your setup.
 
-In `etc/config` you will need to make a copy of `config.yml.dist` and rename the copy into `config.yml`, be free to edit the file as you see fit.
+2. You need **Python 3.9 or higher**. Install it from [python.org](https://www.python.org/downloads/).
 
-You need [Python](https://www.python.org/downloads/) 3.9 or higher, no matter the installation you choose.
+3. **Generate `.map` and `.nav` files**
+   - In `config.yml`, configure the `Extractor` section by setting `wow_root_path`.
+   - Run:
+     ```bash
+     python main.py -e
+     ```
+     This extracts `.map` and `.nav` files.
+   - After extraction, enable `use_map_tiles` and `use_nav_tiles` in the config.
 
-To generate `.map` and `.nav` files, look for the `Extractor` settings inside `config.yml`, set `wow_root_path` and then run `main.py -e`, extract both `.map` and `.nav`, after that, enable `use_map_tiles` and `use_nav_tiles` settings, for linux users you will need have access to the windows client folder.
-
-If you're trying to run python scripts without having python `PATH` set (in the case of docker or new user of python in other platforms) make sure when running the extractor command you do `py main.py -e` (to force use of python before running the script).
-
-> [!NOTE]  
-> If you're not using docker, make sure the information under Database => Connection, match your MariaDB's information, by default is `alphapython` username and password for localhost (127.0.0.1).
-
-In `etc/databases` you will see `create_databases.sql`, run this query with your root or equivalent super-user to create the relative user: `alphapython` and following databases: `alpha_realm`, `alpha_world` and `alpha_dbc`.
-
-> [!NOTE]  
-> Keep in mind if you're using docker and you wish to use `alphapython` user you may need to change the `create_databases.sql` file from 'alphapython'@'localhost' to 'alphapython'@'IPv4OfYourDockerContainer', in the case it gves you an error.
-
-For each folder `dbc`, `realm` and `world` in `etc/databases` you will have their respective `dbc`, `realm` and `world` SQL then their updates under `/updates` per database that matches the folder name, `dbc/updates` would be ran in your `alpha_dbc` database.
-
-
-## Installation (Traditional)
-[MariaDB](https://mariadb.org/download/) server. For project requirements, install them with `pip3 install -r requirements.txt`.
+4. **If Python isn't on your PATH** (common with Docker or fresh installs), use:
+   ```bash
+   py main.py -e
+   ```
 
 > [!NOTE]  
-> Make sure you're in your downloaded repository folder, example:
-> "C:/Users/YourUsername/Documents/Github/alpha-core"
+> If you're not using Docker, ensure that `Database => Connection` in `config.yml` matches your MariaDB credentials.  
+> By default:  
+> ```
+> username: alphapython
+> password: alphapython
+> host: 127.0.0.1
+> ```
 
+5. In `etc/databases`, run `create_databases.sql` with a root (or equivalent) user. This creates:
+   - User: `alphapython`
+   - Databases: `alpha_realm`, `alpha_world`, `alpha_dbc`
 
-## Installation (Docker)
+> [!NOTE]  
+> If you're using Docker and want to use the `alphapython` user, you may need to change
+> `'alphapython'@'localhost'` to `'alphapython'@'IPv4OfYourDockerContainer'` in `create_databases.sql`
+> if you encounter permission errors.
 
-Minimum requirements are [docker](https://www.docker.com/products/docker-desktop/) 19.03 or higher, and docker-compose 1.28 or higher. 
-You can install `docker` through your OS package manager or [via download through the docker.com site](https://docs.docker.com/engine/install/) and `docker-compose` using `pip3 install docker-compose`.
+6. Each folder (`dbc`, `realm`, `world`) in `etc/databases` contains:
+   - Base SQL files
+   - Updates in the `/updates` subfolder  
+     Example: `dbc/updates` should be applied to the `alpha_dbc` database.
 
-Run: `docker-compose up -d`.
+---
 
+## 📦 Installation
 
-### Development in Docker
+### Traditional Setup
+- Install [MariaDB](https://mariadb.org/download/).
+- Install project requirements:
+  ```bash
+  pip3 install -r requirements.txt
+  ```
 
-The docker-compose configuration will mount the entire project folder on `/var/wow` in the main container. To access the container run `docker-compose exec main bash` as usual, to inspect the logs `docker-compose logs -f main`.
+> [!NOTE]  
+> Make sure you're inside the project folder before running commands. Example:  
+> `/home/user/GitHub/alpha-core`
 
-To enable extra development features please run `docker-compose --profile dev up` to run the project with the developer profile on.
+---
 
-If run with the development profile the codebase will be under a continuous watch process and server will reboot everytime the code has changed. To manually restart the server run `docker-compose restart main`.
+### Docker Setup
+- Minimum requirements:
+  - [Docker](https://www.docker.com/products/docker-desktop/) `19.03+`
+  - `docker-compose` `1.28+` (install with `pip3 install docker-compose` if needed)
 
-In addition, a `phpmyadmin` image is provided in the docker-compose for ease of browsing the database, this is accessible through compose profiles. 
-You can access `phpmyadmin` by visiting `http://localhost:8080`.
+- Start the containers:
+  ```bash
+  docker-compose up -d
+  ```
 
+#### Development in Docker
+- The project is mounted at `/var/wow` inside the main container.
+- Access the container:
+  ```bash
+  docker-compose exec main bash
+  ```
+- View logs:
+  ```bash
+  docker-compose logs -f main
+  ```
+- Enable developer mode (hot reload, auto-restart on changes):
+  ```bash
+  docker-compose --profile dev up
+  ```
+- Manually restart the server:
+  ```bash
+  docker-compose restart main
+  ```
+- **phpMyAdmin** is available at: `http://localhost:8080`.
 
-### Rebuilding the database
+#### Rebuild the Database
+To wipe and rebuild from scratch (removes custom data, including accounts):
+```bash
+docker-compose up --renew-anon-volumes sql
+```
 
-To rebuild the database from scratch and apply again all the updates run  `docker-compose up --renew-anon-volumes sql`. Note: this will WIPE any custom handmade changes, including accounts.
+---
 
-## Client Setup
+## 🖥 Client Setup
 
-You will need to download or create file `reamlist.wtf` and place it where `WoW.exe` is located, this is what's used to set the server IP to be able to connected to the realm(s).
-An example how it should look: `SET realmlist "172.25.176.1"`
+1. Create `realmlist.wtf` in the same folder as `WoW.exe`:
+   ```
+   SET realmlist "127.0.0.1"
+   ```
 
-After that you will need to create file `wow.ses` and the first ane second line of the file will contain the `username` then `password` for your login, depening on your server settings, this information can be or not automatically created. 
-An example how it should look: 
-`user`
-`user`
+2. (Optional) Clear the cache by adding the following before the `start` command in your batch file:
+   ```
+   Rmdir /S "WDB"
+   ```
 
-To be able to launch client (that hasn't not been modified or altered) you will need need to start `WoWClient.exe` with `-uptodate` parametre and **highly recommended** to use `-windowed"`, the easiest way it's to do this via a windows **bat**ch file, an example of how it should look:
-`start WoWClient.exe -uptodate -windowed`.
+3. In-game, you may need to click **Change Realm** to log into your server.
 
-Optionally you may want to create the cache folder by adding `Rmdir /S "WDB"` before `start` command.
+4. On your first login, it is recommended to run:
+   ```
+   pwdchange
+   ```
+   Follow the on-screen instructions. If you run more than one realm, keep in mind that the username and password are **per realm**—there is no shared auth server currently.
 
-In-game you may or need to select te `Change Realm` button to be able to login into your realm.
+### Auth Options
 
-When you login for the first time is recommended that you run the command `pwdchange` it will tell how it's supposed to be executed after, if you run more than 1 realm, keep in mind that the `user` and `password` are per realm, there's no "shared auth server" currently.
+#### Legacy
+- Create `wow.ses`. The **first** and **second** lines must contain your `username` and `password`:
+  ```
+  username
+  password
+  ```
+- To launch an **unmodified** client, start `WoWClient.exe` with the `-uptodate` parameter (and it's highly recommended to use `-windowed`). Example batch file:
+  ```bat
+  start WoWClient.exe -uptodate -windowed
+  ```
 
+#### SRP6
+- **Login Server** — requires a `login.txt` file at the WoW root pointing to the login server, e.g.:
+  ```
+  127.0.0.1:3724
+  ```
+- **WoW.exe** should be executed with elevated admin rights so it can read/write `wow.ses`.
+- **Update Server (Optional)** — requires an `Update.txt` file at `WoW/Data` pointing to the update server, e.g.:
+  ```
+  127.0.0.1:9081
+  ```
 
-## Commun Issues
+---
 
-- Can't start up the docker container or database service, example of text (this case docker):
-  - `Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:3306 -> 0.0.0.0:0: listen tcp 0.0.0.0:3306: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.`
-Make sure the `port` used for `MariaDB` is not being used by another `MariaDB`, `MySQL` or similiar services.
+## ⚠️ Common Issues
 
-- I get `Invalid realm list` assumed you've set the correct information in `config.yml` the server has probably not fully started yet.
-  - You will see something similiar in your `world` terminal: `2025-08-01 01:11:25 [INFO] [01/08/2025 01:11:25] Alpha Core is now running.` this means is ready to be logged into.
+- **Port already in use (MariaDB / Docker):**
+  ```text
+  Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:3306 -> 0.0.0.0:0: listen tcp 0.0.0.0:3306: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+  ```
+  Make sure port `3306` is not being used by another `MariaDB`, `MySQL`, or similar service.
+
+- **Invalid realm list**  
+  If you've set the correct information in `config.yml` but still get this error, the server likely hasn't fully started yet.  
+  Look for a message similar to:
+  ```
+  2025-08-01 01:11:25 [INFO] [01/08/2025 01:11:25] Alpha Core is now running.
+  ```
+  When you see this, it is ready to accept logins.
 
 > [!IMPORTANT]  
-> Please note that due to the age and experimental nature of the 0.5.3 client build, you may experience stability and performance issues. These issues are client-related and not caused by the core server implementation.
+> Due to the age and experimental nature of the `0.5.3` client build, you may experience stability and performance issues. These are client-related and **not** caused by the core server implementation.
+
+---
 
 ## Disclaimer
 
-The `Alpha Project` does not distribute a client. You will need to find your own clean `0.5.3` client on the internet.
+The `Alpha Project` does **not** distribute a client. You will need to obtain a clean `0.5.3` client yourself.
 
-The `Alpha Project` Team and Owners DO NOT in any case sponsor nor support unofficial public servers. If you use these projects to run an unofficial public server and not for testing and learning it is your personal choice.
+The `Alpha Project` Team and Owners **do not** sponsor or support unofficial public servers. If you use these projects to run an unofficial public server rather than for testing and learning, it is your personal choice.
 
+---
 
 ## License
 
-The `Alpha Project` - alpha-core source components are released under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
+The `Alpha Project` – alpha-core source components are released under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
 
-The `Alpha Project` - alpha-core is not an official Blizzard Entertainment product, and it is not affiliated with or endorsed by World of Warcraft or Blizzard Entertainment.
+`alpha-core` is **not** an official Blizzard Entertainment product and is **not** affiliated with or endorsed by *World of Warcraft* or Blizzard Entertainment.

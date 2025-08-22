@@ -110,12 +110,12 @@ class GitUtils:
     def get_current_commit_date():
         """Get the commit date of the current commit using git files only."""
         try:
-            # Get commit hash first
+            # Get commit hash first.
             commit_hash = GitUtils.get_current_commit_hash()
             if not commit_hash:
                 return None
             
-            # Try to read commit date from git objects
+            # Try to read commit date from git objects.
             # Git stores commit objects in .git/objects/{first_2_chars}/{remaining_38_chars}
             git_path = PathManager.get_git_path()
             if not git_path or not os.path.exists(git_path):
@@ -127,8 +127,8 @@ class GitUtils:
                 Logger.error('[Git] Git objects directory not found')
                 return None
             
-            # For now, return a placeholder since parsing git objects is complex
-            # In a Docker environment, we can use the file modification time as approximation
+            # For now, return a placeholder since parsing git objects is complex.
+            # In a Docker environment, we can use the file modification time as approximation.
             try:
                 head_file = os.path.join(git_path, 'HEAD')
                 if os.path.exists(head_file):
@@ -136,10 +136,10 @@ class GitUtils:
                     mtime = os.path.getmtime(head_file)
                     commit_date = datetime.datetime.fromtimestamp(mtime)
                     return commit_date.strftime('%Y-%m-%d %H:%M:%S +0000')
-            except Exception:
+            except:
                 pass
                 
-            # Fallback: return current date as last resort
+            # Fallback: return current date as last resort.
             from datetime import datetime
             return datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')
                 
