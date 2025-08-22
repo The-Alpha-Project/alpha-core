@@ -1320,7 +1320,7 @@ begin not atomic
         UPDATE `item_template` SET `name` = "Swashbuckler's Shirt", `display_id` = 7847 WHERE (`entry` = 4336);
 
         -- Swashbuckler's Shirt: Add to trainers with a cost matching other trainable shirts, with the same skill requirement as the Black Swashbuckler's Shirt in beta/release (as the pattern appears to be the same mechanically and goes yellow at skill level 210)
-        INSERT INTO `alpha_world`.`trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3894, 3873, 450, 197, 200, 1);
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3894, 3873, 450, 197, 200, 1);
 
         -- Sacrifical Robes: Give it a displayID matching what Morganth (their source) wears, keeping in-line with their appearance in beta/release (as their current displayID doesn't exist in 0.5.3)
         UPDATE `item_template` SET `display_id` = 5483 WHERE (`entry` = 2566);
@@ -1666,7 +1666,7 @@ begin not atomic
 
 
         -- High Inquisitor's Chamber
-        INSERT INTO `alpha_world`.`gameobject_template` (`entry`, `displayId`, `name`, `faction`, `flags`, `data1`) VALUES (19834, 443, "High Inquisitor's Chamber", 114, 32, 85);
+        INSERT INTO `gameobject_template` (`entry`, `displayId`, `name`, `faction`, `flags`, `data1`) VALUES (19834, 443, "High Inquisitor's Chamber", 114, 32, 85);
         DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 19834) AND (`spawn_id` IN (400006));
         INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
         (400006, 19834, 44, 374.314, -121.024, 32.496, 1.566, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
@@ -1920,18 +1920,18 @@ begin not atomic
         (462705, 0, 0, 78, 64, 0, 0, 0, 16255, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Arugals Voidwalker: Join Arugal Group');
 
         -- Update spawns
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4297 WHERE  `spawn_id`=400286;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4297 WHERE  `spawn_id`=400289;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4290 WHERE  `spawn_id`=400287;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4286 WHERE  `spawn_id`=400288;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4286 WHERE  `spawn_id`=400290;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4290 WHERE  `spawn_id`=400291;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4292 WHERE  `spawn_id`=400372;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4295 WHERE  `spawn_id`=400371;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4295 WHERE  `spawn_id`=400370;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4289 WHERE  `spawn_id`=400369;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4294 WHERE  `spawn_id`=400307;
-        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4294 WHERE  `spawn_id`=400306;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4297 WHERE  `spawn_id`=400286;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4297 WHERE  `spawn_id`=400289;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4290 WHERE  `spawn_id`=400287;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4286 WHERE  `spawn_id`=400288;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4286 WHERE  `spawn_id`=400290;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4290 WHERE  `spawn_id`=400291;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4292 WHERE  `spawn_id`=400372;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4295 WHERE  `spawn_id`=400371;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4295 WHERE  `spawn_id`=400370;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4289 WHERE  `spawn_id`=400369;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4294 WHERE  `spawn_id`=400307;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4294 WHERE  `spawn_id`=400306;
 
         DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4292) AND (`spawn_id` IN (500004));
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
