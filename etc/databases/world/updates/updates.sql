@@ -1296,7 +1296,7 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('080620251');
     end if;
-
+    
     -- 15/08/2025 1
     if (select count(*) from applied_updates where id='150820251') = 0 then
         -- Fix spell data and name for Minor Bloodstone
@@ -1307,5 +1307,645 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('150820251');
     end if;
+    
+    if (select count(*) from applied_updates where id='160820251') = 0 then
+
+
+        -- A Talking Head: Change level requirement and bonding to match period sources (https://web.archive.org/web/20031028121222/http://www.blizzard.com/wow/ScreenShot.aspx?ImageIndex=4&Set=44)
+        UPDATE `item_template` SET `required_level` = 0, `bonding` = 0 WHERE (`entry` = 3317);
+        
+        -- Resting in Pieces: Change provided item to Alaric's Head, matching period sources (https://web.archive.org/web/20031027193629/http://www.blizzard.com/wow/ScreenShot.aspx?ImageIndex=5&Set=44)
+        UPDATE `quest_template` SET `SrcItemId` = 3316, `ReqItemId1` = 3316, `parse_timestamp` = '2003-10-23' WHERE (`entry` = 460);
+
+        -- Swashbuckler's Shirt: Change name to match 0.5.3 data, give it a proper displayID in the same ID range as other shirts (https://db.thealphaproject.eu/index.php?action=show_spell&id=3894&filter=swashbuckler&sort_order=Name_enUS&pos=2&max=2)
+        UPDATE `item_template` SET `name` = "Swashbuckler's Shirt", `display_id` = 7847 WHERE (`entry` = 4336);
+
+        -- Swashbuckler's Shirt: Add to trainers with a cost matching other trainable shirts, with the same skill requirement as the Black Swashbuckler's Shirt in beta/release (as the pattern appears to be the same mechanically and goes yellow at skill level 210)
+        INSERT INTO `alpha_world`.`trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3894, 3873, 450, 197, 200, 1);
+
+        -- Sacrifical Robes: Give it a displayID matching what Morganth (their source) wears, keeping in-line with their appearance in beta/release (as their current displayID doesn't exist in 0.5.3)
+        UPDATE `item_template` SET `display_id` = 5483 WHERE (`entry` = 2566);
+
+        -- Hammertoe's Spirit: Give it the only displayID of a dwarf ghost, matching the appearnce of the NPC in beta/release as close as possible (as its current displayID doesn't exist in 0.5.3)
+        UPDATE `creature_template` SET `display_id1` = 1238 WHERE (`entry` = 2915);
+
+        -- Hammertoe Grez: Give him the alpha dwarf displayID, which is the "alive" variant of the dwarf ghost displayID (as his current displayID doesn't exist in 0.5.3)
+        UPDATE `creature_template` SET `display_id1` = 861 WHERE (`entry` = 2909);
+
+        -- Scarlet Insignia Ring: Change displayID to an unused one matching period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Tirisfal%20Glades/2003-11-06-23-17-26.jpg)
+        UPDATE `item_template` SET `display_id` = 3332 WHERE (`entry` = 2875);
+
+        -- Cowl of Serenity: Change item level and level requirement to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Badlands/ZoneTransition.jpg, https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Hillsbrad%20Foothills/septembre2003-48.jpg)
+        UPDATE `item_template` SET `item_level` = 28, `required_level` = 23 WHERE (`entry` = 3732);
+
+        -- Cowl of Forlorn Spirits: Remove deprecated status, add proper level requirement
+        UPDATE `item_template` SET `name` = 'Cowl of Forlorn Spirits', `quality` = 1, `flags` = 0, `required_level` = 25 WHERE (`entry` = 2045);
+
+        -- Cowl of Forlorn Spirits: Add as a reward from the last Legend of Stalvan quest, as its name matches those of the other rewards
+        UPDATE `quest_template` SET `RewItemId1` = 2045, `RewItemCount1` = 1 WHERE (`entry` = 98);
+
+        -- Skullflame Shield: Change stats to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/from_alpha_archive_10042023/epic-quality-shield.jpg)
+        DELETE FROM `item_template` WHERE (`entry` = 1168);
+        INSERT INTO `item_template` (`entry`, `name`, `class`, `subclass`, `description`, `display_id`, `quality`, `flags`, `buy_count`, `buy_price`, `sell_price`, `inventory_type`, `allowable_class`, `allowable_race`, `item_level`, `required_level`, `required_skill`, `required_skill_rank`, `required_spell`, `required_honor_rank`, `required_city_rank`, `required_reputation_faction`, `required_reputation_rank`, `max_count`, `stackable`, `container_slots`, `stat_type1`, `stat_value1`, `stat_type2`, `stat_value2`, `stat_type3`, `stat_value3`, `stat_type4`, `stat_value4`, `stat_type5`, `stat_value5`, `stat_type6`, `stat_value6`, `stat_type7`, `stat_value7`, `stat_type8`, `stat_value8`, `stat_type9`, `stat_value9`, `stat_type10`, `stat_value10`, `delay`, `range_mod`, `ammo_type`, `dmg_min1`, `dmg_max1`, `dmg_type1`, `dmg_min2`, `dmg_max2`, `dmg_type2`, `dmg_min3`, `dmg_max3`, `dmg_type3`, `dmg_min4`, `dmg_max4`, `dmg_type4`, `dmg_min5`, `dmg_max5`, `dmg_type5`, `block`, `armor`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spellid_1`, `spelltrigger_1`, `spellcharges_1`, `spellppmrate_1`, `spellcooldown_1`, `spellcategory_1`, `spellcategorycooldown_1`, `spellid_2`, `spelltrigger_2`, `spellcharges_2`, `spellppmrate_2`, `spellcooldown_2`, `spellcategory_2`, `spellcategorycooldown_2`, `spellid_3`, `spelltrigger_3`, `spellcharges_3`, `spellppmrate_3`, `spellcooldown_3`, `spellcategory_3`, `spellcategorycooldown_3`, `spellid_4`, `spelltrigger_4`, `spellcharges_4`, `spellppmrate_4`, `spellcooldown_4`, `spellcategory_4`, `spellcategorycooldown_4`, `spellid_5`, `spelltrigger_5`, `spellcharges_5`, `spellppmrate_5`, `spellcooldown_5`, `spellcategory_5`, `spellcategorycooldown_5`, `bonding`, `page_text`, `page_language`, `page_material`, `start_quest`, `lock_id`, `material`, `sheath`, `random_property`, `set_id`, `max_durability`, `area_bound`, `map_bound`, `duration`, `bag_family`, `disenchant_id`, `food_type`, `min_money_loot`, `max_money_loot`, `extra_flags`, `ignored`) VALUES
+        (1168, 'Skullflame Shield', 4, 5, '', 2456, 4, 0, 1, 211484, 42296, 14, -1, -1, 30, 25, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 20, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 0, 0, 120, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0);
+
+
+        -- Shadow Goggles: Change displayID to its proper one, fixing the broken displayID issue
+        UPDATE `item_template` SET `display_id` = 11664 WHERE (`entry` = 4373);
+
+        -- Schematic: Shadow Goggles: Rename to "Plans: Shadow Goggles" to match period sources as well as 0.5.3 DBC data (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Alterac%20Mountains/76320670.jpg, https://db.thealphaproject.eu/index.php?action=show_spell&id=4028&filter=plans&sort_order=Name_enUS&pos=31&max=35)
+        UPDATE `item_template` SET `name` = 'Plans: Shadow Goggles' WHERE (`entry` = 4410);
+
+        -- Frostweave Cowl: Change displayID to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Instances/Dungeons/Deadmines/beta_images_Ironclad.jpg and others with the cyan cowl showing hair among other Frostweave pieces)
+        UPDATE `item_template` SET `display_id` = 6289 WHERE (`entry` = 3068);
+
+        -- Frostweave Cowl: Add to reference loot, in spots where the Frostweave Mantle drops
+        DELETE FROM `reference_loot_template` WHERE (`entry` = 30015) AND (`item` IN (3068));
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (30015, 3068, 0, 1, 1, 1, 0);
+
+        DELETE FROM `reference_loot_template` WHERE (`entry` = 2013) AND (`item` IN (3068));
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (2013, 3068, 0, 1, 1, 1, 0);
+
+        DELETE FROM `reference_loot_template` WHERE (`entry` = 30013) AND (`item` IN (3068));
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (30013, 3068, 0, 1, 1, 1, 0);
+
+        -- Necrology Robes: Change displayID to the one next to Robes of Arugal (as its current one doesn't exist in 0.5.3), which has the same design as the beta/release model but in a different color
+        UPDATE `item_template` SET `display_id` = 11505 WHERE (`entry` = 2292);
+
+        -- Rename the other engineering schematics to plans like the Shadow Goggles to match 0.5.3 DBC data as well
+        UPDATE `item_template` SET `name` = 'Plans: Small Seaforium Charge' WHERE (`entry` = 4409);
+        UPDATE `item_template` SET `name` = 'Plans: Flame Deflector' WHERE (`entry` = 4411);
+        UPDATE `item_template` SET `name` = 'Plans: Moonsight Rifle' WHERE (`entry` = 4412);
+        UPDATE `item_template` SET `name` = 'Plans: Discombobulator Ray' WHERE (`entry` = 4413);
+        UPDATE `item_template` SET `name` = "Plans: Craftsman's Monocle" WHERE (`entry` = 4415);
+        UPDATE `item_template` SET `name` = 'Plans: Goblin Land Mine' WHERE (`entry` = 4416);
+        UPDATE `item_template` SET `name` = 'Plans: Large Seaforium Charge' WHERE (`entry` = 4417);
+
+        -- Wazza: Give her the Orgrimmar faction
+        UPDATE `creature_template` SET `faction` = 29, `npc_flags` = 1, `flags_extra` = 524298 WHERE (`entry` = 4443);
+        
+        -- Wazza: Add shaman totems to her vendor table
+        INSERT INTO `npc_vendor` (`entry`, `item`) VALUES (4443, 5175);
+        INSERT INTO `npc_vendor` (`entry`, `item`) VALUES (4443, 5176);
+        INSERT INTO `npc_vendor` (`entry`, `item`) VALUES (4443, 5177);
+        INSERT INTO `npc_vendor` (`entry`, `item`) VALUES (4443, 5178);
+
+        -- Wazza: Spawn her where Ukra'nor currently spawns, and moves Ukra'nor to the currently empty staff shop
+       INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES (444300, 4443, 0, 0, 0, 1, 1580.05, -4097.68, 36.3245, 5.18363, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 3349) AND (`spawn_id` IN (3475));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES (3475, 3349, 0, 0, 0, 1, 1931.667, -4518.532, 41.144, 2.236, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Small Thorium Vein: Change name to Thorium Lode, matching period sources, and change displayID to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Tanaris/WoWScrnShot_062904_051537.jpg)
+        UPDATE `gameobject_template` SET `name` = 'Thorium Lode', `displayId` = 48 WHERE (`entry` = 324);
+
+        -- Arcanite Lode: Add into database
+       INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `faction`, `flags`, `size`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `mingold`, `maxgold`, `script_name`) VALUES (323, 3, 48, 'Arcanite Lode', 94, 0, 0.5, 400, 9597, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, '');
+
+        -- Runic Darkblade: Change level requirement to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Tirisfal%20Glades/ingame-557.jpg)
+        UPDATE `item_template` SET `required_level` = 22 WHERE (`entry` = 3822);
+
+        -- Band of the Undercity: Change level requirement to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Alterac%20Mountains/76320670.jpg)
+        UPDATE `item_template` SET `required_level` = 22 WHERE (`entry` = 3760);
+
+        -- Gorgon Shield: Change level requirement to match the other rewards
+        UPDATE `item_template` SET `required_level` = 22 WHERE (`entry` = 3761);
+
+        -- Sacred Burial Trousers: Change level requirement to match the other rewards
+        UPDATE `item_template` SET `required_level` = 22 WHERE (`entry` = 6282);
+
+        -- Greater Adept's Robe: Change displayID to a red unused one in the 11K range (as its displayID doesn't exist), which both matches its design in beta/release, its reagents (Red Dye is one of them), and the ID range of other tailoring items)
+        UPDATE `item_template` SET `display_id` = 11039 WHERE (`entry` = 6264);
+
+        -- Comander Springvale: Change level to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Instances/Dungeons/Shadowfang%20Keep/7m_horde_1_WoWScrnShot_043004_182223.jpg)
+        UPDATE `creature_template` SET `level_min` = 25, `level_max` = 25 WHERE (`entry` = 4278);
+
+        -- Fenrus the Devourer: Change level to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Instances/Dungeons/Shadowfang%20Keep/7m_horde_1_WoWScrnShot_042904_181147.jpg)
+        UPDATE `creature_template` SET `level_min` = 26, `level_max` = 26 WHERE (`entry` = 4274);
+
+        -- Wolf Master Nandos: Change level to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Instances/Dungeons/Shadowfang%20Keep/shyso_5.2_29.jpg)
+        UPDATE `creature_template` SET `level_min` = 26, `level_max` = 26 WHERE (`entry` = 3927);
+
+        -- Shadowfang Darksoul: Add Immunity to Shadow
+        UPDATE `creature_template` SET `spell_id1` = 5704, `school_immune_mask` = 32 WHERE (`entry` = 3855);
+
+        -- Moonrage Darksoul: Add Immunity to Shadow, fix Enrage spell
+        UPDATE `creature_template` SET `spell_id1` = 3019, `school_immune_mask` = 32 WHERE (`entry` = 1782);
+
+        -- Moonrage Whitescalp: Change damage type to Frost and add Frost immunity
+        UPDATE `creature_template` SET `damage_school` = 4, `school_immune_mask` = 16 WHERE (`entry` = 1769);
+
+        -- Events list for Interrogator Vishas
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3983;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (398030, 3983, 0, 6, 0, 100, 0, 0, 0, 0, 0, 398030, 0, 0, 'Vishas - Make Vorrel Talk on Death (0.5.3)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (398031, 3983, 0, 11, 0, 100, 0, 0, 0, 0, 0, 398031, 0, 0, 'Vishas - Add Torch Burst');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=398031;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (398031, 0, 0, 15, 3582, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vishas - Cast Torch Burst on Self');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=398030;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (398030, 0, 0, 39, 398031, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Vishas - Start Event Script');
+
+        DELETE FROM `generic_scripts` WHERE `id`=398031;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (398031, 0, 0, 0, 0, 0, 0, 0, 39850, 0, 9, 2, 1376, 0, 0, 0, 0, 0, 0, 0, 0, 'Vorrel - Talks');
+
+        -- Houndmaster Loksey
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 3974) AND (`item` IN (3456, 5819));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (3974, 3456, 75, 1, 1, 1, 0), (3974, 5819, 25, 1, 1, 1, 1);
+
+        -- Delete old Loksey hound spawns
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4304) AND (`spawn_id` IN (400278, 400279, 400280));
+
+        -- Add loot to Loksey
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 3974) AND (`item` IN (3456, 5819));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (3974, 3456, 50, 1, 1, 1, 0), (3974, 5819, 20, 1, 1, 1, 1);
+
+        -- Delete old Thalnos ghost spawns
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4308) AND (`spawn_id` IN (400374, 400375, 400376, 400377, 400378, 400379));
+
+        -- Thalnos: Correct level
+        UPDATE `creature_template` SET `level_min` = 37, `level_max` = 37 WHERE (`entry` = 4543);
+
+        -- Thalnos: Add loot
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 4543) AND (`item` IN (1992, 5756));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (4543, 1992, 25, 1, 1, 1, 0), (4543, 5756, 75, 1, 1, 1, 1);
+
+        DELETE FROM `creature_template` WHERE (`entry` = 4543);
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`, `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`, `level_min`, `level_max`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`, `detection_range`, `call_for_help_range`, `leash_range`, `rank`, `xp_multiplier`, `damage_school`, `damage_variance`, `damage_multiplier`, `health_multiplier`, `mana_multiplier`, `armor_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`, `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`, `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`, `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`, `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`, `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`, `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`, `script_name`) VALUES
+        (4543, 2606, 0, 0, 0, 0, 'Bloodmage Thalnos', '', 0, 0, 37, 37, 21, 0, 1, 1.14286, 0, 20, 5, 0, 1, 2, 0, 0.14, 1.7, 8, 2.5, 0.95, 2000, 2000, 2, 0, 0, 0, 0, 0, 0, 0, 6, 0, 4543, 4543, 0, 0, 0, 0, 0, 0, 0, 6131, 2138, 2121, 7641, 43050, 0, NULL, 121, 720, '', 1, 1, 0, 0, 3, 4543, 0, 0, 617299931, 0, 0, '');
+
+
+        -- Events list for Bloodmage Thalnos
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4543;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (454300, 4543, 0, 30, 0, 100, 0, 0, 0, 0, 0, 454300, 0, 0, 'Bloodmage Thalnos - Spawn Ghosts on Reset');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (454301, 4543, 0, 11, 0, 100, 0, 0, 0, 0, 0, 454301, 0, 0, 'Bloodmage Thalnos - Spawn Ghosts on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (454302, 4543, 0, 9, 0, 100, 1, 0, 8, 10000, 20000, 454302, 0, 0, 'Bloodmage Thalnos - Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (454303, 4543, 0, 33, 0, 100, 1, 10000, 10000, 0, 0, 454303, 0, 0, 'Bloodmage Thalnos - Move Away  from Rooted');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=454300;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (454300, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 196.941, 20.9092, 30.839, 4.01561, 0, 'Bloodmage Thalnos: Spawn Ghost #1 on Reset'),
+        (454300, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 191.662, 21.6565, 30.9774, 6.26263, 0, 'Bloodmage Thalnos: Spawn Ghost #2 on Reset'),
+        (454300, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 194.862, 24.8966, 30.839, 4.88505, 0, 'Bloodmage Thalnos: Spawn Ghost #3 on Reset'),
+        (454300, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 199.485, 28.7609, 30.839, 3.76664, 0, 'Bloodmage Thalnos: Spawn Ghost #4 on Reset'),
+        (454300, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 203.854, 29.5907, 30.8831, 3.32289, 0, 'Bloodmage Thalnos: Spawn Ghost #5 on Reset'),
+        (454300, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 200.744, 32.9606, 30.839, 4.4358, 0, 'Bloodmage Thalnos: Spawn Ghost #6 on Reset');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=454301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (454301, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 196.941, 20.9092, 30.839, 4.01561, 0, 'Bloodmage Thalnos: Spawn Ghost #1 on Spawn'),
+        (454301, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 191.662, 21.6565, 30.9774, 6.26263, 0, 'Bloodmage Thalnos: Spawn Ghost #2 on Spawn'),
+        (454301, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 194.862, 24.8966, 30.839, 4.88505, 0, 'Bloodmage Thalnos: Spawn Ghost #3 on Spawn'),
+        (454301, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 199.485, 28.7609, 30.839, 3.76664, 0, 'Bloodmage Thalnos: Spawn Ghost #4 on Spawn'),
+        (454301, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 203.854, 29.5907, 30.8831, 3.32289, 0, 'Bloodmage Thalnos: Spawn Ghost #5 on Spawn'),
+        (454301, 0, 0, 10, 4308, 0, 6, 5, 0, 0, 0, 0, 8, 0, 0, 7, 200.744, 32.9606, 30.839, 4.4358, 0, 'Bloodmage Thalnos: Spawn Ghost #6 on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=454302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (454302, 0, 0, 15, 865, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodmage Thalnos - Cast Frost Nova');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=454303;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (454303, 0, 0, 20, 18, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 2428, 'Bloodmage Thalnos - Move Away');
+
+        -- Events list for Scarlet Commander Mograine
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3976;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (397061, 3976, 0, 6, 0, 100, 0, 0, 0, 0, 0, 397062, 0, 0, 'Mograine - Trigger Whitemane on Death');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (397063, 3976, 0, 2, 0, 100, 0, 50, 0, 0, 0, 397064, 0, 0, 'Mograine - Divine Shield at 50% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=397064;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (397064, 0, 0, 15, 1020, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Cast Shield');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=397062;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (397062, 0, 0, 11, 400006, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Open Door'),
+
+        -- Events list for High Inquisitor Whitemane
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3977;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (397071, 3977, 15720, 2, 0, 100, 1, 50, 0, 5000, 15000, 397071, 0, 0, 'Whitemane - Heal When Below 50%');
+
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (397700, 'High Inquisitor Whitemane (0.5.3)', 1004, 100, 1, 0, 0, 0, 2, 4, 2, 4, 0, 6066, 100, 0, 0, 0, 0, 10, 20, 10, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (397600, 'Scarlet Commander Mograine (0.5.3)', 2537, 100, 1, 0, 0, 0, 3, 5, 8, 12, 0, 5589, 100, 1, 0, 0, 0, 4, 9, 13, 22, 0, 7294, 100, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (43050, 'Bloodmage Thalnos (0.5.3)', 6131, 100, 1, 0, 0, 0, 40, 40, 40, 40, 0, 7641, 100, 1, 0, 0, 0, 0, 1, 3, 4, 0, 2941, 100, 1, 0, 0, 0, 3, 8, 19, 24, 0, 6725, 100, 1, 0, 0, 0, 8, 8, 30, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+
+
+
+        -- Events list for Herod
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3975;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (397075, 3975, 0, 2, 0, 100, 0, 15, 0, 0, 0, 397075, 0, 0, 'Herod - Enrage at 15% HP (0.5.3)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (397076, 3975, 0, 6, 0, 100, 0, 0, 0, 0, 0, 397076, 0, 0, 'Herod - On Death (0.5.3)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (397077, 3975, 0, 2, 0, 100, 0, 15, 0, 0, 0, 397077, 0, 0, 'Herod - Emote Enrage at 15% HP (0.5.3)');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=397075;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (397075, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Herod - Cast Berserk (0.5.3)');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=397076;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (397076, 0, 0, 11, 400005, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Herod - Open Door (0.5.3)');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=397077;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (397077, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2384, 0, 0, 0, 0, 0, 0, 0, 0, 'Herod - Emote Enrage (0.5.3)');
+
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (43030, 'Scarlet Monastery - Herod (0.5.3)', 6268, 100, 4, 0, 0, 0, 0, 0, 15, 15, 0, 7366, 100, 0, 0, 0, 0, 1, 1, 240, 240, 0, 7371, 100, 1, 0, 0, 0, 7, 7, 12, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Scarlet Adept: Correct level, displayid
+        UPDATE `creature_template` SET `display_id1` = 2493, `display_id2` = 2494, `level_min` = 31, `level_max` = 32 WHERE (`entry` = 4296);
+
+        -- Scarlet Sentry: Correct level
+        UPDATE `creature_template` SET `level_min` = 30, `level_max` = 31 WHERE (`entry` = 4283);
+
+        -- Scarlet Gallant: Correct level
+        UPDATE `creature_template` SET `level_min` = 31, `level_max` = 32 WHERE (`entry` = 4287);
+
+        -- Scarlet Tracking Hound: Correct level
+        UPDATE `creature_template` SET `level_min` = 31, `level_max` = 32 WHERE (`entry` = 4304);
+
+        -- Scarlet Soldier: Correct level
+        UPDATE `creature_template` SET `level_min` = 33, `level_max` = 34 WHERE (`entry` = 4286);
+
+        -- Scarlet Soldier: Spawn in hall before Herod
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4286, `position_x`=230.703, `position_y`=-95.732, `orientation`=3.121 WHERE  (`spawn_id`=400281);
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4286, `position_x`=230.703, `position_y`=-104.029, `orientation`=3.121 WHERE  (`spawn_id`=400283);
+
+        -- Scarlet Conjuror: Correct level
+        UPDATE `creature_template` SET `level_min` = 33, `level_max` = 34 WHERE (`entry` = 4297);
+
+        -- Scarlet Conjuror: Spawn in hall before Herod
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4297, `position_y`=-72.841 WHERE  `spawn_id`=400282;
+        UPDATE `spawns_creatures` SET `spawn_entry1`=4297, `position_y`=-72.841 WHERE  `spawn_id`=400284;
+
+        -- Scarlet Diviner: Correct level, fix Fire Elemental summon
+        UPDATE `creature_template` SET `level_min` = 33, `level_max` = 34 WHERE (`entry` = 4291);
+        DELETE FROM `creature_ai_scripts` WHERE `id`=429702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (429702, 0, 0, 15, 895, 2, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Conjuror - Cast Spell Summon Fire Elemental');
+
+
+        -- Scarlet Chaplain: Correct level
+        UPDATE `creature_template` SET `level_min` = 33 WHERE (`entry` = 4299);
+
+        -- Scarlet Evoker: Correct level
+        UPDATE `creature_template` SET `level_min` = 33, `level_max` = 34 WHERE (`entry` = 4289);
+
+        -- Scarlet Guardsman: Correct level
+        UPDATE `creature_template` SET `level_min` = 33, `level_max` = 34 WHERE (`entry` = 4290);
+
+        -- Scarlet Protector: Correct level
+        UPDATE `creature_template` SET `level_min` = 33, `level_max` = 34 WHERE (`entry` = 4292);
+
+        -- Interrogator Vishas: Correct level
+        UPDATE `creature_template` SET `level_min` = 35, `level_max` = 35 WHERE (`entry` = 3983);
+
+        -- Unfettered Spirit: Correct level
+        UPDATE `creature_template` SET `level_min` = 34, `level_max` = 35 WHERE (`entry` = 4308);
+
+        -- Scarlet Sorcerer:
+        UPDATE `creature_template` SET `level_min` = 34, `level_max` = 35 WHERE (`entry` = 4294);
+
+        -- Scarlet Defender:
+        UPDATE `creature_template` SET `level_min` = 34, `level_max` = 35 WHERE (`entry` = 4298);
+
+        -- Scarlet Myrmidon:
+        UPDATE `creature_template` SET `level_min` = 34, `level_max` = 35 WHERE (`entry` = 4295);
+
+        -- Scarlet Champion:
+        UPDATE `creature_template` SET `level_min` = 34, `level_max` = 35 WHERE (`entry` = 4302);
+
+        -- Scarlet Wizard:
+        UPDATE `creature_template` SET `level_min` = 34, `level_max` = 35 WHERE (`entry` = 4300);
+
+        -- High Inquisitor Fairbanks:
+        UPDATE `creature_template` SET `level_min` = 38, `level_max` = 38 WHERE (`entry` = 4542);
+
+        -- Scarlet Commander Mograine:
+        UPDATE `creature_template` SET `level_min` = 39, `level_max` = 39 WHERE (`entry` = 3976);
+        UPDATE `creature_equip_template` SET `equipentry1` = 3203 WHERE (`entry` = 3976);
+
+        DELETE FROM `creature_template` WHERE (`entry` = 3976);
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`, `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`, `level_min`, `level_max`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`, `detection_range`, `call_for_help_range`, `leash_range`, `rank`, `xp_multiplier`, `damage_school`, `damage_variance`, `damage_multiplier`, `health_multiplier`, `mana_multiplier`, `armor_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`, `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`, `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`, `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`, `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`, `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`, `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`, `script_name`) VALUES
+        (3976, 2042, 0, 0, 0, 0, 'Scarlet Commander Mograine', '', 525320, 0, 39, 39, 67, 0, 1, 1.14286, 0, 20, 5, 0, 1, 2, 0, 0.14, 8, 4.5, 2, 0.9, 2200, 2000, 2, 0, 0, 0, 0, 0, 0, 0, 7, 0, 3976, 3976, 0, 0, 0, 0, 0, 0, 0, 8990, 5589, 1020, 14518, 397600, 0, NULL, 285, 422, 'EventAI', 1, 3, 0, 0, 3, 3976, 0, 0, 617299931, 0, 0, 'boss_scarlet_commander_mograine');
+
+
+        -- High Inquisitor Whitemane:
+        UPDATE `creature_template` SET `level_min` = 39, `level_max` = 39, `unit_flags` = 768 WHERE (`entry` = 3977);
+
+        DELETE FROM `creature_template` WHERE (`entry` = 3977);
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`, `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`, `level_min`, `level_max`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`, `detection_range`, `call_for_help_range`, `leash_range`, `rank`, `xp_multiplier`, `damage_school`, `damage_variance`, `damage_multiplier`, `health_multiplier`, `mana_multiplier`, `armor_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`, `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`, `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`, `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`, `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`, `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`, `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`, `script_name`) VALUES
+        (3977, 2043, 0, 0, 0, 0, 'High Inquisitor Whitemane', '', 0, 0, 39, 39, 67, 0, 1, 1.14286, 0, 20, 5, 0, 1, 2, 0, 0.14, 8, 4, 5, 0.9, 2000, 2000, 2, 0, 0, 0, 0, 0, 0, 0, 7, 0, 3977, 3977, 0, 0, 0, 0, 0, 0, 0, 22187, 9481, 9256, 12039, 397700, 0, NULL, 298, 773, '', 1, 3, 0, 0, 3, 3977, 0, 0, 0, 0, 0, 'boss_high_inquisitor_whitemane');
+
+
+        -- Great Hall Doors
+        INSERT INTO `gameobject_template` (`entry`, `displayId`, `name`, `flags`, `size`, `data1`) VALUES (19835, 444, 'Great Hall Doors', 34, 1.06, 85);
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 19835) AND (`spawn_id` IN (400005));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400005, 19835, 44, 287.904, -100.079, 31.45, 3.14159, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Secret Door
+        INSERT INTO `gameobject_template` (`entry`, `displayId`, `name`, `faction`, `flags`, `data1`) VALUES (19832, 441, 'Secret Door', 114, 34, 85);
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 19832) AND (`spawn_id` IN (400007));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400007, 19832, 44, 323.251, -115.678, 32.073, 3.14159, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Torch (Secret Door)
+        INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `faction`, `data1`) VALUES (19833, 1, 442, 'Torch', 35, 93);
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 19833) AND (`spawn_id` IN (400008));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400008, 19833, 44, 321.012, -116.874, 33.0456, 1.566, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=11894;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (11894, 0, 0, 11, 400007, 300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Torch - Open Secret Door');
+
+
+        -- High Inquisitor's Chamber
+        INSERT INTO `alpha_world`.`gameobject_template` (`entry`, `displayId`, `name`, `faction`, `flags`, `data1`) VALUES (19834, 443, "High Inquisitor's Chamber", 114, 32, 85);
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 19834) AND (`spawn_id` IN (400006));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400006, 19834, 44, 374.314, -121.024, 32.496, 1.566, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+
+
+        -- What Lurks Beyond
+        DELETE FROM `quest_template` WHERE (`entry` = 1005);
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`, `parse_timestamp`) VALUES
+        (1005, 0, 236, 10, 0, 20, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 'What Lurks Beyond', '', '', 'At last! Someone to free me from this cell!$b$bHigh Executor Hadrec sent us to gather information on the Keep so that a plan could be formulated to overthrow Arugal once and for all.$b$bBut the old wizard has many tricks up his sleeve and we were detected by a magical ward. I was thrown in this prison. Vincent was not so lucky.$b$bI must return to Hadrec to debrief him at once. But first I will pick the lock to the courtyard door for you. Perhaps you can try your luck against the foes that lurk beyond.', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 302, 0, '2003-05-01');
+        UPDATE `quest_template` SET `SpecialFlags` = 1, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 1005);
+
+        -- What Lies Beyond
+        DELETE FROM `quest_template` WHERE (`entry` = 1006);
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`, `parse_timestamp`) VALUES
+        (1006, 0, 236, 10, 0, 18, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 'What Lies Beyond', '', '', "At last! I am finally free from this cell!$b$bThe Kirin Tor sent me from Dalaran to investigate Arugal\'s progress with the undead here in Silverpine Forest. Little did we know that the wizard had lost his grasp on sanity.$b$bI must report this mess at once! But before I leave, allow me to undo the magical lock on the courtyard door.$b$bYou defeated Rethilgore, perhaps you will survive what lies beyond....", '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 301, 0, '2003-05-01');
+
+        -- Scarlet Torturer
+        DELETE FROM `creature_ai_scripts` WHERE `id`=430601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (430601, 0, 0, 15, 3582, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Torturer - Cast Spell Torch Burst');
+
+        -- Deathstalker Adamant: Add missing "What Lurks Beyond" quest and remove the event starting on the lever being pulled
+        DELETE FROM `gameobject_scripts` WHERE  `id`=32442 AND `delay`=2 AND `priority`=0 AND `command`=39 AND `datalong`=302 AND `datalong2`=0 AND `datalong3`=0 AND `datalong4`=0 AND `target_param1`=3849 AND `target_param2`=30 AND `target_type`=8 AND `data_flags`=2 AND `dataint`=100 AND `dataint2`=0 AND `dataint3`=0 AND `dataint4`=0 AND `x`=0 AND `y`=0 AND `z`=0 AND `o`=0 AND `condition_id`=2 AND `comments`='Lever - Start Deathstalker Adamant Script' LIMIT 1;
+        DELETE FROM `creature_quest_starter` WHERE (`quest` = 1005) AND (`entry` IN (3849));
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES (3849, 1005);
+        DELETE FROM `creature_quest_finisher` WHERE (`quest` = 1005) AND (`entry` IN (3849));
+        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES (3849, 1005);
+        UPDATE `creature_template` SET `gossip_menu_id` = 0 WHERE (`entry` = 3849);
+        UPDATE `creature_template` SET `npc_flags` = 2 WHERE (`entry` = 3849);
+        DELETE FROM `quest_end_scripts` WHERE `id`=1005;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1005, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Remove QuestGiver Flag'),
+        (1005, 0, 0, 60, 3, 0, 4000, 0, 0, 0, 0, 0, 0, 3849, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Start Waypoints'),
+        (1005, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Add Passive Flag'),
+        (1005, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1320, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text');
+        UPDATE `quest_template` SET `CompleteScript` = 1005, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 1005);
+
+        -- Sorcerer Ashcrombe: Add missing "What Lies Beyond" quest and remove the event starting on the lever being pulled
+        DELETE FROM `gameobject_scripts` WHERE  `id`=34006 AND `delay`=2 AND `priority`=0 AND `command`=39 AND `datalong`=301 AND `datalong2`=0 AND `datalong3`=0 AND `datalong4`=0 AND `target_param1`=3850 AND `target_param2`=30 AND `target_type`=8 AND `data_flags`=2 AND `dataint`=100 AND `dataint2`=0 AND `dataint3`=0 AND `dataint4`=0 AND `x`=0 AND `y`=0 AND `z`=0 AND `o`=0 AND `condition_id`=3 AND `comments`='Lever - Start Sorcerer Ashcrombe Script' LIMIT 1;
+        DELETE FROM `creature_quest_starter` WHERE (`quest` = 1006) AND (`entry` IN (3850));
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES (3850, 1006);
+        DELETE FROM `creature_quest_finisher` WHERE (`quest` = 1006) AND (`entry` IN (3850));
+        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES (3850, 1006);
+        UPDATE `creature_template` SET `gossip_menu_id` = 0 WHERE (`entry` = 3850);
+        UPDATE `creature_template` SET `npc_flags` = 2 WHERE (`entry` = 3850);
+        DELETE FROM `quest_end_scripts` WHERE `id`=1006;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1006, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Remove QuestGiver Flag'),
+        (1006, 0, 0, 60, 3, 0, 4000, 0, 0, 0, 0, 0, 0, 3850, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Start Waypoints'),
+        (1006, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Add Passive Flag'),
+        (1006, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1331, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text');
+        UPDATE `quest_template` SET `CompleteScript` = 1006, `parse_timestamp` = '1970-01-01' WHERE (`entry` = 1006);
+
+        -- Deathstalker Vincent: Add death emote on stand, as his death cutscene didn't exist in 0.5.3
+        INSERT INTO `creature_addon` (`guid`, `mount_display_id`, `equipment_id`, `stand_state`) VALUES (16260, -1, -1, 7);
+
+        -- Scarlet Preserver
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (42800, 'Tirisfal Glades - Scarlet Preserver', 680, 100, 1, 0, 0, 0, 3, 5, 7, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Scarlet Augur
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (42840, 'Tirisfal Glades - Scarlet Augur', 1106, 100, 1, 0, 0, 8, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Scarlet Disciple
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (42850, 'Tirisfal Glades - Scarlet Disciple', 6063, 100, 15, 0, 0, 0, 0, 0, 11, 15, 0, 6076, 100, 15, 0, 30, 0, 0, 0, 18, 21, 0, 984, 100, 1, 0, 0, 8, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Scarlet Gallant
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (42870, 'Scarlet Monastery - Scarlet Gallant', 5588, 100, 1, 0, 0, 0, 4, 9, 13, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Scarlet Guardsman
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (42900, 'Scarlet Monastery - Scarlet Guardsman', 7164, 100, 0, 0, 0, 0, 1, 3, 180, 190, 0, 6713, 100, 1, 0, 0, 0, 8, 14, 14, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Vorrel Sengutz
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 3981);
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (39850, 3981, 0, 0, 0, 44, 251.058, -57.3, 32.652, 0.816, 7200, 7200, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Plainstrider Menace
+        UPDATE `quest_template` SET `RewItemId1` = 0, `RewItemCount1` = 0 WHERE (`entry` = 844);
+
+        -- Zhevra Dependence
+        DELETE FROM `quest_template` WHERE (`entry` = 845);
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`, `parse_timestamp`) VALUES
+        (845, 2, 17, 10, 0, 13, 0, 0, 178, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 844, 0, 0, 903, 5294, 0, 0, 'Zhevra Dependence', "There is an interdependency between the zhevra and the plainstriders. The plainstriders\' constant scratching and pecking of the land tills the soil, allowing the plants that the zhevra eat to grow and flourish.%B%BWithout steady food, the zhevra have become agitated and encroach upon our field grains. Though your initial path was faulty, we must continue.%B%BSlay the zhevra runners to the north and bring me four zhevra hooves.%B%BKeep the Hands of the New Moon, for they will grow as you learn.", "Slay Zhevra Runners to collect 4 Zhevra Hooves, return them with your Hands of the New Moon to Sergra Darkthorn in the Crossroads.", "With a good number of Zhevra Runners slaughtered, the orcish graints are safe again. I worry though what effect the deaths of so many Zhevra will have upon the beasts surrounding the Crossroads. Worry not, young one. The mystery of my teachings will become clear in time.", 'How many zhevra have you slain?', '', '', '', '', '', 5086, 5294, 0, 0, 4, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5295, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1300, 467, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '1970-01-01');
+
+
+        -- Prowlers of the Barrens
+        DELETE FROM `quest_template` WHERE (`entry` = 903);
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`, `parse_timestamp`) VALUES
+        (903, 2, 17, 10, 0, 15, 0, 0, 178, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 845, 0, 0, 0, 0, 0, 0, 'Prowlers of the Barrens', 'It would seem our previous actions return to haunt us. With the zhevra and plainstrider game diminished, the savannah prowlers have turned upon our people as they use the southern road.$b$bGo south and collect seven prowler claws and we just might reach an equilibrium again.', 'Collect 7 Prowler Claws from Savannah Prowlers for Sergra Darkthorn in the Crossroads.', 'Well done, young one. Though the bloodshed here seems senseless, I can feel that the lessons of the Earthmother are close to your heart. There are few steps left to complete this circle, but soon you shall have the whole of the picture.', 'Hurry, young one. The lives of those around the Crossroads are in your hands. Do you have the seven prowler claws I requested?', '', '', '', '', '', 5096, 5295, 0, 0, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5296, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1050, 607, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '1970-01-01');
+
+
+        -- The Angry Scytheclaws
+        DELETE FROM `quest_template` WHERE (`entry` = 905);
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`, `parse_timestamp`) VALUES
+        (905, 2, 17, 10, 0, 17, 0, 0, 178, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 903, 0, 0, 907, 0, 0, 0, 'The Angry Scytheclaws', "The Sunscale Scytheclaws have gone berserk. Normally they fight with Savannah Prowlers for food, keeping both predators scarce.$B$BWithout their natural enemy, they have started stalking the roads, picking off unwary travelers. You must thin their numbers, $N.$B$BFind the Sunscale Scytheclaws to the south, slay them and cut out their bladders. Use the Scytheclaw Bladders to defile the Scytheclaw nests, southwest of the Stagnant Oasis. With their nests defiled they will abandon them and move elsewhere.", "Kill Sunscale raptors and collect their bladders. Use the bladders on the 3 Scytheclaw nests. Return to Sergra Darkthorn in the Crossroads.", "Some of the others believe I have been too heavy handed in my lesson. I know that you are simply following my orders, but I want you to consider the life of the creatures you are slaughtering.$B$BThough they are at times a nuisance, they only become threatening when we seek their slaughter. This days defilement will cause us more trouble than it will solve problems...", "Is your task finished? Ponder the life of the Scytheclaw as you do it. There are important lessons within every creature\'s lifespawn.", '', '', 'Visit Blue Raptor Nest', 'Visit Yellow Raptor Nest', 'Visit Red Raptor Nest', 5296, 0, 0, 0, 1, 0, 0, 0, 5165, 0, 0, 0, 999999, 0, 0, 0, 0, -6907, -6908, -6906, 0, 1, 1, 1, 0, 5316, 5316, 5316, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5297, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1300, 765, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '1970-01-01');
+
+        -- Enraged Stormsnouts
+        DELETE FROM `quest_template` WHERE (`entry` = 907);
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`, `parse_timestamp`) VALUES
+        (907, 2, 17, 10, 0, 18, 0, 0, 178, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 905, 0, 0, 913, 0, 0, 0, 'Enraged Stormsnouts', 'The defilement of the scytheclaw nests has sent the stormsnout thunderlizards into a rage. It seems that they often picked through scytheclaw nests to consume the eggs. Without this... snack, they have begun trampling the life out of smaller creatures around them.%B%BYou must slaughter the crazed beasts and bring me 3 vials of their blood. The blood may prove useful later.', 'Collect 3 Stormsnout Blood Vials and return them to Sergra Darkthorn in the Crossroads.', 'It is good to see you return.  And it is good to know you have done so with your bones unbroken.', 'Have you collected my Stormsnout Blood, $N?', '', '', '', '', '', 5143, 5297, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5298, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1700, 1070, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '1970-01-01');
+
+        -- Cry of the Cloudscraper
+        UPDATE `quest_template` SET `ReqItemId2` = 5298, `ReqItemCount2` = 1 WHERE (`entry` = 913);
+
+        -- Arugal's Folly
+        UPDATE `quest_template` SET `Objectives` = 'Bring 12 Pyrewood Shackles to Dalar Dawnweaver at the Sepulcher.' WHERE (`entry` = 99);
+
+        -- Poison-tipped bone spear
+        UPDATE `item_template` SET `spellid_1` = 744 WHERE (`entry` = 1726);
+
+        -- Mr. Smite: Change dialogue to match period sources
+        UPDATE `broadcast_text` SET `male_text` = "We're under attack! All you swabs, prepare to repel the invaders!" WHERE (`entry`=1149);
+        UPDATE `broadcast_text` SET `male_text` = "Haha! You are proving to be a tough challenge. Guess I'll have to get a little more serious!" WHERE (`entry`=1344);
+
+        -- Edwin VanCleef: Remove dialogue, matching period sources
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=639;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (63904, 639, 0, 2, 0, 100, 0, 50, 36, 0, 0, 63904, 0, 0, "Edwin VanCleef - Emote and Summon VanCleef\'s Allies at 50% HP");
+
+        -- Into the Scarlet Monastery
+        UPDATE `quest_template` SET `MinLevel` = 30, `QuestLevel` = 39 WHERE (`entry` = 1048);
+
+        -- Neltharion
+        UPDATE `quest_template` SET `Method` = 0, `QuestLevel` = 30, `PrevQuestId` = 1154, `NextQuestInChain` = 1159, `Title` = 'Neltharion', `Details` = 'TODO', `Objectives` = 'TODO', `parse_timestamp` = '2004-05-11' WHERE (`entry` = 1156);
+
+        -- Alexstrasza
+        UPDATE `quest_template` SET `Method` = 0, `MinLevel` = 25, `QuestLevel` = 35, `PrevQuestId` = 1160, `parse_timestamp` = '2004-05-11' WHERE (`entry` = 1157);
+
+        -- Test of Lore
+        UPDATE `quest_template` SET `NextQuestInChain` = 1156 WHERE (`entry` = 1154);
+        UPDATE `quest_template` SET `QuestLevel` = 35, `NextQuestInChain` = 1157, `parse_timestamp` = '2004-05-11' WHERE (`entry` = 1160);
+
+        -- Compendium of the Fallen
+        UPDATE `quest_template` SET `MinLevel` = 27, `QuestLevel` = 37 WHERE (`entry` = 1049);
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 19283) AND (`spawn_id` IN (400004));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400004, 19283, 44, 317.949, 2.78, 32.36, 6.231, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Mythology of the Titans
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 19284) AND (`spawn_id` IN (400003));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400003, 19284, 44, 322.395, 2.78, 33.75, 6.174, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Beginnings of the Undead Threat
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 20726) AND (`spawn_id` IN (11901));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (11901, 20726, 44, 300.357, -35.872, 33.72, 0.815, 0, 0, 0.97237, 0.233445, 300, 300, 100, 1, 0, 0, 1);
+
+        -- Aftermath of the Second War
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 21581) AND (`spawn_id` IN (400001));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400001, 21581, 44, 318.005, -7.972, 32.187, 3.269, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Beyond the Dark Portal
+        DELETE FROM `spawns_gameobjects` WHERE (`spawn_entry` = 21582) AND (`spawn_id` IN (400002));
+        INSERT INTO `spawns_gameobjects` (`spawn_id`, `spawn_entry`, `spawn_map`, `spawn_positionX`, `spawn_positionY`, `spawn_positionZ`, `spawn_orientation`, `spawn_rotation0`, `spawn_rotation1`, `spawn_rotation2`, `spawn_rotation3`, `spawn_spawntimemin`, `spawn_spawntimemax`, `spawn_animprogress`, `spawn_state`, `spawn_flags`, `spawn_visibility_mod`, `ignored`) VALUES
+        (400002, 21582, 44, 327.914, -32.543, 32.183, 0.953, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+
+        -- Dog Whistle: Add proper displayID and "(needs effect)", matching other similar items without their spells implemented
+        DELETE FROM `item_template` WHERE (`entry` = 3456);
+        INSERT INTO `item_template` (`entry`, `name`, `class`, `subclass`, `description`, `display_id`, `quality`, `flags`, `buy_count`, `buy_price`, `sell_price`, `inventory_type`, `allowable_class`, `allowable_race`, `item_level`, `required_level`, `required_skill`, `required_skill_rank`, `required_spell`, `required_honor_rank`, `required_city_rank`, `required_reputation_faction`, `required_reputation_rank`, `max_count`, `stackable`, `container_slots`, `stat_type1`, `stat_value1`, `stat_type2`, `stat_value2`, `stat_type3`, `stat_value3`, `stat_type4`, `stat_value4`, `stat_type5`, `stat_value5`, `stat_type6`, `stat_value6`, `stat_type7`, `stat_value7`, `stat_type8`, `stat_value8`, `stat_type9`, `stat_value9`, `stat_type10`, `stat_value10`, `delay`, `range_mod`, `ammo_type`, `dmg_min1`, `dmg_max1`, `dmg_type1`, `dmg_min2`, `dmg_max2`, `dmg_type2`, `dmg_min3`, `dmg_max3`, `dmg_type3`, `dmg_min4`, `dmg_max4`, `dmg_type4`, `dmg_min5`, `dmg_max5`, `dmg_type5`, `block`, `armor`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spellid_1`, `spelltrigger_1`, `spellcharges_1`, `spellppmrate_1`, `spellcooldown_1`, `spellcategory_1`, `spellcategorycooldown_1`, `spellid_2`, `spelltrigger_2`, `spellcharges_2`, `spellppmrate_2`, `spellcooldown_2`, `spellcategory_2`, `spellcategorycooldown_2`, `spellid_3`, `spelltrigger_3`, `spellcharges_3`, `spellppmrate_3`, `spellcooldown_3`, `spellcategory_3`, `spellcategorycooldown_3`, `spellid_4`, `spelltrigger_4`, `spellcharges_4`, `spellppmrate_4`, `spellcooldown_4`, `spellcategory_4`, `spellcategorycooldown_4`, `spellid_5`, `spelltrigger_5`, `spellcharges_5`, `spellppmrate_5`, `spellcooldown_5`, `spellcategory_5`, `spellcategorycooldown_5`, `bonding`, `page_text`, `page_language`, `page_material`, `start_quest`, `lock_id`, `material`, `sheath`, `random_property`, `set_id`, `max_durability`, `area_bound`, `map_bound`, `duration`, `bag_family`, `disenchant_id`, `food_type`, `min_money_loot`, `max_money_loot`, `extra_flags`, `ignored`) VALUES
+        (3456, 'Dog Whistle (needs effect)', 0, 0, '', 2618, 2, 0, 1, 25500, 12750, 0, -1, -1, 30, 25, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Sliverblade: Change stats to match period sources (https://web.archive.org/web/20060523234646/http://wow.allakhazam.com/db/itemhistory.html?witem=5756)
+        DELETE FROM `item_template` WHERE (`entry` = 5756);
+        INSERT INTO `item_template` (`entry`, `name`, `class`, `subclass`, `description`, `display_id`, `quality`, `flags`, `buy_count`, `buy_price`, `sell_price`, `inventory_type`, `allowable_class`, `allowable_race`, `item_level`, `required_level`, `required_skill`, `required_skill_rank`, `required_spell`, `required_honor_rank`, `required_city_rank`, `required_reputation_faction`, `required_reputation_rank`, `max_count`, `stackable`, `container_slots`, `stat_type1`, `stat_value1`, `stat_type2`, `stat_value2`, `stat_type3`, `stat_value3`, `stat_type4`, `stat_value4`, `stat_type5`, `stat_value5`, `stat_type6`, `stat_value6`, `stat_type7`, `stat_value7`, `stat_type8`, `stat_value8`, `stat_type9`, `stat_value9`, `stat_type10`, `stat_value10`, `delay`, `range_mod`, `ammo_type`, `dmg_min1`, `dmg_max1`, `dmg_type1`, `dmg_min2`, `dmg_max2`, `dmg_type2`, `dmg_min3`, `dmg_max3`, `dmg_type3`, `dmg_min4`, `dmg_max4`, `dmg_type4`, `dmg_min5`, `dmg_max5`, `dmg_type5`, `block`, `armor`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spellid_1`, `spelltrigger_1`, `spellcharges_1`, `spellppmrate_1`, `spellcooldown_1`, `spellcategory_1`, `spellcategorycooldown_1`, `spellid_2`, `spelltrigger_2`, `spellcharges_2`, `spellppmrate_2`, `spellcooldown_2`, `spellcategory_2`, `spellcategorycooldown_2`, `spellid_3`, `spelltrigger_3`, `spellcharges_3`, `spellppmrate_3`, `spellcooldown_3`, `spellcategory_3`, `spellcategorycooldown_3`, `spellid_4`, `spelltrigger_4`, `spellcharges_4`, `spellppmrate_4`, `spellcooldown_4`, `spellcategory_4`, `spellcategorycooldown_4`, `spellid_5`, `spelltrigger_5`, `spellcharges_5`, `spellppmrate_5`, `spellcooldown_5`, `spellcategory_5`, `spellcategorycooldown_5`, `bonding`, `page_text`, `page_language`, `page_material`, `start_quest`, `lock_id`, `material`, `sheath`, `random_property`, `set_id`, `max_durability`, `area_bound`, `map_bound`, `duration`, `bag_family`, `disenchant_id`, `food_type`, `min_money_loot`, `max_money_loot`, `extra_flags`, `ignored`) VALUES
+        (5756, 'Sliverblade', 2, 15, '', 8755, 2, 0, 1, 41778, 8355, 13, -1, -1, 37, 27, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1400, 0, 0, 27, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 44, 0, 0, 0, 0, 0);
+
+        -- Gilnid: Correct size to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Instances/Dungeons/Deadmines/ShieldBlock2.jpg)
+        UPDATE `creature_template` SET `scale` = 1.5 WHERE (`entry` = 1763);
+
+        -- Captain Greenskin: Correct size and level to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Instances/Dungeons/Deadmines/deadmines19.jpg)
+        UPDATE `creature_template` SET `level_min` = 21, `level_max` = 21, `scale` = 1.5 WHERE (`entry` = 647);
+
+        -- Sneed: Correct level to match period sources (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/Allakhazam/creatures-details-2004.txt)
+        UPDATE `creature_template` SET `level_min` = 21, `level_max` = 21 WHERE (`entry` = 643);
+
+        -- Scalebane Royal Guard: Correct level range to match period sources (https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Wetlands/drag1.jpg, https://web.archive.org/web/20050220200112/http://wow.allakhazam.com/db/mob.html?wmob=1050)
+        UPDATE `creature_template` SET `level_min` = 53, `level_max` = 54 WHERE (`entry` = 1050);
+
+        -- Scalebane Lieutenant: Correct level range to match period sources (https://web.archive.org/web/20050121025504/http://wow.allakhazam.com/dyn/mobs/zone18.html)
+        UPDATE `creature_template` SET `level_min` = 50, `level_max` = 51 WHERE (`entry` = 1048);
+
+        -- Red Scalebane: Correct level range to match period sources (https://web.archive.org/web/20050121025504/http://wow.allakhazam.com/dyn/mobs/zone18.html)
+        UPDATE `creature_template` SET `level_min` = 48, `level_max` = 49 WHERE (`entry` = 1047);
+
+        -- Red Dragonspawn: Correct level range to match period sources (https://web.archive.org/web/20050121025504/http://wow.allakhazam.com/dyn/mobs/zone18.html)
+        UPDATE `creature_template` SET `level_min` = 46, `level_max` = 47 WHERE (`entry` = 1045);
+
+        -- Mark of the Kirin Tor: Remove from Dalaran Summoner, add to reference loot tables
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (2023, 5004, 0, 1);
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (1008, 5004, 0, 1);
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (30077, 5004, 0, 1);
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (30054, 5004, 0, 1);
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 2358) AND (`item` IN (5004));
+
+        -- Emberspark Pendant: Add to reference loot tables
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (2023, 5005, 0, 1);
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (1008, 5005, 0, 1);
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (30077, 5005, 0, 1);
+        INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES (30054, 5005, 0, 1);
+
+        -- Limited Invulnerability Potion: Change recipe and potion to match period sources (https://web.archive.org/web/20060629104859/http://wow.allakhazam.com/db/itemhistory.html?witem=3387, https://web.archive.org/web/20041229064927/http://wow.allakhazam.com/db/itemhistory.html?witem=3395)
+        UPDATE `item_template` SET `display_id` = 6270, `item_level` = 25, `required_skill_rank` = 125 WHERE (`entry` = 3395);
+        UPDATE `item_template` SET `item_level` = 25, `required_level` = 15 WHERE (`entry` = 3387);
+
+        -- Fenrus: Update Scripts to remove dummy door open
+        DELETE FROM `creature_ai_scripts` WHERE `id`=427403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (427403, 0, 0, 37, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Set Instance Data'),
+        (427403, 0, 0, 10, 4275, 14000, 0, 0, 0, 0, 0, 0, 0, 427403, -1, 3, -137.29, 2169.59, 136.57, 2.81, 0, 'Fenrus the Devourer - Summon Archmage Arugal'),
+        (427403, 0, 0, 39, 9536, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Start Script to Summon Voidwalkers');
+
+        -- Archmage Arugal: Create Group
+        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES (16255, 16255, 0, 0, 64);
+
+        -- Events list for Archmage Arugal
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4275;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427501, 4275, 0, 4, 0, 100, 0, 0, 0, 0, 0, 427501, 0, 0, 'Archmage Arugal - Yell on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427502, 4275, 0, 5, 0, 100, 0, 0, 0, 1, 0, 427502, 0, 0, 'Archmage Arugal - Yell on Player Kill');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427503, 4275, 0, 9, 0, 100, 1, 0, 10, 500, 500, 427503, 0, 0, 'Archmage Arugal - Enable Melee Attack below 10 yards');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427504, 4275, 0, 9, 0, 100, 1, 10, 60, 500, 500, 427504, 0, 0, 'Archmage Arugal - Disable Melee Attack above 10 yards');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427505, 4275, 3710, 0, 4, 100, 1, 48000, 48000, 40000, 40000, 427505, 0, 0, 'Archmage Arugal - Cast Shadow Port 1');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427506, 4275, 3710, 0, 4, 100, 1, 22000, 22000, 40000, 40000, 427506, 0, 0, 'Archmage Arugal - Cast Shadow Port 2');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427507, 4275, 3710, 0, 4, 100, 1, 34000, 34000, 40000, 40000, 427507, 0, 0, 'Archmage Arugal - Cast Shadow Port 3');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427508, 4275, 0, 27, 5, 100, 1, 7587, 1, 5000, 5000, 427508, 0, 0, 'Archmage Arugal - Cast Shadow Port when Root Expires');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427509, 4275, 0, 3, 6, 100, 0, 20, 0, 0, 0, 427509, 0, 0, 'Archmage Arugal - Set Phase when Mana below 10%');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427510, 4275, 0, 7, 0, 100, 0, 0, 0, 0, 0, 427510, 0, 0, 'Archmage Arugal - Set Phase on Evade');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427511, 4275, 0, 1, 15, 100, 0, 0, 0, 0, 0, 427511, 0, 0, 'Archmage Arugal - Open Door on Group All Dead');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (427512, 4275, 0, 32, 0, 100, 1, 0, 0, 0, 0, 427512, 0, 0, 'Archmage Arugal - Increase Phase on Group Member Died');
+
+        -- Arugal: Open door when voidwalkers die and reset phase to 0
+        DELETE FROM `creature_ai_scripts` WHERE `id`=427511;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (427511, 0, 0, 11, 33785, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archmage Arugal - Open Door'),
+        (427511, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archmage Arugal - Open Door and Set Phase to 0');
+
+        -- Arugal: Detect voidwalker death and increase phase count
+        DELETE FROM `creature_ai_scripts` WHERE `id`=427512;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (427512, 0, 0, 44, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archmage Arugal - Increase Phase on Voidwalker Death');
+
+        -- Events list for Arugal's Voidwalker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4627;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462701, 4627, 0, 14, 0, 100, 1, 150, 10, 7000, 7000, 462701, 0, 0, 'Arugals Voidwalker - Cast Dark Offering on Friendlies');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462705, 4627, 0, 11, 0, 100, 0, 0, 0, 0, 0, 462705, 0, 0, 'Arugals Voidwalker - Add to Arugal Group on Spawn');
+
+        -- Arugal's Voidwalker: Add to Arugal group on spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=462705;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (462705, 0, 0, 78, 64, 0, 0, 0, 16255, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Arugals Voidwalker: Join Arugal Group');
+
+        -- Update spawns
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4297 WHERE  `spawn_id`=400286;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4297 WHERE  `spawn_id`=400289;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4290 WHERE  `spawn_id`=400287;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4286 WHERE  `spawn_id`=400288;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4286 WHERE  `spawn_id`=400290;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4290 WHERE  `spawn_id`=400291;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4292 WHERE  `spawn_id`=400372;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4295 WHERE  `spawn_id`=400371;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4295 WHERE  `spawn_id`=400370;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4289 WHERE  `spawn_id`=400369;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4294 WHERE  `spawn_id`=400307;
+        UPDATE `alpha_world`.`spawns_creatures` SET `spawn_entry1`=4294 WHERE  `spawn_id`=400306;
+
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4292) AND (`spawn_id` IN (500004));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (500004, 4292, 0, 0, 0, 44, 228.573, -10.998, 30.823, 3.099, 18000, 18000, 0, 100, 0, 0, 0, 0, 0);
+
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4289) AND (`spawn_id` IN (500005));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (500005, 4289, 0, 0, 0, 44, 235.238, 15.798, 30.823, 3.099, 18000, 18000, 0, 100, 0, 0, 0, 0, 0);
+
+
+
+        insert into applied_updates values ('160820251')
+    end if;
+
 end $
 delimiter ;
