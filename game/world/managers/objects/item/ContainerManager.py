@@ -46,8 +46,9 @@ class ContainerManager(ItemManager):
     # override
     def has_pending_updates(self):
         # Check for either self dirtiness or any residing item dirtiness.
-        return (self.has_container_updates() or
-                any(item.has_pending_updates() for item in list(self.sorted_slots.values())))
+        return self.has_container_updates() or any(
+            item.has_pending_updates() for item in list(self.sorted_slots.values())
+        )
 
     # Check just this container fields for dirtiness.
     def has_container_updates(self):
