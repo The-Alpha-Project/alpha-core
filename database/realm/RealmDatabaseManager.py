@@ -127,7 +127,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def account_get_characters(account_id):
         realm_db_session = SessionHolder()
-        characters = realm_db_session.query(Character).filter_by(account_id=account_id, realm_id=config.Server.Connection.Realm.local_realm_id).all()
+        characters = realm_db_session.query(Character).filter_by(account_id=account_id, realm_id=config.Server.Connection.Realm.local_realm_id).limit(10).all()
         realm_db_session.close()
         return characters if characters else []
 
