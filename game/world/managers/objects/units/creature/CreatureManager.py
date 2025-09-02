@@ -23,7 +23,7 @@ from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
-    MoveType, EmoteUnitState
+    MoveType, EmoteUnitState, TempSummonType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
@@ -49,8 +49,10 @@ class CreatureManager(UnitManager):
         self.charmer = None
         self.addon = None
         self.creation_spell_id = 0
+        self.time_to_live = 0
         self.time_to_live_timer = 0
         self.faction = 0
+        self.summon_type = TempSummonType.TEMP_SUMMON_DEAD_DESPAWN
         self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
         self.react_state = CreatureReactStates.REACT_PASSIVE
         self.npc_flags = 0
@@ -64,6 +66,7 @@ class CreatureManager(UnitManager):
         self.dmg_max = 0
         self.destroy_time = 420  # Standalone instances, destroyed after 7 minutes.
         self.destroy_timer = 0
+        self.just_died = False
         self.virtual_item_info = {}
         self.wander_distance = 0
         self.movement_type = MovementTypes.IDLE
@@ -81,12 +84,14 @@ class CreatureManager(UnitManager):
         self.has_parry_passive = True
 
     # This can also be used to 'morph' the creature.
-    def initialize_from_creature_template(self, creature_template, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
+    def initialize_from_creature_template(self, creature_template, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
+                                          summon_type=TempSummonType.TEMP_SUMMON_DEAD_DESPAWN):
         if not creature_template:
             return
 
         is_morph = self.fully_loaded
 
+        self.just_died = False
         self.entry = creature_template.entry
         self.creature_template: CreatureTemplate = creature_template
         self.entry = self.creature_template.entry
@@ -103,6 +108,7 @@ class CreatureManager(UnitManager):
         self.spell_list_id = self.creature_template.spell_list_id
         self.sheath_state = WeaponMode.NORMALMODE
         self.subtype = subtype
+        self.summon_type = summon_type
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
 
         # Elite mob.
@@ -554,10 +560,11 @@ class CreatureManager(UnitManager):
             if not is_active:
                 return
 
+            # Check for despawn logic for standalone instances.
+            if self._should_despawn(elapsed):
+                return  # Creature destroyed.
+
             if self.is_alive:
-                # Time to live checks for standalone instances.
-                if not self._check_time_to_live(elapsed):
-                    return  # Creature destroyed.
                 # Update relocate/call for help timer.
                 self.relocation_call_for_help_timer += elapsed
                 # Regeneration.
@@ -619,14 +626,21 @@ class CreatureManager(UnitManager):
             return
         super().despawn()
 
-    def _check_time_to_live(self, elapsed):
-        if self.time_to_live_timer > 0:
-            self.time_to_live_timer -= elapsed
-            # Time to live expired, destroy.
-            if self.time_to_live_timer <= 0:
-                self.despawn()
-                return False
-        return True
+    def _should_despawn(self, elapsed):
+        # Do not despawn charmed unit until charm expires.
+        if self.charmer:
+            return False
+
+        if not self.is_dynamic_spawn:
+            return False
+
+        return SUMMON_DESPAWN_TYPES[self.summon_type](self, elapsed)
+
+    def update_time_to_live(self, elapsed):
+        if self.time_to_live > 0:
+            self.time_to_live_timer = max(0, self.time_to_live_timer - elapsed)
+            return self.time_to_live_timer <= 0
+        return False
 
     # override
     def attack(self, victim: UnitManager):
@@ -970,3 +984,136 @@ class CreatureManager(UnitManager):
                 self.class_, constraint_level
             ))
         return creature_class_level_stats
+
+# Summon despawn handling.
+
+    @staticmethod
+    def handle_summon_timed_or_dead(unit, elapsed):
+        if not unit.in_combat and unit.is_alive:
+            if unit.update_time_to_live(elapsed):
+                unit.despawn()
+                return True
+        # In combat, restore timer to original ttl.
+        elif unit.in_combat and unit.time_to_live > unit.time_to_live_timer:
+            unit.time_to_live_timer = unit.time_to_live
+        elif not unit.is_alive:
+            unit.despawn()
+            return True
+
+        return False
+
+    @staticmethod
+    def handle_summon_corpse(unit, elapsed):
+        if not unit.is_alive:
+            unit.despawn()
+            return True
+
+        return False
+
+    @staticmethod
+    def handle_summon_timed_ooc(unit, elapsed):
+        # Out of combat, process timer.
+        if not unit.in_combat:
+            if unit.update_time_to_live(elapsed):  # Time to live expired, destroy.
+                unit.despawn()
+                return True
+        # In combat, restore timer to original ttl.
+        elif unit.time_to_live > unit.time_to_live_timer:
+            unit.time_to_live_timer = unit.time_to_live
+
+        return False
+
+    @staticmethod
+    def handle_summon_timed_or_corpse(unit, elapsed):
+        if not unit.is_alive:
+            unit.despawn()
+            return True
+        elif not unit.in_combat:
+            if unit.update_time_to_live(elapsed):
+                unit.despawn()
+                return True
+        # In combat, restore timer to original ttl.
+        elif unit.time_to_live > unit.time_to_live_timer:
+            unit.time_to_live_timer = unit.time_to_live
+
+        return False
+
+    @staticmethod
+    def handle_summon_corpse_timed(unit, elapsed):
+        if not unit.is_alive:
+            if unit.update_time_to_live(elapsed):
+                unit.despawn()
+                return True
+
+        return False
+
+
+    @staticmethod
+    def handle_summon_timed(unit, elapsed):
+        if unit.update_time_to_live(elapsed):
+            unit.despawn()
+            return True
+
+        return False
+
+    @staticmethod
+    def handle_summon_dead(unit, elapsed):
+        if not unit.is_alive:
+            unit.despawn()
+            return True
+
+        return False
+
+    @staticmethod
+    def handle_summon_manual(unit, elapsed):
+        return False
+
+    @staticmethod
+    def handle_summon_timed_combat_or_dead(unit, elapsed):
+        if not unit.is_alive and not unit.just_died:
+            unit.just_died = True
+            unit.time_to_live_timer = unit.time_to_live
+        elif unit.update_time_to_live(elapsed):
+            if not unit.in_combat:
+                unit.despawn()
+                return True
+
+        return False
+
+
+    @staticmethod
+    def handle_summon_timed_combat_or_corpse(unit, elapsed):
+        if unit.update_time_to_live(elapsed):
+            if not unit.in_combat:
+                unit.despawn()
+                return True
+
+        return False
+
+    @staticmethod
+    def handle_summon_timed_death_and_dead(unit, elapsed):
+        if unit.update_time_to_live(elapsed):
+            # Prevent death while the mob is still in combat.
+            if not unit.in_combat and unit.is_alive:
+                unit.die()
+            elif not unit.is_alive:
+                unit.despawn()
+                return True
+
+        return False
+
+
+SUMMON_DESPAWN_TYPES = {
+    TempSummonType.TEMP_SUMMON_DEFAULT: CreatureManager.handle_summon_timed,
+    TempSummonType.TEMP_SUMMON_TIMED_OR_DEAD_DESPAWN: CreatureManager.handle_summon_timed_or_dead,
+    TempSummonType.TEMP_SUMMON_TIMED_OR_CORPSE_DESPAWN: CreatureManager.handle_summon_timed_or_corpse,
+    TempSummonType.TEMP_SUMMON_TIMED_DESPAWN: CreatureManager.handle_summon_timed,
+    TempSummonType.TEMP_SUMMON_TIMED_DESPAWN_OUT_OF_COMBAT: CreatureManager.handle_summon_timed_ooc,
+    TempSummonType.TEMP_SUMMON_CORPSE_DESPAWN: CreatureManager.handle_summon_corpse,
+    TempSummonType.TEMP_SUMMON_CORPSE_TIMED_DESPAWN: CreatureManager.handle_summon_corpse_timed,
+    TempSummonType.TEMP_SUMMON_DEAD_DESPAWN: CreatureManager.handle_summon_dead,
+    TempSummonType.TEMP_SUMMON_MANUAL_DESPAWN: CreatureManager.handle_summon_manual,
+    TempSummonType.TEMP_SUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN: CreatureManager.handle_summon_timed_combat_or_dead,
+    TempSummonType.TEMP_SUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN: CreatureManager.handle_summon_timed_combat_or_corpse,
+    TempSummonType.TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN: CreatureManager.handle_summon_timed_death_and_dead
+}
