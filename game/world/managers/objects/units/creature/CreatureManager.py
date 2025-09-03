@@ -66,6 +66,7 @@ class CreatureManager(UnitManager):
         self.dmg_max = 0
         self.destroy_time = 420  # Standalone instances, destroyed after 7 minutes.
         self.destroy_timer = 0
+        self.despawn_check_timer = 0
         self.just_died = False
         self.virtual_item_info = {}
         self.wander_distance = 0
@@ -555,14 +556,17 @@ class CreatureManager(UnitManager):
     def update(self, now):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
+            self.despawn_check_timer += elapsed
 
             is_active = self.is_active_object()
             if not is_active:
                 return
 
             # Check for despawn logic for standalone instances.
-            if self._should_despawn(elapsed):
-                return  # Creature destroyed.
+            if self.despawn_check_timer > 2:
+                self.despawn_check_timer = 0
+                if self._should_despawn(elapsed):
+                    return  # Creature destroyed.
 
             if self.is_alive:
                 # Update relocate/call for help timer.
