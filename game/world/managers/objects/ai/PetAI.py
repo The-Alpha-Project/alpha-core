@@ -186,6 +186,7 @@ class PetAI(CreatureAI):
             if self.creature.location.distance(target.location) > range_max:
                 pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
                 self.pending_spell_cast = (spell, target, autocast)
+                self.move_state = PetMoveState.MOVE_RANGE
                 return
 
         self.pending_spell_cast = None
