@@ -856,7 +856,7 @@ class InventoryManager(object):
             if not container:
                 continue
             container.reset_fields_older_than(now)
-            [item.reset_fields_older_than(now) for item in container.sorted_slots.values()]
+            [item.reset_fields_older_than(now) for item in list(container.sorted_slots.values())]
 
     # Owner will check for items pending changes.
     def has_pending_updates(self):
