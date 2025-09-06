@@ -2010,6 +2010,9 @@ begin not atomic
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
 (119401, 0, 0, 15, 3155, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mountain Buzzard - Cast Spell Bruise');
 
+        -- Fix Bruegal Ironknuckle spawn location.
+        UPDATE `spawns_creatures` SET `position_x` = '97.502', `position_y` = '-42.767', `position_z` = '-34.856', `orientation` = '0.092' WHERE (`spawn_id` = '79090');
+
         insert into applied_updates values ('050920251');
     end if;
 
