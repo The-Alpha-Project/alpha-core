@@ -1103,6 +1103,10 @@ class UnitManager(ObjectManager):
     def is_tameable(self):
         return False
 
+    # Implemented by CreatureManager.
+    def is_sessile(self):
+        return False
+
     def get_possessed_unit(self):
         possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)
         if possessed_id:
