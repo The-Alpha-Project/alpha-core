@@ -1945,5 +1945,73 @@ begin not atomic
         insert into applied_updates values ('160820251');
     end if;
 
+    -- 05/09/2025 1
+    if (select count(*) from applied_updates where id='050920251') = 0 then
+        -- Invalid script spells.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=392503;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=392403;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=381501;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=207101;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=311001;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=374802;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=571008;
+
+         -- Venture Co Miner - Fix invalid spell.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(67402, 0, 0, 15, 4061, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Strip Miner - Cast Spell Throw Dynamite');
+
+        -- Gordunni Brute - Cast Spell Knocked Down
+        DELETE FROM `creature_ai_scripts` WHERE `id`=523201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(523201, 0, 0, 15, 6580, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gordunni Brute - Cast Spell Knocked Down');
+
+        -- Venture Co. Foreman - Cast Spell Devotion Aura
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(67503, 0, 0, 15, 1032, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Foreman - Cast Spell Devotion Aura');
+
+        -- Fey Dragon - Cast Spell Evil Eye
+        DELETE FROM `creature_ai_scripts` WHERE `id`=401601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(401601, 0, 0, 15, 3233, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fey Dragon - Cast Spell Evil Eye');
+
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (325001);
+
+        -- Events list for Silithid Creeper
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3250;
+        
+        -- Invalid spell from script.
+        DELETE FROM `quest_end_scripts` WHERE `id`=489;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(489, 1, 0, 15, 3329, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''),
+(489, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 886, 0, 0, 0, 0, 0, 0, 0, 0, '');
+
+        -- Invalid spell from script.
+        DELETE FROM `quest_end_scripts` WHERE `id`=502;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 580, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Emote text 1'),
+(502, 4, 0, 16, 1108, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Sound transformation'),
+(502, 5, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Despawn'),
+(502, 5, 0, 10, 2275, 30000, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1, -353.534, 21.4088, 54.6594, 3.68102, 0, 'Elixir of Pain - Stanley: Enraged Stanley spawn'),
+(502, 6, 0, 22, 38, 0, 0, 0, 2275, 5, 8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Enraged Stanley set agressive');
+
+        -- Invalid spell from script.
+        DELETE FROM `quest_end_scripts` WHERE `id`=499;
+
+        -- Bloodsail Warlock - Cast Spell Summon Succubus
+        DELETE FROM `creature_ai_scripts` WHERE `id`=156402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(156402, 0, 0, 15, 712, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodsail Warlock - Cast Spell Summon Succubus');
+
+        -- Mountain Buzzard - Cast Spell Bruise
+        DELETE FROM `creature_ai_scripts` WHERE `id`=119401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(119401, 0, 0, 15, 3155, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mountain Buzzard - Cast Spell Bruise');
+
+        insert into applied_updates values ('050920251');
+    end if;
+
 end $
 delimiter ;
