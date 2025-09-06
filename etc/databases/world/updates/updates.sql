@@ -2013,6 +2013,45 @@ begin not atomic
         -- Fix Bruegal Ironknuckle spawn location.
         UPDATE `spawns_creatures` SET `position_x` = '97.502', `position_y` = '-42.767', `position_z` = '-34.856', `orientation` = '0.092' WHERE (`spawn_id` = '79090');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1540
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '20' WHERE (`entry` = '256');
+        UPDATE `quest_template` SET `MinLevel` = '12', `QuestLevel` = '16' WHERE (`entry` = '255');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '17' WHERE (`entry` = '455');
+        UPDATE `quest_template` SET `MinLevel` = '16', `QuestLevel` = '20' WHERE (`entry` = '484');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '16' WHERE (`entry` = '463');
+        UPDATE `quest_template` SET `MinLevel` = '19', `QuestLevel` = '21' WHERE (`entry` = '466');
+        UPDATE `quest_template` SET `MinLevel` = '14', `QuestLevel` = '16' WHERE (`entry` = '278');
+        UPDATE `quest_template` SET `MinLevel` = '10', `QuestLevel` = '15' WHERE (`entry` = '436');
+        UPDATE `quest_template` SET `MinLevel` = '17', `QuestLevel` = '22' WHERE (`entry` = '470');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '36' WHERE (`entry` = '1324');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1241');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1242');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1243');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '28' WHERE (`entry` = '1244');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '28' WHERE (`entry` = '1245');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1246');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1247');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1248');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1249');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1250');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1264');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1265');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1266');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1267');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1274');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '343');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '344');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '345');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '347');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '346');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '373');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '389');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '391');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '392');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '393');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '350');
+        UPDATE `quest_template` SET `MinLevel` = '25', `QuestLevel` = '28' WHERE (`entry` = '555');
+
         insert into applied_updates values ('050920251');
     end if;
 
