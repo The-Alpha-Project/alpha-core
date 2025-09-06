@@ -20,7 +20,7 @@ from game.world.managers.objects.units.movement.helpers.SplineEvent import Splin
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-     GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes
+    GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -487,11 +487,13 @@ class ScriptHandler:
             if summoned and len(summoned) >= command.datalong3:
                 return command.should_abort()
 
-        # TODO: Missing implementation/handling of despawn_type.
+        summon_type = TempSummonType(command.dataint4)
+
         creature_manager = CreatureBuilder.create(command.datalong, Vector(command.x, command.y, command.z, command.o),
                                                   command.source.map_id, command.source.instance_id,
                                                   ttl=command.datalong2 / 1000,
-                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
+                                                  summon_type=summon_type)
         if not creature_manager:
             return command.should_abort()
         map_.spawn_object(world_object_instance=creature_manager)
@@ -500,6 +502,7 @@ class ScriptHandler:
         if command.dataint2:
             map_.enqueue_script(source=creature_manager, target=None, script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
                                 script_id=command.dataint2)
+
         # Attack target type.
         if command.dataint3 < ScriptTarget.TARGET_T_PROVIDED_TARGET:  # Can be -1.
             creature_manager.set_has_moved(has_moved=True, has_turned=True)
@@ -509,12 +512,6 @@ class ScriptHandler:
         attack_target = ScriptManager.get_target_by_type(command.source, command.target, command.dataint3)
         if attack_target and attack_target.is_alive:
             creature_manager.attack(attack_target)
-
-        creature_manager.set_has_moved(has_moved=True, has_turned=True)
-
-        # TODO: dataint = flags. Needs an enum and handling.
-        # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
-        #  For now we just use TEMP_SUMMON if dataint4 is not 0 and SUBTYPE_GENERIC if it is.
 
         return False
 

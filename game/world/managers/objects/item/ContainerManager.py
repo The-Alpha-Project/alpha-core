@@ -79,6 +79,7 @@ class ContainerManager(ItemManager):
                 item_mgr.item_instance.slot = slot
                 item_mgr.current_slot = slot
 
+                owner = self.get_owner_unit()
                 self.sorted_slots[slot] = item_mgr
 
                 if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:

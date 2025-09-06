@@ -21,7 +21,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
-from utils.constants.MiscCodes import AttackTypes, GameObjectStates, DynamicObjectTypes, ScriptTypes
+from utils.constants.MiscCodes import AttackTypes, GameObjectStates, DynamicObjectTypes, ScriptTypes, TempSummonType
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
@@ -437,10 +437,12 @@ class SpellEffectHandler:
         creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_id, caster.instance_id,
                                                   summoner=caster,
                                                   spell_id=casting_spell.spell_entry.ID,
-                                                  faction=caster.faction, ttl=duration,
+                                                  faction=caster.faction,
+                                                  ttl=duration,
                                                   level=caster.level,
                                                   possessed=True,
-                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
+                                                  summon_type=TempSummonType.TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN)
 
         caster.get_map().spawn_object(world_object_instance=creature_manager)
         FarSightManager.add_camera(creature_manager, caster)
@@ -665,12 +667,16 @@ class SpellEffectHandler:
                 else:
                     location = target if isinstance(target, Vector) else target.location
 
+                summon_type = TempSummonType.TEMP_SUMMON_DEAD_DESPAWN if not duration \
+                    else TempSummonType.TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN
+
                 # Spawn the summoned unit.
                 creature_manager = CreatureBuilder.create(creature_entry, location, caster.map_id,
                                                           caster.instance_id,
                                                           summoner=caster, faction=caster.faction, ttl=duration,
                                                           spell_id=casting_spell.spell_entry.ID,
-                                                          subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                                                          subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
+                                                          summon_type=summon_type)
 
                 if not creature_manager:
                     Logger.error(f'Summon failed, creature with entry {creature_entry} '
