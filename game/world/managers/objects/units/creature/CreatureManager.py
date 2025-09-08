@@ -563,8 +563,9 @@ class CreatureManager(UnitManager):
                 return
 
             # Check for despawn logic for standalone instances.
+            # Do it only once every 2 seconds, no need to do it more often.
             if self.despawn_check_timer > 2:
-                self.despawn_check_timer = 0
+                #self.despawn_check_timer = 0
                 if self._should_despawn(elapsed):
                     return  # Creature destroyed.
 
