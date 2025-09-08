@@ -1,6 +1,7 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.GuidManager import GuidManager
 from utils.constants import CustomCodes
+from utils.constants.MiscCodes import TempSummonType
 from utils.constants.UnitCodes import MovementTypes, UnitFlags
 
 
@@ -12,9 +13,9 @@ class CreatureBuilder:
 
     @staticmethod
     def create(entry, location, map_id, instance_id, health_percent=100, mana_percent=100, summoner=None, faction=0,
-               spell_id=0, ttl=0, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE,
+               spell_id=0, ttl=25000, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE,
                subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, spawn_id=0, level=-1, possessed=False,
-               is_guardian=False):
+               is_guardian=False, summon_type=TempSummonType.TEMP_SUMMON_DEAD_DESPAWN):
 
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
         if not creature_template:
@@ -35,6 +36,7 @@ class CreatureBuilder:
         creature_instance = CreatureManager()
         creature_instance.summoner = summoner
         creature_instance.subtype = subtype
+        creature_instance.summon_type = summon_type
         creature_instance.spawn_id = spawn_id
         creature_instance.is_dynamic_spawn = is_dynamic_spawn
         creature_instance.entry = creature_template.entry
@@ -45,7 +47,9 @@ class CreatureBuilder:
         creature_instance.set_guardian(is_guardian)
 
         # Initialize from creature template.
-        creature_instance.initialize_from_creature_template(creature_template, subtype=subtype)
+        creature_instance.initialize_from_creature_template(creature_template,
+                                                            subtype=subtype,
+                                                            summon_type=summon_type)
 
         # Continue initialization, order above matters.
         creature_instance.level = level if level != -1 else creature_instance.level
@@ -57,6 +61,7 @@ class CreatureBuilder:
         creature_instance.zone = summoner.zone if summoner else 0
         creature_instance.spell_id = spell_id
         creature_instance.time_to_live_timer = ttl
+        creature_instance.time_to_live = ttl
         creature_instance.addon = addon
         creature_instance.wander_distance = wander_distance
         creature_instance.movement_type = movement_type

@@ -1945,5 +1945,115 @@ begin not atomic
         insert into applied_updates values ('160820251');
     end if;
 
+    -- 05/09/2025 1
+    if (select count(*) from applied_updates where id='050920251') = 0 then
+        -- Invalid script spells.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=392503;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=392403;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=381501;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=207101;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=311001;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=374802;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=571008;
+
+         -- Venture Co Miner - Fix invalid spell.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(67402, 0, 0, 15, 4061, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Strip Miner - Cast Spell Throw Dynamite');
+
+        -- Gordunni Brute - Cast Spell Knocked Down
+        DELETE FROM `creature_ai_scripts` WHERE `id`=523201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(523201, 0, 0, 15, 6580, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gordunni Brute - Cast Spell Knocked Down');
+
+        -- Venture Co. Foreman - Cast Spell Devotion Aura
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(67503, 0, 0, 15, 1032, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Foreman - Cast Spell Devotion Aura');
+
+        -- Fey Dragon - Cast Spell Evil Eye
+        DELETE FROM `creature_ai_scripts` WHERE `id`=401601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(401601, 0, 0, 15, 3233, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fey Dragon - Cast Spell Evil Eye');
+
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (325001);
+
+        -- Events list for Silithid Creeper
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3250;
+        
+        -- Invalid spell from script.
+        DELETE FROM `quest_end_scripts` WHERE `id`=489;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(489, 1, 0, 15, 3329, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''),
+(489, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 886, 0, 0, 0, 0, 0, 0, 0, 0, '');
+
+        -- Invalid spell from script.
+        DELETE FROM `quest_end_scripts` WHERE `id`=502;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 580, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Emote text 1'),
+(502, 4, 0, 16, 1108, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Sound transformation'),
+(502, 5, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Despawn'),
+(502, 5, 0, 10, 2275, 30000, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1, -353.534, 21.4088, 54.6594, 3.68102, 0, 'Elixir of Pain - Stanley: Enraged Stanley spawn'),
+(502, 6, 0, 22, 38, 0, 0, 0, 2275, 5, 8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elixir of Pain - Stanley: Enraged Stanley set agressive');
+
+        -- Invalid spell from script.
+        DELETE FROM `quest_end_scripts` WHERE `id`=499;
+
+        -- Bloodsail Warlock - Cast Spell Summon Succubus
+        DELETE FROM `creature_ai_scripts` WHERE `id`=156402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(156402, 0, 0, 15, 712, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodsail Warlock - Cast Spell Summon Succubus');
+
+        -- Mountain Buzzard - Cast Spell Bruise
+        DELETE FROM `creature_ai_scripts` WHERE `id`=119401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(119401, 0, 0, 15, 3155, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mountain Buzzard - Cast Spell Bruise');
+
+        -- Fix Bruegal Ironknuckle spawn location.
+        UPDATE `spawns_creatures` SET `position_x` = '97.502', `position_y` = '-42.767', `position_z` = '-34.856', `orientation` = '0.092' WHERE (`spawn_id` = '79090');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1540
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '20' WHERE (`entry` = '256');
+        UPDATE `quest_template` SET `MinLevel` = '12', `QuestLevel` = '16' WHERE (`entry` = '255');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '17' WHERE (`entry` = '455');
+        UPDATE `quest_template` SET `MinLevel` = '16', `QuestLevel` = '20' WHERE (`entry` = '484');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '16' WHERE (`entry` = '463');
+        UPDATE `quest_template` SET `MinLevel` = '19', `QuestLevel` = '21' WHERE (`entry` = '466');
+        UPDATE `quest_template` SET `MinLevel` = '14', `QuestLevel` = '16' WHERE (`entry` = '278');
+        UPDATE `quest_template` SET `MinLevel` = '10', `QuestLevel` = '15' WHERE (`entry` = '436');
+        UPDATE `quest_template` SET `MinLevel` = '17', `QuestLevel` = '22' WHERE (`entry` = '470');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '36' WHERE (`entry` = '1324');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1241');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1242');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1243');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '28' WHERE (`entry` = '1244');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '28' WHERE (`entry` = '1245');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1246');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1247');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1248');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1249');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1250');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1264');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1265');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1266');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '29' WHERE (`entry` = '1267');
+        UPDATE `quest_template` SET `MinLevel` = '26', `QuestLevel` = '26' WHERE (`entry` = '1274');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '343');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '344');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '345');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '347');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '19' WHERE (`entry` = '346');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '373');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '389');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '391');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '392');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '393');
+        UPDATE `quest_template` SET `MinLevel` = '15', `QuestLevel` = '21' WHERE (`entry` = '350');
+        UPDATE `quest_template` SET `MinLevel` = '25', `QuestLevel` = '28' WHERE (`entry` = '555');
+
+        insert into applied_updates values ('050920251');
+    end if;
+
 end $
 delimiter ;

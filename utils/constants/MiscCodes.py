@@ -662,6 +662,32 @@ class CreatureGroupFlags(IntEnum):
     OPTION_INFORM_MEMBERS_ON_ANY_DIED = 0x080
 
 
+class TempSummonType(IntEnum):
+    TEMP_SUMMON_DEFAULT = 0
+    # Despawns after a specified time (out of combat) OR when the creature disappears.
+    TEMP_SUMMON_TIMED_OR_DEAD_DESPAWN = 1
+    # Despawns after a specified time (out of combat) OR when the creature dies.
+    TEMP_SUMMON_TIMED_OR_CORPSE_DESPAWN = 2
+    # Despawns after a specified time.
+    TEMP_SUMMON_TIMED_DESPAWN = 3
+    # Despawns after a specified time after the creature is out of combat.
+    TEMP_SUMMON_TIMED_DESPAWN_OUT_OF_COMBAT = 4
+    # Despawns instantly after death.
+    TEMP_SUMMON_CORPSE_DESPAWN = 5
+    # Despawns after a specified time after death.
+    TEMP_SUMMON_CORPSE_TIMED_DESPAWN = 6
+    # Despawns when the creature disappears.
+    TEMP_SUMMON_DEAD_DESPAWN = 7
+    # Despawns when UnSummon() is called.
+    TEMP_SUMMON_MANUAL_DESPAWN = 8
+    # Despawns after a specified time (in or out of combat) OR when the creature disappears.
+    TEMP_SUMMON_TIMED_COMBAT_OR_DEAD_DESPAWN = 9
+    # Despawns after a specified time (in or out of combat) OR when the creature dies.
+    TEMP_SUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN = 10
+    # Dies after a specified time (in or out of combat) and despawns when creature disappears.
+    TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN = 11
+
+
 class MapTileStates(IntEnum):
     READY = 0
     LOADING = 1
