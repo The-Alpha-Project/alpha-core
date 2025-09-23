@@ -2061,6 +2061,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '28458');
         UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '301720');
         UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '301721');
+        
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1548 (Athrikus Narassin, use untextured NE model)
+        UPDATE `creature_template` SET `display_id1` = '55' WHERE (`entry` = '3660');
 
         insert into applied_updates values ('220920251');
     end if;
