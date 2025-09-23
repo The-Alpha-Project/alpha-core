@@ -2069,6 +2069,9 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1` = '1065' WHERE (`entry` = '503');
         UPDATE `spawns_creatures` SET `position_x` = '-10323.637', `position_y` = '180.844', `position_z` = '2.356', `orientation` = '2.524', `ignored` = '0' WHERE (`spawn_id` = '5037');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1539 (Spawn Sentinel Selarin, https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Darkshore/images_7455.jpg)
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400470', '3694', '1', '6433.88', '369.219', '13.941', '4.848', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+
         insert into applied_updates values ('220920251');
     end if;
 
