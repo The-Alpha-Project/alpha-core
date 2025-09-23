@@ -2065,6 +2065,10 @@ begin not atomic
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1548 (Athrikus Narassin, use untextured NE model)
         UPDATE `creature_template` SET `display_id1` = '55' WHERE (`entry` = '3660');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1547 (Lord Malathrom, fix display id and spawn)
+        UPDATE `creature_template` SET `display_id1` = '1065' WHERE (`entry` = '503');
+        UPDATE `spawns_creatures` SET `position_x` = '-10323.637', `position_y` = '180.844', `position_z` = '2.356', `orientation` = '2.524', `ignored` = '0' WHERE (`spawn_id` = '5037');
+
         insert into applied_updates values ('220920251');
     end if;
 
