@@ -2055,5 +2055,15 @@ begin not atomic
         insert into applied_updates values ('050920251');
     end if;
 
+    -- 22/09/2025 1
+    if (select count(*) from applied_updates where id='220920251') = 0 then
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1550
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '28458');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '301720');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '301721');
+
+        insert into applied_updates values ('220920251');
+    end if;
+
 end $
 delimiter ;
