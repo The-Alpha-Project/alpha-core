@@ -2055,5 +2055,45 @@ begin not atomic
         insert into applied_updates values ('050920251');
     end if;
 
+    -- 22/09/2025 1
+    if (select count(*) from applied_updates where id='220920251') = 0 then
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1550
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '28458');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '301720');
+        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '301721');
+        
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1548 (Athrikus Narassin, use untextured NE model)
+        UPDATE `creature_template` SET `display_id1` = '55' WHERE (`entry` = '3660');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1547 (Lord Malathrom, fix display id and spawn)
+        UPDATE `creature_template` SET `display_id1` = '1065' WHERE (`entry` = '503');
+        UPDATE `spawns_creatures` SET `position_x` = '-10323.637', `position_y` = '180.844', `position_z` = '2.356', `orientation` = '2.524', `ignored` = '0' WHERE (`spawn_id` = '5037');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1539 (Spawn Sentinel Selarin, https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Darkshore/images_7455.jpg)
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400470', '3694', '1', '6433.88', '369.219', '13.941', '4.848', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+
+        -- Stormwind City Guards (Say text upon /rude emote)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6805;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6805, 0, 0, 1, 25, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Emote Point'),
+        (6805, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1402, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Say Text');
+
+        -- Orgrimmar Grunts (Cast Backhand and say text uppon /rude emote)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=329604;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (329604, 0, 0, 15, 6753, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Cast Spell'),
+        (329604, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2106, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Say Text');
+
+        -- Events list for Orgrimmar Grunt
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3296;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329601, 3296, 2, 22, 0, 100, 1, 58, 0, 0, 0, 329601, 0, 0, 'Orgrimmar Grunt - Emote Flex on Received Emote Kiss');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329602, 3296, 2, 22, 0, 100, 1, 101, 0, 0, 0, 329602, 0, 0, 'Orgrimmar Grunt - Emote Wave on Received Emote Wave');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329603, 3296, 2, 22, 0, 100, 1, 78, 0, 0, 0, 329603, 0, 0, 'Orgrimmar Grunt - Emote Salute on Received Emote Salute');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329605, 3296, 0, 2, 0, 100, 0, 30, 1, 0, 0, 329605, 0, 0, 'Orgrimmar Grunt - Enrage at 30% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329606, 3296, 0, 22, 0, 100, 0, 77, 0, 0, 0, 329604, 0, 0, 'Orgrimmar Grunt - Cast Backhand and say text on Received Emote Rude');
+
+        insert into applied_updates values ('220920251');
+    end if;
+
 end $
 delimiter ;
