@@ -16,17 +16,8 @@ class SpellEffectDummyHandler:
 
         target.play_emote(Emotes.BOW)
 
-    @staticmethod
-    def handle_force_knock_down(casting_spell, effect, caster, target):
-        if not target.is_unit(by_mask=True):
-            return
-
-        if target.stand_state != StandState.UNIT_SLEEPING:
-            target.set_stand_state(StandState.UNIT_SLEEPING)
-
 
 DUMMY_SPELL_EFFECTS = {
     6245: SpellEffectDummyHandler.handle_force_target_salute,  # Force Target - Salute
-    6655: SpellEffectDummyHandler.handle_force_target_bow,  # Force Target - Bow
-    6753: SpellEffectDummyHandler.handle_force_knock_down  # Force Target - StandState Sleep
+    6655: SpellEffectDummyHandler.handle_force_target_bow  # Force Target - Bow
 }
