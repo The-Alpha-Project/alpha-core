@@ -28,6 +28,7 @@ from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateType
     ScriptTarget
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
+from collections import namedtuple
 from utils.ConfigManager import config
 from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
 
@@ -135,10 +136,17 @@ class ScriptHandler:
             return command.should_abort()
 
         chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
+
+        # Chat type override.
+        if command.datalong:
+            chat_type = command.datalong
+        else:
+            chat_type = broadcast_message.chat_type
+
         lang = broadcast_message.language_id
-        if broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
+        if chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_YELL
-        elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
+        elif chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
         
@@ -159,15 +167,14 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, {command.get_info()}.')
             return command.should_abort()
-        # Already doing it.
-        # TODO: Define event types in order to filter.
-        if command.source.movement_manager.has_spline_events():
+        # Abort if target is in combat, or already doing a targeted emote.
+        if command.source.in_combat or command.source.movement_manager.has_spline_events():
             return command.should_abort()
         emotes = ScriptHelpers.get_filtered_datalong(command)
-        if not emotes:
+        if not emotes and not command.dataint:
             return command.should_abort()
 
-        emote = random.choice(emotes)
+        emote = random.choice(emotes) if emotes else 0
 
         # Targeted emote.
         if command.dataint and command.target:
@@ -259,26 +266,47 @@ class ScriptHandler:
         #     FIELD_PLAYER_FLAGS               = 190,
         # };
 
-        flag_equivalences_5875_to_3368: dict[int, tuple[int, int, callable]] = {
-            # GAMEOBJECT_FLAGS
-            9: (GameObjectFields.GAMEOBJECT_FLAGS, command.source.flags, command.source.set_uint32)
-            if command.source.is_gameobject() else (None, None, None),
-            # GAMEOBJECT_DYN_FLAGS
-            19: (GameObjectFields.GAMEOBJECT_DYN_FLAGS, command.source.flags, command.source.set_uint32)
-            if command.source.is_gameobject() else (None, None, None),
-            # UNIT_FIELD_FLAGS
-            46: (UnitFields.UNIT_FIELD_FLAGS, command.source.unit_flags, command.source.set_unit_flag)
-            if command.source.is_unit() else (None, None, None),
-            # UNIT_DYNAMIC_FLAGS
-            143: (UnitFields.UNIT_DYNAMIC_FLAGS, command.source.dynamic_flags, command.source.set_dynamic_type_flag)
-            if command.source.is_unit() else (None, None, None),
-            # UNIT_NPC_FLAGS
-            147: (UnitFields.UNIT_FIELD_BYTES_1, command.source.npc_flags, command.source.set_npc_flag)
-            if command.source.is_unit() else (None, None, None),
-            # PLAYER_FLAGS
-            190: (PlayerFields.PLAYER_BYTES_2, command.source.player.extra_flags, command.source.player.set_extra_flag)
-            if command.source.is_player() else (None, None, None)
-        }
+        # Data helper.
+        FlagEquivalence = namedtuple('FlagEquivalence', ['field', 'flags', 'modify'])
+        # Initialize an empty dictionary.
+        flag_equivalences_5875_to_3368: dict[int, FlagEquivalence] = {}
+
+        # Add entries conditionally based on the source type.
+        if command.source.is_gameobject():
+            flag_equivalences_5875_to_3368[9] = FlagEquivalence(
+                GameObjectFields.GAMEOBJECT_FLAGS,
+                command.source.flags,
+                command.source.set_uint32
+            )
+            flag_equivalences_5875_to_3368[19] = FlagEquivalence(
+                GameObjectFields.GAMEOBJECT_DYN_FLAGS,
+                command.source.flags,
+                command.source.set_uint32
+            )
+
+        if command.source.is_unit():
+            flag_equivalences_5875_to_3368[46] = FlagEquivalence(
+                UnitFields.UNIT_FIELD_FLAGS,
+                command.source.unit_flags,
+                command.source.set_unit_flag
+            )
+            flag_equivalences_5875_to_3368[143] = FlagEquivalence(
+                UnitFields.UNIT_DYNAMIC_FLAGS,
+                command.source.dynamic_flags,
+                command.source.set_dynamic_type_flag
+            )
+            flag_equivalences_5875_to_3368[147] = FlagEquivalence(
+                UnitFields.UNIT_FIELD_BYTES_1,
+                command.source.npc_flags,
+                command.source.set_npc_flag
+            )
+
+        if command.source.is_player():
+            flag_equivalences_5875_to_3368[190] = FlagEquivalence(
+                PlayerFields.PLAYER_BYTES_2,
+                command.source.player.extra_flags,
+                command.source.player.set_extra_flag
+            )
 
         try:
             flag_data = flag_equivalences_5875_to_3368[command.datalong]
@@ -290,57 +318,68 @@ class ScriptHandler:
         # TODO: Finish adding more equivalences.
         # Value equivalences.  # TODO: Do this on loading?
         # Npc flags.
-        if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1:
+        if flag_data.field == UnitFields.UNIT_FIELD_BYTES_1:
+            # Mapping of bitmask to corresponding NpcFlags.
+            npc_flag_mapping = {
+                0x4: NpcFlags.NPC_FLAG_VENDOR,
+                0x2: NpcFlags.NPC_FLAG_QUESTGIVER,
+                0x8: NpcFlags.NPC_FLAG_FLIGHTMASTER,
+                0x10: NpcFlags.NPC_FLAG_TRAINER,
+                0x80: NpcFlags.NPC_FLAG_BINDER,
+                0x100: NpcFlags.NPC_FLAG_BANKER,
+                0x400: NpcFlags.NPC_FLAG_TABARDDESIGNER,
+                0x200: NpcFlags.NPC_FLAG_PETITIONER,
+            }
+
             npc_flags = 0x0
-            if command.datalong2 & 0x4:  # Vendor.
-                npc_flags |= NpcFlags.NPC_FLAG_VENDOR
-            if command.datalong2 & 0x2:  # Quest giver.
-                npc_flags |= NpcFlags.NPC_FLAG_QUESTGIVER
-            if command.datalong2 & 0x8:  # Flight master
-                npc_flags |= NpcFlags.NPC_FLAG_FLIGHTMASTER
-            if command.datalong2 & 0x10:  # Trainer.
-                npc_flags |= NpcFlags.NPC_FLAG_TRAINER
-            if command.datalong2 & 0x80:  # Innkeeper.
-                npc_flags |= NpcFlags.NPC_FLAG_BINDER
-            if command.datalong2 & 0x100:  # Banker.
-                npc_flags |= NpcFlags.NPC_FLAG_BANKER
-            if command.datalong2 & 0x400:  # Tabard designer.
-                npc_flags |= NpcFlags.NPC_FLAG_TABARDDESIGNER
-            if command.datalong2 & 0x200:  # Petitioner.
-                npc_flags |= NpcFlags.NPC_FLAG_PETITIONER
+            for bitmask, flag in npc_flag_mapping.items():
+                if command.datalong2 & bitmask:
+                    npc_flags |= flag
+
             command.datalong2 = npc_flags
         # Player extra flags.
-        elif flag_data[0] == PlayerFields.PLAYER_BYTES_2:
-            # TODO: Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
+        elif flag_data.field == PlayerFields.PLAYER_BYTES_2:
+            # Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
             return command.should_abort()
 
-        # Set flag.
-        if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
-            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
-                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
-                flag_data[2](command.datalong2)
+        special_fields = {
+            UnitFields.UNIT_FIELD_BYTES_1,
+            UnitFields.UNIT_FIELD_FLAGS,
+            UnitFields.UNIT_DYNAMIC_FLAGS,
+            PlayerFields.PLAYER_BYTES_2
+        }
+
+        def set_flag():
+            if flag_data.field in special_fields:
+                flag_data.modify(command.datalong2)
             else:
-                flag_data[2](flag_data[0], command.datalong2)
-        # Remove flag.
-        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
-            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
-                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
-                flag_data[2](command.datalong2, False)
+                flag_data.modify(flag_data.field, command.datalong2)
+
+        def remove_flag():
+            if flag_data.field in special_fields:
+                flag_data.modify(command.datalong2, False)
             else:
-                flag_data[2](flag_data[0], flag_data[1] & ~command.datalong2)
-        # Toggle flag.
-        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_TOGGLE:
-            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
-                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
-                # Second param means: if flag exists, remove (and viceversa).
-                flag_data[2](command.datalong2, not flag_data[1] & command.datalong2)
+                flag_data.modify(flag_data.field, flag_data.flags & ~command.datalong2)
+
+        def toggle_flag():
+            if flag_data.field in special_fields:
+                # Second param: toggle based on whether flag is currently set.
+                flag_data.modify(command.datalong2, not (flag_data.flags & command.datalong2))
             else:
-                # Flag enabled, disable,
-                if flag_data[1] & command.datalong2:
-                    flag_data[2](flag_data[0], flag_data[1] & ~command.datalong2)
-                # Flag disabled, enable.
+                if flag_data.flags & command.datalong2:
+                    # Flag is enabled, disable it.
+                    flag_data.modify(flag_data.field, flag_data.flags & ~command.datalong2)
                 else:
-                    flag_data[2](flag_data[0], command.datalong2)
+                    # Flag is disabled, enable it.
+                    flag_data.modify(flag_data.field, command.datalong2)
+
+        # Modify flag.
+        if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
+            set_flag()
+        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
+            remove_flag()
+        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_TOGGLE:
+            toggle_flag()
 
         return False
 
@@ -720,8 +759,6 @@ class ScriptHandler:
         # o = angle (only for some motion types)
         source = command.source if command.source else command.target
         target = command.target if command.target else command.source
-        clear = command.datalong4 != 0
-        bool_param = command.datalong2 != 0
 
         if not target:
             Logger.warning(f'ScriptHandler: No target found, {command.get_info()}.')
@@ -730,45 +767,87 @@ class ScriptHandler:
         if not source.is_alive:
             return command.should_abort()
 
+        clear = command.datalong4 != 0
+        bool_param = command.datalong2 != 0
         motion_type = MotionTypes(command.datalong)
-        if motion_type == MotionTypes.IDLE_MOTION_TYPE:
-            # We don't have Idle, closest is not to have a behavior set.
+
+        # Helper to flush movement manager.
+        def flush_movement():
             source.movement_manager.flush()
-        elif motion_type == MotionTypes.RANDOM_MOTION_TYPE:
+
+        # Handler functions for each motion type.
+        def handle_idle():
+            flush_movement()
+            return False
+
+        def handle_random():
             if clear:
-                source.movement_manager.flush()
+                flush_movement()
             wandering_distance = command.x if command.x else 0
             source.movement_manager.move_wander(use_current_position=bool_param, wandering_distance=wandering_distance)
-            return command.should_abort()
-        elif motion_type == MotionTypes.WAYPOINT_MOTION_TYPE:
+            return False
+
+        def handle_waypoint():
             if clear:
-                source.movement_manager.flush()
-            move_info = CommandMoveInfo(wp_source=WaypointPathOrigin.PATH_NO_PATH, start_point=command.datalong3,
-                                        initial_delay=0, repeat=bool_param, overwrite_entry=0, overwrite_guid=0)
+                flush_movement()
+
+            move_info = CommandMoveInfo(
+                wp_source=WaypointPathOrigin.PATH_NO_PATH,
+                start_point=command.datalong3,
+                initial_delay=0,
+                repeat=bool_param,
+                overwrite_entry=0,
+                overwrite_guid=0
+            )
             command.source.movement_manager.move_automatic_waypoints_from_script(command_move_info=move_info)
-        elif motion_type == MotionTypes.CONFUSED_MOTION_TYPE:
+            return False
+
+        def handle_confused():
             if clear:
-                source.movement_manager.flush()
-            command.source.movement_manager.move_confused()
-            return command.should_abort()
-        elif motion_type == MotionTypes.CHASE_MOTION_TYPE:
+                flush_movement()
+            source.movement_manager.move_confused()
+            return False
+
+        def handle_chase():
             #  TODO: Check VMaNGOS, for now, just trigger combat through threat if source has no target.
-            if not source.combat_target and target and target != source:
+            if not source.combat_target and target != source:
                 source.threat_manager.add_threat(target)
-        elif motion_type == MotionTypes.HOME_MOTION_TYPE:
+            return False
+
+        def handle_home():
             source.leave_combat()
-        elif motion_type == MotionTypes.FLEEING_MOTION_TYPE:
+            return False
+
+        def handle_flee():
             source.movement_manager.move_fear(command.datalong3, target=target)
-        elif motion_type == MotionTypes.DISTRACT_MOTION_TYPE:
+            return False
+
+        def handle_distracted():
             source.movement_manager.move_distracted(command.datalong3)
-        elif motion_type == MotionTypes.FOLLOW_MOTION_TYPE:
-            Logger.warning('ScriptHandler: handle_script_command_movement, FOLLOW motion type not implemented yet')
+            return False
+
+        def handle_not_implemented():
+            Logger.warning(f'ScriptHandler: handle_script_command_movement, {motion_type} not implemented yet')
             return command.should_abort()
-        elif motion_type == MotionTypes.CHARGE_MOTION_TYPE:
-            Logger.warning('ScriptHandler: handle_script_command_movement, CHARGE motion type not implemented yet')
-            return command.should_abort()
-        else:
-            return command.should_abort()
+
+        # Map motion types to handler functions
+        motion_handlers = {
+            MotionTypes.IDLE_MOTION_TYPE: handle_idle,
+            MotionTypes.RANDOM_MOTION_TYPE: handle_random,
+            MotionTypes.WAYPOINT_MOTION_TYPE: handle_waypoint,
+            MotionTypes.CONFUSED_MOTION_TYPE: handle_confused,
+            MotionTypes.CHASE_MOTION_TYPE: handle_chase,
+            MotionTypes.HOME_MOTION_TYPE: handle_home,
+            MotionTypes.FLEEING_MOTION_TYPE: handle_flee,
+            MotionTypes.DISTRACT_MOTION_TYPE: handle_distracted,
+            MotionTypes.FOLLOW_MOTION_TYPE: handle_not_implemented,
+            MotionTypes.CHARGE_MOTION_TYPE: handle_not_implemented,
+        }
+
+        # Execute handler or abort result for unknown types.
+        handler = motion_handlers.get(motion_type, None)
+
+        return handler() if handler else command.should_abort()
 
     @staticmethod
     def handle_script_command_set_activeobject(command):

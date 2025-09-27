@@ -88,6 +88,8 @@ class MovementManager:
     def update(self, now, elapsed):
         is_resume = self._handle_ooc_pause(elapsed)
 
+        self._update_spline_events(elapsed)
+
         if not self._can_move():
             self.stop()
             return
@@ -98,9 +100,9 @@ class MovementManager:
         current_behavior = self.get_current_behavior()
 
         if not current_behavior:
-            self._update_spline_events(elapsed)
             return
-        elif self.spline_events:
+
+        if self.spline_events:
             self.spline_events.clear()
 
         # Resuming or cascaded into a previous movement, reset.
@@ -240,7 +242,7 @@ class MovementManager:
         [self.add_spline_event(event) for event in events]
 
     def has_spline_events(self):
-        return self.spline_events
+        return len(self.spline_events) > 0
 
     def _update_spline_events(self, elapsed):
         if not self.spline_events:

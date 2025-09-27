@@ -2095,5 +2095,128 @@ begin not atomic
         insert into applied_updates values ('220920251');
     end if;
 
+    -- 26/09/2025 1
+    if (select count(*) from applied_updates where id='260920251') = 0 then
+
+        -- Events list for Stormwind City Guard
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=68;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6801, 68, 3, 22, 0, 100, 1, 58, 0, 0, 0, 6801, 0, 0, 'Stormwind City Guard - Emote Bow on Received Emote Kiss');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6802, 68, 3, 22, 0, 100, 1, 101, 0, 0, 0, 6802, 0, 0, 'Stormwind City Guard - Emote Wave on Received Emote Wave');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6803, 68, 3, 22, 0, 100, 1, 78, 0, 0, 0, 6803, 0, 0, 'Stormwind City Guard - Emote Salute on Received Emote Salute');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6804, 68, 3, 22, 0, 100, 1, 84, 0, 0, 0, 6804, 0, 0, 'Stormwind City Guard - Emote Flex on Received Emote Shy');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6805, 68, 3, 22, 0, 100, 1, 77, 0, 0, 0, 6805, 0, 0, 'Stormwind City Guard - Emote Point on Received Emote Rude');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6806, 68, 3, 22, 0, 100, 1, 22, 0, 0, 0, 6806, 0, 0, 'Stormwind City Guard - Emote Point on Received Emote Chicken');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6807, 68, 3, 22, 0, 100, 1, 17, 0, 0, 0, 6807, 0, 0, 'Stormwind City Guard - Emote Bow on Received Emote Bow');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6801, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Emote Bow');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6802, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Emote Wave');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6803;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6803, 0, 0, 1, 66, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Emote Salute');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6804;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6804, 0, 0, 1, 23, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Emote Flex');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6805;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6805, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Emote (Face target)'),
+        (6805, 0, 0, 39, 68051, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Start Script - Say delayed text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6806;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6806, 0, 0, 1, 25, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stomwind City Guard - Emote Point');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6807;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6807, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Emote Bow');
+
+        -- Events list for Stormwind City Patroller
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1976;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (197601, 1976, 3, 22, 0, 100, 1, 58, 0, 0, 0, 197601, 0, 0, 'Stormwind City Patroller - Emote Bow on Received Emote Kiss');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (197602, 1976, 3, 22, 0, 100, 1, 101, 0, 0, 0, 197602, 0, 0, 'Stormwind City Patroller - Emote Wave on Received Emote Wave');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (197603, 1976, 3, 22, 0, 100, 1, 78, 0, 0, 0, 197603, 0, 0, 'Stormwind City Patroller - Emote Salute on Received Emote Salute');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (197604, 1976, 3, 22, 0, 100, 1, 84, 0, 0, 0, 197604, 0, 0, 'Stormwind City Patroller - Emote Flex on Received Emote Shy');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (197605, 1976, 3, 22, 0, 100, 1, 77, 0, 0, 0, 197605, 0, 0, 'Stormwind City Patroller - Emote Point on Received Emote Rude');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (197606, 1976, 3, 22, 0, 100, 1, 22, 0, 0, 0, 197606, 0, 0, 'Stormwind City Patroller - Emote Point on Received Emote Chicken');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (197607, 1976, 3, 22, 0, 100, 1, 17, 0, 0, 0, 197607, 0, 0, 'Stormwind City Patroller - Emote Bow on Received Emote Bow');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (197601, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Emote Bow');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (197602, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Emote Wave');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197603;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (197603, 0, 0, 1, 66, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Emote Salute');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197604;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (197604, 0, 0, 1, 23, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Emote Flex');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197605;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (197605, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Emote (Face target)'),
+        (197605, 0, 0, 39, 1976051, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Start Script - Say text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197606;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (197606, 0, 0, 1, 25, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stomwind City Patroller - Emote Point');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197607;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (197607, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Emote Bow');
+
+        DELETE FROM `generic_scripts` WHERE `id`=68051;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (68051, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1402, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Guard - Say text upon rude emote.');
+
+        DELETE FROM `generic_scripts` WHERE `id`=1976051;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1976051, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1402, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormwind City Patroller - Say text upon rude emote.');
+
+        -- Events list for Orgrimmar Grunt
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3296;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329601, 3296, 2, 22, 0, 100, 1, 58, 0, 0, 0, 329601, 0, 0, 'Orgrimmar Grunt - Emote Flex on Received Emote Kiss');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329602, 3296, 2, 22, 0, 100, 1, 101, 0, 0, 0, 329602, 0, 0, 'Orgrimmar Grunt - Emote Wave on Received Emote Wave');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329603, 3296, 2, 22, 0, 100, 1, 78, 0, 0, 0, 329603, 0, 0, 'Orgrimmar Grunt - Emote Salute on Received Emote Salute');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329605, 3296, 0, 2, 0, 100, 0, 30, 1, 0, 0, 329605, 0, 0, 'Orgrimmar Grunt - Enrage at 30% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329606, 3296, 2, 22, 0, 100, 1, 77, 0, 0, 0, 329604, 0, 0, 'Orgrimmar Grunt - Cast Slap and say text on Received Emote Rude');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (329607, 3296, 2, 22, 0, 100, 1, 17, 0, 0, 0, 329606, 0, 0, 'Orgrimmar Grunt - Emote Bow on Received Emote Bow');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=329601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (329601, 0, 0, 1, 23, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Emote Flex');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=329602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (329602, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Emote Wave');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=329603;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (329603, 0, 0, 1, 66, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Emote Salute');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=329604;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (329604, 0, 0, 15, 6754, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Cast Spell'),
+        (329604, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2105, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Emote Text'),
+        (329604, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2106, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Say Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=329606;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (329606, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Orgrimmar Grunt - Emote Bow');
+
+        insert into applied_updates values ('260920251');
+    end if;
+
 end $
 delimiter ;
