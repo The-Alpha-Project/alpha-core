@@ -135,10 +135,17 @@ class ScriptHandler:
             return command.should_abort()
 
         chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
+
+        # Chat type override.
+        if command.datalong:
+            chat_type = command.datalong
+        else:
+            chat_type = broadcast_message.chat_type
+
         lang = broadcast_message.language_id
-        if broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
+        if chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_YELL
-        elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
+        elif chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
         
@@ -159,15 +166,14 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, {command.get_info()}.')
             return command.should_abort()
-        # Already doing it.
-        # TODO: Define event types in order to filter.
-        if command.source.movement_manager.has_spline_events():
+        # Abort if target is in combat, or already doing a targeted emote.
+        if command.source.in_combat or command.source.movement_manager.has_spline_events():
             return command.should_abort()
         emotes = ScriptHelpers.get_filtered_datalong(command)
-        if not emotes:
+        if not emotes and not command.dataint:
             return command.should_abort()
 
-        emote = random.choice(emotes)
+        emote = random.choice(emotes) if emotes else 0
 
         # Targeted emote.
         if command.dataint and command.target:
