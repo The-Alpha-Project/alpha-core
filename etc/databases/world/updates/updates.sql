@@ -2097,6 +2097,7 @@ begin not atomic
 
     -- 26/09/2025 1
     if (select count(*) from applied_updates where id='260920251') = 0 then
+
         -- Events list for Stormwind City Guard
         DELETE FROM `creature_ai_events` WHERE `creature_id`=68;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (6801, 68, 3, 22, 0, 100, 1, 58, 0, 0, 0, 6801, 0, 0, 'Stormwind City Guard - Emote Bow on Received Emote Kiss');
