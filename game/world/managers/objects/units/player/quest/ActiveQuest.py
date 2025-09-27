@@ -326,31 +326,42 @@ class ActiveQuest:
     # Last bit ON (LittleEndian) = Failed
     # Bit before last ON (LE) = Completed
     def get_progress(self):
+        # If the quest has failed, return a special high bit value.
         if self.failed:
             return 1 << 31
 
         total_count = 0
-        # Creature or gameobject.
-        req_creature_or_go = QuestHelpers.generate_req_unit_or_go_list(self.quest)
-        req_creature_or_go_count = QuestHelpers.generate_req_unit_or_go_count_list(self.quest)
+
+        # Generate the list of required units (creatures or gameobjects).
+        req_units = QuestHelpers.generate_req_unit_or_go_list(self.quest)
+        req_counts = QuestHelpers.generate_req_unit_or_go_count_list(self.quest)
+
+        # Keep track of the cumulative offset for bits.
         offset = 0
-        for index, creature_or_go in enumerate(req_creature_or_go):
+
+        for index, (unit, required_count) in enumerate(zip(req_units, req_counts)):
             current_count = getattr(self.db_state, f'mobcount{index + 1}')
-            required = req_creature_or_go_count[index]
-            # Consider how many bits the previous creature required.
-            offset += req_creature_or_go_count[index - 1] if index > 0 else 0
 
-            for i in range(required):
-                if i < current_count:  # Turn on actual kills
-                    total_count += (1 & 1) << (1 * i) + offset
-                else:  # Fill remaining 0s (Missing kills)
-                    total_count += 0 << (1 * i) + offset
+            # Add the previous requirement count to offset for correct bit position.
+            if index > 0:
+                offset += req_counts[index - 1]
 
-        # Handle exploration / event. (Read 'Extras')
+            for i in range(required_count):
+                # Calculate the bit position for the current kill count.
+                bit_position = offset + i
+
+                if i < current_count:
+                    # Turn on the bit representing a kill.
+                    total_count |= 1 << bit_position
+                else:
+                    # Kill count not reached; bit remains 0 (implicitly).
+                    pass
+
+        # Handle exploration or event quests.
         if QuestHelpers.is_exploration_or_event(self.quest) and self.db_state.explored:
-            total_count += 1 << 30
+            total_count |= 1 << 30
 
-        # Debug, enable this to take a look on what's happening at bit level.
+        # Debug: Uncomment the following line to inspect the bit pattern.
         # Logger.debug(f'{bin(total_count)[2:].zfill(32)}')
 
         return total_count
