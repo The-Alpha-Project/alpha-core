@@ -28,6 +28,7 @@ from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateType
     ScriptTarget
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
+from collections import namedtuple
 from utils.ConfigManager import config
 from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
 
@@ -265,26 +266,47 @@ class ScriptHandler:
         #     FIELD_PLAYER_FLAGS               = 190,
         # };
 
-        flag_equivalences_5875_to_3368: dict[int, tuple[int, int, callable]] = {
-            # GAMEOBJECT_FLAGS
-            9: (GameObjectFields.GAMEOBJECT_FLAGS, command.source.flags, command.source.set_uint32)
-            if command.source.is_gameobject() else (None, None, None),
-            # GAMEOBJECT_DYN_FLAGS
-            19: (GameObjectFields.GAMEOBJECT_DYN_FLAGS, command.source.flags, command.source.set_uint32)
-            if command.source.is_gameobject() else (None, None, None),
-            # UNIT_FIELD_FLAGS
-            46: (UnitFields.UNIT_FIELD_FLAGS, command.source.unit_flags, command.source.set_unit_flag)
-            if command.source.is_unit() else (None, None, None),
-            # UNIT_DYNAMIC_FLAGS
-            143: (UnitFields.UNIT_DYNAMIC_FLAGS, command.source.dynamic_flags, command.source.set_dynamic_type_flag)
-            if command.source.is_unit() else (None, None, None),
-            # UNIT_NPC_FLAGS
-            147: (UnitFields.UNIT_FIELD_BYTES_1, command.source.npc_flags, command.source.set_npc_flag)
-            if command.source.is_unit() else (None, None, None),
-            # PLAYER_FLAGS
-            190: (PlayerFields.PLAYER_BYTES_2, command.source.player.extra_flags, command.source.player.set_extra_flag)
-            if command.source.is_player() else (None, None, None)
-        }
+        # Data helper.
+        FlagEquivalence = namedtuple('FlagEquivalence', ['field', 'flags', 'modify'])
+        # Initialize an empty dictionary.
+        flag_equivalences_5875_to_3368: dict[int, FlagEquivalence] = {}
+
+        # Add entries conditionally based on the source type.
+        if command.source.is_gameobject():
+            flag_equivalences_5875_to_3368[9] = FlagEquivalence(
+                GameObjectFields.GAMEOBJECT_FLAGS,
+                command.source.flags,
+                command.source.set_uint32
+            )
+            flag_equivalences_5875_to_3368[19] = FlagEquivalence(
+                GameObjectFields.GAMEOBJECT_DYN_FLAGS,
+                command.source.flags,
+                command.source.set_uint32
+            )
+
+        if command.source.is_unit():
+            flag_equivalences_5875_to_3368[46] = FlagEquivalence(
+                UnitFields.UNIT_FIELD_FLAGS,
+                command.source.unit_flags,
+                command.source.set_unit_flag
+            )
+            flag_equivalences_5875_to_3368[143] = FlagEquivalence(
+                UnitFields.UNIT_DYNAMIC_FLAGS,
+                command.source.dynamic_flags,
+                command.source.set_dynamic_type_flag
+            )
+            flag_equivalences_5875_to_3368[147] = FlagEquivalence(
+                UnitFields.UNIT_FIELD_BYTES_1,
+                command.source.npc_flags,
+                command.source.set_npc_flag
+            )
+
+        if command.source.is_player():
+            flag_equivalences_5875_to_3368[190] = FlagEquivalence(
+                PlayerFields.PLAYER_BYTES_2,
+                command.source.player.extra_flags,
+                command.source.player.set_extra_flag
+            )
 
         try:
             flag_data = flag_equivalences_5875_to_3368[command.datalong]
@@ -296,57 +318,68 @@ class ScriptHandler:
         # TODO: Finish adding more equivalences.
         # Value equivalences.  # TODO: Do this on loading?
         # Npc flags.
-        if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1:
+        if flag_data.field == UnitFields.UNIT_FIELD_BYTES_1:
+            # Mapping of bitmask to corresponding NpcFlags.
+            npc_flag_mapping = {
+                0x4: NpcFlags.NPC_FLAG_VENDOR,
+                0x2: NpcFlags.NPC_FLAG_QUESTGIVER,
+                0x8: NpcFlags.NPC_FLAG_FLIGHTMASTER,
+                0x10: NpcFlags.NPC_FLAG_TRAINER,
+                0x80: NpcFlags.NPC_FLAG_BINDER,
+                0x100: NpcFlags.NPC_FLAG_BANKER,
+                0x400: NpcFlags.NPC_FLAG_TABARDDESIGNER,
+                0x200: NpcFlags.NPC_FLAG_PETITIONER,
+            }
+
             npc_flags = 0x0
-            if command.datalong2 & 0x4:  # Vendor.
-                npc_flags |= NpcFlags.NPC_FLAG_VENDOR
-            if command.datalong2 & 0x2:  # Quest giver.
-                npc_flags |= NpcFlags.NPC_FLAG_QUESTGIVER
-            if command.datalong2 & 0x8:  # Flight master
-                npc_flags |= NpcFlags.NPC_FLAG_FLIGHTMASTER
-            if command.datalong2 & 0x10:  # Trainer.
-                npc_flags |= NpcFlags.NPC_FLAG_TRAINER
-            if command.datalong2 & 0x80:  # Innkeeper.
-                npc_flags |= NpcFlags.NPC_FLAG_BINDER
-            if command.datalong2 & 0x100:  # Banker.
-                npc_flags |= NpcFlags.NPC_FLAG_BANKER
-            if command.datalong2 & 0x400:  # Tabard designer.
-                npc_flags |= NpcFlags.NPC_FLAG_TABARDDESIGNER
-            if command.datalong2 & 0x200:  # Petitioner.
-                npc_flags |= NpcFlags.NPC_FLAG_PETITIONER
+            for bitmask, flag in npc_flag_mapping.items():
+                if command.datalong2 & bitmask:
+                    npc_flags |= flag
+
             command.datalong2 = npc_flags
         # Player extra flags.
-        elif flag_data[0] == PlayerFields.PLAYER_BYTES_2:
-            # TODO: Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
+        elif flag_data.field == PlayerFields.PLAYER_BYTES_2:
+            # Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
             return command.should_abort()
 
-        # Set flag.
-        if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
-            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
-                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
-                flag_data[2](command.datalong2)
+        special_fields = {
+            UnitFields.UNIT_FIELD_BYTES_1,
+            UnitFields.UNIT_FIELD_FLAGS,
+            UnitFields.UNIT_DYNAMIC_FLAGS,
+            PlayerFields.PLAYER_BYTES_2
+        }
+
+        def set_flag():
+            if flag_data.field in special_fields:
+                flag_data.modify(command.datalong2)
             else:
-                flag_data[2](flag_data[0], command.datalong2)
-        # Remove flag.
-        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
-            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
-                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
-                flag_data[2](command.datalong2, False)
+                flag_data.modify(flag_data.field, command.datalong2)
+
+        def remove_flag():
+            if flag_data.field in special_fields:
+                flag_data.modify(command.datalong2, False)
             else:
-                flag_data[2](flag_data[0], flag_data[1] & ~command.datalong2)
-        # Toggle flag.
-        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_TOGGLE:
-            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
-                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
-                # Second param means: if flag exists, remove (and viceversa).
-                flag_data[2](command.datalong2, not flag_data[1] & command.datalong2)
+                flag_data.modify(flag_data.field, flag_data.flags & ~command.datalong2)
+
+        def toggle_flag():
+            if flag_data.field in special_fields:
+                # Second param: toggle based on whether flag is currently set.
+                flag_data.modify(command.datalong2, not (flag_data.flags & command.datalong2))
             else:
-                # Flag enabled, disable,
-                if flag_data[1] & command.datalong2:
-                    flag_data[2](flag_data[0], flag_data[1] & ~command.datalong2)
-                # Flag disabled, enable.
+                if flag_data.flags & command.datalong2:
+                    # Flag is enabled, disable it.
+                    flag_data.modify(flag_data.field, flag_data.flags & ~command.datalong2)
                 else:
-                    flag_data[2](flag_data[0], command.datalong2)
+                    # Flag is disabled, enable it.
+                    flag_data.modify(flag_data.field, command.datalong2)
+
+        # Modify flag.
+        if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
+            set_flag()
+        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
+            remove_flag()
+        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_TOGGLE:
+            toggle_flag()
 
         return False
 
