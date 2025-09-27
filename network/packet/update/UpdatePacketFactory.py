@@ -62,7 +62,7 @@ class UpdatePacketFactory(object):
                     field_str_value = f"[{field_index}] {update_field.name}_{offset} - [{update_field.flags.name}]"
                     # Store debugging info for each field.
                     DEBUG_INFORMATION[fields_type][field_index] = field_str_value
-                       # Store the encapsulation flags for the field.
+                    # Store the encapsulation flags for the field.
                     FIELDS_ENCAPSULATION[fields_type][field_index] = update_field.flags
 
         return FIELDS_ENCAPSULATION[fields_type]
