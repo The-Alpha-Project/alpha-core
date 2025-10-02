@@ -1,21 +1,16 @@
-from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
-from game.world.managers.maps.helpers.MapUtils import MapUtils
+from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE, CellUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from threading import RLock
 
 
 class Cell:
-    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_id=0, instance_id=0, key=''):
-        self.min_x = min_x
-        self.min_y = min_y
-        self.max_x = max_x
-        self.max_y = max_y
-        self.mid_x = (min_x + max_x) / 2
-        self.mid_y = (min_y + max_y) / 2
+    def __init__(self, cell_x=0, cell_y=0, map_id=0, instance_id=0, key=''):
         self.map_id = map_id
         self.instance_id = instance_id
         self.key = key
-        self.adt_x, self.adt_y = MapUtils.get_tile(self.mid_x, self.mid_y)
+        self.cell_x = cell_x
+        self.cell_y = cell_y
+        self.adt_x, self.adt_y = CellUtils.cell_to_adt(cell_x, cell_y)
         self.adt_key = f'{self.adt_x},{self.adt_y}'
         # Cell lock.
         self.cell_lock = RLock()
@@ -31,8 +26,7 @@ class Cell:
         self.gameobject_spawns = dict()
 
         if not key:
-            self.key = (f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:'
-                        f'{self.map_id}:{self.instance_id}')
+            self.key = f'{cell_x}:{cell_y}:{self.map_id}:{self.instance_id}'
 
         self.hash = hash(self.key)
 
@@ -40,24 +34,26 @@ class Cell:
         return self.hash
 
     def get_players(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.players.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+        return Cell._get_objects(caller, self.players, visibility_range)
 
     def get_creatures(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.creatures.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+        return Cell._get_objects(caller, self.creatures, visibility_range)
 
     def get_gameobjects(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.gameobjects.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+        return Cell._get_objects(caller, self.gameobjects, visibility_range)
 
     def get_dynamic_objects(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.dynamic_objects.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+        return Cell._get_objects(caller, self.dynamic_objects, visibility_range)
 
     def get_corpses(self, caller, visibility_range=True):
-        return {k: v for k, v in list(self.corpses.items())
-                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+        return Cell._get_objects(caller, self.corpses, visibility_range)
+
+    @staticmethod
+    def _get_objects(self, source, collection, visibility_range=True):
+        if visibility_range:
+            return {k: v for k, v in list(collection.items()) if Cell._object_in_visible_range(source, v)}
+        else:
+            return dict(collection)  # return a copy of the collection
 
     @staticmethod
     def _object_in_visible_range(source, world_object):
@@ -68,18 +64,6 @@ class Cell:
 
     def has_cameras(self):
         return FarSightManager.has_camera_in_cell(self)
-
-    def contains(self, world_object=None, vector=None, map_id=None, instance_id=None):
-        if world_object:
-            vector = world_object.location
-            map_id = world_object.map_id
-            instance_id = world_object.instance_id
-
-        if vector and map_id:
-            return self.min_x <= round(vector.x, 5) <= self.max_x and \
-                   self.min_y <= round(vector.y, 5) <= self.max_y and \
-                   map_id == self.map_id and instance_id == self.instance_id
-        return False
 
     def add_world_object_spawn(self, world_object_spawn):
         from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn

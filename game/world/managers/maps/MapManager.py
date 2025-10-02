@@ -4,6 +4,7 @@ from functools import lru_cache
 from multiprocessing import RLock
 from os import path
 import time
+import gc
 
 import _queue
 from random import choice
@@ -138,7 +139,7 @@ class MapManager:
                 MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)
 
         Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
-        return True
+        return
 
     @staticmethod
     def initialize_pending_tiles():
@@ -229,6 +230,9 @@ class MapManager:
         adt_key = f'{map_id},{adt_x},{adt_y}'
         if adt_key in PENDING_TILE_INITIALIZATION:
             del PENDING_TILE_INITIALIZATION[adt_key]
+
+        collected_objects = gc.collect()  # Force collect on all generations.
+        Logger.debug(f'[GC] Collected {collected_objects} objects.')
 
     @staticmethod
     def validate_map_files():
@@ -401,6 +405,9 @@ class MapManager:
         # We don't have navs loaded for a given map, return end vector.
         namigator = MAPS_NAMIGATOR.get(map_id, None)
         if not namigator:
+            return False, False, [dst_loc]
+
+        if src_loc == dst_loc:
             return False, False, [dst_loc]
 
         # Calculate source adt coordinates for x,y.
