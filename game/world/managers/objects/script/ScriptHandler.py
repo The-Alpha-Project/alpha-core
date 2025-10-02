@@ -13,6 +13,7 @@ from game.world.managers.objects.script.Script import Script
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
 from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
 from game.world.managers.objects.units.movement.helpers.CommandMoveInfo import CommandMoveInfo
 from game.world.managers.objects.units.movement.helpers.SplineEvent import SplineRestoreOrientationEvent, \
@@ -1088,7 +1089,8 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Unable to locate spawn, {command.get_info()}.')
             return command.should_abort()
 
-        command.source.spawn_position = spawn.get_default_location()
+        if isinstance(spawn, CreatureSpawn):
+            command.source.spawn_position = spawn.get_default_location()
 
         return False
 
