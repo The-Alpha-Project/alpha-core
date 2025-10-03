@@ -11,6 +11,7 @@ from game.world.managers.objects.gameobjects.managers.GooberManager import Goobe
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.Script import Script
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
+from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
@@ -863,7 +864,7 @@ class ScriptHandler:
         # source = Creature
         # datalong = faction_Id,
         # datalong2 = see enum TemporaryFactionFlags
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or not command.source.is_unit(by_mask=True):
             Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
             return command.should_abort()
         if not command.datalong:
@@ -878,7 +879,7 @@ class ScriptHandler:
         # source = Unit
         # datalong = creature_id/display_id (depend on datalong2)
         # datalong2 = (bool) is_display_id
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or not command.source.is_unit(by_mask=True):
             Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
             return command.should_abort()
 
@@ -910,7 +911,7 @@ class ScriptHandler:
         # datalong = creature_id/display_id (depend on datalong2)
         # datalong2 = (bool) is_display_id
         # datalong3 = (bool) permanent
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or not command.source.is_unit(by_mask=True):
             Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
             return command.should_abort()
 
@@ -939,7 +940,7 @@ class ScriptHandler:
     def handle_script_command_set_run(command):
         # source = Creature
         # datalong = (bool) 0 = off, 1 = on
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or not command.source.is_unit(by_mask=True):
             Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
             return command.should_abort()
 
@@ -1005,9 +1006,19 @@ class ScriptHandler:
         # source = Creature
         # datalong = eModifyThreatTargets
         # x = percent
-        Logger.debug('ScriptHandler: handle_script_command_modify_threat not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
+            return command.should_abort()
 
-        return command.should_abort()
+        if command.datalong == 8:  #  SO_MODIFYTHREAT_ALL_ATTACKERS.
+            for unit in command.source.threat_manager.get_threat_holder_units():
+                command.source.threat_manager.modify_thread_percent(unit, command.x)
+        else:
+            target = ScriptManager.get_target_by_type(command.source, command.target, command.datalong)
+            if target:
+                command.source.threat_manager.modify_thread_percent(target, command.x)
+
+        return False
 
     @staticmethod
     def handle_script_command_terminate_script(command):
@@ -1015,9 +1026,24 @@ class ScriptHandler:
         # datalong = creature_entry
         # datalong2 = search_distance
         # datalong3 = eTerminateScriptOptions
-        Logger.debug('ScriptHandler: handle_script_command_terminate_script not implemented yet')
+        searcher = command.source or command.target
+        if not searcher:
+            if not command.source or not command.source.is_unit():
+                Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
+                return command.should_abort()
 
-        return command.should_abort()
+        if command.datalong:
+            target = ScriptManager.resolve_nearest_creature_with_entry(caster=searcher, param1=command.datalong,
+                                                                       param2=command.datalong2)
+
+            if not target and command.datalong3 == 0:
+                return True  # Abort when not found.
+            elif target and command.datalong3 == 1:
+                return True  # Abort when found.
+        else:
+            return True
+
+        return False
 
     @staticmethod
     def handle_script_command_terminate_condition(command):
@@ -1162,9 +1188,14 @@ class ScriptHandler:
     def handle_script_command_remove_object(command):
         # source = GameObject
         # target = Unit
-        Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
+        target = command.target or command.source
+        if not target:
+            Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
+            return command.should_abort()
 
-        return command.should_abort()
+        target.get_map().remove_object(target)
+
+        return False
 
     @staticmethod
     def handle_script_command_set_melee_attack(command):
@@ -1270,7 +1301,7 @@ class ScriptHandler:
             damage_to_deal = command.datalong
 
         if damage_to_deal > 0:
-            attacker = command.source if command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else None
+            attacker = command.source if command.source.is_unit(by_mask=True) else None
             damage_info = DamageInfoHolder(attacker=attacker, target=command.target, total_damage=damage_to_deal,
                                            damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
             command.source.deal_damage(command.target, damage_info)
@@ -1635,6 +1666,7 @@ class ScriptHandler:
         # datalong2 = respawn_time
         # x/y/z/o = coordinates
         Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
+
         return command.should_abort()
 
     @staticmethod
@@ -1756,8 +1788,16 @@ class ScriptHandler:
     def handle_script_command_call_for_help(command):
         # source = Creature
         # x = radius
-        Logger.debug('ScriptHandler: handle_script_command_call_for_help not implemented yet')
-        return command.should_abort()
+        if not command.source or not command.source.is_unit():
+            Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
+            return command.should_abort()
+
+        if not command.source.combat_target:
+            return command.should_abort()
+
+        command.source.threat_manager.call_for_help(command.source.combat_target, radius=command.x)
+
+        return False
 
     # Script types.
 

@@ -56,6 +56,18 @@ class ThreatManager:
         elif holder:
             holder.threat_mod = threat_mod
 
+    def modify_thread_percent(self, unit_mgr, percent):
+        holder = self.holders.get(unit_mgr.guid)
+        if not holder:
+            return
+
+        current_threat = holder.get_total_threat()
+        if not current_threat:
+            return
+
+        threat = -current_threat if percent == -100 else current_threat * percent / 100.0
+        self.add_threat(unit_mgr, threat)
+
     def reset(self):
         # Remove threat between self and attackers.
         for unit in self.get_threat_holder_units():
@@ -93,7 +105,7 @@ class ThreatManager:
     def add_threat(self, source, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
                    is_call_for_help: bool = False):
         # Only players/units.
-        if not source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not source.is_unit(by_mask=True):
             return
 
         if not self.unit.is_alive or not self.unit.is_spawned or not source.is_alive:
@@ -107,9 +119,6 @@ class ThreatManager:
             proximity_aggro = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT == threat
             active_pet.creature.object_ai.owner_attacked_by(source, proximity_aggro)
 
-        if threat < 0.0:
-            Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
-
         if source is not self.unit:
             self.unit.enter_combat(source)
             source_holder = self.holders.get(source.guid)
@@ -117,7 +126,8 @@ class ThreatManager:
             if source_holder:
                 new_threat = source_holder.total_raw_threat + threat
                 source_holder.total_raw_threat = max(new_threat, 0.0)
-                source_holder.threat_mod = threat_mod
+                if threat_mod:
+                    source_holder.threat_mod = threat_mod
             # New holder.
             elif threat >= 0.0:
                 if not is_call_for_help:
@@ -186,17 +196,20 @@ class ThreatManager:
         return None
 
     # Creatures only.
-    def call_for_help(self, source, threat=THREAT_NOT_TO_LEAVE_COMBAT):
-        if not self._call_for_help_range:
+    def call_for_help(self, source, threat=THREAT_NOT_TO_LEAVE_COMBAT, radius=0):
+        if not self._call_for_help_range and not radius:
             return
 
         # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.
         if self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING and not config.World.Gameplay.enable_call_for_help:
             return
 
+        if not radius:
+            radius = self._call_for_help_range
+
         units = self.unit.get_map().get_surrounding_units_by_location(self.unit.location, self.unit.map_id,
                                                                       self.unit.instance_id,
-                                                                      self._call_for_help_range)[0].values()
+                                                                      radius)[0].values()
 
         helping_units = [unit for unit in units if unit.threat_manager.unit_can_assist_help_call(self.unit, source)]
         [unit.threat_manager.add_threat(source, threat, is_call_for_help=True) for unit in helping_units]

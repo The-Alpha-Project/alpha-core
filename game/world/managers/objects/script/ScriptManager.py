@@ -55,7 +55,9 @@ class ScriptManager:
     @staticmethod
     def resolve_nearest_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
-        targets = ScriptManager._get_surrounding_units(caster, friends_only=False, include_players=False, alive=True)
+        radius = param2 if param2 else 0
+        targets = ScriptManager._get_surrounding_units(caster, search_range=radius, friends_only=False,
+                                                       include_players=False, alive=True)
         if not targets:
             return None
         # Sort by distance.

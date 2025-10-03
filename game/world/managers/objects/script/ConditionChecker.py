@@ -832,8 +832,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_any_worldobject(source, target):
-        return (source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT) \
-            or (target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT)
+        return source and source.is_object(by_mask=True) or target and target.is_object(by_mask=True)
 
     @staticmethod
     def check_target_source_unit(source, _target):
@@ -845,11 +844,11 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_map_or_worldobject(source, target):
-        return (source and source.is_object(by_mask=True)) or (target and target.is_object(by_mask=True))
+        return source and source.is_object(by_mask=True) or target and target.is_object(by_mask=True)
 
     @staticmethod
     def check_target_worldobject(_source, target):
-        return target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT
+        return target and target.is_object(by_mask=True)
 
     @staticmethod
     def check_target_source_creature(source, _target):
@@ -857,8 +856,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_both_worldobjects(source, target):
-        return (source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT) \
-            and (target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT)
+        return source and source.is_object(by_mask=True) and target and target.is_object(by_mask=True)
 
     @staticmethod
     def check_target_gameobject(_source, target):
