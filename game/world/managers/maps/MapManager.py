@@ -403,7 +403,12 @@ class MapManager:
         if not namigator:
             return False, False, [dst_loc]
 
+        # At destination, return end vector.
         if src_loc == dst_loc:
+            return False, False, [dst_loc]
+
+        # Too short of a path, return end vector.
+        if src_loc.distance(dst_loc) < 1.0:
             return False, False, [dst_loc]
 
         # Calculate source adt coordinates for x,y.
