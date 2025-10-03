@@ -268,15 +268,15 @@ class GridManager:
 
         for cell in cells:
             if ObjectTypeIds.ID_PLAYER in object_types:
-                found_objects[players_index] = {**found_objects[players_index], **cell.get_players(world_object)}
+                found_objects[players_index] = {**found_objects[players_index], **cell.players}
             if ObjectTypeIds.ID_UNIT in object_types:
-                found_objects[creatures_index] = {**found_objects[creatures_index], **cell.get_creatures(world_object)}
+                found_objects[creatures_index] = {**found_objects[creatures_index], **cell.creatures}
             if ObjectTypeIds.ID_GAMEOBJECT in object_types:
-                found_objects[gameobject_index] = {**found_objects[gameobject_index], **cell.get_gameobjects(world_object)}
+                found_objects[gameobject_index] = {**found_objects[gameobject_index], **cell.gameobjects}
             if ObjectTypeIds.ID_DYNAMICOBJECT in object_types:
-                found_objects[dynamic_index] = {**found_objects[dynamic_index], **cell.get_dynamic_objects(world_object)}
+                found_objects[dynamic_index] = {**found_objects[dynamic_index], **cell.dynamic_objects}
             if ObjectTypeIds.ID_CORPSE in object_types:
-                found_objects[corpse_index] = {**found_objects[corpse_index], **cell.get_corpses(world_object)}
+                found_objects[corpse_index] = {**found_objects[corpse_index], **cell.corpses}
 
         return found_objects
 

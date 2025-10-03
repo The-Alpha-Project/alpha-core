@@ -33,32 +33,6 @@ class Cell:
     def __hash__(self):
         return self.hash
 
-    def get_players(self, caller, visibility_range=True):
-        return Cell._get_objects(caller, self.players, visibility_range)
-
-    def get_creatures(self, caller, visibility_range=True):
-        return Cell._get_objects(caller, self.creatures, visibility_range)
-
-    def get_gameobjects(self, caller, visibility_range=True):
-        return Cell._get_objects(caller, self.gameobjects, visibility_range)
-
-    def get_dynamic_objects(self, caller, visibility_range=True):
-        return Cell._get_objects(caller, self.dynamic_objects, visibility_range)
-
-    def get_corpses(self, caller, visibility_range=True):
-        return Cell._get_objects(caller, self.corpses, visibility_range)
-
-    @staticmethod
-    def _get_objects(self, source, collection, visibility_range=True):
-        if visibility_range:
-            return {k: v for k, v in list(collection.items()) if Cell._object_in_visible_range(source, v)}
-        else:
-            return dict(collection)  # return a copy of the collection
-
-    @staticmethod
-    def _object_in_visible_range(source, world_object):
-        return source.location.distance_2d(world_object.location) <= VIEW_DISTANCE
-
     def has_players(self):
         return len(self.players) > 0
 
