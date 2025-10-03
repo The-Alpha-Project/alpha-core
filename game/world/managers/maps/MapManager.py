@@ -4,7 +4,6 @@ from functools import lru_cache
 from multiprocessing import RLock
 from os import path
 import time
-import gc
 
 import _queue
 from random import choice
@@ -230,9 +229,6 @@ class MapManager:
         adt_key = f'{map_id},{adt_x},{adt_y}'
         if adt_key in PENDING_TILE_INITIALIZATION:
             del PENDING_TILE_INITIALIZATION[adt_key]
-
-        collected_objects = gc.collect()  # Force collect on all generations.
-        Logger.debug(f'[GC] Collected {collected_objects} objects.')
 
     @staticmethod
     def validate_map_files():
