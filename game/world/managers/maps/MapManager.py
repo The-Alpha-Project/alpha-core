@@ -291,7 +291,7 @@ class MapManager:
                 return calculated_z, False
             except:
                 tile = MAPS_TILES[map_id][adt_x][adt_y]
-                return tile.z_height_map[cell_x][cell_x], False
+                return tile.z_height_map[cell_x][cell_y], False
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0, False
