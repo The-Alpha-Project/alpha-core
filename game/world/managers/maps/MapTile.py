@@ -12,7 +12,7 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.71'
+    EXPECTED_VERSION = 'ACMAP_1.72'
 
     def __init__(self, map_, adt_x, adt_y):
         self.map_ = map_
