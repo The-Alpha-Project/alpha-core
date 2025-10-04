@@ -107,7 +107,11 @@ class GroupMovement(BaseMovement):
         group_member = creature_group.members[creature_mgr.guid]
         speed = self._get_speed(creature_group)
         leader_distance = max(0.2, group_member.distance_leader - (elapsed * speed))
-        location = creature_group.leader.location.get_point_in_radius_and_angle(leader_distance, group_member.angle)
+
+        location = creature_group.compute_relative_position(group_member, leader_distance)
+        if not location:
+            return None, 0
+
         creature_distance = group_member.creature.location.distance(location) - (elapsed * speed)
 
         # Check if unit is lagging.
