@@ -3,7 +3,8 @@ from threading import RLock
 import time
 
 from game.world.managers.maps.Cell import Cell
-from game.world.managers.maps.helpers.CellUtils import CELL_SIZE, CellUtils
+from game.world.managers.maps.helpers.CellUtils import CELL_SIZE, CellUtils, VIEW_DISTANCE, NUM_CELLS
+from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -16,6 +17,7 @@ class GridManager:
         self.instance_id = instance_id
         self.active_cell_keys: set[str] = set()
         self.cells: dict[str, Cell] = {}
+        self.active_adt_cell_refs: dict[str, set[str]] = {}
         self.active_cell_callback = active_cell_callback
         self.inactive_cell_callback = inactive_cell_callback
 
@@ -30,6 +32,7 @@ class GridManager:
     def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
         source_cell_key = world_object.current_cell
         current_cell_key = CellUtils.get_cell_key_for_object(world_object)
+
         cell_swap = source_cell_key is not None and current_cell_key != source_cell_key
 
         # Handle cell change within the same map.
@@ -68,7 +71,9 @@ class GridManager:
         if current_cell_key != source_cell_key:
             if current_cell_key not in self.active_cell_keys and cell_swap:
                 self.activate_cell_by_world_object(world_object)
-                Logger.debug(f'Unit {world_object.get_name()} triggered inactive cell {current_cell_key}')
+                adt_x, adt_y = MapUtils.get_tile(world_object.location.x, world_object.location.y)
+                Logger.debug(f'Unit {world_object.get_name()} triggered inactive cell {current_cell_key} '
+                             f'at ADT {adt_x},{adt_y}')
             world_object.on_cell_change()
 
     # Remove a world_object from its cell and notify surrounding players if required.
@@ -87,7 +92,7 @@ class GridManager:
         return cell_key in self.active_cell_keys
 
     def is_active_cell_for_location(self, location):
-        cell_key = CellUtils.get_cell_key(location.x, location.y, self.map_id, self.instance_id)
+        cell_key = CellUtils.get_cell_key_by_world_pos(location.x, location.y, self.map_id, self.instance_id)
         return self.is_active_cell(cell_key)
 
     def get_active_cell_count(self):
@@ -95,7 +100,6 @@ class GridManager:
 
     def deactivate_cells(self):
         with self.grid_lock:
-            adt_keys = dict()
             for cell_key in list(self.active_cell_keys):
 
                 # Make sure only Cells with no players near are removed from the Active list.
@@ -106,14 +110,14 @@ class GridManager:
                 self.active_cell_keys.discard(cell_key)
                 cell.stop_movement()
 
-                if cell.adt_key not in adt_keys:
-                    adt_keys[cell.adt_key] = set()
-                adt_keys[cell.adt_key].add(cell)
+                if cell.adt_key in self.active_adt_cell_refs:
+                    self.active_adt_cell_refs[cell.adt_key].discard(cell.key)
 
-            for adt_key, cells in adt_keys.items():
-                # Check if there are active cells still using the affected adt tile.
-                if any(cell.adt_key == adt_key for cell in self.cells.values() if cell.key in self.active_cell_keys):
+            for adt_key, ref_count in list(self.active_adt_cell_refs.items()):
+                # If an active cell still using the adt, continue.
+                if ref_count:
                     continue
+                del self.active_adt_cell_refs[adt_key]
                 # No active cells for given adt, unload.
                 adt_x, adt_y = adt_key.split(',')
                 self.inactive_cell_callback(self.map_id, int(adt_x), int(adt_y))
@@ -154,9 +158,13 @@ class GridManager:
         if cell.key not in self.active_cell_keys:
             self.active_cell_keys.add(cell.key)
 
-        # Only player activation will trigger tile/nav loading.
-        if world_object.is_player():
-            self.active_cell_callback(self.map_id, cell.adt_x, cell.adt_y)
+            # Only player activation will trigger tile/nav loading.
+            if world_object.is_player():
+                # Initialize ref count for this adt if needed.
+                if cell.adt_key not in self.active_adt_cell_refs:
+                    self.active_adt_cell_refs[cell.adt_key] = set()
+                self.active_adt_cell_refs[cell.adt_key].add(cell.key)
+                self.active_cell_callback(self.map_id, cell.adt_x, cell.adt_y)
 
     def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False,
                                      has_inventory_changes=False, update_data=None, object_type=None):
@@ -179,24 +187,39 @@ class GridManager:
 
         return affected_cells
 
-    def _get_surrounding_cells_by_cell(self, cell):
-        return self._get_surrounding_cells_by_location(cell.mid_x, cell.max_y, cell.map_id, cell.instance_id)
+    def _get_surrounding_cells_by_cell(self, cell=None, cell_x=0, cell_y=0, map_id=0, instance_id=0):
+
+        if cell:
+            cell_x = cell.cell_x
+            cell_y = cell.cell_y
+            map_id = cell.map_id
+            instance_id = cell.instance_id
+
+        # Calculate how many cells to include in each direction given the view distance, at least 1.
+        max_cells_radius = max(1, int(VIEW_DISTANCE // CELL_SIZE))
+        surrounding_cells = set()
+
+        for dx in range(-max_cells_radius, max_cells_radius + 1):
+            for dy in range(-max_cells_radius, max_cells_radius + 1):
+                nx = cell_x + dx
+                ny = cell_y + dy
+                # Clamp to valid range
+                nx_clamped = max(0, min(NUM_CELLS - 1, nx))
+                ny_clamped = max(0, min(NUM_CELLS - 1, ny))
+                cell_key = CellUtils.get_cell_key_by_cell(nx_clamped, ny_clamped, map_id, instance_id)
+                if cell_key not in self.cells:
+                    continue
+                surrounding_cells.add(self.cells[cell_key])
+
+        return surrounding_cells
 
     def _get_surrounding_cells_by_object(self, world_object):
         pos = world_object.location
         return self._get_surrounding_cells_by_location(pos.x, pos.y, world_object.map_id, world_object.instance_id)
 
     def _get_surrounding_cells_by_location(self, x, y, map_, instance_id):
-        near_cells = set()
-
-        for x2 in range(-1, 2):
-            for y2 in range(-1, 2):
-                cell_coords = CellUtils.get_cell_key(x + (x2 * CELL_SIZE), y + (y2 * CELL_SIZE), map_, instance_id)
-                if cell_coords not in self.cells:
-                    continue
-                near_cells.add(self.cells[cell_coords])
-
-        return near_cells
+        cell_x, cell_y = CellUtils.generate_coord_data(x, y)
+        return self._get_surrounding_cells_by_cell(cell_x=cell_x, cell_y=cell_y, map_id=map_, instance_id=instance_id)
 
     def send_surrounding(self, packet, world_object, include_self=True, exclude=None, use_ignore=False):
         if world_object.current_cell:
@@ -245,15 +268,15 @@ class GridManager:
 
         for cell in cells:
             if ObjectTypeIds.ID_PLAYER in object_types:
-                found_objects[players_index] = {**found_objects[players_index], **cell.get_players(world_object)}
+                found_objects[players_index] = {**found_objects[players_index], **cell.players}
             if ObjectTypeIds.ID_UNIT in object_types:
-                found_objects[creatures_index] = {**found_objects[creatures_index], **cell.get_creatures(world_object)}
+                found_objects[creatures_index] = {**found_objects[creatures_index], **cell.creatures}
             if ObjectTypeIds.ID_GAMEOBJECT in object_types:
-                found_objects[gameobject_index] = {**found_objects[gameobject_index], **cell.get_gameobjects(world_object)}
+                found_objects[gameobject_index] = {**found_objects[gameobject_index], **cell.gameobjects}
             if ObjectTypeIds.ID_DYNAMICOBJECT in object_types:
-                found_objects[dynamic_index] = {**found_objects[dynamic_index], **cell.get_dynamic_objects(world_object)}
+                found_objects[dynamic_index] = {**found_objects[dynamic_index], **cell.dynamic_objects}
             if ObjectTypeIds.ID_CORPSE in object_types:
-                found_objects[corpse_index] = {**found_objects[corpse_index], **cell.get_corpses(world_object)}
+                found_objects[corpse_index] = {**found_objects[corpse_index], **cell.corpses}
 
         return found_objects
 
@@ -367,11 +390,11 @@ class GridManager:
             return None
 
     def _get_create_cell(self, vector, map_, instance_id) -> Cell:
-        cell_key = CellUtils.get_cell_key(vector.x, vector.y, map_, instance_id)
+        cell_key = CellUtils.get_cell_key_by_world_pos(vector.x, vector.y, map_, instance_id)
         cell = self.cells.get(cell_key)
         if not cell:
-            min_x, min_y, max_x, max_y = CellUtils.generate_coord_data(vector.x, vector.y)
-            cell = Cell(min_x, min_y, max_x, max_y, map_, instance_id)
+            cell_x, cell_y = CellUtils.generate_coord_data(vector.x, vector.y)
+            cell = Cell(cell_x, cell_y, map_, instance_id)
             self.cells[cell.key] = cell
         return cell
 

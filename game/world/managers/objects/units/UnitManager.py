@@ -1850,7 +1850,7 @@ class UnitManager(ObjectManager):
         charmer_or_summoner = self.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit
         # (game objects can spawn creatures, but they don't have a PetManager).
-        if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if charmer_or_summoner and charmer_or_summoner.is_unit(by_mask=True):
             charmer_or_summoner.pet_manager.detach_pet_by_guid(self.guid)
 
     def is_swimming(self):

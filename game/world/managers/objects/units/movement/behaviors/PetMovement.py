@@ -162,8 +162,8 @@ class PetMovement(BaseMovement):
                                                                            self.follow_angle,
                                                                            final_orientation=orientation)
 
-        # Near teleport if lagging above cell size, this can probably be less or half cell.
-        if current_distance > CellUtils.CELL_SIZE:
+        # Near teleport if lagging above view distance, this can probably be less or half cell.
+        if current_distance > CellUtils.VIEW_DISTANCE:
             self.unit.near_teleport(self.home_position)
             return False, None
 

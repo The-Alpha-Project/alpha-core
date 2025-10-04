@@ -138,7 +138,7 @@ class MapManager:
                 MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)
 
         Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
-        return True
+        return
 
     @staticmethod
     def initialize_pending_tiles():
@@ -291,7 +291,7 @@ class MapManager:
                 return calculated_z, False
             except:
                 tile = MAPS_TILES[map_id][adt_x][adt_y]
-                return tile.z_height_map[cell_x][cell_x], False
+                return tile.z_height_map[cell_x][cell_y], False
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0, False
@@ -401,6 +401,14 @@ class MapManager:
         # We don't have navs loaded for a given map, return end vector.
         namigator = MAPS_NAMIGATOR.get(map_id, None)
         if not namigator:
+            return False, False, [dst_loc]
+
+        # At destination, return end vector.
+        if src_loc == dst_loc:
+            return False, False, [dst_loc]
+
+        # Too short of a path, return end vector.
+        if src_loc.distance(dst_loc) < 1.0:
             return False, False, [dst_loc]
 
         # Calculate source adt coordinates for x,y.
