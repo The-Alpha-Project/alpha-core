@@ -6,6 +6,7 @@ from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptAIEvent import ScriptAIEvent
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
+from utils.Logger import Logger
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes, UnitInLosReaction
 from utils.constants.ScriptCodes import EventFlags
 from utils.constants.UnitCodes import PowerTypes, UnitStates
@@ -24,7 +25,7 @@ class AIEventHandler:
         self.creature = creature
         self.initialized = False
         self._events = {}
-        self.event_locks: dict[int: EventLock] = {}
+        self.event_locks: dict[int, EventLock] = {}
         self.update_interval_secs = 0.5
         self.update_diff_secs = 0
 
@@ -202,14 +203,16 @@ class AIEventHandler:
 
     # TODO.
     def on_movement_inform(self, behavior, point_id):
-        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MOVEMENT_INFORM)
-        map_ = self.creature.get_map()
-        for event in events:
-            if not self._validate_event(event, target=self.creature):
-                continue
+        Logger.warning('AI_EVENT_TYPE_MOVEMENT_INFORM is not implemented.')
+        pass
+        #events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MOVEMENT_INFORM)
+        #map_ = self.creature.get_map()
+        #for event in events:
+        #    if not self._validate_event(event, target=self.creature):
+        #        continue
 
-            if event.event_param1 == behavior and point_id == event.event_param2:
-                self._enqueue_creature_ai_event(map_, event, target=self.creature)
+        #    if event.event_param1 == behavior and point_id == event.event_param2:
+        #        self._enqueue_creature_ai_event(map_, event, target=self.creature)
 
     def update_target_aura_events(self, now):
         target = self.creature.combat_target
