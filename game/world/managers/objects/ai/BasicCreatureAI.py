@@ -19,7 +19,7 @@ class BasicCreatureAI(CreatureAI):
             return
 
         #  Update events bound to AI update calls timing, this includes OOC.
-        self.ai_event_handler.ai_update(elapsed, now)
+        self.ai_event_handler.update(elapsed)
 
         if not self.creature.combat_target:
             return

@@ -204,6 +204,9 @@ class ObjectManager:
     def is_active_object(self):
         return False
 
+    def has_player_observers(self):
+        return True
+
     def get_stationary_position(self):
         return self.location
 

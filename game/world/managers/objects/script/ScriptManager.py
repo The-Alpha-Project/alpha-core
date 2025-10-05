@@ -68,7 +68,7 @@ class ScriptManager:
 
         # Sort by distance.
         matching_units.sort(key=lambda unit_target: caster.location.distance(unit_target.location))
-        return targets[0]
+        return matching_units[0]
 
     @staticmethod
     def resolve_random_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):

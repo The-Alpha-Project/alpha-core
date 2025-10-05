@@ -544,6 +544,10 @@ class CreatureManager(UnitManager):
             or FarSightManager.object_is_camera_view_point(self) \
             or self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
 
+    # override
+    def has_player_observers(self):
+        return len(self.known_players) > 0
+
     def has_waypoints_type(self):
         return self.movement_type == MovementTypes.WAYPOINT \
             or self.movement_manager.get_move_behavior_by_type(MoveType.WAYPOINTS)
