@@ -16,14 +16,14 @@ from utils.constants.UnitCodes import PowerTypes, UnitStates
 class EventLock:
     event_id: int
     elapsed_secs: float
-    repeat: float
+    repeat_secs: float
     can_repeat: bool
 
     def update(self, elapsed):
         self.elapsed_secs += elapsed
 
     def is_locked(self):
-        return not self.can_repeat or self.elapsed_secs < self.repeat
+        return not self.can_repeat or self.elapsed_secs < self.repeat_secs
 
 class AIEventHandler:
     def __init__(self, creature):
@@ -477,7 +477,7 @@ class AIEventHandler:
 
     def _lock_event(self, script_event):
         self.event_locks[script_event.id] = EventLock(event_id=script_event.id, elapsed_secs=0,
-                                                      repeat=script_event.get_repeat_seconds(),
+                                                      repeat_secs=script_event.get_repeat_seconds(),
                                                       can_repeat=script_event.can_repeat())
 
     def _is_event_locked(self, event, elapsed_secs):
