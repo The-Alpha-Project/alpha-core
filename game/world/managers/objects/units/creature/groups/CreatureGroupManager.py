@@ -105,7 +105,7 @@ class CreatureGroupManager:
                     continue
                 member.creature.object_ai.group_member_just_died(creature_mgr, is_leader=is_leader)
 
-        # We don't re use creatures instances, remove.
+        # We don't re-use creatures instances, remove.
         self.remove_member(creature_mgr)
 
     def on_leave_combat(self, creature_mgr):

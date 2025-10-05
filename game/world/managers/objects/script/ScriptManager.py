@@ -60,13 +60,15 @@ class ScriptManager:
                                                        include_players=False, alive=True)
         if not targets:
             return None
+
+        # Only with given entry.
+        matching_units = [unit for unit in targets if unit.entry == entry]
+        if not matching_units:
+            return None
+
         # Sort by distance.
-        targets.sort(key=lambda unit_target: caster.location.distance(unit_target.location))
-        for target in targets:
-            if target.entry != entry:
-                continue
-            return target
-        return None
+        matching_units.sort(key=lambda unit_target: caster.location.distance(unit_target.location))
+        return targets[0]
 
     @staticmethod
     def resolve_random_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
@@ -76,25 +78,25 @@ class ScriptManager:
                                                      alive=True)
         if not units:
             return None
-        shuffle(units)
-        for unit in units:
-            if unit.entry != entry:
-                continue
-            return unit
-        return None
+
+        matching_units = [unit for unit in units if unit.entry == entry]
+        if not matching_units:
+            return None
+
+        return choice(matching_units)
 
     @staticmethod
     def resolve_creature_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
         surrounding_units = caster.get_map().get_surrounding_units(world_object=caster, include_players=False)
-        found_unit = None
-        for unit in surrounding_units.values():
-            if unit.spawn_id == spawn_id:
-                found_unit = unit
-                break
+
+        # Find the first unit with matching spawn_id.
+        found_unit = next((unit for unit in surrounding_units.values() if unit.spawn_id == spawn_id), None)
+
         if not found_unit or not found_unit.is_alive:
-            Logger.warning(f'Creature lookup by guid failed, source {caster.get_name()} search location {caster.location}')
+            Logger.warning(f'Creature lookup by guid failed, {caster.get_name()} search location {caster.location}')
             return None
+
         return found_unit
 
     @staticmethod
@@ -108,13 +110,15 @@ class ScriptManager:
         go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
+
+        # Only with given entry.
+        matching_objects = [obj for obj in go_objects if obj.entry == entry]
+        if not matching_objects:
+            return None
+
         # Sort by distance.
-        go_objects.sort(key=lambda go_target: caster.location.distance(go_target.location))
-        for target in go_objects:
-            if target.entry != entry:
-                continue
-            return target
-        return None
+        matching_objects.sort(key=lambda go_target: caster.location.distance(go_target.location))
+        return matching_objects[0]
 
     @staticmethod
     def resolve_random_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
@@ -122,12 +126,12 @@ class ScriptManager:
         go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
-        shuffle(go_objects)
-        for go_object in go_objects:
-            if go_object.entry != entry:
-                continue
-            return go_object
-        return None
+
+        matching_objects = [obj for obj in go_objects if obj.entry == entry]
+        if not matching_objects:
+            return None
+
+        return choice(matching_objects)
 
     @staticmethod
     def resolve_gameobject_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
@@ -402,26 +406,36 @@ class ScriptManager:
     @staticmethod
     def _filter_units(unit_caller, units_list, search_range=0.0, friends_only=False, enemies_only=False,
                       exclude_unit=None, alive=False, in_combat=False):
-        # Only within search range, if given.
-        if search_range > 0:
-            units_list = [unit for unit in units_list if unit_caller.location.distance(unit.location) < search_range]
-        # Only friendly units, if requested.
-        if friends_only:
-            units_list = [unit for unit in units_list if not unit_caller.is_hostile_to(unit)]
-        # Only enemies, if requested.
-        if enemies_only:
-            units_list = [unit for unit in units_list if unit_caller.is_hostile_to(unit)]
-        # Exclude unit, if provided.
-        if exclude_unit:
-            units_list = [unit for unit in units_list if unit != exclude_unit]
-        # Only alive.
-        if alive:
-            units_list = [unit for unit in units_list if unit.is_alive]
-        # Only in combat.
-        if in_combat:
-            units_list = [unit for unit in units_list if unit.in_combat]
+        # Start with the original list
+        filtered_units = units_list
 
-        return units_list
+        # Filter by range if specified
+        if search_range > 0:
+            max_distance = search_range * 2 if search_range <= 30 else search_range
+            filtered_units = [
+                unit for unit in filtered_units
+                if unit_caller.location.distance(unit.location) < max_distance
+            ]
+
+        # Filter by hostility
+        if friends_only:
+            filtered_units = [unit for unit in filtered_units if not unit_caller.is_hostile_to(unit)]
+        elif enemies_only:
+            filtered_units = [unit for unit in filtered_units if unit_caller.is_hostile_to(unit)]
+
+        # Exclude specific unit
+        if exclude_unit:
+            filtered_units = [unit for unit in filtered_units if unit != exclude_unit]
+
+        # Filter alive units
+        if alive:
+            filtered_units = [unit for unit in filtered_units if unit.is_alive]
+
+        # Filter units in combat
+        if in_combat:
+            filtered_units = [unit for unit in filtered_units if unit.in_combat]
+
+        return filtered_units
 
     @staticmethod
     def _get_surrounding_players(unit_caller, search_range=0.0, friends_only=False,
