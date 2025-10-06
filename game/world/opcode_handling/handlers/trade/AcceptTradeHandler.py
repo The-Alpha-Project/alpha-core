@@ -19,12 +19,21 @@ class AcceptTradeHandler(object):
         item_to_receive_enchant = None
         player_trade.set_accepted(True)
 
+        # Prevent players from trading money they don't actually have.
         if player_trade.money > player.coinage:
-            # You do not have enough gold.
+            TradeManager.cancel_trade(player)
+            return 0
+        if other_player_trade.money > other_player.coinage:
+            TradeManager.cancel_trade(other_player)
             return 0
 
-        if other_player_trade.money > other_player.coinage:
-            # You do not have enough gold.
+        # Prevent trading money if the recipient is going to exceed the hard gold cap to avoid losing the overflowed
+        # amount.
+        if player.coinage + other_player_trade.money > 2147483647:
+            TradeManager.cancel_trade(player)
+            return 0
+        if other_player.coinage + player_trade.money > 2147483647:
+            TradeManager.cancel_trade(other_player)
             return 0
 
         # Cancel if any item is soulbound.
