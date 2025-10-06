@@ -96,8 +96,7 @@ class CreatureSpawn:
 
         # Delegate spawning of new creature to pool.
         if self.pool and not from_pool:
-            self.pool.spawn(caller=self)
-            return
+            return self.pool.spawn(caller=self) > 0
 
         creature_template_id = self._get_creature_entry()
 

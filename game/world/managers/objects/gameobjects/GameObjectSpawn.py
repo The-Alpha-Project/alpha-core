@@ -40,8 +40,7 @@ class GameObjectSpawn:
         self.respawn_timer = 0
 
         if self.pool and not from_pool:
-            self.pool.spawn(caller=self)
-            return
+            return self.pool.spawn(caller=self) > 0
 
         # New instance for default objects.
         if self.is_default:
@@ -55,10 +54,11 @@ class GameObjectSpawn:
         elif not self.is_default:
             self.gameobject_instance.time_to_live_timer = ttl
             self.gameobject_instance.respawn()
-            return
+            return True
 
         self.gameobject_instance.get_map().spawn_object(world_object_spawn=self,
                                                         world_object_instance=self.gameobject_instance)
+        return True
 
     def despawn(self, ttl=0):
         if not self.gameobject_instance or not self.gameobject_instance.is_spawned:
