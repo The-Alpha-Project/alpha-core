@@ -68,12 +68,6 @@ class MapTile(object):
         self.has_maps = False
         self.has_navigation = False
         self.ready = False
-        if self.area_information:
-            del self.area_information
-        if self.liquid_information:
-            del self.liquid_information
-        if self.z_height_map:
-            del self.z_height_map
         self.area_information = None
         self.liquid_information = None
         self.z_height_map = None
