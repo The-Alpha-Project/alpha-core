@@ -1,9 +1,13 @@
-import math
 
 from utils.ConfigManager import config
 
-TOLERANCE = 0.00001
-CELL_SIZE = config.Server.Settings.cell_size
+ADT_SIZE = 533.33333  # Yards.
+ADT_BLOCKS = 64
+ADT_CHUNK_SIZE = 16
+TOTAL_SIZE = total_size = ADT_BLOCKS * ADT_SIZE  # 34133.33312 yards.
+CELL_SIZE = ADT_SIZE / ADT_CHUNK_SIZE  # 33.33333 yards.
+NUM_CELLS = int(TOTAL_SIZE / CELL_SIZE)  # ~1024.
+ORIGIN = TOTAL_SIZE / 2  # 17066.666 yards.
 VIEW_DISTANCE = config.Server.Settings.view_distance
 
 
@@ -11,20 +15,34 @@ class CellUtils:
 
     @staticmethod
     def generate_coord_data(x, y):
-        mod_x = x / CELL_SIZE
-        mod_y = y / CELL_SIZE
+        relative_x = x + ORIGIN
+        relative_y = y + ORIGIN
 
-        max_x = math.ceil(mod_x) * CELL_SIZE - TOLERANCE
-        max_y = math.ceil(mod_y) * CELL_SIZE - TOLERANCE
-        min_x = max_x - CELL_SIZE + TOLERANCE
-        min_y = max_y - CELL_SIZE + TOLERANCE
+        cell_x = int(relative_x // CELL_SIZE)
+        cell_y = int(relative_y // CELL_SIZE)
 
-        return min_x, min_y, max_x, max_y
+        # Clamp to valid range
+        cell_x = max(0, min(NUM_CELLS - 1, cell_x))
+        cell_y = max(0, min(NUM_CELLS - 1, cell_y))
+
+        return cell_x, cell_y
 
     @staticmethod
-    def get_cell_key(x, y, map_, instance_id):
-        min_x, min_y, max_x, max_y = CellUtils.generate_coord_data(x, y)
-        key = f'{round(min_x, 5)}:{round(min_y, 5)}:{round(max_x, 5)}:{round(max_y, 5)}:{map_}:{instance_id}'
+    def cell_to_adt(cell_x, cell_y):
+        from game.world.managers.maps.helpers.MapUtils import MapUtils
+        x = (cell_x * CELL_SIZE) - ORIGIN + (CELL_SIZE / 2)
+        y = (cell_y * CELL_SIZE) - ORIGIN + (CELL_SIZE / 2)
+        return MapUtils.get_tile(x, y)
+
+    @staticmethod
+    def get_cell_key_by_world_pos(x, y, map_, instance_id):
+        cell_x, cell_y = CellUtils.generate_coord_data(x, y)
+        key = f'{cell_x}:{cell_y}:{map_}:{instance_id}'
+        return key
+
+    @staticmethod
+    def get_cell_key_by_cell(cell_x, cell_y, map_, instance_id):
+        key = f'{cell_x}:{cell_y}:{map_}:{instance_id}'
         return key
 
     @staticmethod
@@ -33,4 +51,4 @@ class CellUtils:
         y = world_object.location.y
         map_id = world_object.map_id
         instance_id = world_object.instance_id
-        return CellUtils.get_cell_key(x, y, map_id, instance_id)
+        return CellUtils.get_cell_key_by_world_pos(x, y, map_id, instance_id)

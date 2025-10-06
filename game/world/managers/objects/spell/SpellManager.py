@@ -1724,7 +1724,7 @@ class SpellManager:
 
     def consume_resources_for_cast(self, casting_spell):
         # This method assumes that the reagents exist (meets_casting_requisites was run).
-        if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not self.caster.is_unit(by_mask=True):
             return
 
         is_player = self.caster.is_player()

@@ -66,7 +66,7 @@ class MCVT:
                 for y in range(9):
                     mcvt.v9[x][y] = unpack('<f', _v9.read(4))[0]
 
-        with BytesIO(v9) as _v8:
+        with BytesIO(v8) as _v8:
             for x in range(8):
                 for y in range(8):
                     mcvt.v8[x][y] = unpack('<f', _v8.read(4))[0]

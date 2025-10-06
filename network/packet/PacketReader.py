@@ -14,6 +14,14 @@ class PacketReader(object):
             self.opcode = 0
             self.data = bytearray()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.size = None
+        self.opcode = None
+        del self.data
+
     def opcode_str(self):
         return OpCode(self.opcode).name
 

@@ -144,6 +144,10 @@ class GameObjectManager(ObjectManager):
         return ((self.is_spawned and self.initialized and
                 len(self.known_players) > 0) or self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT)
 
+    # override
+    def has_player_observers(self):
+        return len(self.known_players) > 0
+
     def apply_spell_damage(self, target, damage, spell_effect, is_periodic=False):
         # Skip if target is invalid or already dead.
         if not target or not target.is_alive:

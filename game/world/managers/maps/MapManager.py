@@ -138,7 +138,7 @@ class MapManager:
                 MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)
 
         Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
-        return True
+        return
 
     @staticmethod
     def initialize_pending_tiles():
@@ -291,7 +291,7 @@ class MapManager:
                 return calculated_z, False
             except:
                 tile = MAPS_TILES[map_id][adt_x][adt_y]
-                return tile.z_height_map[cell_x][cell_x], False
+                return tile.z_height_map[cell_x][cell_y], False
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0, False
@@ -403,6 +403,14 @@ class MapManager:
         if not namigator:
             return False, False, [dst_loc]
 
+        # At destination, return end vector.
+        if src_loc == dst_loc:
+            return False, False, [dst_loc]
+
+        # Too short of a path, return end vector.
+        if src_loc.distance(dst_loc) < 1.0:
+            return False, False, [dst_loc]
+
         # Calculate source adt coordinates for x,y.
         src_adt_x, src_adt_y = MapUtils.get_tile(src_loc.x, src_loc.y)
 
@@ -480,15 +488,22 @@ class MapManager:
 
     @staticmethod
     def get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y):
-        x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - adt_x) - cell_x
-        y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / ADT_SIZE) - adt_y) - cell_y
-        val_1 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y)
-        val_2 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x + 1, cell_y)
-        top_height = MapManager._lerp(val_1, val_2, x_normalized)
-        val_3 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y + 1)
-        val_4 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x + 1, cell_y + 1)
-        bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
-        return MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
+        # Calculate normalized coordinates within the cell.
+        x_norm = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - adt_x) - cell_x
+        y_norm = (RESOLUTION_ZMAP - 1) * (32.0 - (y / ADT_SIZE) - adt_y) - cell_y
+
+        # Retrieve cell heights for the four corners.
+        v1 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y)
+        v2 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x + 1, cell_y)
+        v3 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y + 1)
+        v4 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x + 1, cell_y + 1)
+
+        # Bilinear interpolation.
+        top_height = MapManager._lerp(v1, v2, x_norm)
+        bottom_height = MapManager._lerp(v3, v4, x_norm)
+        height = MapManager._lerp(top_height, bottom_height, y_norm)
+
+        return height
 
     @staticmethod
     def get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tolerance=1.0):
