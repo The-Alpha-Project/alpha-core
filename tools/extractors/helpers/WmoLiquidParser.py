@@ -32,16 +32,17 @@ class WmoLiquidParser:
 
                 for mliq in wmo.mliq:
                     WmoLiquidParser._get_mliq_vertices(mliq, vertices, tile_size)
-                    WmoLiquidParser._transform_and_save_vertices(wmo_liquids, vertices, t_matrix)
+                    WmoLiquidParser._transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq)
 
     @staticmethod
-    def _transform_and_save_vertices(wmo_liquids, vertices, t_matrix):
+    def _transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq):
+        min_bound = Vector3.transform(mliq.min_bound, t_matrix)
         for v in [Vector3.transform(vert, t_matrix) for vert in vertices]:
                 adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
                 # Initialize wmo liquids for adt if needed.
                 WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
                 # Write wmo liquid height.
-                wmo_liquids[adt_x][adt_y][cell_x][cell_y] = v.Z
+                wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z)
 
         vertices.clear()
 
@@ -50,7 +51,7 @@ class WmoLiquidParser:
         if wmo_liquids[adt_x][adt_y]:
             return
         grid_size = Constants.GRID_SIZE + 1
-        wmo_liquids[adt_x][adt_y] = [[0.0 for _ in range(grid_size)] for _ in range(grid_size)]
+        wmo_liquids[adt_x][adt_y] = [[None for _ in range(grid_size)] for _ in range(grid_size)]
 
     @staticmethod
     def _get_mliq_vertices(mliq, vertices, tile_size):

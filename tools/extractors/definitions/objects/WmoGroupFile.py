@@ -157,7 +157,7 @@ class WmoGroupFile:
             wmo_group_file.mliq = []
             final_position = reader.get_position() + size
             while reader.get_position() < final_position:
-                wmo_group_file.mliq.append(MLIQ.from_reader(reader))
+                wmo_group_file.mliq.append(MLIQ.from_reader(reader, wmo_group_file.bounding.min))
         #elif group_liquid:
         #    Logger.warning(f'TODO: Wmo group liquid with no MLIQ, height hint: {bounding.max.Z}')
 

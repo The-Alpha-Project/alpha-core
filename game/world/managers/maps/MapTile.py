@@ -1,3 +1,4 @@
+import math
 import os
 from os import path
 from struct import unpack
@@ -12,7 +13,7 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.72'
+    EXPECTED_VERSION = 'ACMAP_1.73'
 
     def __init__(self, map_, adt_x, adt_y):
         self.map_ = map_
@@ -143,11 +144,16 @@ class MapTile(object):
                         if liquid_type == -1:  # No liquid information / not rendered.
                             continue
                         if use_f16:
-                            height = unpack('>h', map_tiles.read(2))[0]
+                            l_max = unpack('>h', map_tiles.read(2))[0]
                         else:
-                            height = unpack('<f', map_tiles.read(4))[0]
-                        # noinspection PyTypeChecker
-                        self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, height, use_f16)
+                            l_max = unpack('<f', map_tiles.read(4))[0]
+
+                        xh, yh = self._map_liquid_to_height(x, y)
+                        l_min = math.floor(self.z_height_map[xh][yh] - 3.0)
+                        if l_max > l_min:
+                            # noinspection PyTypeChecker
+                            self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, l_min,
+                                                                                           l_max, use_f16)
 
                 has_wmo_liquids = unpack('<b', map_tiles.read(1))[0]
                 if not has_wmo_liquids:
@@ -160,13 +166,23 @@ class MapTile(object):
                         if liquid_type == -1:  # No liquid information / not rendered.
                             continue
                         if use_f16:
-                            height = unpack('>h', map_tiles.read(2))[0]
+                            l_max = unpack('>h', map_tiles.read(2))[0]
+                            l_min = unpack('>h', map_tiles.read(2))[0]
                         else:
-                            height = unpack('<f', map_tiles.read(4))[0]
-                        # noinspection PyTypeChecker
-                        self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, height, use_f16)
+                            l_max = unpack('<f', map_tiles.read(4))[0]
+                            l_min = math.floor(unpack('<f', map_tiles.read(4))[0])
+
+                        if l_max > l_min:
+                            # noinspection PyTypeChecker
+                            self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, l_min,
+                                                                                           l_max, use_f16)
 
         return True
+
+    def _map_liquid_to_height(self, x_liquid, y_liquid):
+        x_height = int(round(x_liquid * (RESOLUTION_ZMAP - 1) / (RESOLUTION_LIQUIDS - 1)))
+        y_height = int(round(y_liquid * (RESOLUTION_ZMAP - 1) / (RESOLUTION_LIQUIDS - 1)))
+        return x_height, y_height
 
     # noinspection PyMethodMayBeStatic
     def _get_area_information(self, map_id, zone, area, flag, level, explore):
