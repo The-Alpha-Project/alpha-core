@@ -79,38 +79,46 @@ class WorldServerSessionHandler:
     def process_outgoing(self):
         while self.keep_alive:
             try:
-                data = self.outgoing_pending.get(block=True, timeout=None)
+                packet = self.outgoing_pending.get(block=True, timeout=None)
                 # We've been blocking, by now keep_alive might be false.
                 # data can be None if we shut down the thread.
-                if data and self.keep_alive:
-                    self.client_socket.sendall(data)
+                if packet and self.keep_alive:
+                    self.client_socket.sendall(packet)
             except OSError:
                 self.disconnect()
+            finally:
+                # Flush outgoing packets from the queue, if any.
+                while not self.outgoing_pending.empty():
+                    self.outgoing_pending.get_nowait()
 
     # noinspection PyBroadException
     def process_incoming(self):
         try:
             while self.keep_alive:
-                with self.incoming_pending.get(block=True, timeout=None) as reader:
-                    # We've been blocking, by now keep_alive might be false.
-                    if not reader or not self.keep_alive:  # Can be None if we shut down the thread.
+                packet = self.incoming_pending.get(block=True, timeout=None)
+                # We've been blocking, by now keep_alive might be false.
+                if not packet or not self.keep_alive:  # Can be None if we shut down the thread.
+                    break
+                if not packet.opcode:
+                    continue
+                handler, found = Definitions.get_handler_from_packet(self, packet.opcode)
+                if handler:
+                    res = handler(self, packet)
+                    if res == 0:
+                        Logger.debug(f'[{self.client_address[0]}] Handling {packet.opcode_str()}')
+                    elif res == 1:
+                        Logger.debug(f'[{self.client_address[0]}] Ignoring {packet.opcode_str()}')
+                    elif res < 0:
                         break
-                    if not reader.opcode:
-                        continue
-                    handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
-                    if handler:
-                        res = handler(self, reader)
-                        if res == 0:
-                            Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
-                        elif res == 1:
-                            Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
-                        elif res < 0:
-                            break
-                    elif not found:
-                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
+                elif not found:
+                    Logger.warning(f'[{self.client_address[0]}] Received unknown data: {packet.data}')
         except:
             # Can be multiple since it includes handlers execution.
             Logger.error(traceback.format_exc())
+        finally:
+            # Flush incoming packets from the queue, if any.
+            while not self.incoming_pending.empty():
+                self.incoming_pending.get_nowait()
 
         # End this session.
         self.disconnect()
@@ -127,11 +135,9 @@ class WorldServerSessionHandler:
         except AttributeError:
             pass
 
-        # Unblock and flush queues.
-        while not self.incoming_pending.empty():
-            self.incoming_pending.get_nowait()
-        while not self.outgoing_pending.empty():
-            self.outgoing_pending.get_nowait()
+        # Add signals to stop queues from handling packets.
+        self.incoming_pending.put_nowait(None)
+        self.outgoing_pending.put_nowait(None)
 
         WorldSessionStateHandler.remove(self)
         try:
