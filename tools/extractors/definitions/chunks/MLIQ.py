@@ -17,7 +17,7 @@ class MLIQ:
         self.min_bound = 0.0
 
     @staticmethod
-    def from_reader(reader: StreamReader, min_bound: float):
+    def from_reader(reader: StreamReader, min_bound: Vector3):
         mliq = MLIQ()
         mliq.min_bound = min_bound
 
