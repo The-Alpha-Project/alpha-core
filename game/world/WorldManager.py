@@ -128,12 +128,10 @@ class WorldServerSessionHandler:
             pass
 
         # Unblock and flush queues.
-        self.incoming_pending.put_nowait(None)
         while not self.incoming_pending.empty():
-            self.incoming_pending.get(block=False, timeout=None)
-        self.outgoing_pending.put_nowait(None)
+            self.incoming_pending.get_nowait()
         while not self.outgoing_pending.empty():
-            self.outgoing_pending.get(block=False, timeout=None)
+            self.outgoing_pending.get_nowait()
 
         WorldSessionStateHandler.remove(self)
         try:
