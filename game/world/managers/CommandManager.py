@@ -1,7 +1,6 @@
 import hashlib
 import os
-import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from os import path
 from pathlib import Path
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -155,6 +154,8 @@ class CommandManager(object):
         player_o = player_mgr.location.o
         maps_z, z_locked = map_.calculate_z_for_object(player_mgr)
         maps_z_str = f'{maps_z:.3f}' if not z_locked else 'Invalid'
+        liq = map_.get_liquid_information(player_x, player_y, player_z)
+        liq_str = f'{liq.get_height():.3f}' if liq else 'Not found'
         adt_tile = map_.get_tile(player_x, player_y)
         return 0, f'Map: {world_session.player_mgr.map_id}\n' \
                   f'InstanceID: {world_session.player_mgr.instance_id}\n' \
@@ -164,6 +165,7 @@ class CommandManager(object):
                   f'Y: {player_y:.3f}, ' \
                   f'Z: {player_z:.3f}, ' \
                   f'MapZ: {maps_z_str}, ' \
+                  f'Liq: {liq_str}, ' \
                   f'O: {player_o:.3f}'
 
     @staticmethod

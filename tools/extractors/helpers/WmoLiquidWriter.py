@@ -29,7 +29,7 @@ class WmoLiquidWriter:
         file_writer.write(pack('<b', flag))
         # 32 bit Full precision.
         if not self.use_float_16:
-            file_writer.write(pack('<f', height))
+            file_writer.write(pack('<ff', height[0], height[1]))
             return
         # 16 bit Half precision.
-        file_writer.write(pack('>h', Float16.compress(height)))
+        file_writer.write(pack('>hh', Float16.compress(height[0]), Float16.compress(height[1])))

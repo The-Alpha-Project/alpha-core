@@ -202,10 +202,10 @@ class MapManager:
         return zone_id
 
     @staticmethod
-    def get_liquid_or_create(liquid_type, height, use_float_16):
-        key = f'{liquid_type}.{round(height, 4)}'
+    def get_liquid_or_create(liquid_type, l_min, l_max, use_float_16):
+        key = f'{liquid_type}.{round(l_min, 4)}.{l_max}'
         if key not in LIQUIDS_CACHE:
-            LIQUIDS_CACHE[key] = LiquidInformation(liquid_type, height, use_float_16)
+            LIQUIDS_CACHE[key] = LiquidInformation(liquid_type, l_min, l_max, use_float_16)
         return LIQUIDS_CACHE[key]
 
     @staticmethod
@@ -544,8 +544,18 @@ class MapManager:
                 return None
 
             tile = MAPS_TILES[map_id][adt_x][adt_y]
-            liquids = tile.get_liquids_at(cell_x, cell_y)
-            return liquids if liquids and liquids.get_height() > z else liquids if liquids and ignore_z else None
+            liq_info = tile.get_liquids_at(cell_x, cell_y)
+
+            if not liq_info:
+                return None
+
+            if ignore_z:
+                return liq_info
+
+            if not liq_info.contains(z):
+                return None
+
+            return liq_info
         except:
             Logger.error(traceback.format_exc())
             return None
