@@ -77,19 +77,19 @@ class WorldServerSessionHandler:
             self.outgoing_pending.put_nowait(data)
 
     def process_outgoing(self):
-        while self.keep_alive:
-            try:
+        try:
+            while self.keep_alive:
                 packet = self.outgoing_pending.get(block=True, timeout=None)
                 # We've been blocking, by now keep_alive might be false.
                 # data can be None if we shut down the thread.
                 if packet and self.keep_alive:
                     self.client_socket.sendall(packet)
-            except OSError:
-                self.disconnect()
-            finally:
-                # Flush outgoing packets from the queue, if any.
-                while not self.outgoing_pending.empty():
-                    self.outgoing_pending.get_nowait()
+        except OSError:
+            self.disconnect()
+        finally:
+            # Flush outgoing packets from the queue, if any.
+            while not self.outgoing_pending.empty():
+                self.outgoing_pending.get_nowait()
 
     # noinspection PyBroadException
     def process_incoming(self):
