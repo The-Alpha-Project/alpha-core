@@ -539,10 +539,7 @@ class ScriptHandler:
                                              TempSummonType.TEMP_SUMMON_MANUAL_DESPAWN}
 
                 if command.dataint & SummonCreatureFlags.SF_SUMMON_CREATURE_UNIQUE:
-                    if count_dead:
-                        ex_amount = len(found_units)
-                    else:
-                        ex_amount = sum(1 for u in found_units if u.is_alive)
+                    ex_amount = len(found_units) if count_dead else sum(1 for u in found_units if u.is_alive)
                 else:
                     ex_amount = sum(1 for u in found_units if u.is_temp_summon() and (count_dead or u.is_alive))
 
@@ -566,7 +563,7 @@ class ScriptHandler:
 
         # Run.
         if command.dataint & SummonCreatureFlags.SF_SUMMON_CREATURE_SET_RUN:
-            creature_manager.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=True)
+            creature_manager.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=False)
 
         # Attack target type.
         if command.dataint3 < ScriptTarget.TARGET_T_PROVIDED_TARGET:  # Can be -1.
