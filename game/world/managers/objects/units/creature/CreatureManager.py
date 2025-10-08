@@ -373,8 +373,7 @@ class CreatureManager(UnitManager):
         return owner_controlled_pet and owner_controlled_pet.creature is self
 
     def is_temp_summon(self):
-        return self.summoner and self.subtype in \
-               {CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON, CustomCodes.CreatureSubtype.SUBTYPE_TOTEM}
+        return self.subtype in {CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON, CustomCodes.CreatureSubtype.SUBTYPE_TOTEM}
 
     # override
     def is_unit_pet(self, unit):
@@ -993,14 +992,15 @@ class CreatureManager(UnitManager):
 
     @staticmethod
     def handle_summon_timed_or_dead(unit, elapsed):
+        should_despawn = unit.update_time_to_live(elapsed)
         if not unit.in_combat and unit.is_alive:
-            if unit.update_time_to_live(elapsed):
+            if should_despawn:
                 unit.despawn()
                 return True
         # In combat, restore timer to original ttl.
         elif unit.in_combat and unit.time_to_live > unit.time_to_live_timer:
             unit.time_to_live_timer = unit.time_to_live
-        elif not unit.is_alive:
+        elif not unit.is_alive and should_despawn:
             unit.despawn()
             return True
 

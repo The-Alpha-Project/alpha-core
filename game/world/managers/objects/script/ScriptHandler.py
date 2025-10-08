@@ -22,7 +22,7 @@ from game.world.managers.objects.units.movement.helpers.SplineEvent import Splin
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType
+    GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -520,15 +520,31 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No map found, {command.get_info()}.')
             return command.should_abort()
 
-        if command.datalong3:
-            units = map_.get_surrounding_units_by_location(command.source.location, command.source.map_id,
-                                                           command.source.instance_id, command.datalong4,
-                                                           include_players=False)[0].values()
-            summoned = [unit for unit in units if unit.creature_template.entry == command.datalong]
-            if summoned and len(summoned) >= command.datalong3:
-                return command.should_abort()
-
         summon_type = TempSummonType(command.dataint4)
+
+        if command.dataint & (SummonCreatureFlags.SF_SUMMON_CREATURE_UNIQUE |
+                              SummonCreatureFlags.SF_SUMMON_CREATURE_UNIQUE_TEMP):
+            distance = command.datalong4 if command.datalong4 else (
+                    (command.source.location.distance(x=command.x, y=command.y, z=command.z) + 50.0) * 2)
+
+            units = map_.get_surrounding_units_by_location(command.source.location, command.source.map_id,
+                                                           command.source.instance_id, distance,
+                                                           include_players=False)[0].values()
+
+            found_units = [unit for unit in units if unit.creature_template.entry == command.datalong]
+            if found_units:
+                req_amount = command.datalong3 if command.datalong3 else 1
+                count_dead = summon_type in {TempSummonType.TEMP_SUMMON_TIMED_DESPAWN,
+                                             TempSummonType.TEMP_SUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,
+                                             TempSummonType.TEMP_SUMMON_MANUAL_DESPAWN}
+
+                if command.dataint & SummonCreatureFlags.SF_SUMMON_CREATURE_UNIQUE:
+                    ex_amount = len(found_units) if count_dead else sum(1 for u in found_units if u.is_alive)
+                else:
+                    ex_amount = sum(1 for u in found_units if u.is_temp_summon() and (count_dead or u.is_alive))
+
+                if ex_amount >= req_amount:
+                    return command.should_abort()
 
         creature_manager = CreatureBuilder.create(command.datalong, Vector(command.x, command.y, command.z, command.o),
                                                   command.source.map_id, command.source.instance_id,
@@ -537,12 +553,17 @@ class ScriptHandler:
                                                   summon_type=summon_type)
         if not creature_manager:
             return command.should_abort()
+
         map_.spawn_object(world_object_instance=creature_manager)
 
         # Generic script.
         if command.dataint2:
             map_.enqueue_script(source=creature_manager, target=None, script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
                                 script_id=command.dataint2)
+
+        # Run.
+        if command.dataint & SummonCreatureFlags.SF_SUMMON_CREATURE_SET_RUN:
+            creature_manager.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=False)
 
         # Attack target type.
         if command.dataint3 < ScriptTarget.TARGET_T_PROVIDED_TARGET:  # Can be -1.

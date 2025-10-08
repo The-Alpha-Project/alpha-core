@@ -662,6 +662,14 @@ class CreatureGroupFlags(IntEnum):
     OPTION_INFORM_MEMBERS_ON_ANY_DIED = 0x080
 
 
+class SummonCreatureFlags(IntEnum):
+    SF_SUMMON_CREATURE_SET_RUN     = 0x01    # Makes creature move at run speed.
+    SF_SUMMON_CREATURE_ACTIVE      = 0x02    # Active creatures are always updated.
+    SF_SUMMON_CREATURE_UNIQUE      = 0x04    # Not actually unique, just checks for same entry in certain range.
+    SF_SUMMON_CREATURE_UNIQUE_TEMP = 0x08    # Same as 0x10 but check for TempSummon only creatures.
+    SF_SUMMON_CREATURE_NULL_AI     = 0x10    # Use Null AI instead of the normal creature script.
+
+
 class TempSummonType(IntEnum):
     TEMP_SUMMON_DEFAULT = 0
     # Despawns after a specified time (out of combat) OR when the creature disappears.

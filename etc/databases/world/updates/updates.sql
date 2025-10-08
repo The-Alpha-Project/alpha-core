@@ -2218,5 +2218,30 @@ begin not atomic
         insert into applied_updates values ('260920251');
     end if;
 
+    -- 07/10/2025 1
+    if (select count(*) from applied_updates where id='071020251') = 0 then
+        -- Fix Eliza's dirt display id and Z.
+        UPDATE `gameobject_template` SET `displayId` = '49' WHERE (`entry` = '51708');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.251' WHERE (`spawn_id` = '18542');
+        
+        -- Fix Eliza spawn Z.
+        DELETE FROM `quest_end_scripts` WHERE `id`=254;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (254, 1, 0, 10, 314, 3000000, 0, 0, 0, 0, 0, 0, 8, 0, -1, 1, -10267, 52.52, 41.535, 2.5, 0, '');
+
+        -- Events list for Eliza
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=314;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31403, 314, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 31403, 0, 0, 'Eliza - Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31404, 314, 0, 4, 0, 100, 0, 0, 0, 0, 0, 31404, 0, 0, 'Eliza - Cast Frostbolt on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31412, 314, 0, 9, 0, 100, 1, 8, 15, 2900, 5900, 31412, 0, 0, 'Eliza - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31413, 314, 0, 11, 0, 100, 0, 0, 0, 0, 0, 31413, 0, 0, 'Eliza - Remove Immune to players flag upon spawn.');
+
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=31413;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (31413, 0, 0, 4, 46, 256, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Remove Immune to players flag.');
+
+        insert into applied_updates values ('071020251');
+    end if;
 end $
 delimiter ;
