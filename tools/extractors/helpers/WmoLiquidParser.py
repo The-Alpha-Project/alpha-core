@@ -1,5 +1,3 @@
-import os
-
 from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_LIQUIDS
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from tools.extractors.definitions.objects.Vector3 import Vector3
@@ -47,7 +45,7 @@ class WmoLiquidParser:
         # filename = f'/home/user/{adt.map_id}.obj'
         # exists = os.path.exists(filename)
         # with open(filename, 'w' if not exists else 'a') as f:
-        #print(f"OBJ file '{filename}' created with {len(vertices)} vertices.")
+        # print(f"OBJ file '{filename}' created with {len(vertices)} vertices.")
         for v in transformed_vertices:
                 adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
                 # Initialize wmo liquids for adt if needed.
@@ -57,6 +55,7 @@ class WmoLiquidParser:
                 # f.write(f"v {v.X} {v.Y} {v.Z}\n")
 
         vertices.clear()
+        transformed_vertices.clear()
 
     @staticmethod
     def _ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y):
