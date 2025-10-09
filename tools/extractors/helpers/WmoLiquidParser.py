@@ -32,19 +32,30 @@ class WmoLiquidParser:
 
                 for mliq in wmo.mliq:
                     WmoLiquidParser._get_mliq_vertices(mliq, vertices, tile_size)
-                    WmoLiquidParser._transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq)
+                    WmoLiquidParser._transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq, self.adt)
 
     @staticmethod
-    def _transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq):
+    def _transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq, adt):
+        # Transform min_bound.
         min_bound = Vector3.transform(mliq.min_bound, t_matrix)
-        for v in [Vector3.transform(vert, t_matrix) for vert in vertices]:
+
+        # Transform all vertices once.
+        transformed_vertices = [Vector3.transform(vert, t_matrix) for vert in vertices]
+
+        # filename = f'/home/user/{adt.map_id}.obj'
+        # exists = os.path.exists(filename)
+        # with open(filename, 'w' if not exists else 'a') as f:
+        # print(f"OBJ file '{filename}' created with {len(vertices)} vertices.")
+        for v in transformed_vertices:
                 adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
                 # Initialize wmo liquids for adt if needed.
                 WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
                 # Write wmo liquid height.
                 wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z)
+                # f.write(f"v {v.X} {v.Y} {v.Z}\n")
 
         vertices.clear()
+        transformed_vertices.clear()
 
     @staticmethod
     def _ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y):
@@ -56,11 +67,17 @@ class WmoLiquidParser:
     @staticmethod
     def _get_mliq_vertices(mliq, vertices, tile_size):
         c = mliq.corner  # Corner.
+        step = 0.1
+
+        # Loop over each tile
         for y in range(mliq.y_tiles):
             for x in range(mliq.x_tiles):
-                if mliq.flags[y][x] == 15:  # Do not show.
-                    continue
-                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 0), c.Z))
-                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 0), c.Z))
-                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 1), c.Z))
-                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 1), c.Z))
+                # For each tile, iterate tile_size from start to end in order to cover most of the area.
+                factor = 1
+                while factor <= tile_size:
+                    # Generate vertices for the current tile_size factor.
+                    vertices.append(Vector3(c.X + factor * (x + 0), c.Y + factor * (y + 0), c.Z))
+                    vertices.append(Vector3(c.X + factor * (x + 1), c.Y + factor * (y + 0), c.Z))
+                    vertices.append(Vector3(c.X + factor * (x + 0), c.Y + factor * (y + 1), c.Z))
+                    vertices.append(Vector3(c.X + factor * (x + 1), c.Y + factor * (y + 1), c.Z))
+                    factor += step
