@@ -67,17 +67,18 @@ class WmoLiquidParser:
     @staticmethod
     def _get_mliq_vertices(mliq, vertices, tile_size):
         c = mliq.corner  # Corner.
-        step = 0.1
+        fractions = [0.0, 0.25, 0.5, 0.75]
 
         # Loop over each tile
         for y in range(mliq.y_tiles):
             for x in range(mliq.x_tiles):
-                # For each tile, iterate tile_size from start to end in order to cover most of the area.
-                factor = 1
-                while factor <= tile_size:
-                    # Generate vertices for the current tile_size factor.
-                    vertices.append(Vector3(c.X + factor * (x + 0), c.Y + factor * (y + 0), c.Z))
-                    vertices.append(Vector3(c.X + factor * (x + 1), c.Y + factor * (y + 0), c.Z))
-                    vertices.append(Vector3(c.X + factor * (x + 0), c.Y + factor * (y + 1), c.Z))
-                    vertices.append(Vector3(c.X + factor * (x + 1), c.Y + factor * (y + 1), c.Z))
-                    factor += step
+                # Corner vertices.
+                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 0), c.Z))
+                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 0), c.Z))
+                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 1), c.Z))
+                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 1), c.Z))
+
+                # Generate 16 fractional points at all combinations of 0.0, 0.25, 0.5, 0.75.
+                for frac_x in fractions:
+                    for frac_y in fractions:
+                        vertices.append(Vector3(c.X + tile_size * (x + frac_x), c.Y + tile_size * (y + frac_y), c.Z))
