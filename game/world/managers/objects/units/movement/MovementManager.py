@@ -218,6 +218,9 @@ class MovementManager:
         self.spline_callback(SplineBuilder.build_face_spot_spline(self.unit, spot))
 
     def set_behavior(self, movement_behavior):
+        if self.unit.is_sessile():
+            return
+
         if movement_behavior.initialize(self.unit):
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()

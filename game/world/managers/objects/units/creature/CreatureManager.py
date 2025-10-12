@@ -403,6 +403,10 @@ class CreatureManager(UnitManager):
     def is_tameable(self):
         return self.static_flags & CreatureStaticFlags.TAMEABLE
 
+    # override
+    def is_sessile(self):
+        return self.static_flags & CreatureStaticFlags.SESSILE
+
     def is_at_home(self):
         return self.location == self.spawn_position and not self.is_moving()
 
