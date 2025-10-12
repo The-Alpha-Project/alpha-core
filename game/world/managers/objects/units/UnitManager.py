@@ -1846,7 +1846,10 @@ class UnitManager(ObjectManager):
             if active_pet:
                 summon_spell = active_pet.get_pet_data().summon_spell_id
                 charmer.spell_manager.remove_cast_by_id(summon_spell)
-                charmer.aura_manager.remove_auras_by_caster(self.guid)
+
+                # Don't remove buffs from permanent pets on despawn (e.g. Sacrificial Shield).
+                if not active_pet.is_permanent():
+                    charmer.aura_manager.remove_auras_by_caster(self.guid)
 
         self.is_alive = False
         super().despawn()
