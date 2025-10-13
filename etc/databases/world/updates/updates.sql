@@ -2243,5 +2243,19 @@ begin not atomic
 
         insert into applied_updates values ('071020251');
     end if;
+
+    -- 12/10/2025 1
+    if (select count(*) from applied_updates where id='121020251') = 0 then
+        -- Completion script for quest The Star, the Hand and the Heart.
+        -- https://github.com/vmangos/core/commit/5afaae4042007acf2af807c0cd54ba9fd89e06e3
+        DELETE FROM `quest_end_scripts` WHERE `id`=735;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (735, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 919, 0, 0, 0, 0, 0, 0, 0, 0, 'The Star, the Hand and the Heart: Gerrig Bonegrip - Say Text'),
+        (735, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 920, 0, 0, 0, 0, 0, 0, 0, 0, 'The Star, the Hand and the Heart: Gerrig Bonegrip - Say Text');
+        UPDATE `broadcast_text` SET `emote_id1`=2 WHERE `entry`=920;
+        UPDATE `quest_template` SET `CompleteScript`=735 WHERE `entry`=735;
+
+        insert into applied_updates values ('121020251');
+    end if;
 end $
 delimiter ;

@@ -540,30 +540,23 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_leap(casting_spell, effect, caster, target):
-        # Leap targeting specifies both the leaping unit and their leap target.
-        # Since there are no leap spells with multiple targets,
-        # this method selects the first targets.
-
         leaper = effect.targets.resolved_targets_a
-        leap_target = effect.targets.resolved_targets_b
-
-        if len(leaper) != 1 or len(leap_target) != 1:
+        if not len(leaper):
             return
 
         leaper = leaper[0]
-        leap_target = leap_target[0]
 
-        # Terrain targeted leaps (ie. blink).
         if casting_spell.initial_target_is_terrain():
-            leap_target.set_orientation(leap_target.location.o)
+            leap_target = casting_spell.initial_target
+            leap_target.set_orientation(leaper.location.o)
             leaper.teleport(caster.map_id, leap_target)
             return
 
         # Unit-targeted leap (Charge/heroic leap).
         # Generate a point within combat reach and facing the target.
-        # It wasn't until Patch 0.6 that Charge speeded you along a path towards the target, it just teleported you
+        # It wasn't until Patch 0.6 that Charge sped you along a path towards the target, it just teleported you
         # next to the target (there's also video evidence of this behavior).
-        distance = caster.location.distance(target.location) - UnitFormulas.combat_distance(leaper, leap_target)
+        distance = caster.location.distance(target.location) - UnitFormulas.combat_distance(leaper, target)
         charge_location = caster.location.get_point_in_between(caster, distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
 
