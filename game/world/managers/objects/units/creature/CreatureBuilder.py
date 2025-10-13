@@ -71,6 +71,9 @@ class CreatureBuilder:
             creature_instance.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=True)
             summoner.possessed_unit = creature_instance
 
+        if subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON:
+            creature_instance.initialize_field_values()
+
         return creature_instance
 
     @staticmethod

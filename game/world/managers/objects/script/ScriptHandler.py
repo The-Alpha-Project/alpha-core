@@ -500,7 +500,7 @@ class ScriptHandler:
         return False
 
     @staticmethod
-    def handle_script_command_temp_summon_creature(command):
+    def handle_script_command_summon_temp_creature(command):
         # source = WorldObject (from provided source or buddy)
         # datalong = creature_entry
         # datalong2 = despawn_delay
@@ -567,13 +567,17 @@ class ScriptHandler:
 
         # Attack target type.
         if command.dataint3 < ScriptTarget.TARGET_T_PROVIDED_TARGET:  # Can be -1.
-            creature_manager.set_has_moved(has_moved=True, has_turned=True)
+            command.source.set_has_moved(has_moved=True, has_turned=True, instant=True)
+            creature_manager.set_has_moved(has_moved=True, has_turned=True, instant=True)
             return False
 
         from game.world.managers.objects.script.ScriptManager import ScriptManager
         attack_target = ScriptManager.get_target_by_type(command.source, command.target, command.dataint3)
         if attack_target and attack_target.is_alive:
             creature_manager.attack(attack_target)
+
+        command.source.set_has_moved(has_moved=True, has_turned=True, instant=True)
+        creature_manager.set_has_moved(has_moved=True, has_turned=True, instant=True)
 
         return False
 
@@ -1881,7 +1885,7 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_QUEST_EXPLORED: ScriptHandler.handle_script_command_quest_explored,
     ScriptCommands.SCRIPT_COMMAND_KILL_CREDIT: ScriptHandler.handle_script_command_kill_credit,
     ScriptCommands.SCRIPT_COMMAND_RESPAWN_GAMEOBJECT: ScriptHandler.handle_script_command_respawn_gameobject,
-    ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: ScriptHandler.handle_script_command_temp_summon_creature,
+    ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: ScriptHandler.handle_script_command_summon_temp_creature,
     ScriptCommands.SCRIPT_COMMAND_OPEN_DOOR: ScriptHandler.handle_script_command_open_door,
     ScriptCommands.SCRIPT_COMMAND_CLOSE_DOOR: ScriptHandler.handle_script_command_close_door,
     ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: ScriptHandler.handle_script_command_activate_object,

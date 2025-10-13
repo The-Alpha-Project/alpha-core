@@ -120,6 +120,7 @@ class WaypointMovement(BaseMovement):
 
     def _perform_waypoint(self):
         waypoint = self._get_waypoint()
+        print(waypoint.location)
         speed = self._get_speed()
         spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint.location], speed=speed,
                                                    extra_time_seconds=waypoint.wait_time_seconds)

@@ -71,6 +71,7 @@ class CreatureManager(UnitManager):
         self.wander_distance = 0
         self.movement_type = MovementTypes.IDLE
         self.fully_loaded = False
+        self.loading = False
         self.killed_by = None
         self.known_players = {}
 
@@ -116,7 +117,7 @@ class CreatureManager(UnitManager):
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PLUS_MOB, active=True)
         # NPC can't be attacked by other NPCs and can't attack other NPCs.
         if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_NPC:
-            self.set_unit_flag(UnitFlags.UNIT_FLAG_PASSIVE, active=True)
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC, active=True)
         # NPC is immune to player characters.
         if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_PLAYER:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC, active=True)
@@ -222,8 +223,11 @@ class CreatureManager(UnitManager):
         self.object_ai.just_respawned()
 
     def finish_loading(self):
-        if self.fully_loaded:
+        if self.fully_loaded or self.loading:
             return
+
+        self.loading = True
+
         # Load loot manager.
         self.loot_manager = CreatureLootManager(self)
         # Load pickpocket loot manager if required.
@@ -299,6 +303,7 @@ class CreatureManager(UnitManager):
         self.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.should_always_run_ooc())
         self.movement_manager.initialize_or_reset()
 
+        self.loading = False
         self.fully_loaded = True
 
     def set_virtual_equipment(self, slot, item_id):
@@ -403,6 +408,10 @@ class CreatureManager(UnitManager):
     def is_tameable(self):
         return self.static_flags & CreatureStaticFlags.TAMEABLE
 
+    # override
+    def is_sessile(self):
+        return self.static_flags & CreatureStaticFlags.SESSILE
+
     def is_at_home(self):
         return self.location == self.spawn_position and not self.is_moving()
 
@@ -410,7 +419,7 @@ class CreatureManager(UnitManager):
         self.apply_default_auras()
         self.movement_manager.face_angle(self.spawn_position.o)
         # Scan surrounding for enemies.
-        self._on_relocation()
+        self.on_relocation()
         if self.object_ai and not was_at_home:
             self.object_ai.ai_event_handler.reset()
             self.object_ai.just_reached_home()
@@ -593,9 +602,9 @@ class CreatureManager(UnitManager):
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
 
-                if self.relocation_call_for_help_timer >= 1:
+                if self.relocation_call_for_help_timer >= 0.8:
                     if self.pending_relocation:
-                        self._on_relocation()
+                        self.on_relocation()
                         self.pending_relocation = False
                     if self.combat_target:
                         self.threat_manager.call_for_help(self.combat_target)
@@ -648,15 +657,22 @@ class CreatureManager(UnitManager):
     # override
     def attack(self, victim: UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
-        super().attack(victim)
+        can_attack = super().attack(victim)
+
+        if not can_attack:
+            return
+
         if had_target:
             return
+
         # Stand if necessary.
         if self.stand_state != StandState.UNIT_STANDING:
             self.set_stand_state(StandState.UNIT_STANDING)
+
         # Remove emote.
         if self.emote_unit_state:
             self.set_emote_unit_state(EmoteUnitState.NONE)
+
         self.object_ai.attack_start(victim)
 
     # override
@@ -866,7 +882,7 @@ class CreatureManager(UnitManager):
             self.dmg_min
         )
 
-    def _on_relocation(self):
+    def on_relocation(self):
         self._update_swimming_state()
         self.notify_move_in_line_of_sight()
 

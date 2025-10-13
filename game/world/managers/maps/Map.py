@@ -44,6 +44,8 @@ class Map:
         count = 0
         length = len(creature_spawns_instances)
         for creature_spawn_instance in creature_spawns_instances:
+            if creature_spawn_instance.spawn_id != 37096:
+                continue
             creature_spawn_instance.spawn()
             count += 1
             Logger.progress(f'Spawning creatures, Map {self.name}, Instance {self.instance_id}...', count, length)
@@ -276,8 +278,8 @@ class Map:
     def get_active_cell_count(self):
         return self.grid_manager.get_active_cell_count()
 
-    def activate_cell_by_world_object(self, world_object):
-        self.grid_manager.activate_cell_by_world_object(world_object)
+    def activate_cell_by_world_object(self, world_object, load_tile_data=False):
+        self.grid_manager.activate_cell_by_world_object(world_object, load_tile_data)
 
     # Objects updates.
     def update_creatures(self):
