@@ -44,8 +44,6 @@ class Map:
         count = 0
         length = len(creature_spawns_instances)
         for creature_spawn_instance in creature_spawns_instances:
-            if creature_spawn_instance.spawn_id != 37096:
-                continue
             creature_spawn_instance.spawn()
             count += 1
             Logger.progress(f'Spawning creatures, Map {self.name}, Instance {self.instance_id}...', count, length)

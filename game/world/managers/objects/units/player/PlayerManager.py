@@ -1563,7 +1563,7 @@ class PlayerManager(UnitManager):
             # If not teleporting, notify self movement to surrounding units for proximity aggro.
             if not self.update_lock:
                 # Relocation.
-                if self.relocation_call_for_help_timer >= 0.8:
+                if self.relocation_call_for_help_timer >= 1:
                     if self.pending_relocation:
                         self.on_relocation()
                     self.relocation_call_for_help_timer = 0

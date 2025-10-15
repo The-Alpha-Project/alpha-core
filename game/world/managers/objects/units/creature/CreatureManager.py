@@ -64,8 +64,6 @@ class CreatureManager(UnitManager):
         self.ranged_attack_time = 0
         self.dmg_min = 0
         self.dmg_max = 0
-        self.destroy_time = 420  # Standalone instances, destroyed after 7 minutes.
-        self.destroy_timer = 0
         self.just_died = False
         self.virtual_item_info = {}
         self.wander_distance = 0
@@ -568,13 +566,13 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            is_active = self.is_active_object()
-            if not is_active:
-                return
-
             # Check for despawn logic for standalone instances.
             if self._should_despawn(elapsed):
                 return  # Creature destroyed.
+
+            is_active = self.is_active_object()
+            if not is_active:
+                return
 
             if self.is_alive:
                 # Update relocate/call for help timer.
@@ -609,9 +607,6 @@ class CreatureManager(UnitManager):
                     if self.combat_target:
                         self.threat_manager.call_for_help(self.combat_target)
                     self.relocation_call_for_help_timer = 0
-            # Dead creature with no spawn point, handle destroy.
-            elif not self._check_destroy(elapsed):
-                return  # Creature destroyed.
 
             has_changes = self.has_pending_updates()
             # Check if this creature object should be updated yet or not.
@@ -621,22 +616,24 @@ class CreatureManager(UnitManager):
 
         self.last_tick = now
 
-    def _check_destroy(self, elapsed):
-        if self.subtype != CustomCodes.CreatureSubtype.SUBTYPE_GENERIC and not self.is_alive and self.is_spawned\
-                and self.initialized:
-            self.destroy_timer += elapsed
-            if self.destroy_timer >= self.destroy_time:
-                self.despawn()
-                return False
-        return True
-
     # override
-    def despawn(self, ttl=0):
+    def despawn(self, ttl=0, respawn_delay=0):
+        # Handle temporal respawn_delay if provided.
+        if not self.is_dynamic_spawn and respawn_delay:
+            unit_spawn = self.get_map().get_surrounding_creature_spawn_by_spawn_id(self, self.spawn_id)
+            if unit_spawn:
+                unit_spawn.set_respawn_time(respawn_delay)
+
+        # Delayed despawn.
         if ttl:
-            # Delayed despawn.
-            self.time_to_live_timer = ttl / 1000  # Seconds.
+            self.time_to_live = ttl / 1000  # Seconds.
+            self.time_to_live_timer = 0
             return
-        super().despawn()
+
+        self.time_to_live_timer = 0
+        self.time_to_live = 0
+
+        super().despawn(ttl, respawn_delay)
 
     def _should_despawn(self, elapsed):
         # Do not despawn charmed unit until charm expires.
@@ -650,8 +647,8 @@ class CreatureManager(UnitManager):
 
     def update_time_to_live(self, elapsed):
         if self.time_to_live > 0:
-            self.time_to_live_timer = max(0, self.time_to_live_timer - elapsed)
-            return self.time_to_live_timer <= 0
+            self.time_to_live_timer += elapsed
+            return self.time_to_live_timer >= self.time_to_live
         return False
 
     # override
@@ -1013,9 +1010,9 @@ class CreatureManager(UnitManager):
             if should_despawn:
                 unit.despawn()
                 return True
-        # In combat, restore timer to original ttl.
-        elif unit.in_combat and unit.time_to_live > unit.time_to_live_timer:
-            unit.time_to_live_timer = unit.time_to_live
+        # In combat, restore timer.
+        elif unit.in_combat and unit.time_to_live_timer:
+            unit.time_to_live_timer = 0
         elif not unit.is_alive and should_despawn:
             unit.despawn()
             return True
@@ -1038,8 +1035,8 @@ class CreatureManager(UnitManager):
                 unit.despawn()
                 return True
         # In combat, restore timer to original ttl.
-        elif unit.time_to_live > unit.time_to_live_timer:
-            unit.time_to_live_timer = unit.time_to_live
+        elif unit.time_to_live_timer:
+            unit.time_to_live_timer = 0
 
         return False
 
@@ -1053,8 +1050,8 @@ class CreatureManager(UnitManager):
                 unit.despawn()
                 return True
         # In combat, restore timer to original ttl.
-        elif unit.time_to_live > unit.time_to_live_timer:
-            unit.time_to_live_timer = unit.time_to_live
+        elif unit.time_to_live_timer:
+            unit.time_to_live_timer = 0
 
         return False
 
