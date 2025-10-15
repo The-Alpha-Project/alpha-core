@@ -1479,7 +1479,7 @@ class WorldDatabaseManager(object):
     # Quest Gossip.
 
     class QuestGossipHolder:
-        GOSSIP_MENU: dict[int, GossipMenu] = {}
+        GOSSIP_MENU: dict[int, list[GossipMenu]] = {}
         NPC_GOSSIPS: dict[int, NpcGossip] = {}
         NPC_TEXTS: dict[int, NpcText] = {}
         DEFAULT_GREETING_TEXT_ID = 68  # Greetings $N
@@ -1490,7 +1490,9 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_gossip_menu(gossip_menu: GossipMenu):
-            WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU[gossip_menu.entry] = gossip_menu
+            if gossip_menu.entry not in WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU:
+                WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU[gossip_menu.entry] = []
+            WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU[gossip_menu.entry].append(gossip_menu)
 
         @staticmethod
         def load_npc_text(npc_text: NpcText):
@@ -1498,7 +1500,7 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def gossip_menu_by_entry(entry):
-            return WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU.get(entry, None)
+            return WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU.get(entry, [])
 
         @staticmethod
         def npc_gossip_get_by_guid(spawn_id: int) -> Optional[NpcGossip]:

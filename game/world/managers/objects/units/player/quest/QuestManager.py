@@ -4,7 +4,6 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
@@ -19,7 +18,7 @@ from utils.constants.ItemCodes import InventoryError
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
-    QuestFlags, GameObjectTypes, HighGuid, ScriptTypes
+    QuestFlags, GameObjectTypes, HighGuid, ScriptTypes, ObjectTypeIds
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -247,7 +246,7 @@ class QuestManager(object):
             elif quest_entry in quest_giver_finish_quests and quest_state == QuestState.QUEST_ACCEPTED:
                 quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_QUEST, QuestState.QUEST_ACCEPTED)
 
-        has_greeting, greeting_text, emote = QuestManager.get_quest_giver_gossip_string(quest_giver)
+        has_greeting, greeting_text, emote = QuestManager.get_quest_giver_gossip_string(quest_giver, self.player_mgr)
 
         # No quest menu items but has gossip greeting, display that.
         if len(quest_menu.items) == 0 and has_greeting:
@@ -285,6 +284,8 @@ class QuestManager(object):
             Logger.warning(f'Unhandled quest giver hello for quest giver entry {quest_giver.entry}')
 
     def get_quest_state(self, quest_entry):
+        if quest_entry in self.completed_quests:
+            return QuestState.QUEST_REWARD
         if quest_entry in self.active_quests:
             return self.active_quests[quest_entry].get_quest_state()
 
@@ -431,28 +432,59 @@ class QuestManager(object):
         return QuestManager._gossip_text_choose_by_gender(quest_giver, text_entry)
 
     @staticmethod
-    def get_quest_giver_gossip_string(quest_giver) -> tuple:  # has_custom_greeting, greeting str, emote
+    def get_quest_giver_gossip_string(quest_giver, player_mgr) -> tuple:  # has_custom_greeting, greeting str, emote
         quest_giver_gossip_entry: NpcGossip = WorldDatabaseManager.QuestGossipHolder.npc_gossip_get_by_guid(quest_giver.spawn_id)
-        text_entry: int = WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID  # 68 textid = "Greetings $N".
         if quest_giver_gossip_entry:
             text_entry = quest_giver_gossip_entry.textid
+        else:
+            if quest_giver.is_unit():
+                gossip_entry = quest_giver.creature_template.gossip_menu_id
+            elif quest_giver.is_gameobject():
+                gossip_entry = quest_giver.gobject_template.data3
+            else:
+                Logger.error(
+                    f'Invalid quest giver type when retrieving gossip text. '
+                    f'Type: {ObjectTypeIds(quest_giver.get_type_id()).name}, '
+                    f'Spawn ID: {quest_giver.spawn_id}'
+                )
+                return False, None, 0
+
+            gossip_text = QuestManager._get_gossip_menu_gossip_text(quest_giver, player_mgr, gossip_entry)
+            if gossip_text:
+                return True, gossip_text, 0
+            # Fallback to default greeting.
+            text_entry: int = WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID  # 68 textid = "Greetings $N".
+
         quest_giver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
-
-        if not quest_giver_gossip_entry and quest_giver.is_gameobject():
-            gossip_text = QuestManager._get_gossip_menu_gossip_text(quest_giver, quest_giver.gobject_template.data3)
-            return True if gossip_text else False, gossip_text, 0
-
         quest_giver_greeting = QuestManager._gossip_text_choose_by_gender(quest_giver, quest_giver_text_entry)
         return True if quest_giver_gossip_entry else False, quest_giver_greeting, quest_giver_text_entry.em0_0
 
     @staticmethod
-    def _get_gossip_menu_gossip_text(quest_giver, gossip_entry):
+    def _get_gossip_menu_gossip_text(quest_giver, player_mgr, gossip_entry):
         if not gossip_entry:
             return None
-        gossip_menu = WorldDatabaseManager.QuestGossipHolder.gossip_menu_by_entry(gossip_entry)
-        if not gossip_menu or not gossip_menu.text_id:
+        gossip_menus = WorldDatabaseManager.QuestGossipHolder.gossip_menu_by_entry(gossip_entry)
+        if not gossip_menus:
             return None
-        npc_text = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(gossip_menu.text_id)
+
+        selected_gossip = None
+        # First, check those with a non-zero condition_id.
+        for gossip_menu in gossip_menus:
+            if gossip_menu.condition_id != 0:
+                if ConditionChecker.validate(gossip_menu.condition_id, player_mgr, player_mgr):
+                    selected_gossip = gossip_menu
+                    break
+        # If none of the condition_ids were true, pick the first with condition_id == 0.
+        if not selected_gossip:
+            for gossip_menu in gossip_menus:
+                if gossip_menu.condition_id == 0:
+                    selected_gossip = gossip_menu
+                    break
+        # Still no gossip? Then return None.
+        if not selected_gossip or not selected_gossip.text_id:
+            return None
+
+        npc_text = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(selected_gossip.text_id)
         if not npc_text:
             return None
         gossip_text = QuestManager._gossip_text_choose_by_gender(quest_giver, npc_text)

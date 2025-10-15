@@ -35,20 +35,19 @@ class ConditionChecker:
             result = CONDITIONS[condition.type](condition, source, target)
             if condition.flags & ConditionFlags.CONDITION_FLAG_REVERSE_RESULT:
                 return not result
-
             return result
 
-        else:
-            Logger.warning(f'ConditionChecker: Condition {condition.type} does not exist.')
-            return False
+        Logger.warning(f'ConditionChecker: Condition {condition.type} does not exist.')
+        return False
 
     @staticmethod
     def _check_param_requirements(condition_type, source, target):
         internal_condition_target = CONDITIONAL_TARGETS_INTERNAL_MAP.get(condition_type, None)
         if internal_condition_target is not None:  # Can be 0.
             return CONDITIONAL_TARGETS_INTERNAL[internal_condition_target](source, target)
-        else:
-            Logger.warning(f'Unable to resolve internal condition target for type {condition_type}')
+
+        Logger.warning(f'Unable to resolve internal condition target for type {condition_type}')
+        return False
 
     @staticmethod
     def is_player(target):
