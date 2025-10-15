@@ -4,7 +4,6 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQ
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
@@ -19,7 +18,7 @@ from utils.constants.ItemCodes import InventoryError
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
-    QuestFlags, GameObjectTypes, HighGuid, ScriptTypes
+    QuestFlags, GameObjectTypes, HighGuid, ScriptTypes, ObjectTypeIds
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -438,15 +437,22 @@ class QuestManager(object):
         if quest_giver_gossip_entry:
             text_entry = quest_giver_gossip_entry.textid
         else:
-            gossip_entry = 0
             if quest_giver.is_unit():
                 gossip_entry = quest_giver.creature_template.gossip_menu_id
             elif quest_giver.is_gameobject():
                 gossip_entry = quest_giver.gobject_template.data3
+            else:
+                Logger.error(
+                    f'Invalid quest giver type when retrieving gossip text. '
+                    f'Type: {ObjectTypeIds(quest_giver.get_type_id()).name}, '
+                    f'Spawn ID: {quest_giver.spawn_id}'
+                )
+                return False, None, 0
+
             gossip_text = QuestManager._get_gossip_menu_gossip_text(quest_giver, player_mgr, gossip_entry)
             if gossip_text:
                 return True, gossip_text, 0
-            # Fallback to default greetings.
+            # Fallback to default greeting.
             text_entry: int = WorldDatabaseManager.QuestGossipHolder.DEFAULT_GREETING_TEXT_ID  # 68 textid = "Greetings $N".
 
         quest_giver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
@@ -469,11 +475,12 @@ class QuestManager(object):
                     selected_gossip = gossip_menu
                     break
         # If none of the condition_ids were true, pick the first with condition_id == 0.
-        if selected_gossip is None:
+        if not selected_gossip:
             for gossip_menu in gossip_menus:
                 if gossip_menu.condition_id == 0:
                     selected_gossip = gossip_menu
                     break
+        # Still no gossip? Then return None.
         if not selected_gossip or not selected_gossip.text_id:
             return None
 
