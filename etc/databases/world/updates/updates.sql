@@ -2464,7 +2464,8 @@ begin not atomic
 
         DELETE FROM `generic_scripts` WHERE `id`=94502;
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (94502, 0, 0, 70, 945, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Fail Quest');
+        (94502, 0, 0, 70, 945, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Fail Quest'),
+        (94502, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Despawn Therylune');
 
         -- Remove invalid spell from script.
 
