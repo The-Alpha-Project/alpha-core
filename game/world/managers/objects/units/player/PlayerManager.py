@@ -614,7 +614,7 @@ class PlayerManager(UnitManager):
             self.group_manager.send_update()
 
         # Notify surrounding for proximity checks.
-        self._on_relocation()
+        self.on_relocation()
 
         # Remove this pending teleport data.
         self.pending_teleport_data.pop(0)
@@ -773,7 +773,7 @@ class PlayerManager(UnitManager):
             # Remove self from combat and attackers.
             self.leave_combat()
         else:
-            self._on_relocation()
+            self.on_relocation()
 
     def send_minimap_ping(self, guid, vector):
         data = pack('<Q2f', guid, vector.x, vector.y)
@@ -1565,7 +1565,7 @@ class PlayerManager(UnitManager):
                 # Relocation.
                 if self.relocation_call_for_help_timer >= 1:
                     if self.pending_relocation:
-                        self._on_relocation()
+                        self.on_relocation()
                     self.relocation_call_for_help_timer = 0
 
                 self.update_manager.process_tick_updates()
@@ -1737,7 +1737,7 @@ class PlayerManager(UnitManager):
 
             self.stealth_detect_timer = 0
 
-    def _on_relocation(self):
+    def on_relocation(self):
         self.notify_move_in_line_of_sight()
 
     # override

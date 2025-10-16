@@ -16,10 +16,11 @@ class GameObjectSpawn:
         self.spawn_id = gameobject_spawn.spawn_id
         self.map_id = gameobject_spawn.spawn_map
         self.instance_id = instance_id
-        self.location = self._get_location()
+        self.location = self._get_default_location()
         self.gameobject_instance: Optional[GameObjectManager] = None
         self.respawn_timer = 0
         self.respawn_time = 0
+        self.tmp_respawn_time = 0  # Set by scripts, does not overwrite default respawn time.
         self.last_tick = 0
         self.is_default = self._is_default()
         self.pool = None
@@ -38,35 +39,27 @@ class GameObjectSpawn:
 
     def spawn(self, ttl=0, from_pool=False):
         self.respawn_timer = 0
+        self.tmp_respawn_time = 0
 
         if self.pool and not from_pool:
             return self.pool.spawn(caller=self) > 0
 
         # New instance for default objects.
-        if self.is_default:
-            self.gameobject_instance = self._generate_gameobject_instance()
-            if ttl:
-                self.gameobject_instance.time_to_live_timer = ttl
-        # Triggered objects uses the existent instance.
-        elif not self.gameobject_instance:
+        if self.is_default or not self.gameobject_instance:
             self.gameobject_instance = self._generate_gameobject_instance(ttl=ttl)
         # Inactive object, just activate.
         elif not self.is_default:
-            self.gameobject_instance.time_to_live_timer = ttl
-            self.gameobject_instance.respawn()
+            self.gameobject_instance.respawn(ttl=ttl)
             return True
 
         self.gameobject_instance.get_map().spawn_object(world_object_spawn=self,
                                                         world_object_instance=self.gameobject_instance)
         return True
 
-    def despawn(self, ttl=0):
-        if not self.gameobject_instance or not self.gameobject_instance.is_spawned:
-            return
-        if ttl:
+    def set_respawn_time(self, respawn_secs=0):
+        if respawn_secs and respawn_secs != self.tmp_respawn_time:
             self.respawn_timer = 0
-            self.respawn_time = ttl
-        self.gameobject_instance.despawn(ttl=ttl)
+            self.tmp_respawn_time = respawn_secs
 
     def is_spawned(self):
         return self.gameobject_instance and self.gameobject_instance.is_spawned
@@ -78,9 +71,8 @@ class GameObjectSpawn:
 
         if not pool:  # By spawn guid.
             pool = WorldDatabaseManager.PoolsHolder.get_gameobject_pool_by_spawn_id(self.spawn_id)
-
-        if not pool:  # Orphan spawn.
-            return
+            if not pool:  # Orphan spawn.
+                return
 
         pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool.pool_entry)
         if not pool_template:
@@ -102,7 +94,7 @@ class GameObjectSpawn:
                            f'Spawn id:{self.gameobject_spawn.spawn_id}. ')
             return None
 
-        gameobject_location = self._get_location()
+        gameobject_location = self._get_default_location()
         self.respawn_timer = 0
         self.respawn_time = randint(self.gameobject_spawn.spawn_spawntimemin, self.gameobject_spawn.spawn_spawntimemax)
         gameobject_instance = GameObjectBuilder.create(gameobject_template_id, gameobject_location,
@@ -117,19 +109,22 @@ class GameObjectSpawn:
         return gameobject_instance
 
     def _update_respawn(self, elapsed):
-        if self.respawn_time <= 0:
+        if self._get_respawn_time() <= 0 or self.is_spawned():
             return
         self.respawn_timer += elapsed
         # Spawn a new gameobject instance when needed.
-        if self.respawn_timer >= self.respawn_time:
+        if self.respawn_timer >= self._get_respawn_time():
             self.spawn()
 
-    def _get_location(self):
+    def _get_default_location(self):
         return Vector(self.gameobject_spawn.spawn_positionX, self.gameobject_spawn.spawn_positionY,
                       self.gameobject_spawn.spawn_positionZ, self.gameobject_spawn.spawn_orientation)
 
     def _is_default(self):
         return self.gameobject_spawn.spawn_spawntimemin >= 0 and self.gameobject_spawn.spawn_spawntimemax >= 0
+
+    def _get_respawn_time(self):
+        return self.tmp_respawn_time if self.tmp_respawn_time else self.respawn_time
 
     def _get_gameobject_entry(self):
         return self.gameobject_spawn.spawn_entry

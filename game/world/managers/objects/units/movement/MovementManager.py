@@ -3,6 +3,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import MoveType, MoveFlags
+from utils.constants.ScriptCodes import MoveOptions
 from utils.constants.UnitCodes import UnitStates
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
@@ -158,7 +159,14 @@ class MovementManager:
     def move_automatic_waypoints_from_script(self, command_move_info=None):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, command_move_info=command_move_info))
 
-    def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
+    def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed, move_options=0):
+        # TODO: Handle more move options.
+        if move_options:
+            if move_options & MoveOptions.MOVE_RUN_MODE:
+                speed = config.Unit.Defaults.run_speed
+            if move_options & MoveOptions.MOVE_WALK_MODE:
+                speed = config.Unit.Defaults.walk_speed
+
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed,
                                            is_single=True))
 

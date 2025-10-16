@@ -269,9 +269,9 @@ class UnitManager(ObjectManager):
         elif target.is_unit():
             if not target.is_spawned:
                 return False
-            if target.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+            if target.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
                 return False
-            if self.is_unit() and self.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+            if self.is_unit() and self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
                 return False
 
         # Always short circuit on charmer/summoner relationship.
@@ -1833,7 +1833,7 @@ class UnitManager(ObjectManager):
         return True
 
     # override
-    def despawn(self, ttl=0):
+    def despawn(self, ttl=0, respawn_delay=0):
         # Make sure to remove casts from units that are destroyed but not necessarily killed. e.g. Totems.
         if self.spell_manager:
             self.spell_manager.remove_casts()
@@ -1852,7 +1852,7 @@ class UnitManager(ObjectManager):
                     charmer.aura_manager.remove_auras_by_caster(self.guid)
 
         self.is_alive = False
-        super().despawn()
+        super().despawn(ttl, respawn_delay)
 
         charmer_or_summoner = self.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit
@@ -1900,12 +1900,19 @@ class UnitManager(ObjectManager):
     def on_cell_change(self):
         pass
 
+    # Used by players/creatures.
+    def on_relocation(self):
+        pass
+
     # Used by creatures.
     def get_detection_range(self):
         return 0
 
     def notify_move_in_line_of_sight(self):
         if self.beast_master:
+            return
+
+        if not self.is_alive:
             return
 
         charmer_or_summoner = self.get_charmer_or_summoner()
@@ -1925,7 +1932,8 @@ class UnitManager(ObjectManager):
             surrounding_units = surrounding_units.values()
 
         for unit in surrounding_units:
-            if unit.unit_state & UnitStates.STUNNED or unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+            if (unit == self or not self.is_alive or unit.unit_state & UnitStates.STUNNED
+                    or unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED):
                 continue
 
             unit_is_player = unit.is_player()
@@ -1942,8 +1950,6 @@ class UnitManager(ObjectManager):
                     # Self notifies player/creature presence.
                     elif not self_is_player and self.object_ai:
                         self.object_ai.move_in_line_of_sight(unit=unit, ai_event=True)
-
-            distance = unit.location.distance(self.location)
 
             detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
             max_detection_range = detection_range
@@ -1962,6 +1968,11 @@ class UnitManager(ObjectManager):
             # Cap on creature template detection range.
             if not self_is_player and detection_range > max_detection_range:
                 detection_range = max_detection_range
+
+            if unit.is_player():
+                continue
+
+            distance = unit.location.distance(self.location)
 
             if distance > detection_range or not unit.is_hostile_to(self) or not unit.can_attack_target(self):
                 continue
@@ -1989,9 +2000,14 @@ class UnitManager(ObjectManager):
                     continue
                 unit.object_ai.move_in_line_of_sight(self)
 
-    def set_has_moved(self, has_moved, has_turned, flush=False):
+    def set_has_moved(self, has_moved, has_turned, flush=False, instant=False):
         # Only turn off once processed.
         if flush:
+            self.has_moved = False
+            self.has_turned = False
+        elif instant:
+            self.on_relocation()
+            self.relocation_call_for_help_timer = 0
             self.has_moved = False
             self.has_turned = False
         else:  # Only turn ON.

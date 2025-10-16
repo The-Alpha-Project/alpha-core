@@ -46,14 +46,14 @@ class GameObjectBuilder:
         # Initialize from gameobject template.
         go_instance.initialize_from_gameobject_template(gobject_template)
 
-        # Continue initialization. (Faction and Flags will be overriden below)
+        # Continue initialization. (Faction and Flags will be overridden below)
         go_instance.faction = faction if faction else gobject_template.faction
         go_instance.location = location
         go_instance.rot0 = rot0
         go_instance.rot1 = rot1
         go_instance.rot2 = rot2
         go_instance.rot3 = rot3
-        go_instance.time_to_live_timer = ttl
+        go_instance.time_to_live = ttl
 
         # Set channel object update field for rituals and fishing nodes.
         if (gobject_template.type in {GameObjectTypes.TYPE_RITUAL, GameObjectTypes.TYPE_FISHINGNODE}

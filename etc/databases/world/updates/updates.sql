@@ -2282,5 +2282,204 @@ begin not atomic
 
         insert into applied_updates values ('151020251');
     end if;
+
+    -- 15/10/2025 2
+    if (select count(*) from applied_updates where id='151020252') = 0 then
+        -- Scape Through Force
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=994;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (994, 0, 0, 61, 994, 1200, 0, 0, 0, 0, 0, 8, 0, 99402, 1019, 99401, 0, 0, 0, 0, 0, 'Escape Through Force - Start Scripted Map Event'),
+        (994, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force - Volcor - Remove QuestGiver Flag'),
+        (994, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force - Volcor - Start Waypoints'),
+        (994, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force - Volcor - Remove Passive Flag');
+
+        DELETE FROM `generic_scripts` WHERE `id`=99401;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (99401, 0, 0, 70, 994, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force - Fail Quest'),
+        (99401, 1, 0, 71, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force - Respawn');
+
+        DELETE FROM `generic_scripts` WHERE `id`=99402;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (99402, 0, 0, 7, 994, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Complete Quest');
+
+        DELETE FROM creature_movement_template WHERE entry = 3692;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (3692, 0, 4608.43, -6.32, 69.74, 0, 1000, 0, 369201),
+        (3692, 1, 4608.43, -6.32, 69.74, 0, 4000, 0, 369202),
+        (3692, 2, 4604.54, -5.17, 69.51, 0, 0, 0, 0),
+        (3692, 3, 4604.26, -2.02, 69.42, 0, 0, 0, 0),
+        (3692, 4, 4607.75, 3.79, 70.13, 0, 1000, 0, 369203),
+        (3692, 5, 4607.75, 3.79, 70.13, 0, 0, 0, 0),
+        (3692, 6, 4619.77, 27.47, 70.4, 0, 0, 0, 0),
+        (3692, 7, 4626.28, 42.46, 68.75, 0, 0, 0, 0),
+        (3692, 8, 4633.13, 51.17, 67.4, 0, 0, 0, 0),
+        (3692, 9, 4639.67, 79.03, 61.74, 0, 0, 0, 0),
+        (3692, 10, 4647.54, 94.25, 59.92, 0, 0, 0, 369204),
+        (3692, 11, 4682.08, 113.47, 54.83, 0, 0, 0, 0),
+        (3692, 12, 4705.28, 137.81, 53.36, 0, 0, 0, 369205),
+        (3692, 13, 4730.3, 158.76, 52.33, 0, 0, 0, 0),
+        (3692, 14, 4756.47, 195.65, 53.61, 0, 10000, 0, 369206);
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=369201;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (369201, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Volcor - Stand Up');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=369202;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (369202, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1237, 0, 0, 0, 0, 0, 0, 0, 0, 'Volcor - Say Start Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=369203;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (369203, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1250, 0, 0, 0, 0, 0, 0, 0, 0, 'Volcor - First Ambush say text'),
+        (369203, 0, 0, 10, 2171, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4630.2, 22.6, 70.1, 2.4, 0, 'Volcor - First Ambush - Spawn Blackwood Shaman'),
+        (369203, 0, 0, 10, 2170, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4603.8, 53.5, 70.4, 5.4, 0, 'Volcor - First Ambush - Spawn Blackwood Ursa');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=369204;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (369204, 0, 0, 10, 2170, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4692.8, 75.8, 56.7, 3.1, 0, 'Volcor - Second Ambush - Spawn Blackwood Ursa'),
+        (369204, 0, 0, 10, 2171, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4627.5, 100.4, 62.7, 5.8, 0, 'Volcor - Second Ambush - Spawn Blackwood Shaman');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=369205;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (369205, 0, 0, 10, 2170, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4747.8, 152.8, 54.6, 2.4, 0, 'Volcor - Last Ambush - Spawn Blackwood Ursa'),
+        (369205, 0, 0, 10, 2171, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4711.7, 109.1, 53.5, 2.4, 0, 'Volcor - Last Ambush - Spawn Blackwood Ursa');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=369206;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (369206, 0, 0, 62, 994, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Volcor - End Map Event'),
+        (369206, 2, 0, 35, 0, 0, 0, 0, 3695, 0, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Volcor - Face Grimclaw'),
+        (369206, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 1243, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Volcor - Say End 1'),
+        (369206, 6, 0, 3, 2, 3000, 0, 0, 3695, 0, 8, 10, 0, 0, 0, 0, 1, 0, 0, 0, 0, 'Scape Through Force - Grimclaw - Run to Volcor'),
+        (369206, 7, 0, 0, 2, 0, 0, 0, 3695, 0, 8, 10, 1241, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Grimclaw - Emote as he runs towards Volcor'),
+        (369206, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 1244, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Volcor - Say End 2'),
+        (369206, 16, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Volcor - Despawn'),
+        (369206, 16, 0, 18, 0, 0, 0, 0, 3695, 0, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Force - Grimclaw - Despawn');
+
+        -- Events list for Volcor
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3692;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (369201, 3692, 0, 4, 0, 60, 1, 0, 0, 0, 0, 369201, 0, 0, 'Volcor - Aggro texts.');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=369201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (369201, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1251, 1252, 1253, 0, 0, 0, 0, 0, 0, 'Volcor - Pick Aggro Text');
+
+        -- Scape Through Stealth
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=995;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (995, 0, 0, 61, 995, 300, 0, 0, 0, 0, 0, 0, 0, 99501, 0, 99502, 0, 0, 0, 0, 0, 'Escape Through Stealth - Start Scripted Map Event'),
+        (995, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Volcor - Remove QuestGiver Flag'),
+        (995, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Volcor - Stand'),
+        (995, 1, 0, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Volcor - Face Player'),
+        (995, 2, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Volcor - Bow'),
+        (995, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1236, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Volcor - Say Text'),
+        (995, 7, 0, 15, 6236, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Volcor - Cast Moonstalker'),
+        (995, 10, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4603.93, -1.65996, 69.42, 0, 0, 'Escape Through Stealth - Volcor -  Move'),
+        (995, 12, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4616.54, 22.156, 70.564, 0, 0, 'Escape Through Stealth - Volcor -  Move'),
+        (995, 15, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4640.33, 33.74, 68.22, 0, 0, 'Escape Through Stealth - Volcor -  Move'),
+        (995, 18, 0, 62, 995, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - End Scripted Map Event');
+
+        DELETE FROM `generic_scripts` WHERE `id`=99501;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (99501, 0, 0, 7, 995, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Complete Quest'),
+        (99501, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Despawn Volcor');
+
+        DELETE FROM `generic_scripts` WHERE `id`=99502;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (99502, 0, 0, 70, 995, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Stealth - Fail Quest'),
+        (99501, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Despawn Volcor');
+
+        -- Ignore Selarin default spawn.
+        UPDATE `spawns_creatures` SET `position_x` = '6409.01', `position_y` = '381.597', `position_z` = '13.7997', `orientation` = '1', `ignored` = '1' WHERE (`spawn_id` = '400470');
+
+        -- Quest end script.
+        DELETE FROM `quest_end_scripts` WHERE `id`=994;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (994, 0, 0, 10, 3694, 120000, 0, 0, 0, 0, 0, 8, 4, 0, -1, 10, 6409.01, 381.597, 13.7997, 1, 0, 'Scape Through Forcor Stealth: Sentinel Selarin - Spawn if not present.'),
+        (994, 1, 0, 20, 2, 0, 0, 0, 3694, 40, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Start Waypoint Movement'),
+        (994, 9, 0, 0, 0, 0, 0, 0, 3694, 40, 8, 2, 1302, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Say Text 1'),
+        (994, 9, 0, 1, 1, 0, 0, 0, 3694, 40, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Emote Talk'),
+        (994, 12, 0, 25, 0, 0, 0, 0, 3694, 40, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Set Walk'),
+        (994, 14, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Terenthis - Emote Talk'),
+        (994, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1305, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Terenthis - Say Text'),
+        (994, 20, 0, 0, 0, 0, 0, 0, 3694, 40, 8, 2, 1303, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Say Text 2'),
+        (994, 20, 0, 1, 1, 0, 0, 0, 3694, 40, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Emote Talk'),
+        (994, 25, 0, 0, 0, 0, 0, 0, 3694, 40, 8, 2, 1304, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Say Text 3'),
+        (994, 25, 0, 1, 1, 0, 0, 0, 3694, 40, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Force or Stealth: Sentinel Selarin - Emote Talk');
+
+        -- Therylune\'s Escape
+
+        DELETE FROM `creature_groups` WHERE (`member_guid` = '36533');
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=945;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (945, 0, 0, 61, 945, 1200, 0, 0, 0, 0, 0, 0, 0, 94501, 1019, 94502, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Start Map Event'),
+        (945, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Remove Questgiver Flag'),
+        (945, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1189, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Talk'),
+        (945, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Remove Immune Flag'),
+        (945, 0, 0, 22, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Set Escortee Faction'),
+        (945, 1, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Start Waypoints');
+
+        DELETE FROM creature_movement_template WHERE entry = 3584;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (3584, 0, 4519.74, 410.481, 33.8577, 0, 0, 0, 0),
+        (3584, 1, 4520.4, 420.235, 33.5284, 0, 0, 0, 0),
+        (3584, 2, 4512.26, 408.881, 32.9308, 0, 0, 0, 0),
+        (3584, 3, 4507.94, 396.47, 32.9476, 0, 0, 0, 0),
+        (3584, 4, 4507.53, 383.781, 32.995, 0, 0, 0, 0),
+        (3584, 5, 4512.1, 374.02, 33.166, 0, 0, 0, 0),
+        (3584, 6, 4519.75, 373.241, 33.1574, 0, 0, 0, 0),
+        (3584, 7, 4592.41, 369.127, 31.4893, 0, 0, 0, 0),
+        (3584, 8, 4598.55, 364.801, 31.4947, 0, 0, 0, 0),
+        (3584, 9, 4602.76, 357.649, 32.9265, 0, 0, 0, 0),
+        (3584, 10, 4597.88, 352.629, 34.0317, 0, 0, 0, 0),
+        (3584, 11, 4590.23, 350.9, 36.2977, 0, 0, 0, 0),
+        (3584, 12, 4581.5, 348.254, 38.3878, 0, 0, 0, 0),
+        (3584, 13, 4572.05, 348.059, 42.3539, 0, 0, 0, 0),
+        (3584, 14, 4564.75, 344.041, 44.2463, 0, 0, 0, 0),
+        (3584, 15, 4556.63, 341.003, 47.6755, 0, 0, 0, 0),
+        (3584, 16, 4554.38, 334.968, 48.8003, 0, 0, 0, 0),
+        (3584, 17, 4557.63, 329.783, 49.9532, 0, 0, 0, 0),
+        (3584, 18, 4563.32, 316.829, 53.2409, 0, 0, 0, 0),
+        (3584, 19, 4566.09, 303.127, 55.0396, 0, 0, 0, 0),
+        (3584, 20, 4561.65, 295.456, 57.0984, 0, 0, 0, 0),
+        (3584, 21, 4551.03, 293.333, 57.1534, 0, 3000, 0, 358401),
+        (3584, 22, 4443.478, 260.164, 60.29, 0, 0, 0, 0),
+        (3584, 23, 4342.706, 255.627, 58.887, 0, 0, 0, 358402);
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=358401;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (358401, 0, 0, 62, 945, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune - End Map Event'),
+        (358401, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1188, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune - Talk'),
+        (358401, 1, 0, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune - Set Run');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=358402;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (358402, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune - Despawn');
+
+        DELETE FROM `generic_scripts` WHERE `id`=94501;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (94501, 0, 0, 7, 945, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Complete Quest');
+
+        DELETE FROM `generic_scripts` WHERE `id`=94502;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (94502, 0, 0, 70, 945, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Fail Quest'),
+        (94502, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Despawn Therylune');
+
+        -- Remove invalid spell from script.
+
+        DELETE FROM `quest_end_scripts` WHERE `id`=492;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (492, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 576, 0, 0, 0, 0, 0, 0, 0, 0, 'A New Plague 4 - Say Text'),
+        (492, 8, 0, 15, 5, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'A New Plague 4 - Cast Death Touch');
+
+        -- Fix Ilkrud Magthrull spawn location.
+        UPDATE `spawns_creatures` SET `position_x` = '2188.939', `position_y` = '98.264', `position_z` = '125.135', `orientation` = '5.309', `ignored` = '0' WHERE (`spawn_id` = '32439');
+        -- Change Terry Palin's Display_ID.
+        UPDATE `creature_template` SET `display_id1` = '2438' WHERE (`entry` = '1650');
+
+        insert into applied_updates values ('151020252');
+    end if;
 end $
 delimiter ;

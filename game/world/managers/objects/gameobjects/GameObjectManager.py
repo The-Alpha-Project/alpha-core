@@ -46,6 +46,7 @@ class GameObjectManager(ObjectManager):
 
         self.update_packet_factory.init_values(self.guid, GameObjectFields)
 
+        self.time_to_live = 0
         self.time_to_live_timer = 0
         self.loot_manager = None  # Optional.
 
@@ -252,7 +253,7 @@ class GameObjectManager(ObjectManager):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
         trap_object = GameObjectBuilder.create(trap_entry, self.location, self.map_id, self.instance_id,
                                                state=GameObjectStates.GO_STATE_READY, summoner=self,
-                                               faction=self.faction, ttl=self.time_to_live_timer)
+                                               faction=self.faction, ttl=self.time_to_live)
 
         self.get_map().spawn_object(world_object_instance=trap_object)
         return trap_object
@@ -277,6 +278,11 @@ class GameObjectManager(ObjectManager):
             spell_target_mask = spell_template.Targets
             casting_spell = self.spell_manager.try_initialize_spell(spell_template, target if target else self,
                                                                     spell_target_mask, validate=True)
+            if not casting_spell:
+                Logger.warning(
+                    f'Unable to initialize spell for GameObject {self.get_name()}, Id {self.spawn_id}, spell {spell_id}')
+                return
+
             self.spell_manager.start_spell_cast(initialized_spell=casting_spell)
 
         else:
@@ -347,23 +353,40 @@ class GameObjectManager(ObjectManager):
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     def _check_time_to_live(self, elapsed):
-        if self.time_to_live_timer > 0:
-            self.time_to_live_timer -= elapsed
+        if self.time_to_live and self.time_to_live_timer < self.time_to_live:
+            self.time_to_live_timer += elapsed
             # Time to live expired, destroy.
-            if self.time_to_live_timer <= 0:
+            if self.time_to_live_timer >= self.time_to_live:
                 self.despawn()
                 return False
         return True
 
     # override
-    def respawn(self):
+    def respawn(self, ttl=0):
         self.initialize_from_gameobject_template(self.gobject_template)
+        self.time_to_live_timer = 0
+        self.time_to_live = ttl
         super().respawn()
 
     # override
-    def despawn(self, ttl=0):
+    def despawn(self, ttl=0, respawn_delay=0):
+        # Handle temporal respawn_delay if provided.
+        if not self.is_dynamic_spawn and respawn_delay:
+            go_spawn = self.get_map().get_surrounding_gameobject_spawn_by_spawn_id(self, self.spawn_id)
+            if go_spawn:
+                go_spawn.set_respawn_time(respawn_delay)
+
+        # Delayed despawn.
+        if ttl:
+            self.time_to_live = ttl / 1000  # Seconds.
+            self.time_to_live_timer = 0
+            return
+
         self.unlocked_by.clear()
-        super().despawn()
+        self.time_to_live_timer = 0
+        self.time_to_live = 0
+
+        super().despawn(ttl, respawn_delay)
 
     # override
     def on_cell_change(self):

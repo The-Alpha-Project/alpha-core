@@ -276,8 +276,8 @@ class Map:
     def get_active_cell_count(self):
         return self.grid_manager.get_active_cell_count()
 
-    def activate_cell_by_world_object(self, world_object):
-        self.grid_manager.activate_cell_by_world_object(world_object)
+    def activate_cell_by_world_object(self, world_object, load_tile_data=False):
+        self.grid_manager.activate_cell_by_world_object(world_object, load_tile_data)
 
     # Objects updates.
     def update_creatures(self):

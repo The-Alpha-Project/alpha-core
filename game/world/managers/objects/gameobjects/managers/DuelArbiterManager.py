@@ -105,7 +105,7 @@ class DuelArbiterManager(GameObjectManager):
         return self.duel_info and who and who.guid in self.duel_info
 
     # override
-    def despawn(self, ttl=0):
+    def despawn(self, ttl=0, respawn_delay=0):
         # Arbiter expired.
         if self.duel_state != DuelState.DUEL_STATE_FINISHED:
             self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_CANCELED_INTERRUPTED, winner=None)
@@ -113,7 +113,7 @@ class DuelArbiterManager(GameObjectManager):
         self._update_teams(remove=True)
         self._update_arbiter(remove=True)
         self.duel_info.clear()
-        super().despawn()
+        super().despawn(ttl, respawn_delay)
 
     def _set_participants(self, requester, target):
         duel_info_requester = PlayerDuelInformation(requester, target, team_id=1)

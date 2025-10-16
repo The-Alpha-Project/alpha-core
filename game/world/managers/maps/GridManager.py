@@ -131,8 +131,8 @@ class GridManager:
         cell: Cell = self._get_create_cell(world_object.location, world_object.map_id, world_object.instance_id)
         cell.add_world_object(world_object)
 
-        if world_object.is_player():
-            self.activate_cell_by_world_object(world_object)
+        if world_object.is_player() or world_object.is_temp_summon():
+            self.activate_cell_by_world_object(world_object, load_tile_data=True)
 
         # Notify surrounding players.
         if update_players:
@@ -143,23 +143,23 @@ class GridManager:
 
             self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
-    def activate_cell_by_world_object(self, world_object):
+    def activate_cell_by_world_object(self, world_object, load_tile_data=False):
         # Surrounding cells.
         affected_cells = set(self._get_surrounding_cells_by_cell(self.cells[world_object.current_cell]))
         # Self cell.
         affected_cells.add(self.cells[world_object.current_cell])
-        self._activate_cells(affected_cells, world_object)
+        self._activate_cells(affected_cells, load_tile_data)
 
-    def _activate_cells(self, cells: set[Cell], world_object):
+    def _activate_cells(self, cells: set[Cell], load_tile_data=False):
         with self.grid_lock:
-            [self._activate_cell(cell, world_object) for cell in cells]
+            [self._activate_cell(cell, load_tile_data) for cell in cells]
 
-    def _activate_cell(self, cell, world_object):
+    def _activate_cell(self, cell, load_tile_data=False):
         if cell.key not in self.active_cell_keys:
             self.active_cell_keys.add(cell.key)
 
-            # Only player activation will trigger tile/nav loading.
-            if world_object.is_player():
+            # Tile/nav loading.
+            if load_tile_data:
                 # Initialize ref count for this adt if needed.
                 if cell.adt_key not in self.active_adt_cell_refs:
                     self.active_adt_cell_refs[cell.adt_key] = set()

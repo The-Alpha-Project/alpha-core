@@ -660,24 +660,24 @@ class SpellEffectHandler:
                 else:
                     location = target if isinstance(target, Vector) else target.location
 
-                summon_type = TempSummonType.TEMP_SUMMON_DEAD_DESPAWN if not duration \
-                    else TempSummonType.TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN
+            summon_type = TempSummonType.TEMP_SUMMON_DEAD_DESPAWN if not duration \
+                else TempSummonType.TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN
 
-                # Spawn the summoned unit.
-                creature_manager = CreatureBuilder.create(creature_entry, location, caster.map_id,
-                                                          caster.instance_id,
-                                                          summoner=caster, faction=caster.faction, ttl=duration,
-                                                          spell_id=casting_spell.spell_entry.ID,
-                                                          subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
-                                                          summon_type=summon_type)
+            # Spawn the summoned unit.
+            creature_manager = CreatureBuilder.create(creature_entry, location, caster.map_id,
+                                                      caster.instance_id,
+                                                      summoner=caster, faction=caster.faction, ttl=duration,
+                                                      spell_id=casting_spell.spell_entry.ID,
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
+                                                      summon_type=summon_type)
 
-                if not creature_manager:
-                    Logger.error(f'Summon failed, creature with entry {creature_entry} '
+            if not creature_manager:
+                Logger.error(f'Summon failed, creature with entry {creature_entry} '
                                  f'not found for spell {casting_spell.spell_entry.ID}, '
                                  f'caster entry {caster.get_entry()}')
-                    return
+                return
 
-                caster.get_map().spawn_object(world_object_instance=creature_manager)
+            caster.get_map().spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):

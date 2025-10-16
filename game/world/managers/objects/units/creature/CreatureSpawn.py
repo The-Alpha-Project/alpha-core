@@ -25,21 +25,20 @@ class CreatureSpawn:
         self.creature_instance: Optional[CreatureManager] = None
         self.respawn_timer = 0
         self.respawn_time = 0
+        self.tmp_respawn_time = 0  # Set by scripts, does not overwrite default respawn time.
         self.last_tick = 0
         self.borrowed = False
         self.pool = None
 
     def update(self, now):
-        if now > self.last_tick > 0:
-            # Skip update if creature instance is charmed.
-            if not self.borrowed:
-                elapsed = now - self.last_tick
-                creature = self.creature_instance
-                if creature:
-                    if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
-                        self._update_respawn(elapsed)
-                else:
+        if now > self.last_tick > 0 and not self.borrowed: # Skip update if creature instance is charmed.
+            elapsed = now - self.last_tick
+            creature = self.creature_instance
+            if creature:
+                if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
                     self._update_respawn(elapsed)
+            else:
+                self._update_respawn(elapsed)
 
         self.last_tick = now
 
@@ -58,9 +57,8 @@ class CreatureSpawn:
 
         if not pool:  # By spawn guid.
             pool = WorldDatabaseManager.PoolsHolder.get_creature_pool_by_spawn_id(self.spawn_id)
-
-        if not pool:  # Orphan spawn.
-            return
+            if not pool:  # Orphan spawn.
+                return
 
         pool_template = WorldDatabaseManager.PoolsHolder.get_pool_template_by_entry(pool.pool_entry)
         if not pool_template:
@@ -81,6 +79,11 @@ class CreatureSpawn:
                 return True
         return False
 
+    def set_respawn_time(self, respawn_secs=0):
+        if respawn_secs and respawn_secs != self.tmp_respawn_time:
+            self.respawn_timer = 0
+            self.tmp_respawn_time = respawn_secs
+
     def is_spawned(self):
         return self.creature_instance and self.creature_instance.is_spawned
 
@@ -93,6 +96,7 @@ class CreatureSpawn:
 
     def spawn(self, from_pool=False):
         self.respawn_timer = 0
+        self.tmp_respawn_time = 0
 
         # Delegate spawning of new creature to pool.
         if self.pool and not from_pool:
@@ -121,6 +125,9 @@ class CreatureSpawn:
         return True
 
     def _update_respawn(self, elapsed):
+        if self._get_respawn_time() <= 0:
+            return
+
         self.respawn_timer += elapsed
 
         # Destroy the current creature instance body when respawn timer is about to expire.
@@ -130,8 +137,11 @@ class CreatureSpawn:
                 self.creature_instance = None
 
         # Spawn a new creature instance when needed.
-        if self.respawn_timer >= self.respawn_time:
+        if self.respawn_timer >= self._get_respawn_time():
             self.spawn()
+
+    def _get_respawn_time(self):
+        return self.tmp_respawn_time if self.tmp_respawn_time else self.respawn_time
 
     def get_default_location(self):
         return Vector(self.creature_spawn.position_x, self.creature_spawn.position_y,

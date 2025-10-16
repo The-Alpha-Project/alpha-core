@@ -60,7 +60,7 @@ class CreatureBuilder:
         creature_instance.instance_id = instance_id if not summoner else summoner.instance_id
         creature_instance.zone = summoner.zone if summoner else 0
         creature_instance.spell_id = spell_id
-        creature_instance.time_to_live_timer = ttl
+        creature_instance.time_to_live_timer = 0
         creature_instance.time_to_live = ttl
         creature_instance.addon = addon
         creature_instance.wander_distance = wander_distance
@@ -70,6 +70,10 @@ class CreatureBuilder:
             creature_instance.set_charmed_by(summoner, subtype, movement_type)
             creature_instance.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=True)
             summoner.possessed_unit = creature_instance
+
+        # Fully initialize temporal summons immediately.
+        if subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON:
+            creature_instance.initialize_field_values()
 
         return creature_instance
 

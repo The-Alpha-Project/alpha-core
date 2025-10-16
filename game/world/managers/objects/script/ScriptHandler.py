@@ -48,8 +48,8 @@ class ScriptHandler:
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
             Logger.warning(f'Script [{script_id}] not found, '
-                           f'Event: {event.get_event_info() if event else "None"}, '
-                           f'Caller: {source.get_name()}')
+                            f'Event: {event.get_event_info() if event else "None"}, '
+                            f'Caller: {source.get_name()}')
             return
 
         if not event:
@@ -218,30 +218,31 @@ class ScriptHandler:
         # movement_options = script.datalong3  # Not used for now.
         # move_to_flags = script.datalong4  # Not used for now.
         # path_id = script.dataint  # Not used for now.
-        speed = config.Unit.Defaults.walk_speed  # VMaNGOS sets this to zero by default for whatever reason.
-        angle = 0
         location = None
 
         if coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_NORMAL:
             location = Vector(command.x, command.y, command.z, command.o)
-            distance = command.source.location.distance(location)
-            speed = distance / time_ * 0.001 if time_ > 0 else config.Unit.Defaults.walk_speed
-        elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET and command.target:
+        # Coordinates are added to those of the target.
+        elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET:
+            if not command.target or not command.target.is_object(by_mask=True):
+                return command.should_abort()
             location = Vector(command.target.location.x + command.x, command.target.location.y + command.y,
                               command.target.location.z + command.z, command.o)
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_DISTANCE_FROM_TARGET:
-            distance = command.x
-            angle = command.source.location.o if command.o < 0 else random.uniform(0, 2 * math.pi)
-            target_point = command.source.location.get_point_in_radius_and_angle(distance, angle)
+            if not command.target or not command.target.is_object(by_mask=True):
+                return command.should_abort()
+            o = command.o if command.o else command.target.location.get_angle_towards_vector(command.source.location)
+            target_point = command.target.location.get_point_in_radius_and_angle(command.x, o)
             location = Vector(target_point.x, target_point.y, target_point.z, command.o)
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RANDOM_POINT:
-            distance = command.o
-            location = command.source.location.get_random_point_in_radius(distance, command.source.map_id)
+            location = command.source.location.get_random_point_in_radius(command.o, command.source.map_id)
 
-        if angle:
-            command.source.movement_manager.face_angle(angle)
         if location:
-            command.source.movement_manager.move_to_point(location, speed)
+            distance = command.source.location.distance(location)
+            speed = round((distance / (time_ * 0.001) if time_ > 0 else config.Unit.Defaults.walk_speed), 4)
+            command.source.movement_manager.move_to_point(location, speed, command.datalong3)
+        else:
+            return command.should_abort()
 
         return False
 
@@ -485,22 +486,38 @@ class ScriptHandler:
     def handle_script_command_despawn_gameobject(command):
         # source = GameObject(from datalong, provided source or target)
         # datalong = db_guid
-        # datalong2 = despawn_delay
+        # datalong2 = respawn_delay
         map_ = command.source.get_map()
         if not map_:
             Logger.warning(f'ScriptHandler: No map found, {command.get_info()}.')
             return command.should_abort()
 
-        go_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
-        if not go_spawn:
-            Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, {command.get_info()}.')
+        go_obj = None
+        if command.datalong:
+            go_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
+            if not go_spawn:
+                Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, {command.get_info()}.')
+                return command.should_abort()
+            go_obj = go_spawn.gameobject_instance
+        elif command.target and command.target.is_gameobject():
+            go_obj = command.target
+        elif command.source and command.source.is_gameobject():
+            go_obj = command.source
+
+        if not go_obj:
+            Logger.warning(f'ScriptHandler: No gameobject found: Source: {command.source.get_name()}, '
+                           f'SpawnID: {command.datalong}, {command.get_info()}.')
             return command.should_abort()
-        go_spawn.despawn(ttl=command.datalong2)
+
+        if not go_obj.is_spawned:
+            return command.should_abort()
+
+        go_obj.despawn(respawn_delay=command.datalong2)
 
         return False
 
     @staticmethod
-    def handle_script_command_temp_summon_creature(command):
+    def handle_script_command_summon_temp_creature(command):
         # source = WorldObject (from provided source or buddy)
         # datalong = creature_entry
         # datalong2 = despawn_delay
@@ -521,17 +538,20 @@ class ScriptHandler:
             return command.should_abort()
 
         summon_type = TempSummonType(command.dataint4)
+        summon_location = Vector(command.x, command.y, command.z, command.o)
 
         if command.dataint & (SummonCreatureFlags.SF_SUMMON_CREATURE_UNIQUE |
                               SummonCreatureFlags.SF_SUMMON_CREATURE_UNIQUE_TEMP):
             distance = command.datalong4 if command.datalong4 else (
-                    (command.source.location.distance(x=command.x, y=command.y, z=command.z) + 50.0) * 2)
+                    (command.source.location.distance(summon_location) + 50.0) * 2)
 
+            # Search by source object location.
             units = map_.get_surrounding_units_by_location(command.source.location, command.source.map_id,
                                                            command.source.instance_id, distance,
                                                            include_players=False)[0].values()
 
             found_units = [unit for unit in units if unit.creature_template.entry == command.datalong]
+
             if found_units:
                 req_amount = command.datalong3 if command.datalong3 else 1
                 count_dead = summon_type in {TempSummonType.TEMP_SUMMON_TIMED_DESPAWN,
@@ -546,7 +566,7 @@ class ScriptHandler:
                 if ex_amount >= req_amount:
                     return command.should_abort()
 
-        creature_manager = CreatureBuilder.create(command.datalong, Vector(command.x, command.y, command.z, command.o),
+        creature_manager = CreatureBuilder.create(command.datalong, summon_location,
                                                   command.source.map_id, command.source.instance_id,
                                                   ttl=command.datalong2 / 1000,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
@@ -567,13 +587,17 @@ class ScriptHandler:
 
         # Attack target type.
         if command.dataint3 < ScriptTarget.TARGET_T_PROVIDED_TARGET:  # Can be -1.
-            creature_manager.set_has_moved(has_moved=True, has_turned=True)
+            command.source.set_has_moved(has_moved=True, has_turned=True, instant=True)
+            creature_manager.set_has_moved(has_moved=True, has_turned=True, instant=True)
             return False
 
         from game.world.managers.objects.script.ScriptManager import ScriptManager
         attack_target = ScriptManager.get_target_by_type(command.source, command.target, command.dataint3)
         if attack_target and attack_target.is_alive:
             creature_manager.attack(attack_target)
+
+        command.source.set_has_moved(has_moved=True, has_turned=True, instant=True)
+        creature_manager.set_has_moved(has_moved=True, has_turned=True, instant=True)
 
         return False
 
@@ -741,11 +765,12 @@ class ScriptHandler:
     def handle_script_command_despawn_creature(command):
         # source = Creature
         # datalong = despawn_delay
-        if command.source and command.source.is_unit(by_mask=True) and command.source.is_alive:
-            command.source.despawn(ttl=command.datalong)
+        # datalong2 = respawn_delay
+        if command.source and command.source.is_unit(by_mask=True):
+            command.source.despawn(ttl=command.datalong, respawn_delay=command.datalong2)
             return False
 
-        Logger.warning(f'ScriptHandler: No valid source found or source is dead, {command.get_info()}.')
+        Logger.warning(f'ScriptHandler: No valid source found, {command.get_info()}.')
 
         return command.should_abort()
 
@@ -1881,7 +1906,7 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_QUEST_EXPLORED: ScriptHandler.handle_script_command_quest_explored,
     ScriptCommands.SCRIPT_COMMAND_KILL_CREDIT: ScriptHandler.handle_script_command_kill_credit,
     ScriptCommands.SCRIPT_COMMAND_RESPAWN_GAMEOBJECT: ScriptHandler.handle_script_command_respawn_gameobject,
-    ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: ScriptHandler.handle_script_command_temp_summon_creature,
+    ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: ScriptHandler.handle_script_command_summon_temp_creature,
     ScriptCommands.SCRIPT_COMMAND_OPEN_DOOR: ScriptHandler.handle_script_command_open_door,
     ScriptCommands.SCRIPT_COMMAND_CLOSE_DOOR: ScriptHandler.handle_script_command_close_door,
     ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: ScriptHandler.handle_script_command_activate_object,
