@@ -2474,6 +2474,11 @@ begin not atomic
         (492, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 576, 0, 0, 0, 0, 0, 0, 0, 0, 'A New Plague 4 - Say Text'),
         (492, 8, 0, 15, 5, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'A New Plague 4 - Cast Death Touch');
 
+        -- Fix Ilkrud Magthrull spawn location.
+        UPDATE `spawns_creatures` SET `position_x` = '2188.939', `position_y` = '98.264', `position_z` = '125.135', `orientation` = '5.309', `ignored` = '0' WHERE (`spawn_id` = '32439');
+        -- Change Terry Palin's Display_ID.
+        UPDATE `creature_template` SET `display_id1` = '2438' WHERE (`entry` = '1650');
+
         insert into applied_updates values ('151020252');
     end if;
 end $
