@@ -2417,6 +2417,8 @@ begin not atomic
         (945, 0, 0, 61, 945, 1200, 0, 0, 0, 0, 0, 0, 0, 94501, 1019, 94502, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Start Map Event'),
         (945, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Remove Questgiver Flag'),
         (945, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1189, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Talk'),
+        (945, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Remove Immune Flag'),
+        (945, 0, 0, 22, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Set Escortee Faction'),
         (945, 1, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune\'s Escape - Start Waypoints');
 
         DELETE FROM creature_movement_template WHERE entry = 3584;
