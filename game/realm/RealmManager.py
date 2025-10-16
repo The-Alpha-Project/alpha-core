@@ -1,6 +1,7 @@
 import os
 import socket
 import traceback
+import ipaddress
 
 from game.world.WorldSessionStateHandler import RealmDatabaseManager
 from network.packet.PacketWriter import *
@@ -9,6 +10,11 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import EnvVars
 
+def is_private_ip(ip):
+    try:
+        return ipaddress.ip_address(ip).is_private
+    except ValueError:
+        return False
 
 REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.realm_get_list()}
 
@@ -17,20 +23,21 @@ class RealmManager:
 
     @staticmethod
     def serve_realmlist(sck):
+        client_ip = sck.getpeername()[0]
         realmlist_bytes = pack('<B', len(REALMLIST))
 
         for realm in REALMLIST.values():
             is_realm_local = config.Server.Connection.Realm.local_realm_id == realm.realm_id
 
             name_bytes = PacketWriter.string_to_bytes(realm.realm_name)
-            # Only check if the forward address needs to be overriden if this realm is hosted on this same machine.
-            # Docker on Windows hackfix.
-            # https://discord.com/channels/628574828038717470/653374433636909077/840314080073351238
-            if is_realm_local:
-                forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
-                                            realm.proxy_address)
-            else:
+
+            if is_private_ip(client_ip):
                 forward_address = realm.proxy_address
+                Logger.debug(f'[{sck.getpeername()[0]}] Connection from {client_ip} -> Private')
+            else:
+                forward_address = realm.public_proxy_address
+                Logger.debug(f'[{sck.getpeername()[0]}] Connection from {client_ip} -> Public')
+
 
             address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm.proxy_port}')
             online_count = RealmDatabaseManager.realmlist_get_online_player_count(realm.realm_id)
@@ -42,13 +49,19 @@ class RealmManager:
                 online_count
             )
 
-        Logger.debug(f'[{sck.getpeername()[0]}] Sending realmlist...')
+        Logger.debug(f'[{sck.getpeername()[0]}] Sending realmlist... (sent {forward_address}:{realm.proxy_port})')
         sck.sendall(realmlist_bytes)
 
     @staticmethod
     def redirect_to_world(sck):
-        forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
-                                    config.Server.Connection.WorldServer.host)
+        client_ip = sck.getpeername()[0]
+        local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
+
+        if is_private_ip(client_ip):
+            forward_address = local_realm.realm_address
+        else:
+            forward_address = local_realm.public_realm_address
+
 
         world_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.WorldServer.port}')
         packet = pack(
@@ -56,13 +69,13 @@ class RealmManager:
             world_bytes
         )
 
-        Logger.debug(f'[{sck.getpeername()[0]}] Redirecting to world server...')
+        Logger.debug(f'[{client_ip}] Redirecting to world server... (sent {forward_address}:{config.Server.Connection.WorldServer.port})')
         sck.sendall(packet)
 
     @staticmethod
     def start_realm(running, realm_server_ready):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        with SocketBuilder.build_socket(local_realm.realm_address, local_realm.realm_port, timeout=2) as server_socket:
+        with SocketBuilder.build_socket('0.0.0.0', local_realm.realm_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
             # Make sure all characters have online = 0 on realm start.
@@ -89,7 +102,7 @@ class RealmManager:
     @staticmethod
     def start_proxy(running, proxy_server_ready):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        with SocketBuilder.build_socket(local_realm.proxy_address, local_realm.proxy_port, timeout=2) as server_socket:
+        with SocketBuilder.build_socket('0.0.0.0', local_realm.proxy_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
             Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}')
