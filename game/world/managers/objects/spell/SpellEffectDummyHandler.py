@@ -27,5 +27,5 @@ class SpellEffectDummyHandler:
 DUMMY_SPELL_EFFECTS = {
     6245: SpellEffectDummyHandler.handle_force_target_salute,  # Force Target - Salute
     6655: SpellEffectDummyHandler.handle_force_target_bow,  # Force Target - Bow
-    6236: SpellEffectDummyHandler.handle_transform_moonstalker
+    6236: SpellEffectDummyHandler.handle_transform_moonstalker  # Form of the Moonstalker
 }

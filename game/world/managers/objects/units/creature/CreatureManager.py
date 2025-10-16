@@ -266,7 +266,7 @@ class CreatureManager(UnitManager):
         # Equipment.
         self.reset_virtual_equipment()
 
-        # Mount this creature, will be overriden if defined in creature_addon.
+        # Mount this creature, will be overridden if defined in creature_addon.
         if self.creature_template.mount_display_id > 0:
             self.mount(self.creature_template.mount_display_id)
 
@@ -618,7 +618,7 @@ class CreatureManager(UnitManager):
 
     # override
     def despawn(self, ttl=0, respawn_delay=0):
-        # Handle temporal respawn_delay if provided.
+        # Handle temporary respawn_delay if provided.
         if not self.is_dynamic_spawn and respawn_delay:
             unit_spawn = self.get_map().get_surrounding_creature_spawn_by_spawn_id(self, self.spawn_id)
             if unit_spawn:

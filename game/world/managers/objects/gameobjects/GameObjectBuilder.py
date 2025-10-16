@@ -46,7 +46,7 @@ class GameObjectBuilder:
         # Initialize from gameobject template.
         go_instance.initialize_from_gameobject_template(gobject_template)
 
-        # Continue initialization. (Faction and Flags will be overridden below)
+        # Continue initialization. (Faction and Flags will be overridden below).
         go_instance.faction = faction if faction else gobject_template.faction
         go_instance.location = location
         go_instance.rot0 = rot0

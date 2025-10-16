@@ -23,7 +23,7 @@ class RealmManager:
             is_realm_local = config.Server.Connection.Realm.local_realm_id == realm.realm_id
 
             name_bytes = PacketWriter.string_to_bytes(realm.realm_name)
-            # Only check if the forward address needs to be overriden if this realm is hosted on this same machine.
+            # Only check if the forward address needs to be overridden if this realm is hosted on this same machine.
             # Docker on Windows hackfix.
             # https://discord.com/channels/628574828038717470/653374433636909077/840314080073351238
             if is_realm_local:

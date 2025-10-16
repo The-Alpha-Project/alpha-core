@@ -370,7 +370,7 @@ class GameObjectManager(ObjectManager):
 
     # override
     def despawn(self, ttl=0, respawn_delay=0):
-        # Handle temporal respawn_delay if provided.
+        # Handle temporary respawn_delay if provided.
         if not self.is_dynamic_spawn and respawn_delay:
             go_spawn = self.get_map().get_surrounding_gameobject_spawn_by_spawn_id(self, self.spawn_id)
             if go_spawn:

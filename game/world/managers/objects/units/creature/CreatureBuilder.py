@@ -71,7 +71,7 @@ class CreatureBuilder:
             creature_instance.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=True)
             summoner.possessed_unit = creature_instance
 
-        # Fully initialize temporal summons immediately.
+        # Fully initialize temporary summons immediately.
         if subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON:
             creature_instance.initialize_field_values()
 

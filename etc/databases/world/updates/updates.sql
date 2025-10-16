@@ -2390,8 +2390,8 @@ begin not atomic
         (99502, 0, 0, 70, 995, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scape Through Stealth - Fail Quest'),
         (99501, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escape Through Stealth - Despawn Volcor');
 
-        -- Ignore Selarin default spawn.
-        UPDATE `spawns_creatures` SET `position_x` = '6409.01', `position_y` = '381.597', `position_z` = '13.7997', `orientation` = '1', `ignored` = '1' WHERE (`spawn_id` = '400470');
+        -- Delete custom Selarin spawn.
+        DELETE FROM `spawns_creatures` WHERE `spawn_id` = 400470;
 
         -- Quest end script.
         DELETE FROM `quest_end_scripts` WHERE `id`=994;
