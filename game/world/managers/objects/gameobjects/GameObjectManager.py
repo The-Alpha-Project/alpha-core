@@ -281,6 +281,7 @@ class GameObjectManager(ObjectManager):
             if not casting_spell:
                 Logger.warning(
                     f'Unable to initialize spell for GameObject {self.get_name()}, Id {self.spawn_id}, spell {spell_id}')
+                return
 
             self.spell_manager.start_spell_cast(initialized_spell=casting_spell)
 
