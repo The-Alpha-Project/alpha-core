@@ -1177,6 +1177,16 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Areatrigger scripts.
+
+    @staticmethod
+    @lru_cache
+    def area_trigger_script_get_by_id(area_trigger_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_area_trigger_scripts).filter_by(id=area_trigger_id).all()
+        world_db_session.close()
+        return res
+
     # Gameobject scripts.
 
     @staticmethod

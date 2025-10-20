@@ -1876,6 +1876,10 @@ class ScriptHandler:
         return WorldDatabaseManager.CreatureMovementScriptHolder.creature_movement_scripts_get_by_id(script_id)
 
     @staticmethod
+    def handle_script_type_area_trigger(script_id):
+        return WorldDatabaseManager.area_trigger_script_get_by_id(script_id)
+
+    @staticmethod
     def _validate_spell_id(command):
         if command.datalong > MAX_3368_SPELL_ID:
             Logger.error(f'ScriptHandler: Invalid spell id ({command.datalong}), {command.get_info()}')
@@ -1889,6 +1893,7 @@ SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
     ScriptTypes.SCRIPT_TYPE_EVENT_SCRIPT: ScriptHandler.handle_script_type_event_script,
+    ScriptTypes.SCRIPT_TYPE_AREA_TRIGGER: ScriptHandler.handle_script_type_area_trigger
     # Unused in 0.5.3.
     # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     # ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,

@@ -1058,6 +1058,7 @@ class ScriptTypes(IntEnum):
     SCRIPT_TYPE_SPELL = 7
     SCRIPT_TYPE_AI = 8
     SCRIPT_TYPE_EVENT_SCRIPT = 9
+    SCRIPT_TYPE_AREA_TRIGGER = 10
 
 
 class TeleportToOptions(IntEnum):

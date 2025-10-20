@@ -2481,5 +2481,87 @@ begin not atomic
 
         insert into applied_updates values ('151020252');
     end if;
+
+    -- 19/10/2025 1
+    if (select count(*) from applied_updates where id='191020251') = 0 then
+        
+        CREATE TABLE `area_trigger_scripts` (
+          `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `delay` int(10) unsigned NOT NULL DEFAULT 0,
+          `priority` tinyint(3) unsigned NOT NULL DEFAULT 0,
+          `command` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `datalong` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `datalong2` int(10) unsigned NOT NULL DEFAULT 0,
+          `datalong3` int(10) unsigned NOT NULL DEFAULT 0,
+          `datalong4` int(10) unsigned NOT NULL DEFAULT 0,
+          `target_param1` int(10) unsigned NOT NULL DEFAULT 0,
+          `target_param2` int(10) unsigned NOT NULL DEFAULT 0,
+          `target_type` tinyint(3) unsigned NOT NULL DEFAULT 0,
+          `data_flags` tinyint(3) unsigned NOT NULL DEFAULT 0,
+          `dataint` int(11) NOT NULL DEFAULT 0,
+          `dataint2` int(11) NOT NULL DEFAULT 0,
+          `dataint3` int(11) NOT NULL DEFAULT 0,
+          `dataint4` int(11) NOT NULL DEFAULT 0,
+          `x` float NOT NULL DEFAULT 0,
+          `y` float NOT NULL DEFAULT 0,
+          `z` float NOT NULL DEFAULT 0,
+          `o` float NOT NULL DEFAULT 0,
+          `condition_id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `comments` varchar(255) NOT NULL
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+        
+        -- AreaTrigger 171 near Miran/Huldar/Saean.
+        DELETE FROM `area_trigger_scripts` WHERE `id`=171;
+        INSERT INTO `area_trigger_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (171, 0, 0, 39, 27301, 0, 0, 0, 0, 0, 0, 8, 100, 0, 0, 0, 0, 0, 0, 0, 273, 'Resupplying the Excavation - Ambush Event');
+        
+        -- Event.
+        DELETE FROM `generic_scripts` WHERE `id`=27301;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (27301, 0, 0, 61, 273, 300, 0, 0, 0, 0, 0, 8, 27306, 27302, 27307, 27302, 0, 0, 0, 0, 27305, 'Resupplying the Excavation - Start Map Event'),
+        (27301, 0, 0, 4, 147, 2, 2, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Remove Quest Giver Flag'),
+        (27301, 0, 0, 4, 46, 512, 2, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Remove Immune Flag'),
+        (27301, 0, 0, 22, 54, 0, 0, 0, 1380, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Saean - Set Faction.'),
+        (27301, 1, 0, 10, 1981, 25000, 0, 0, 1380, 80, 8, 2, 0, 0, 0, 2, -5757.63, -3437.68, 304.265, 2.61027, 0, 'Resupplying the Excavation - Saean - Summon Ambusher 2'),
+        (27301, 1, 0, 0, 1, 0, 0, 0, 1379, 80, 8, 2, 494, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Miran - Yell'),
+        (27301, 1, 0, 10, 1981, 25000, 0, 0, 1380, 80, 8, 2, 0, 0, 0, 2, -5759.85, -3441.28, 305.573, 2.17402, 0, 'Resupplying the Excavation - Saean - Summon Ambusher 1');
+        
+        -- Conditions.
+        DELETE FROM `conditions` WHERE `condition_entry` in (273, 27301, 27302, 27303, 27304, 27305, 27306, 27307, 27308, 27309, 27310, 27311);
+        -- 273: (27301: Target Has Complete Quest 273 In Log) And (27302:  Not (Scripted Map Event 273 Is Active)) And (27303: Creature 2057 Is Alive Within 80 Yards Of The Target) And (27304: Creature 1379 Is Alive Within 80 Yards Of The Target)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (273, -1, 27301, 27302, 27303, 27304, 0);
+        -- 27301: Target Has Complete Quest 273 In Log
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27301, 9, 273, 2, 0, 0, 0);
+        -- 27302:  Not (Scripted Map Event 273 Is Active)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27302, 36, 273, 0, 0, 0, 1);
+        -- 27303: Creature 2057 Is Alive Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27303, 20, 2057, 80, 0, 0, 0);
+        -- 27304: Creature 1379 Is Alive Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27304, 20, 1379, 80, 0, 0, 0);
+        -- 27305:  Not (Scripted Map Event 309 Is Active)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27305, 36, 309, 0, 0, 0, 1);
+        -- 27306: (27310: Creature 1380 Is Dead Within 80 Yards Of The Target) And (27311:  Not (Creature 1981 Is Alive Within 80 Yards Of The Target))
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27306, -1, 27310, 27311, 0, 0, 0);
+        -- 27307: (27308: Creature 1379 Is Dead Within 80 Yards Of The Target) And (27309: Creature 2057 Is Dead Within 80 Yards Of The Target)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27307, -1, 27308, 27309, 0, 0, 0);
+        -- 27308: Creature 1379 Is Dead Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27308, 20, 1379, 80, 1, 0, 0);
+        -- 27309: Creature 2057 Is Dead Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27309, 20, 2057, 80, 1, 0, 0);
+        -- 27310: Creature 1380 Is Dead Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27310, 20, 1380, 80, 1, 0, 0);
+        -- 27311:  Not (Creature 1981 Is Alive Within 80 Yards Of The Target)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27311, 20, 1981, 80, 0, 0, 1);
+
+        -- Success/Fail script.
+        DELETE FROM `generic_scripts` WHERE `id`=27302;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (27302, 0, 0, 4, 147, 2, 1, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Add Quest Giver Flag'),
+        (27302, 0, 0, 4, 46, 512, 1, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Add Immnune Flag'),
+        (27302, 0, 0, 62, 273, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - End Map Event');
+
+        insert into applied_updates values ('191020251');
+    end if;
+
 end $
 delimiter ;
