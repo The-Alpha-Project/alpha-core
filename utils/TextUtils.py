@@ -1,3 +1,6 @@
+import re
+
+
 ITEM_QUALITY_COLOR = {
     0: 'cff9d9d9d',
     1: 'cffffc600',
@@ -36,27 +39,24 @@ class GameTextFormatter:
 
     @staticmethod
     def format(unit_mgr, text):
-        # TODO: Maybe there's a more efficient way of doing this. :P
-        if '$G' in text or '$g' in text:
-            text = text.replace('$G', '$g')
-            tmp_text = text
-            for i in range(len(text)):
-                if text[i] == '$' and i + 1 < len(text) and text[i + 1] == 'g':
-                    next_terminator = text.find(';', i)
-                    subs = text[i: next_terminator + 1].strip()
-                    tmp_list_data = subs.replace('$g', '').replace(';', '').split(':')
-                    tmp_text = tmp_text.replace(subs, tmp_list_data[unit_mgr.gender].strip())
-            text = tmp_text
+        def g_replacer(match):
+            parts = match.group(0).replace('$g', '').replace(';', '').split(':')
+            return parts[unit_mgr.gender].strip()
 
-        return text \
-            .replace('$B', '\n') \
-            .replace('$b', '\n') \
-            .replace('$N', unit_mgr.get_name()) \
-            .replace('$n', unit_mgr.get_name()) \
-            .replace('$R', GameTextFormatter.race_to_text(unit_mgr.race)) \
-            .replace('$r', GameTextFormatter.race_to_text(unit_mgr.race).lower()) \
-            .replace('$C', GameTextFormatter.class_to_text(unit_mgr.class_)) \
-            .replace('$c', GameTextFormatter.class_to_text(unit_mgr.class_).lower())
+        # Replace all $g...; placeholders.
+        text = re.sub(r'\$g[^;]*;', g_replacer, text)
+
+        replacements = {
+            '$B': '\n', '$b': '\n',
+            '$N': unit_mgr.get_name(),
+            '$n': unit_mgr.get_name(),
+            '$R': GameTextFormatter.race_to_text(unit_mgr.race),
+            '$r': GameTextFormatter.race_to_text(unit_mgr.race).lower(),
+            '$C': GameTextFormatter.class_to_text(unit_mgr.class_),
+            '$c': GameTextFormatter.class_to_text(unit_mgr.class_).lower(),
+        }
+        return re.sub('|'.join(map(re.escape, replacements.keys())),
+                      lambda m: replacements[m.group(0)], text)
 
     @staticmethod
     def class_to_text(class_):
