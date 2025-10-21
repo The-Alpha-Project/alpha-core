@@ -93,21 +93,29 @@ class MirrorTimer(object):
                 self.remaining += int(self.scale)
 
     def update(self, elapsed):
-        if self.active and self.owner.is_alive:
-            self.chunk_elapsed += elapsed
-            if self.chunk_elapsed >= self.interval:
-                if self.stop_on_next_tick:
-                    self.stop()
-                else:
-                    self.set_remaining(self.chunk_elapsed)
-                    self.chunk_elapsed = 0
+        if not (self.active and self.owner.is_alive):
+            return
 
-                    if self.type == MirrorTimerTypes.BREATH:
-                        self.handle_damage_timer(0.10)  # Damage: 10% of players max health.
-                    elif self.type == MirrorTimerTypes.FATIGUE:
-                        self.handle_damage_timer(0.20)  # Damage: 20% of players max health.
-                    else:  # Feign Death.
-                        self.handle_feign_death_timer()
+        self.chunk_elapsed += elapsed
+
+        # Early return if the interval hasn't been reached.
+        if self.chunk_elapsed < self.interval:
+            return
+
+        # Replenished, stop.
+        if self.stop_on_next_tick:
+            self.stop()
+            return
+
+        self.set_remaining(self.chunk_elapsed)
+        self.chunk_elapsed = 0
+
+        if self.type == MirrorTimerTypes.BREATH:
+            self.handle_damage_timer(0.10)
+        elif self.type == MirrorTimerTypes.FATIGUE:
+            self.handle_damage_timer(0.20)
+        else:
+            self.handle_feign_death_timer()
 
     # TODO: should we halt regeneration when drowning or fatigue?
     #  Find drowning damage formula.
