@@ -47,6 +47,7 @@ class DebugAIStateHandler(object):
                     message_bytes
                 )
 
+            player_mgr.last_debug_ai_state_object = world_object
             player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DEBUG_AISTATE, data))
 
         return 0

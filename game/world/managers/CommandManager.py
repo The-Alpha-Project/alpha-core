@@ -180,6 +180,32 @@ class CommandManager(object):
             return -1, 'invalid unit selection.'
 
     @staticmethod
+    def move_object(world_session, args):
+        game_object = world_session.player_mgr.last_debug_ai_state_object
+        if not game_object:
+            return -1, 'invalid object selection.'
+
+        if not game_object.is_gameobject():
+            return -1, 'invalid gameobject selection.'
+
+        try:
+            player_mgr = world_session.player_mgr
+            operator, prop, step = args.split()
+            current_loc = getattr(game_object, f'location').copy()
+            exec(f'current_loc.{prop} {operator}= {step}')
+            from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id, player_mgr.instance_id,
+                                                   state=1, ttl=0)
+
+            world_session.player_mgr.get_map().spawn_object(world_object_instance=new_object)
+            game_object.get_map().remove_object(game_object)
+            # Replace old selection with new.
+            world_session.player_mgr.last_debug_ai_state_object = new_object
+            return 0, f'{new_object.get_name()} moved to {new_object.location}'
+        except ValueError:
+            return -1, 'invalid arguments, e.g. .moveobject + z .1.'
+
+    @staticmethod
     def distance_unit(world_session, args):
         try:
             unit = CommandManager._target_or_self(world_session)
@@ -1183,6 +1209,7 @@ GM_COMMAND_DEFINITIONS = {
     'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],
     'moveunit': [CommandManager.move_unit, 'command a unit to move to a given location'],
     'distunit': [CommandManager.distance_unit, 'get the distance between you and target unit'],
+    'moveobject': [CommandManager.move_object, 'move last debug ai state selected object'],
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],

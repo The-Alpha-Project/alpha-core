@@ -147,6 +147,9 @@ class PlayerManager(UnitManager):
             if self.session.account_mgr.is_gm():
                 self.set_gm_tag()
 
+            # Debug
+            self.last_debug_ai_state_object = None
+
             # Update exploration data.
             if self.player.explored_areas and len(self.player.explored_areas) > 0:
                 self.explored_areas = bitarray(self.player.explored_areas, 'little')

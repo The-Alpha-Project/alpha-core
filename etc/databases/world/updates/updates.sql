@@ -2580,6 +2580,15 @@ begin not atomic
         (1027, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1383, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: Say text 4'),
         (1027, 17, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: npc\\_flag questgiver added');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1564
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.1093' WHERE (`spawn_id` = '47822');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.1093' WHERE (`spawn_id` = '47828');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.1093' WHERE (`spawn_id` = '48018');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.4300' WHERE (`spawn_id` = '47838');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47831');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47833');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47836');
+
         insert into applied_updates values ('191020251');
     end if;
 
