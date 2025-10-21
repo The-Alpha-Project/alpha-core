@@ -45,12 +45,13 @@ class MirrorTimer(object):
         self.owner.enqueue_packet(packet)
 
     def stop(self):
-        if self.active:
-            self.active = False
-            self.stop_on_next_tick = False
-            data = pack('<I', self._get_type())
-            packet = PacketWriter.get_packet(OpCode.SMSG_STOP_MIRROR_TIMER, data)
-            self.owner.enqueue_packet(packet)
+        if not self.active:
+            return
+        self.active = False
+        self.stop_on_next_tick = False
+        data = pack('<I', self._get_type())
+        packet = PacketWriter.get_packet(OpCode.SMSG_STOP_MIRROR_TIMER, data)
+        self.owner.enqueue_packet(packet)
 
     # There are only two available 'types' (Timer colors): Dark Yellow (0) or Blue (1).
     # We use Dark Yellow (Fatigue) for Feign Death since the actual value for Feign Death (2) will trigger
@@ -65,32 +66,27 @@ class MirrorTimer(object):
         self.send_full_update()
 
     def send_full_update(self):
-        if self.active:
-            scale = self.scale if not self.has_water_breathing else 0
-            data = pack('<3IiBI', self._get_type(), self.remaining * 1000, self.duration * 1000, scale, not self.active, self.spell_id)
-            packet = PacketWriter.get_packet(OpCode.SMSG_START_MIRROR_TIMER, data)
-            self.owner.enqueue_packet(packet)
+        if not self.active:
+            return
+        scale = self.scale if not self.has_water_breathing else 0
+        data = pack('<3IiBI', self._get_type(), self.remaining * 1000, self.duration * 1000, scale, not self.active, self.spell_id)
+        packet = PacketWriter.get_packet(OpCode.SMSG_START_MIRROR_TIMER, data)
+        self.owner.enqueue_packet(packet)
 
     def set_scale(self, scale):
-        if scale != self.scale:
-            self.scale = scale
-            self.send_full_update()  # Scale changed, notify the client.
+        if scale == self.scale:
+            return
+        self.scale = scale
+        self.send_full_update()  # Scale changed, notify the client.
 
     def set_remaining(self, elapsed):
         if self.scale < 0:
-            if self.has_water_breathing:
-                # Freeze the remaining time.
-                if self.remaining == self.duration:
-                    self.remaining = int(self.duration - 1)
-            elif self.remaining - elapsed <= 0:
-                self.remaining = 0
-            else:
-                self.remaining -= int(elapsed)
+            if self.has_water_breathing and self.remaining == self.duration:
+                self.remaining = max(0, int(self.duration - 1))
+                return
+            self.remaining = max(0, self.remaining - int(elapsed))
         else:
-            if self.remaining + self.scale >= self.duration:
-                self.remaining = self.duration
-            else:
-                self.remaining += int(self.scale)
+            self.remaining = min(self.duration, self.remaining + int(self.scale))
 
     def update(self, elapsed):
         if not (self.active and self.owner.is_alive):
@@ -123,14 +119,18 @@ class MirrorTimer(object):
         if self.remaining == self.duration:
             # Replenished, stop next tick since scale is greater than 1 and client needs to fill its timer bar.
             self.stop_on_next_tick = True
-        elif self.remaining == 0 and self.owner.health > 0:
-            damage = int(self.owner.max_health * dmg_multiplier)
-            self.send_mirror_timer_damage(damage)
-            if self.owner.health - damage <= 0:
-                self.owner.die()
-            else:
-                new_health = self.owner.health - damage
-                self.owner.set_health(new_health)
+            return
+
+        if not (self.remaining == 0 and self.owner.health > 0):
+            return
+
+        damage = int(self.owner.max_health * dmg_multiplier)
+        self.send_mirror_timer_damage(damage)
+
+        if self.owner.health <= damage:
+            self.owner.die()
+        else:
+            self.owner.set_health(self.owner.health - damage)
 
     # Will display damage on player portrait and combat log.
     def send_mirror_timer_damage(self, damage):
