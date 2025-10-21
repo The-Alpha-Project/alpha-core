@@ -2567,7 +2567,7 @@ begin not atomic
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=377102;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (377102, 0, 0, 15, 697, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bleakheart Hellcaller - Cast Spell Summon Voidwalker'),
+        (377102, 0, 0, 15, 5252, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bleakheart Hellcaller - Cast Spell Summon Voidwalker'),
         (377102, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bleakheart Hellcaller - Set Phase to 0');
         
         -- Remove invalid spell.
