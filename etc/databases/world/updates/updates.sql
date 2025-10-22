@@ -2588,6 +2588,110 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47831');
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47833');
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47836');
+        
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1563
+        -- Feero Ironhand - 10 secs respawn from 20200706211236 migration.
+        UPDATE `spawns_creatures` SET `spawntimesecsmin` = '10', `spawntimesecsmax` = '10' WHERE (`spawn_id` = '32783');
+        -- Caedakar display id.
+        UPDATE `creature_template` SET `display_id1` = '2007' WHERE (`entry` = '3900');
+
+        -- Feero Ironhand - Waypoints
+        DELETE FROM creature_movement_template WHERE entry = 4484;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (4484, 0, 3178.57, 188.52, 4.27, 0, 0, 0, 0),
+        (4484, 1, 3189.82, 198.56, 3.85, 0, 0, 0, 0),
+        (4484, 2, 3215.21, 185.78, 5.882, 0, 0, 0, 0),
+        (4484, 3, 3224.05, 183.08, 6.74, 0, 0, 0, 0),
+        (4484, 4, 3228.11, 194.97, 6.357, 0, 0, 0, 0),
+        (4484, 5, 3225.33, 201.78, 5.085, 0, 0, 0, 0),
+        (4484, 6, 3233.33, 226.88, 3.471, 0, 0, 0, 0),
+        (4484, 7, 3274.12, 225.83, 2.184, 0, 0, 0, 0),
+        (4484, 8, 3322.64, 226.437, 1.134, 0, 0, 0, 0),
+        (4484, 9, 3369.66, 226.21, 1.783, 0, 0, 0, 0),
+        (4484, 10, 3402.35, 227.2, 2.975, 0, 0, 0, 0),
+        (4484, 11, 3441.92, 224.75, 2.635, 0, 0, 0, 0),
+        (4484, 12, 3454.24, 224.708, 2.86, 0, 0, 0, 0),
+        (4484, 13, 3473, 224.682, 3.398, 0, 0, 0, 0),
+        (4484, 14, 3515.58, 221.472, 4.186, 0, 7000, 0, 448401),
+        (4484, 15, 3516.62, 221.472, 4.186, 0, 20000, 0, 448402),
+        (4484, 16, 3548.26, 220.032, 2.83, 0, 0, 0, 0),
+        (4484, 17, 3567.57, 219.43, 2.235, 0, 0, 0, 0),
+        (4484, 18, 3659.85, 209.68, 2.05, 0, 0, 0, 0),
+        (4484, 19, 3734.9, 177.64, 0.236, 0, 0, 0, 0),
+        (4484, 20, 3760.24, 162.51, 0.932, 0, 7000, 0, 448403),
+        (4484, 21, 3760.24, 162.51, 0.932, 0, 20000, 0, 448404),
+        (4484, 22, 3801.17, 129.87, 2.203, 0, 0, 0, 0),
+        (4484, 23, 3815.53, 118.53, 2.093, 0, 0, 0, 0),
+        (4484, 24, 3894.58, 44.88, 1.466, 0, 0, 0, 0),
+        (4484, 25, 3972.83, 0.42, 1.283, 0, 0, 0, 0),
+        (4484, 26, 4026.41, -7.63, 3.738, 0, 0, 0, 0),
+        (4484, 27, 4086.24, 12.32, 13.541, 0, 0, 0, 0),
+        (4484, 28, 4158.79, 50.67, 25.796, 0, 0, 0, 0),
+        (4484, 29, 4223.48, 99.52, 35.33, 0, 7000, 0, 448405),
+        (4484, 30, 4223.48, 99.52, 35.33, 0, 10000, 0, 448406),
+        (4484, 31, 4243.45, 117.44, 38.76, 0, 0, 0, 0),
+        (4484, 32, 4264.18, 134.22, 41.86, 0, 0, 0, 448407);
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=976;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (976, 0, 0, 61, 976, 1200, 0, 0, 0, 0, 0, 0, 0, 97601, 1019, 97602, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Start Map Event'),
+        (976, 0, 0, 25, 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Set Run'),
+        (976, 0, 0, 22, 10, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Set Faction'),
+        (976, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Remove QuestGiver'),
+        (976, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Remove Immune'),
+        (976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1292, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk'),
+        (976, 2, 0, 60, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Start Waypoints');
+
+        DELETE FROM `generic_scripts` WHERE `id`=97601;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (97601, 0, 0, 7, 976, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Complete Quest');
+
+        DELETE FROM `generic_scripts` WHERE `id`=97602;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (97602, 0, 0, 70, 976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Fail Quest'),
+        (97602, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Despawn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448401;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1372, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - First ambush text'),
+        (448401, 1, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3534.41, 208.359, 6.06892, 2.63, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 1'),
+        (448401, 1, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3531.49, 236.927, 6.88306, 3.49, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 2'),
+        (448401, 2, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3515.2, 247.029, 6.85558, 4.750, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 3'),
+        (448401, 2, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3514.36, 200.078, 6.71473, 1.35, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 4');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448402;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448402, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1294, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk After First Ambush');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448403;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448403, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1373, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Ambush 2 text'),
+        (448403, 1, 0, 10, 3893, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3780.18, 165.459, 5.19506, 3.12, 0, 'Supplies to Auberdine - Feero Ironhand - Forsaken Scout 1'),
+        (448403, 1, 0, 10, 3893, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3759.33, 143.585, 6.83714, 1.91, 0, 'Supplies to Auberdine - Feero Ironhand - Forsaken Scout 2'),
+        (448403, 1, 0, 10, 3893, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3733.493, 189.456, 3.143, 5.292, 0, 'Supplies to Auberdine - Feero Ironhand - Forsaken Scout 3'),
+        (448403, 1, 0, 0, 1, 0, 0, 0, 3893, 80, 26, 2, 1309, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Forsaken Scout - Random Yell');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448404;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448404, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1310, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk After Second Ambush');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448405;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448405, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1374, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Third ambush text'),
+        (448405, 0, 0, 10, 3899, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4243.12, 108.22, 38.12, 3.62, 0, 'Supplies to Auberdine - Feero Ironhand - Summon Balizar'),
+        (448405, 0, 0, 10, 3898, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4240.95, 114.04, 38.35, 3.56, 0, 'Supplies to Auberdine - Feero Ironhand - Summon Aligar'),
+        (448405, 0, 0, 10, 3900, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4235.78, 118.09, 38.08, 4.12, 0, 'Supplies to Auberdine - Feero Ironhand - Summon Caedakar'),
+        (448405, 1, 0, 0, 0, 0, 0, 0, 3898, 80, 8, 2, 1312, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Aligar Talk'),
+        (448405, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 1499, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448406;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448406, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1315, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk After Third Ambush'),
+        (448406, 4, 0, 62, 976, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - End Map Event');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448407;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448407, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Despawn');
 
         insert into applied_updates values ('191020251');
     end if;
