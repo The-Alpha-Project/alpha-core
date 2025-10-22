@@ -1209,7 +1209,7 @@ GM_COMMAND_DEFINITIONS = {
     'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],
     'moveunit': [CommandManager.move_unit, 'command a unit to move to a given location'],
     'distunit': [CommandManager.distance_unit, 'get the distance between you and target unit'],
-    'moveobject': [CommandManager.move_object, 'move last debug ai state selected object'],
+    'moveobject': [CommandManager.move_object, 'move last debug ai state mouse hovered object'],
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],
