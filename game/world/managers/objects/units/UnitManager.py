@@ -1385,6 +1385,10 @@ class UnitManager(ObjectManager):
     def is_guardian(self):
         return False
 
+    # Implemented by CreatureManager.
+    def is_tmp_summon_or_pet_or_guardian(self):
+        return False
+
     # Implemented by PlayerManager.
     def get_duel_arbiter(self):
         return None

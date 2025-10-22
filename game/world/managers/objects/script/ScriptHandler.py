@@ -146,12 +146,12 @@ class ScriptHandler:
             chat_type = broadcast_message.chat_type
 
         lang = broadcast_message.language_id
-        if chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
+        if chat_type == BroadcastMessageType.BROADCAST_MSG_YELL.value:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_YELL
-        elif chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
+        elif chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE.value:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
-        
+
         ChatManager.send_monster_message(command.source, text_to_say, chat_msg_type, lang,
                                          ChatHandler.get_range_by_type(chat_msg_type), command.target)
 

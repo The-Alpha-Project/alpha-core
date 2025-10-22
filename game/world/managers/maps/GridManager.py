@@ -131,17 +131,17 @@ class GridManager:
         cell: Cell = self._get_create_cell(world_object.location, world_object.map_id, world_object.instance_id)
         cell.add_world_object(world_object)
 
-        if world_object.is_player() or world_object.is_temp_summon():
+        if world_object.is_player() or world_object.is_tmp_summon_or_pet_or_guardian():
             self.activate_cell_by_world_object(world_object, load_tile_data=True)
 
         # Notify surrounding players.
         if update_players:
-            # Handle pet/guardian player summons, they need to be notified to owner immediately.
-            owner = world_object.get_charmer_or_summoner()
-            if owner and owner.is_player():
-                owner.update_manager.update_self_summon_creation(world_object)
-
-            self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
+            # Immediately notify temporary summons, pets and guardians to players.
+            if world_object.is_tmp_summon_or_pet_or_guardian():
+                self._update_players_surroundings(cell.key, world_object=world_object, has_changes=True)
+            # Enqueue for lazy update by object type.
+            else:
+                self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
     def activate_cell_by_world_object(self, world_object, load_tile_data=False):
         # Surrounding cells.
@@ -231,6 +231,10 @@ class GridManager:
 
     def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None,
                                   use_ignore=False):
+        if not world_object.current_cell:
+            Logger.warning(f'{world_object.get_name() } Cannot send surrounding in range without current cell')
+            return
+
         for cell in self._get_surrounding_cells_by_object(world_object):
             cell.send_all_in_range(packet, range_, world_object, include_self, exclude, use_ignore)
 

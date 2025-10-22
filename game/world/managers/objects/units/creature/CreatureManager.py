@@ -354,12 +354,17 @@ class CreatureManager(UnitManager):
         return super().has_melee() and not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
 
     def is_pet(self):
-        return (self.summoner or self.charmer) \
-               and (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
-                    or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
+        owner = self.get_charmer_or_summoner()
+        if not owner:
+            return False
+        return (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+                            or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
 
     def set_guardian(self, state):
         self._is_guardian = state
+
+    def is_tmp_summon_or_pet_or_guardian(self):
+        return any([self.is_temp_summon(), self.is_pet(), self.is_guardian()])
 
     def is_guardian(self):
         owner = self.get_charmer_or_summoner()

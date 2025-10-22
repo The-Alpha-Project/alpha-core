@@ -106,7 +106,11 @@ class UpdateManager:
                 self.update_builder.add_partial_update_from_object(world_object, update_data=update_data)
         elif (world_object.guid not in self.player_mgr.known_objects and can_detect and has_changes
               and world_object.is_spawned and world_object.guid not in self.player_mgr.known_stealth_units):
-            self.enqueue_object_update(world_object.get_type_id())  # Update known objects for type.
+            # Temporary summons, update immediately.
+            if world_object.is_tmp_summon_or_pet_or_guardian():
+                self.update_self_summon_creation(world_object)
+            else:
+                self.enqueue_object_update(world_object.get_type_id())  # Update known objects for type.
         # Stealth detection.
         # Unit is now visible.
         elif world_object.guid not in self.player_mgr.known_objects and can_detect \

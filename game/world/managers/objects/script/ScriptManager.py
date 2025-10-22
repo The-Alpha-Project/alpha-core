@@ -72,8 +72,9 @@ class ScriptManager:
 
     @staticmethod
     def resolve_random_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
-        search_range: Optional[float] = param1
-        entry: Optional[int] = param2
+        entry: Optional[int] = param1
+        search_range: Optional[float] = param2
+
         units = ScriptManager._get_surrounding_units(caster, search_range=search_range, include_players=False,
                                                      alive=True)
         if not units:
@@ -107,6 +108,7 @@ class ScriptManager:
     @staticmethod
     def resolve_nearest_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
+
         go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
