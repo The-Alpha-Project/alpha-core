@@ -96,7 +96,8 @@ class WaypointMovement(BaseMovement):
         if not current_wp:
             return
 
-        if self.unit.movement_manager.get_current_behavior().move_type != self.move_type:
+        current_behavior = self.unit.movement_manager.get_current_behavior()
+        if current_behavior and current_behavior.move_type != self.move_type:
             return
 
         if self._should_use_facing(current_wp):
