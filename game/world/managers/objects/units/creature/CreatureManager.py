@@ -605,7 +605,7 @@ class CreatureManager(UnitManager):
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
 
-                if self.relocation_call_for_help_timer >= 0.5:
+                if self.relocation_call_for_help_timer >= 1:
                     if self.pending_relocation:
                         self.on_relocation()
                         self.pending_relocation = False
