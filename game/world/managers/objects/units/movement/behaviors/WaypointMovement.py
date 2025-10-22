@@ -93,6 +93,8 @@ class WaypointMovement(BaseMovement):
             return
 
         current_wp = self._get_waypoint()
+        if not current_wp:
+            return
 
         if self.unit.movement_manager.get_current_behavior().move_type != self.move_type:
             return
@@ -172,6 +174,8 @@ class WaypointMovement(BaseMovement):
             (waypoint.wait_time_seconds or self.is_single)
 
     def _get_waypoint(self):
+        if not self.waypoints:
+            return None      
         return self.waypoints[0]
 
     def _waypoint_push_back(self):
