@@ -1973,14 +1973,12 @@ class UnitManager(ObjectManager):
             if not self_is_player and detection_range > max_detection_range:
                 detection_range = max_detection_range
 
-            if unit.is_player():
-                continue
-
             distance = unit.location.distance(self.location)
 
             if distance > detection_range or not unit.is_hostile_to(self) or not unit.can_attack_target(self):
                 continue
-            if unit.threat_manager.has_aggro_from(self):
+            # Both have seen each other, skip.
+            if unit.threat_manager.has_aggro_from(self) and self.threat_manager.has_aggro_from(unit):
                 continue
 
             # Check for stealth/invisibility.

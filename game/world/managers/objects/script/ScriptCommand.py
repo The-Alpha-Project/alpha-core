@@ -54,7 +54,7 @@ class ScriptCommand:
             target = ScriptManager.get_target_by_type(source, target, self.target_type,
                                                       self.target_param1, self.target_param2)
             if not target:
-                if not self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:
+                if not self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS and source.is_alive:
                     Logger.error(f'Unable to find target for script {self.script_id}, {self.comments}')
                 return False, None, None
 
