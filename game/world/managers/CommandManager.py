@@ -200,8 +200,8 @@ class CommandManager(object):
             game_object.get_map().remove_object(game_object)
             # Replace old selection with new.
             world_session.player_mgr.last_debug_ai_state_object = new_object
-            return 0, (f'{new_object.get_name()} moved to: X:{new_object.location.x} Y:{new_object.location.y} '
-                       f'Z:{new_object.location.z}')
+            return 0, (f'{new_object.get_name()} moved to: X:{round(new_object.location.x,3)}'
+                       f' Y:{round(new_object.location.y,3)} Z:{round(new_object.location.z,3)}')
         except ValueError:
             return -1, 'invalid arguments, e.g. .moveobject + z .1.'
 
