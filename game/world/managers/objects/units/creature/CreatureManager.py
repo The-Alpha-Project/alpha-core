@@ -363,7 +363,7 @@ class CreatureManager(UnitManager):
     def set_guardian(self, state):
         self._is_guardian = state
 
-    def is_tmp_summon_or_pet_or_guardian(self):
+    def is_temp_summon_or_pet_or_guardian(self):
         return any([self.is_temp_summon(), self.is_pet(), self.is_guardian()])
 
     def is_guardian(self):

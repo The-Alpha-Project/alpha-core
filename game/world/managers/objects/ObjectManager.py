@@ -510,7 +510,7 @@ class ObjectManager:
         return False
 
     # override
-    def is_tmp_summon_or_pet_or_guardian(self):
+    def is_temp_summon_or_pet_or_guardian(self):
         return False
 
     # override

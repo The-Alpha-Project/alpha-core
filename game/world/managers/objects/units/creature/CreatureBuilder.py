@@ -72,7 +72,7 @@ class CreatureBuilder:
             summoner.possessed_unit = creature_instance
 
         # Fully initialize temporary summons, pets or guardians.
-        if creature_instance.is_tmp_summon_or_pet_or_guardian():
+        if creature_instance.is_temp_summon_or_pet_or_guardian():
             creature_instance.initialize_field_values()
 
         return creature_instance
