@@ -189,7 +189,7 @@ class CreatureAI:
     # Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc).
     def attacked_by(self, attacker):
         self.creature.threat_manager.add_threat(attacker)
-        if attacker.is_player():
+        if attacker.is_player() and self.creature.combat_target is attacker:
             self.send_ai_reaction(attacker, AIReactionStates.AI_REACT_HOSTILE)
 
     # Called when creature attack is expected (if creature can and doesn't have current victim).
@@ -442,8 +442,7 @@ class CreatureAI:
                and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
                and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
-               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
-               and not self.creature.combat_target
+               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
 
     def on_scripted_event(self, event_id, data):
         pass
