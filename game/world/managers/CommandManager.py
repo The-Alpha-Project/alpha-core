@@ -191,17 +191,17 @@ class CommandManager(object):
         try:
             player_mgr = world_session.player_mgr
             operator, prop, step = args.split()
-            current_loc = getattr(game_object, f'location').copy()
+            current_loc = game_object.location.copy()
             exec(f'current_loc.{prop} {operator}= {step}')
             from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
-            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id, player_mgr.instance_id,
-                                                   state=1, ttl=0)
-
+            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id,
+                                                  player_mgr.instance_id, state=1, ttl=0)
             world_session.player_mgr.get_map().spawn_object(world_object_instance=new_object)
             game_object.get_map().remove_object(game_object)
             # Replace old selection with new.
             world_session.player_mgr.last_debug_ai_state_object = new_object
-            return 0, f'{new_object.get_name()} moved to {new_object.location}'
+            return 0, (f'{new_object.get_name()} moved to: X:{new_object.location.x} Y:{new_object.location.y} '
+                       f'Z:{new_object.location.z}')
         except ValueError:
             return -1, 'invalid arguments, e.g. .moveobject + z .1.'
 
