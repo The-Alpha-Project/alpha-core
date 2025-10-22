@@ -70,7 +70,7 @@ class UpdateManager:
                 continue
             self.pending_object_types_updates[type_id] = True
 
-    def update_self_summon_creation(self, world_object):
+    def update_world_object_creation_now(self, world_object):
         self.update_builder.add_create_update_from_object(world_object)
         self.update_builder.process_update()  # Notify instantly.
 
@@ -108,7 +108,7 @@ class UpdateManager:
               and world_object.is_spawned and world_object.guid not in self.player_mgr.known_stealth_units):
             # Temporary summons, update immediately.
             if world_object.is_tmp_summon_or_pet_or_guardian():
-                self.update_self_summon_creation(world_object)
+                self.update_world_object_creation_now(world_object)
             else:
                 self.enqueue_object_update(world_object.get_type_id())  # Update known objects for type.
         # Stealth detection.
