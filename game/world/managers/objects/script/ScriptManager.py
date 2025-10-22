@@ -1,4 +1,4 @@
-from random import choice, shuffle
+from random import choice
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
