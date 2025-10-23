@@ -1720,9 +1720,24 @@ class ScriptHandler:
         # datalong = gameobject_entry
         # datalong2 = respawn_time
         # x/y/z/o = coordinates
-        Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, {command.get_info()}')
+            return command.should_abort()
 
-        return command.should_abort()
+        x = command.x if command.x else command.source.location.x
+        y = command.y if command.y else command.source.location.y
+        z = command.z if command.z else command.source.location.z
+        o = command.o if command.o else command.source.location.o
+        location = Vector(x, y, z, o)
+
+        from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+        new_object = GameObjectBuilder.create(command.datalong, location, command.source.map_id,
+                                              command.source.instance_id, state=GameObjectStates.GO_STATE_READY,
+                                              ttl=command.datalong2)
+
+        command.source.get_map().spawn_object(world_object_instance=new_object)
+
+        return False
 
     @staticmethod
     def handle_script_command_join_creature_group(command):
