@@ -180,22 +180,6 @@ class CommandManager(object):
             return -1, 'invalid unit selection.'
 
     @staticmethod
-    def save_waypoint(world_session, args):
-        try:
-            entry = args.split()
-            entry = int(entry)
-            f_name = f'{entry}_waypoints.txt'
-            write_mode = 'a' if os.path.exists(f_name) else 'w'
-            l = world_session.player_mgr.location
-            with open(f_name, write_mode) as f:
-                point_id = len(f.readlines())
-                f.write(f'({entry}, {point_id}, {round(l.x, 3)}, {round(l.y, 3)}, {round(l.z, 3)}, 0, 0, 0, 0),\n')
-
-            return 0, f'Successfully created/updated waypoints in {f_name}'
-        except ValueError:
-            return -1, 'invalid parameter. e.g. .wp 3465'
-
-    @staticmethod
     def move_object(world_session, args):
         game_object = world_session.player_mgr.last_debug_ai_state_object
         if not game_object:
@@ -1175,6 +1159,21 @@ class CommandManager(object):
             return 0, 'Location saved.'
         else:
             return -1, 'please use it like: .sloc comment'
+
+    @staticmethod
+    def save_waypoint(world_session, args):
+        try:
+            entry = int(args)
+            Path(CommandManager.DEV_LOG_PATH).mkdir(parents=True, exist_ok=True)
+            f_name = path.join(CommandManager.DEV_LOG_PATH, f'{entry}_waypoints.log')
+            l = world_session.player_mgr.location
+            with open(f_name, 'a+') as f:
+                point_id = len(f.readlines())
+                f.write(f'({entry}, {point_id}, {round(l.x, 3)}, {round(l.y, 3)}, {round(l.z, 3)}, 0, 0, 0, 0),\n')
+
+            return 0, f'Successfully created/updated waypoints in {f_name}'
+        except ValueError:
+            return -1, 'please use it like: .savewp <entry>'
 
     @staticmethod
     def gmtag(world_session, args):
