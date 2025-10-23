@@ -117,10 +117,14 @@ class WaypointMovement(BaseMovement):
 
     # override
     def reset(self):
-        if self.spline:
-            # Make sure the last known position gets updated.
-            self.spline.update_to_now()
-            self.spline = None
+        current_wp = self._get_waypoint()
+        if current_wp:
+            current_wp.reset()
+        if not self.spline:
+            return
+         # Make sure the last known position gets updated.
+        self.spline.update_to_now()
+        self.spline = None
 
     # override
     def can_remove(self):
