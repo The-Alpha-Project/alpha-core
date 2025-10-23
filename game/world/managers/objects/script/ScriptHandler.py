@@ -447,7 +447,7 @@ class ScriptHandler:
 
         if in_range:
             player.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-            player.quest_manager.reward_quest_event()
+            player.quest_manager.reward_quest_event(command.datalong)
         else:
             return command.should_abort()
 

@@ -336,7 +336,7 @@ class GroupManager(object):
             if quest_entry not in player_mgr.quest_manager.active_quests:
                 continue
             player_mgr.quest_manager.active_quests[quest_entry].set_explored_or_event_complete()
-            player_mgr.quest_manager.reward_quest_event()
+            player_mgr.quest_manager.reward_quest_event(quest_entry)
 
     def fail_quest_for_group(self, requester, quest_entry):
         for player_mgr in self.get_close_members(requester):
