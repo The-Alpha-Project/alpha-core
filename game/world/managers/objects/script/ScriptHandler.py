@@ -1798,8 +1798,18 @@ class ScriptHandler:
         # target = WorldObject
         # datalong = event_id
         # datalong2 = event_data
-        Logger.debug('ScriptHandler: handle_script_command_send_script_event not implemented yet')
-        return command.should_abort()
+        if not command.source or not command.source.is_unit():
+            Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
+            return command.should_abort()
+
+        if not command.source.object_ai:
+            Logger.warning(f'ScriptHandler: No creature AI manager found, {command.get_info()}.')
+            return command.should_abort()
+
+        command.source.object_ai.on_script_event_happened(command.datalong, command.datalong2, command.target)
+        return False
+
+        return False
 
     @staticmethod
     def handle_script_command_reset_door_or_button(command):

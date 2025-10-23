@@ -94,6 +94,9 @@ class CreatureAI:
         victim.enqueue_packet(packet)
         return True
 
+    def on_script_event_happened(self, event_id, event_data, target):
+        self.ai_event_handler.on_script_event_happened(event_id, event_data, target)
+
     # Called when the creature is killed.
     def just_died(self, killer=None):
         self.ai_event_handler.on_death(killer)
