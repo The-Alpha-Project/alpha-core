@@ -155,6 +155,8 @@ class AIEventHandler:
                 if not self._validate_event(event, target=target):
                     continue
                 self._enqueue_creature_ai_event(map_, event, target=target)
+            else:
+                Logger.warning(f'Unable to start script on event {event_id} for unit {self.creature.get_name()}')
 
     def on_group_member_died(self, source, is_leader):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_GROUP_MEMBER_DIED)
