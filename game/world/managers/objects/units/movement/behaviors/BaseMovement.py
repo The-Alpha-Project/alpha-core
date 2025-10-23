@@ -1,5 +1,7 @@
 import time
 
+from utils.constants.UnitCodes import CreatureReactStates
+
 
 class BaseMovement:
     def __init__(self, move_type, spline_callback, is_default=False):
@@ -36,7 +38,10 @@ class BaseMovement:
             self.spline = None
 
     def _check_relocation(self, now):
-        if now - self.last_change > 1:
+        if self.unit.is_player():
+            return
+
+        if now - self.last_change > 1 and self.unit.react_state == CreatureReactStates.REACT_AGGRESSIVE:
             self.unit.pending_relocation = True
             self.last_change = now
 
