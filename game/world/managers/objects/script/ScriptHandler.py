@@ -1838,8 +1838,13 @@ class ScriptHandler:
     def handle_script_command_play_custom_anim(command):
         # source = GameObject
         # datalong = anim_id
-        Logger.debug('ScriptHandler: handle_script_command_play_custom_anim not implemented yet')
-        return command.should_abort()
+        target = command.target if command.target else command.source
+        if not ConditionChecker.is_gameobject(target):
+            Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
+            return command.should_abort()
+
+        target.send_custom_animation(command.datalong)
+        return False
 
     @staticmethod
     def handle_script_command_start_script_on_group(command):
