@@ -319,6 +319,10 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
+        # Send AI reaction.
+        if self.object_ai and victim.is_player():
+            self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+
         self.send_attack_start(self.combat_target.guid)
 
         return True

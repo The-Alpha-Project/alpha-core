@@ -91,7 +91,7 @@ class CreatureAI:
         data = pack('<QI', self.creature.guid, ai_reaction)
         packet = PacketWriter.get_packet(OpCode.SMSG_AI_REACTION, data)
         self.creature.movement_manager.face_target(victim)
-        victim.enqueue_packet(packet)
+        self.creature.get_map().send_surrounding(packet, self.creature, False)
         return True
 
     def on_script_event_happened(self, event_id, event_data, target):
@@ -192,8 +192,6 @@ class CreatureAI:
     # Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc).
     def attacked_by(self, attacker):
         self.creature.threat_manager.add_threat(attacker)
-        if attacker.is_player() and self.creature.combat_target is attacker:
-            self.send_ai_reaction(attacker, AIReactionStates.AI_REACT_HOSTILE)
 
     # Called when creature attack is expected (if creature can and doesn't have current victim).
     # Note: for reaction at hostile action must be called AttackedBy function.
