@@ -24,7 +24,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
     GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
-from utils.constants.UnitCodes import UnitFlags, Genders
+from utils.constants.UnitCodes import UnitFlags, Genders, CreatureReactStates
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
     ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags, WaypointPathOrigin, \
     ScriptTarget
@@ -1446,8 +1446,17 @@ class ScriptHandler:
     def handle_script_command_set_react_state(command):
         # source = Creature
         # datalong = see enum ReactStates
-        Logger.debug('ScriptHandler: handle_script_command_set_react_state not implemented yet')
-        return command.should_abort()
+        # source = Creature
+        if not ConditionChecker.is_unit(command.source):
+            Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
+            return command.should_abort()
+
+        charmer_or_summoner = command.source.get_charmer_or_summoner()
+        if charmer_or_summoner and charmer_or_summoner.is_unit():
+            charmer_or_summoner.react_state = CreatureReactStates(command.datalong)
+
+        command.source.react_state = CreatureReactStates(command.datalong)
+        return False
 
     @staticmethod
     def handle_script_command_start_waypoints(command):
