@@ -146,9 +146,9 @@ class ScriptHandler:
             chat_type = broadcast_message.chat_type
 
         lang = broadcast_message.language_id
-        if chat_type == BroadcastMessageType.BROADCAST_MSG_YELL.value:
+        if chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_YELL
-        elif chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE.value:
+        elif chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
 
