@@ -180,7 +180,7 @@ class CommandManager(object):
             return -1, 'invalid unit selection.'
 
     @staticmethod
-    def waypoint(world_session, args):
+    def save_waypoint(world_session, args):
         try:
             entry = args.split()
             entry = int(entry)
@@ -1226,7 +1226,7 @@ GM_COMMAND_DEFINITIONS = {
     'moveunit': [CommandManager.move_unit, 'command a unit to move to a given location'],
     'distunit': [CommandManager.distance_unit, 'get the distance between you and target unit'],
     'moveobject': [CommandManager.move_object, 'move last debug ai state mouse hovered object'],
-    'savewp': [CommandManager.waypoint, 'save your current location for a given entry as creature_movement waypoint'],
+    'savewp': [CommandManager.save_waypoint, 'save your current location as creature_movement waypoint'],
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],
