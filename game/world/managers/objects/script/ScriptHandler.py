@@ -1809,8 +1809,6 @@ class ScriptHandler:
         command.source.object_ai.on_script_event_happened(command.datalong, command.datalong2, command.target)
         return False
 
-        return False
-
     @staticmethod
     def handle_script_command_reset_door_or_button(command):
         # source = GameObject
