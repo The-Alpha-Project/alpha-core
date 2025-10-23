@@ -180,6 +180,22 @@ class CommandManager(object):
             return -1, 'invalid unit selection.'
 
     @staticmethod
+    def waypoint(world_session, args):
+        try:
+            entry = args.split()
+            entry = int(entry)
+            f_name = f'{entry}_waypoints.txt'
+            write_mode = 'a' if os.path.exists(f_name) else 'w'
+            l = world_session.player_mgr.location
+            with open(f_name, write_mode) as f:
+                point_id = len(f.readlines())
+                f.write(f'({entry}, {point_id}, {round(l.x, 3)}, {round(l.y, 3)}, {round(l.z, 3)}, 0, 0, 0, 0),\n')
+
+            return 0, f'Successfully created/updated waypoints in {f_name}'
+        except ValueError:
+            return -1, 'invalid parameter. e.g. .wp 3465'
+
+    @staticmethod
     def move_object(world_session, args):
         game_object = world_session.player_mgr.last_debug_ai_state_object
         if not game_object:
@@ -1210,6 +1226,7 @@ GM_COMMAND_DEFINITIONS = {
     'moveunit': [CommandManager.move_unit, 'command a unit to move to a given location'],
     'distunit': [CommandManager.distance_unit, 'get the distance between you and target unit'],
     'moveobject': [CommandManager.move_object, 'move last debug ai state mouse hovered object'],
+    'savewp': [CommandManager.waypoint, 'save your current location for a given entry as creature_movement waypoint'],
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],
