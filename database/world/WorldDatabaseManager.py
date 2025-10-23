@@ -1,6 +1,6 @@
 import os
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Dict
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine, func
@@ -62,7 +62,7 @@ class WorldDatabaseManager(object):
         return res
 
     class UnitClassLevelStatsHolder:
-        CLASS_LEVEL_STATS: [int, [int, PlayerClasslevelstats]] = {}
+        CLASS_LEVEL_STATS: Dict[int, Dict[int, PlayerClasslevelstats]] = {}
 
         @staticmethod
         def load_player_class_level_stats(stats):
