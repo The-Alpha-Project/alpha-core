@@ -2693,6 +2693,113 @@ begin not atomic
         INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (448407, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Despawn');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1191 - Gilthares Firebough
+        UPDATE `spawns_creatures` SET `position_x` = '-2101.276', `position_y` = '-3672.534', `position_z` = '40.256', `orientation` = '4.37', `ignored` = '0' WHERE (`spawn_id` = '15031');
+        UPDATE `creature_template` SET `display_id1` = '1642' WHERE (`entry` = '3465');
+
+        -- Events list for Gilthares Firebough
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3465;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (346501, 3465, 0, 4, 0, 70, 1, 0, 0, 0, 0, 346501, 0, 0, 'Gilthares Firebough - Aggro');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=346501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1074, 1075, 1072, 1073, 0, 0, 0, 0, 0, 'Gilthares Firebough - Aggro Texts');
+
+        -- Waypoints
+        DELETE FROM creature_movement_template WHERE entry = 3465;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (3465, 1, -2101.27, -3672.34, 40.243, 0, 0, 0, 0),
+        (3465, 2, -2103.7, -3679.61, 40.256, 0, 0, 0, 0),
+        (3465, 3, -2099.72, -3680.92, 40.265, 0, 0, 0, 0),
+        (3465, 4, -2094.58, -3682.75, 34.621, 0, 0, 0, 0),
+        (3465, 5, -2091.34, -3679.74, 34.625, 0, 0, 0, 0),
+        (3465, 6, -2088.39, -3658.85, 33.686, 0, 0, 0, 0),
+        (3465, 7, -2081.37, -3642.78, 29.899, 0, 0, 0, 0),
+        (3465, 8, -2066.38, -3645.3, 26.019, 0, 0, 0, 0),
+        (3465, 9, -2053.78, -3656.78, 23.226, 0, 0, 0, 0),
+        (3465, 10, -2044.41, -3659.92, 22.253, 0, 0, 0, 0),
+        (3465, 11, -2005.8, -3647.27, 12.346, 0, 30000, 0, 346501),
+        (3465, 12, -2005.8, -3647.27, 12.346, 0, 1000, 0, 346502),
+        (3465, 13, -1969.85, -3650.14, 12.922, 0, 0, 0, 0),
+        (3465, 14, -1948.3, -3658.38, 12.289, 0, 0, 0, 0),
+        (3465, 15, -1909.36, -3677.87, 10.369, 0, 0, 0, 0),
+        (3465, 16, -1882.35, -3690.81, 7.702, 0, 0, 0, 0),
+        (3465, 17, -1848.14, -3705.39, 7.115, 0, 7000, 0, 346503),
+        (3465, 18, -1811.05, -3721.2, 10.714, 0, 0, 0, 0),
+        (3465, 19, -1796.35, -3724.21, 9.408, 0, 0, 0, 0),
+        (3465, 20, -1757.09, -3736.12, 11.314, 0, 0, 0, 0),
+        (3465, 21, -1735.79, -3765.76, 11.197, 0, 0, 0, 0),
+        (3465, 22, -1720.32, -3797.56, 12.052, 0, 0, 0, 0),
+        (3465, 23, -1708.23, -3814.35, 13.308, 0, 0, 0, 0),
+        (3465, 24, -1683.07, -3830.5, 14.261, 0, 0, 0, 0),
+        (3465, 25, -1607.83, -3841.63, 14.617, 0, 0, 0, 0),
+        (3465, 26, -1573.76, -3837.58, 17.221, 0, 0, 0, 0),
+        (3465, 27, -1562.29, -3835.55, 19.023, 0, 0, 0, 0),
+        (3465, 28, -1538.18, -3832.24, 19.214, 0, 0, 0, 0),
+        (3465, 29, -1506.71, -3829.59, 23.388, 0, 0, 0, 0),
+        (3465, 30, -1484.39, -3827.71, 24.458, 0, 0, 0, 0),
+        (3465, 31, -1460.2, -3827.33, 21.989, 0, 0, 0, 0),
+        (3465, 32, -1431.33, -3836.44, 21.061, 0, 0, 0, 0),
+        (3465, 33, -1406.62, -3843.18, 17.875, 0, 0, 0, 0),
+        (3465, 34, -1360.65, -3843.67, 19.358, 0, 0, 0, 0),
+        (3465, 35, -1313.14, -3829.41, 17.734, 0, 3000, 0, 346504),
+        (3465, 36, -1294.43, -3801.23, 22.952, 0, 0, 0, 0),
+        (3465, 37, -1269.14, -3779.96, 26.417, 0, 0, 0, 0),
+        (3465, 38, -1240.6, -3785.44, 25.122, 0, 0, 0, 0),
+        (3465, 39, -1205.1, -3774.55, 24.388, 0, 0, 0, 0),
+        (3465, 40, -1142.3, -3744.88, 18.082, 0, 0, 0, 0),
+        (3465, 41, -1084.095, -3737.913, 19.28, 0, 0, 0, 346505),
+        (3465, 42, -1072.51, -3737.11, 19.176, 0, 0, 0, 0),
+        (3465, 43, -1052.05, -3699.13, 27.121, 0, 0, 0, 0),
+        (3465, 44, -1044.86, -3693.94, 26.26, 0, 0, 0, 0),
+        (3465, 45, -1028.36, -3689.01, 23.897, 0, 0, 0, 346506);
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=898;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (898, 0, 0, 61, 898, 1800, 0, 0, 0, 0, 0, 0, 0, 89801, 1019, 89802, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Start Map Event'),
+        (898, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Remove QuestGiver'),
+        (898, 0, 0, 4, 46, 66176, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Remove Immune and Not Attackable'),
+        (898, 0, 0, 22, 33, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Set Faction Escortee'),
+        (898, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Stand Up'),
+        (898, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1065, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Say Text'),
+        (898, 2, 0, 60, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Start Waypoints');
+
+        DELETE FROM `generic_scripts` WHERE `id`=89801;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (89801, 0, 0, 7, 898, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Complete Quest'),
+        (89801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1071, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Final Text');
+
+        DELETE FROM `generic_scripts` WHERE `id`=89802;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (89802, 0, 0, 70, 898, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Fail Quest'),
+        (89802, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Despawn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346501;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1066, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346502;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1067, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346503;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346503, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1068, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346504;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346504, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1069, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346505;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346505, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1070, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346506;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346506, 0, 0, 62, 898, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - End Map Event'),
+        (346506, 10, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Despawn');
+
         insert into applied_updates values ('191020251');
     end if;
 
