@@ -149,7 +149,7 @@ class WorldDatabaseManager(object):
     # Worldport.
 
     @staticmethod
-    def worldport_get_by_name(name, return_all=False) -> [list, Optional[Worldports]]:
+    def worldport_get_by_name(name, return_all=False) -> Optional[list[Worldports]]:
         world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
