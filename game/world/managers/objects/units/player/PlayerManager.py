@@ -147,6 +147,9 @@ class PlayerManager(UnitManager):
             if self.session.account_mgr.is_gm():
                 self.set_gm_tag()
 
+            # Debug
+            self.last_debug_ai_state_object = None
+
             # Update exploration data.
             if self.player.explored_areas and len(self.player.explored_areas) > 0:
                 self.explored_areas = bitarray(self.player.explored_areas, 'little')
@@ -1699,7 +1702,7 @@ class PlayerManager(UnitManager):
         return self.damage
 
     # override
-    def can_detect_target(self, target, distance=0):
+    def can_detect_target(self, target, distance=-1):
         # Party group.
         if self.group_manager and self.group_manager.is_party_member(target.guid):
             duel_arbiter = self.get_duel_arbiter()

@@ -1184,8 +1184,10 @@ class QuestManager(object):
             else:
                 self.send_quest_complete_event(quest_id)
 
-    def reward_quest_event(self):
+    def reward_quest_event(self, quest_entry):
         for quest_id, active_quest in self.active_quests.items():
+            if quest_id != quest_entry:
+                continue
             if not QuestHelpers.is_event_quest(active_quest.quest):
                 continue
             self.update_single_quest(quest_id)

@@ -1,7 +1,6 @@
-import os
 from collections import defaultdict
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Dict
 
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -400,7 +399,7 @@ class DbcDatabaseManager:
     # MdxModelsData
 
     class MdxModelsDataHolder:
-        MDX_MODELS_INFOS: dict[int, t_mdx_models_data] = {}
+        MDX_MODELS_INFOS: Dict[int, t_mdx_models_data] = {}
 
         @staticmethod
         def load_mdx_model_info(mdx_model_info):
@@ -451,7 +450,7 @@ class DbcDatabaseManager:
     # CreatureFamily
 
     class CreatureFamilyHolder:
-        CREATURE_FAMILIES: [int, CreatureFamily] = {}
+        CREATURE_FAMILIES: Dict[int, CreatureFamily] = {}
 
         @staticmethod
         def load_creature_family(creature_family):

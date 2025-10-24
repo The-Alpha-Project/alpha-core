@@ -2481,5 +2481,332 @@ begin not atomic
 
         insert into applied_updates values ('151020252');
     end if;
+
+    -- 19/10/2025 1
+    if (select count(*) from applied_updates where id='191020251') = 0 then
+        
+        CREATE TABLE `area_trigger_scripts` (
+          `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `delay` int(10) unsigned NOT NULL DEFAULT 0,
+          `priority` tinyint(3) unsigned NOT NULL DEFAULT 0,
+          `command` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `datalong` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `datalong2` int(10) unsigned NOT NULL DEFAULT 0,
+          `datalong3` int(10) unsigned NOT NULL DEFAULT 0,
+          `datalong4` int(10) unsigned NOT NULL DEFAULT 0,
+          `target_param1` int(10) unsigned NOT NULL DEFAULT 0,
+          `target_param2` int(10) unsigned NOT NULL DEFAULT 0,
+          `target_type` tinyint(3) unsigned NOT NULL DEFAULT 0,
+          `data_flags` tinyint(3) unsigned NOT NULL DEFAULT 0,
+          `dataint` int(11) NOT NULL DEFAULT 0,
+          `dataint2` int(11) NOT NULL DEFAULT 0,
+          `dataint3` int(11) NOT NULL DEFAULT 0,
+          `dataint4` int(11) NOT NULL DEFAULT 0,
+          `x` float NOT NULL DEFAULT 0,
+          `y` float NOT NULL DEFAULT 0,
+          `z` float NOT NULL DEFAULT 0,
+          `o` float NOT NULL DEFAULT 0,
+          `condition_id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `comments` varchar(255) NOT NULL
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+        
+        -- AreaTrigger 171 near Miran/Huldar/Saean.
+        DELETE FROM `area_trigger_scripts` WHERE `id`=171;
+        INSERT INTO `area_trigger_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (171, 0, 0, 39, 27301, 0, 0, 0, 0, 0, 0, 8, 100, 0, 0, 0, 0, 0, 0, 0, 273, 'Resupplying the Excavation - Ambush Event');
+        
+        -- Event.
+        DELETE FROM `generic_scripts` WHERE `id`=27301;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (27301, 0, 0, 61, 273, 300, 0, 0, 0, 0, 0, 8, 27306, 27302, 27307, 27302, 0, 0, 0, 0, 27305, 'Resupplying the Excavation - Start Map Event'),
+        (27301, 0, 0, 4, 147, 2, 2, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Remove Quest Giver Flag'),
+        (27301, 0, 0, 4, 46, 512, 2, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Remove Immune Flag'),
+        (27301, 0, 0, 22, 54, 0, 0, 0, 1380, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Saean - Set Faction.'),
+        (27301, 1, 0, 10, 1981, 25000, 0, 0, 1380, 80, 8, 2, 0, 0, 0, 2, -5757.63, -3437.68, 304.265, 2.61027, 0, 'Resupplying the Excavation - Saean - Summon Ambusher 2'),
+        (27301, 1, 0, 0, 1, 0, 0, 0, 1379, 80, 8, 2, 494, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Miran - Yell'),
+        (27301, 1, 0, 10, 1981, 25000, 0, 0, 1380, 80, 8, 2, 0, 0, 0, 2, -5759.85, -3441.28, 305.573, 2.17402, 0, 'Resupplying the Excavation - Saean - Summon Ambusher 1');
+        
+        -- Conditions.
+        DELETE FROM `conditions` WHERE `condition_entry` in (273, 27301, 27302, 27303, 27304, 27305, 27306, 27307, 27308, 27309, 27310, 27311);
+        -- 273: (27301: Target Has Complete Quest 273 In Log) And (27302:  Not (Scripted Map Event 273 Is Active)) And (27303: Creature 2057 Is Alive Within 80 Yards Of The Target) And (27304: Creature 1379 Is Alive Within 80 Yards Of The Target)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (273, -1, 27301, 27302, 27303, 27304, 0);
+        -- 27301: Target Has Complete Quest 273 In Log
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27301, 9, 273, 2, 0, 0, 0);
+        -- 27302:  Not (Scripted Map Event 273 Is Active)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27302, 36, 273, 0, 0, 0, 1);
+        -- 27303: Creature 2057 Is Alive Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27303, 20, 2057, 80, 0, 0, 0);
+        -- 27304: Creature 1379 Is Alive Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27304, 20, 1379, 80, 0, 0, 0);
+        -- 27305:  Not (Scripted Map Event 309 Is Active)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27305, 36, 309, 0, 0, 0, 1);
+        -- 27306: (27310: Creature 1380 Is Dead Within 80 Yards Of The Target) And (27311:  Not (Creature 1981 Is Alive Within 80 Yards Of The Target))
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27306, -1, 27310, 27311, 0, 0, 0);
+        -- 27307: (27308: Creature 1379 Is Dead Within 80 Yards Of The Target) And (27309: Creature 2057 Is Dead Within 80 Yards Of The Target)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27307, -1, 27308, 27309, 0, 0, 0);
+        -- 27308: Creature 1379 Is Dead Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27308, 20, 1379, 80, 1, 0, 0);
+        -- 27309: Creature 2057 Is Dead Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27309, 20, 2057, 80, 1, 0, 0);
+        -- 27310: Creature 1380 Is Dead Within 80 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27310, 20, 1380, 80, 1, 0, 0);
+        -- 27311:  Not (Creature 1981 Is Alive Within 80 Yards Of The Target)
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (27311, 20, 1981, 80, 0, 0, 1);
+
+        -- Success/Fail script.
+        DELETE FROM `generic_scripts` WHERE `id`=27302;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (27302, 0, 0, 4, 147, 2, 1, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Add Quest Giver Flag'),
+        (27302, 0, 0, 4, 46, 512, 1, 0, 2057, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - Huldar- Add Immnune Flag'),
+        (27302, 0, 0, 62, 273, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Resupplying the Excavation - End Map Event');
+
+        -- Fix Bleakheart Hellcaller Voidwalker and Ilkrud Magthrull Succubus.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=366402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (366402, 0, 0, 15, 712, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ilkrud Magthrull - Cast Spell Summon Succubus');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=377102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (377102, 0, 0, 15, 5252, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bleakheart Hellcaller - Cast Spell Summon Voidwalker'),
+        (377102, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bleakheart Hellcaller - Set Phase to 0');
+        
+        -- Remove invalid spell.
+        DELETE FROM `quest_end_scripts` WHERE `id`=1027;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1027, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: npc\\_flag questgiver removed'),
+        (1027, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1380, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: Say text 1'),
+        (1027, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1381, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: Say text 2'),
+        (1027, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1382, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: Say text 3'),
+        (1027, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1383, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: Say text 4'),
+        (1027, 17, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raene\'s Cleansing - Shael\'dryn: npc\\_flag questgiver added');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1564
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.1093' WHERE (`spawn_id` = '47822');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.1093' WHERE (`spawn_id` = '47828');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '4.1093' WHERE (`spawn_id` = '48018');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '3.4300' WHERE (`spawn_id` = '47838');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47831');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47833');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '90.281' WHERE (`spawn_id` = '47836');
+        
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1563
+        -- Feero Ironhand - 10 secs respawn from 20200706211236 migration.
+        UPDATE `spawns_creatures` SET `spawntimesecsmin` = '10', `spawntimesecsmax` = '10' WHERE (`spawn_id` = '32783');
+        -- Caedakar display id.
+        UPDATE `creature_template` SET `display_id1` = '2007' WHERE (`entry` = '3900');
+
+        -- Feero Ironhand - Waypoints
+        DELETE FROM creature_movement_template WHERE entry = 4484;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (4484, 0, 3178.57, 188.52, 4.27, 0, 0, 0, 0),
+        (4484, 1, 3189.82, 198.56, 3.85, 0, 0, 0, 0),
+        (4484, 2, 3215.21, 185.78, 5.882, 0, 0, 0, 0),
+        (4484, 3, 3224.05, 183.08, 6.74, 0, 0, 0, 0),
+        (4484, 4, 3228.11, 194.97, 6.357, 0, 0, 0, 0),
+        (4484, 5, 3225.33, 201.78, 5.085, 0, 0, 0, 0),
+        (4484, 6, 3233.33, 226.88, 3.471, 0, 0, 0, 0),
+        (4484, 7, 3274.12, 225.83, 2.184, 0, 0, 0, 0),
+        (4484, 8, 3322.64, 226.437, 1.134, 0, 0, 0, 0),
+        (4484, 9, 3369.66, 226.21, 1.783, 0, 0, 0, 0),
+        (4484, 10, 3402.35, 227.2, 2.975, 0, 0, 0, 0),
+        (4484, 11, 3441.92, 224.75, 2.635, 0, 0, 0, 0),
+        (4484, 12, 3454.24, 224.708, 2.86, 0, 0, 0, 0),
+        (4484, 13, 3473, 224.682, 3.398, 0, 0, 0, 0),
+        (4484, 14, 3515.58, 221.472, 4.186, 0, 7000, 0, 448401),
+        (4484, 15, 3516.62, 221.472, 4.186, 0, 20000, 0, 448402),
+        (4484, 16, 3548.26, 220.032, 2.83, 0, 0, 0, 0),
+        (4484, 17, 3567.57, 219.43, 2.235, 0, 0, 0, 0),
+        (4484, 18, 3659.85, 209.68, 2.05, 0, 0, 0, 0),
+        (4484, 19, 3734.9, 177.64, 0.236, 0, 0, 0, 0),
+        (4484, 20, 3760.24, 162.51, 0.932, 0, 7000, 0, 448403),
+        (4484, 21, 3760.24, 162.51, 0.932, 0, 20000, 0, 448404),
+        (4484, 22, 3801.17, 129.87, 2.203, 0, 0, 0, 0),
+        (4484, 23, 3815.53, 118.53, 2.093, 0, 0, 0, 0),
+        (4484, 24, 3894.58, 44.88, 1.466, 0, 0, 0, 0),
+        (4484, 25, 3972.83, 0.42, 1.283, 0, 0, 0, 0),
+        (4484, 26, 4026.41, -7.63, 3.738, 0, 0, 0, 0),
+        (4484, 27, 4086.24, 12.32, 13.541, 0, 0, 0, 0),
+        (4484, 28, 4158.79, 50.67, 25.796, 0, 0, 0, 0),
+        (4484, 29, 4223.48, 99.52, 35.33, 0, 7000, 0, 448405),
+        (4484, 30, 4223.48, 99.52, 35.33, 0, 10000, 0, 448406),
+        (4484, 31, 4243.45, 117.44, 38.76, 0, 0, 0, 0),
+        (4484, 32, 4264.18, 134.22, 41.86, 0, 0, 0, 448407);
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=976;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (976, 0, 0, 61, 976, 1200, 0, 0, 0, 0, 0, 0, 0, 97601, 1019, 97602, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Start Map Event'),
+        (976, 0, 0, 25, 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Set Run'),
+        (976, 0, 0, 22, 10, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Set Faction'),
+        (976, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Remove QuestGiver'),
+        (976, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Remove Immune'),
+        (976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1292, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk'),
+        (976, 2, 0, 60, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Start Waypoints');
+
+        DELETE FROM `generic_scripts` WHERE `id`=97601;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (97601, 0, 0, 7, 976, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Complete Quest');
+
+        DELETE FROM `generic_scripts` WHERE `id`=97602;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (97602, 0, 0, 70, 976, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Fail Quest'),
+        (97602, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Despawn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448401;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1372, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - First ambush text'),
+        (448401, 1, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3534.41, 208.359, 6.06892, 2.63, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 1'),
+        (448401, 1, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3531.49, 236.927, 6.88306, 3.49, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 2'),
+        (448401, 2, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3515.2, 247.029, 6.85558, 4.750, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 3'),
+        (448401, 2, 0, 10, 3879, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3514.36, 200.078, 6.71473, 1.35, 0, 'Supplies to Auberdine - Feero Ironhand - Assasin 4');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448402;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448402, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1294, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk After First Ambush');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448403;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448403, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1373, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Ambush 2 text'),
+        (448403, 1, 0, 10, 3893, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3780.18, 165.459, 5.19506, 3.12, 0, 'Supplies to Auberdine - Feero Ironhand - Forsaken Scout 1'),
+        (448403, 1, 0, 10, 3893, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3759.33, 143.585, 6.83714, 1.91, 0, 'Supplies to Auberdine - Feero Ironhand - Forsaken Scout 2'),
+        (448403, 1, 0, 10, 3893, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3733.493, 189.456, 3.143, 5.292, 0, 'Supplies to Auberdine - Feero Ironhand - Forsaken Scout 3'),
+        (448403, 1, 0, 0, 1, 0, 0, 0, 3893, 80, 26, 2, 1309, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Forsaken Scout - Random Yell');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448404;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448404, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1310, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk After Second Ambush');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448405;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448405, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1374, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Third ambush text'),
+        (448405, 0, 0, 10, 3899, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4243.12, 108.22, 38.12, 3.62, 0, 'Supplies to Auberdine - Feero Ironhand - Summon Balizar'),
+        (448405, 0, 0, 10, 3898, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4240.95, 114.04, 38.35, 3.56, 0, 'Supplies to Auberdine - Feero Ironhand - Summon Aligar'),
+        (448405, 0, 0, 10, 3900, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4235.78, 118.09, 38.08, 4.12, 0, 'Supplies to Auberdine - Feero Ironhand - Summon Caedakar'),
+        (448405, 1, 0, 0, 0, 0, 0, 0, 3898, 80, 8, 2, 1312, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Aligar Talk'),
+        (448405, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 1499, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448406;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448406, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1315, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Talk After Third Ambush'),
+        (448406, 4, 0, 62, 976, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - End Map Event');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=448407;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (448407, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Supplies to Auberdine - Feero Ironhand - Despawn');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1191 - Gilthares Firebough
+        UPDATE `spawns_creatures` SET `position_x` = '-2101.276', `position_y` = '-3672.534', `position_z` = '40.256', `orientation` = '4.37', `ignored` = '0' WHERE (`spawn_id` = '15031');
+        UPDATE `creature_template` SET `display_id1` = '1642' WHERE (`entry` = '3465');
+
+        -- Events list for Gilthares Firebough
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3465;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (346501, 3465, 0, 4, 0, 70, 1, 0, 0, 0, 0, 346501, 0, 0, 'Gilthares Firebough - Aggro');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=346501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1074, 1075, 1072, 1073, 0, 0, 0, 0, 0, 'Gilthares Firebough - Aggro Texts');
+
+        -- Waypoints
+        DELETE FROM creature_movement_template WHERE entry = 3465;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (3465, 1, -2101.27, -3672.34, 40.243, 0, 0, 0, 0),
+        (3465, 2, -2103.7, -3679.61, 40.256, 0, 0, 0, 0),
+        (3465, 3, -2099.72, -3680.92, 40.265, 0, 0, 0, 0),
+        (3465, 4, -2094.58, -3682.75, 34.621, 0, 0, 0, 0),
+        (3465, 5, -2091.34, -3679.74, 34.625, 0, 0, 0, 0),
+        (3465, 6, -2088.39, -3658.85, 33.686, 0, 0, 0, 0),
+        (3465, 7, -2081.37, -3642.78, 29.899, 0, 0, 0, 0),
+        (3465, 8, -2066.38, -3645.3, 26.019, 0, 0, 0, 0),
+        (3465, 9, -2053.78, -3656.78, 23.226, 0, 0, 0, 0),
+        (3465, 10, -2044.41, -3659.92, 22.253, 0, 0, 0, 0),
+        (3465, 11, -2005.8, -3647.27, 12.346, 0, 30000, 0, 346501),
+        (3465, 12, -2005.8, -3647.27, 12.346, 0, 1000, 0, 346502),
+        (3465, 13, -1969.85, -3650.14, 12.922, 0, 0, 0, 0),
+        (3465, 14, -1948.3, -3658.38, 12.289, 0, 0, 0, 0),
+        (3465, 15, -1909.36, -3677.87, 10.369, 0, 0, 0, 0),
+        (3465, 16, -1882.35, -3690.81, 7.702, 0, 0, 0, 0),
+        (3465, 17, -1848.14, -3705.39, 7.115, 0, 7000, 0, 346503),
+        (3465, 18, -1811.05, -3721.2, 10.714, 0, 0, 0, 0),
+        (3465, 19, -1796.35, -3724.21, 9.408, 0, 0, 0, 0),
+        (3465, 20, -1757.09, -3736.12, 11.314, 0, 0, 0, 0),
+        (3465, 21, -1735.79, -3765.76, 11.197, 0, 0, 0, 0),
+        (3465, 22, -1720.32, -3797.56, 12.052, 0, 0, 0, 0),
+        (3465, 23, -1708.23, -3814.35, 13.308, 0, 0, 0, 0),
+        (3465, 24, -1683.07, -3830.5, 14.261, 0, 0, 0, 0),
+        (3465, 25, -1607.83, -3841.63, 14.617, 0, 0, 0, 0),
+        (3465, 26, -1573.76, -3837.58, 17.221, 0, 0, 0, 0),
+        (3465, 27, -1562.29, -3835.55, 19.023, 0, 0, 0, 0),
+        (3465, 28, -1538.18, -3832.24, 19.214, 0, 0, 0, 0),
+        (3465, 29, -1506.71, -3829.59, 23.388, 0, 0, 0, 0),
+        (3465, 30, -1484.39, -3827.71, 24.458, 0, 0, 0, 0),
+        (3465, 31, -1460.2, -3827.33, 21.989, 0, 0, 0, 0),
+        (3465, 32, -1431.33, -3836.44, 21.061, 0, 0, 0, 0),
+        (3465, 33, -1406.62, -3843.18, 17.875, 0, 0, 0, 0),
+        (3465, 34, -1360.65, -3843.67, 19.358, 0, 0, 0, 0),
+        (3465, 35, -1313.14, -3829.41, 17.734, 0, 3000, 0, 346504),
+        (3465, 36, -1294.43, -3801.23, 22.952, 0, 0, 0, 0),
+        (3465, 37, -1269.14, -3779.96, 26.417, 0, 0, 0, 0),
+        (3465, 38, -1240.6, -3785.44, 25.122, 0, 0, 0, 0),
+        (3465, 39, -1205.1, -3774.55, 24.388, 0, 0, 0, 0),
+        (3465, 40, -1142.3, -3744.88, 18.082, 0, 0, 0, 0),
+        (3465, 41, -1084.095, -3737.913, 19.28, 0, 0, 0, 346505),
+        (3465, 42, -1072.51, -3737.11, 19.176, 0, 0, 0, 0),
+        (3465, 43, -1052.05, -3699.13, 27.121, 0, 0, 0, 0),
+        (3465, 44, -1044.86, -3693.94, 26.26, 0, 0, 0, 0),
+        (3465, 45, -1028.36, -3689.01, 23.897, 0, 0, 0, 346506);
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=898;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (898, 0, 0, 61, 898, 1800, 0, 0, 0, 0, 0, 0, 0, 89801, 1019, 89802, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Start Map Event'),
+        (898, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Remove QuestGiver'),
+        (898, 0, 0, 4, 46, 66176, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Remove Immune and Not Attackable'),
+        (898, 0, 0, 22, 33, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Set Faction Escortee'),
+        (898, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Stand Up'),
+        (898, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1065, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Say Text'),
+        (898, 2, 0, 60, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Start Waypoints');
+
+        DELETE FROM `generic_scripts` WHERE `id`=89801;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (89801, 0, 0, 7, 898, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Complete Quest'),
+        (89801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1071, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Final Text');
+
+        DELETE FROM `generic_scripts` WHERE `id`=89802;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (89802, 0, 0, 70, 898, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Fail Quest'),
+        (89802, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Despawn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346501;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1066, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346502;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1067, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346503;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346503, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1068, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346504;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346504, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1069, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346505;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346505, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1070, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=346506;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (346506, 0, 0, 62, 898, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - End Map Event'),
+        (346506, 10, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Free From the Hold - Gilthares - Despawn');
+    
+        -- Syndicate Highwayman - Cast Stealth only if aura not present.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=258601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (258601, 0, 0, 15, 1784, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Highwayman - Cast Spell Stealth');
+
+        insert into applied_updates values ('191020251');
+    end if;
+
 end $
 delimiter ;

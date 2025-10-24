@@ -240,7 +240,8 @@ class MovementManager:
     def unit_is_moving(self):
         if self.is_player and (self.unit.movement_flags & MoveFlags.MOVEFLAG_MOVE_MASK or self.unit.has_moved):
             return True
-        return True if self._get_current_spline() else False
+        spline = self._get_current_spline()
+        return True if spline and not spline.is_complete() else False
 
     def try_build_movement_packet(self):
         spline = self._get_current_spline()

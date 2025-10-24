@@ -354,12 +354,17 @@ class CreatureManager(UnitManager):
         return super().has_melee() and not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
 
     def is_pet(self):
-        return (self.summoner or self.charmer) \
-               and (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
-                    or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
+        owner = self.get_charmer_or_summoner()
+        if not owner:
+            return False
+        return (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+                            or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
 
     def set_guardian(self, state):
         self._is_guardian = state
+
+    def is_temp_summon_or_pet_or_guardian(self):
+        return any([self.is_temp_summon(), self.is_pet(), self.is_guardian()])
 
     def is_guardian(self):
         owner = self.get_charmer_or_summoner()
@@ -411,14 +416,19 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.SESSILE
 
     def is_at_home(self):
-        return self.location == self.spawn_position and not self.is_moving()
+        from game.world.managers.abstractions.Vector import Vector
+        v1 = Vector(round(self.location.x, 2), round(self.location.y, 2), round(self.location.z, 2))
+        v2 = Vector(round(self.spawn_position.x, 2), round(self.spawn_position.y, 2), round(self.spawn_position.z, 2))
+        return v1 == v2 and not self.is_moving()
 
     def on_at_home(self, was_at_home=False):
         self.apply_default_auras()
         self.movement_manager.face_angle(self.spawn_position.o)
+        if was_at_home:
+            return
         # Scan surrounding for enemies.
         self.on_relocation()
-        if self.object_ai and not was_at_home:
+        if self.object_ai:
             self.object_ai.ai_event_handler.reset()
             self.object_ai.just_reached_home()
 
@@ -600,7 +610,7 @@ class CreatureManager(UnitManager):
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
 
-                if self.relocation_call_for_help_timer >= 0.8:
+                if self.relocation_call_for_help_timer >= 1:
                     if self.pending_relocation:
                         self.on_relocation()
                         self.pending_relocation = False
@@ -816,7 +826,7 @@ class CreatureManager(UnitManager):
         self.set_has_moved(has_moved=True, has_turned=True)
         self.get_map().send_surrounding(self.get_heartbeat_packet(), self, False)
 
-        if location == self.spawn_position:
+        if self.is_at_home():
             self.on_at_home()
         return True
 

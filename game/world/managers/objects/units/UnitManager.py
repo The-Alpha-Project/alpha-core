@@ -319,6 +319,10 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
+        # Send AI reaction.
+        if self.object_ai and victim.is_player():
+            self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+
         self.send_attack_start(self.combat_target.guid)
 
         return True
@@ -1385,6 +1389,10 @@ class UnitManager(ObjectManager):
     def is_guardian(self):
         return False
 
+    # Implemented by CreatureManager.
+    def is_temp_summon_or_pet_or_guardian(self):
+        return False
+
     # Implemented by PlayerManager.
     def get_duel_arbiter(self):
         return None
@@ -1969,14 +1977,12 @@ class UnitManager(ObjectManager):
             if not self_is_player and detection_range > max_detection_range:
                 detection_range = max_detection_range
 
-            if unit.is_player():
-                continue
-
             distance = unit.location.distance(self.location)
 
             if distance > detection_range or not unit.is_hostile_to(self) or not unit.can_attack_target(self):
                 continue
-            if unit.threat_manager.has_aggro_from(self):
+            # Both have seen each other, skip.
+            if unit.threat_manager.has_aggro_from(self) and self.threat_manager.has_aggro_from(unit):
                 continue
 
             # Check for stealth/invisibility.

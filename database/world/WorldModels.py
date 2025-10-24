@@ -1190,6 +1190,33 @@ class CreatureAddon(Base):
     auras = Column(Text)
 
 
+t_area_trigger_scripts = Table(
+    'area_trigger_scripts', metadata,
+    Column('id', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('delay', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('priority', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('command', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('datalong', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('datalong2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('datalong3', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('datalong4', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_param1', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_param2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_type', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('data_flags', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('dataint', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint3', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint4', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('x', Float, nullable=False, server_default=text("'0'")),
+    Column('y', Float, nullable=False, server_default=text("'0'")),
+    Column('z', Float, nullable=False, server_default=text("'0'")),
+    Column('o', Float, nullable=False, server_default=text("'0'")),
+    Column('condition_id', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('comments', String(255), nullable=False)
+)
+
+
 t_quest_start_scripts = Table(
     'quest_start_scripts', metadata,
     Column('id', MEDIUMINT, nullable=False, server_default=text("'0'")),

@@ -24,7 +24,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
     GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
-from utils.constants.UnitCodes import UnitFlags, Genders
+from utils.constants.UnitCodes import UnitFlags, Genders, CreatureReactStates
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
     ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags, WaypointPathOrigin, \
     ScriptTarget
@@ -151,7 +151,7 @@ class ScriptHandler:
         elif chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
-        
+
         ChatManager.send_monster_message(command.source, text_to_say, chat_msg_type, lang,
                                          ChatHandler.get_range_by_type(chat_msg_type), command.target)
 
@@ -447,7 +447,7 @@ class ScriptHandler:
 
         if in_range:
             player.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-            player.quest_manager.reward_quest_event()
+            player.quest_manager.reward_quest_event(command.datalong)
         else:
             return command.should_abort()
 
@@ -734,6 +734,10 @@ class ScriptHandler:
             target_mask = SpellTargetMask.DEST_LOCATION
 
         spell = command.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
+        if not spell:
+            Logger.warning(f'[Script] [{command.script_id}], Unable to cast spell {command.datalong}')
+            return command.should_abort()
+
         if command.datalong2 & CastFlags.CF_TRIGGERED:
             spell.force_instant_cast()
         elif not targets_terrain and command.source.is_unit():
@@ -1446,8 +1450,17 @@ class ScriptHandler:
     def handle_script_command_set_react_state(command):
         # source = Creature
         # datalong = see enum ReactStates
-        Logger.debug('ScriptHandler: handle_script_command_set_react_state not implemented yet')
-        return command.should_abort()
+        # source = Creature
+        if not ConditionChecker.is_unit(command.source):
+            Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
+            return command.should_abort()
+
+        charmer_or_summoner = command.source.get_charmer_or_summoner()
+        if charmer_or_summoner and charmer_or_summoner.is_unit():
+            charmer_or_summoner.react_state = CreatureReactStates(command.datalong)
+
+        command.source.react_state = CreatureReactStates(command.datalong)
+        return False
 
     @staticmethod
     def handle_script_command_start_waypoints(command):
@@ -1711,9 +1724,24 @@ class ScriptHandler:
         # datalong = gameobject_entry
         # datalong2 = respawn_time
         # x/y/z/o = coordinates
-        Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, {command.get_info()}')
+            return command.should_abort()
 
-        return command.should_abort()
+        x = command.x if command.x else command.source.location.x
+        y = command.y if command.y else command.source.location.y
+        z = command.z if command.z else command.source.location.z
+        o = command.o if command.o else command.source.location.o
+        location = Vector(x, y, z, o)
+
+        from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+        new_object = GameObjectBuilder.create(command.datalong, location, command.source.map_id,
+                                              command.source.instance_id, state=GameObjectStates.GO_STATE_READY,
+                                              ttl=command.datalong2)
+
+        command.source.get_map().spawn_object(world_object_instance=new_object)
+
+        return False
 
     @staticmethod
     def handle_script_command_join_creature_group(command):
@@ -1789,8 +1817,16 @@ class ScriptHandler:
         # target = WorldObject
         # datalong = event_id
         # datalong2 = event_data
-        Logger.debug('ScriptHandler: handle_script_command_send_script_event not implemented yet')
-        return command.should_abort()
+        if not command.source or not command.source.is_unit():
+            Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
+            return command.should_abort()
+
+        if not command.source.object_ai:
+            Logger.warning(f'ScriptHandler: No creature AI manager found, {command.get_info()}.')
+            return command.should_abort()
+
+        command.source.object_ai.on_script_event_happened(command.datalong, command.datalong2, command.target)
+        return False
 
     @staticmethod
     def handle_script_command_reset_door_or_button(command):
@@ -1819,8 +1855,13 @@ class ScriptHandler:
     def handle_script_command_play_custom_anim(command):
         # source = GameObject
         # datalong = anim_id
-        Logger.debug('ScriptHandler: handle_script_command_play_custom_anim not implemented yet')
-        return command.should_abort()
+        target = command.target if command.target else command.source
+        if not ConditionChecker.is_gameobject(target):
+            Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
+            return command.should_abort()
+
+        target.send_custom_animation(command.datalong)
+        return False
 
     @staticmethod
     def handle_script_command_start_script_on_group(command):
@@ -1876,6 +1917,10 @@ class ScriptHandler:
         return WorldDatabaseManager.CreatureMovementScriptHolder.creature_movement_scripts_get_by_id(script_id)
 
     @staticmethod
+    def handle_script_type_area_trigger(script_id):
+        return WorldDatabaseManager.area_trigger_script_get_by_id(script_id)
+
+    @staticmethod
     def _validate_spell_id(command):
         if command.datalong > MAX_3368_SPELL_ID:
             Logger.error(f'ScriptHandler: Invalid spell id ({command.datalong}), {command.get_info()}')
@@ -1889,6 +1934,7 @@ SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
     ScriptTypes.SCRIPT_TYPE_EVENT_SCRIPT: ScriptHandler.handle_script_type_event_script,
+    ScriptTypes.SCRIPT_TYPE_AREA_TRIGGER: ScriptHandler.handle_script_type_area_trigger
     # Unused in 0.5.3.
     # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     # ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,

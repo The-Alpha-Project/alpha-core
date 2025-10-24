@@ -1,6 +1,5 @@
-import os
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Dict, List
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine, func
@@ -62,7 +61,7 @@ class WorldDatabaseManager(object):
         return res
 
     class UnitClassLevelStatsHolder:
-        CLASS_LEVEL_STATS: [int, [int, PlayerClasslevelstats]] = {}
+        CLASS_LEVEL_STATS: Dict[int, Dict[int, PlayerClasslevelstats]] = {}
 
         @staticmethod
         def load_player_class_level_stats(stats):
@@ -149,7 +148,7 @@ class WorldDatabaseManager(object):
     # Worldport.
 
     @staticmethod
-    def worldport_get_by_name(name, return_all=False) -> [list, Optional[Worldports]]:
+    def worldport_get_by_name(name, return_all=False) -> Optional[list[Worldports]]:
         world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
@@ -199,7 +198,7 @@ class WorldDatabaseManager(object):
         return res
 
     class ItemLootTemplateHolder:
-        ITEM_LOOT_TEMPLATES: [int, list[ItemLootTemplate]] = {}
+        ITEM_LOOT_TEMPLATES: Dict[int, List[ItemLootTemplate]] = {}
 
         @staticmethod
         def load_item_loot_template(item_loot_template):
@@ -215,7 +214,7 @@ class WorldDatabaseManager(object):
                 if entry in WorldDatabaseManager.ItemLootTemplateHolder.ITEM_LOOT_TEMPLATES else []
 
     class ItemTemplateHolder:
-        ITEM_TEMPLATES: [int, ItemTemplate] = {}
+        ITEM_TEMPLATES: Dict[int, ItemTemplate] = {}
 
         @staticmethod
         def load_item_template(item_template):
@@ -233,7 +232,7 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def item_template_get_by_name(name, return_all=False) -> [list, Optional[ItemTemplate]]:
+    def item_template_get_by_name(name, return_all=False) -> list[Optional[ItemTemplate]]:
         world_db_session = SessionHolder()
         best_matching_item = None
         best_matching_ratio = 0
@@ -261,7 +260,7 @@ class WorldDatabaseManager(object):
         return res
 
     class ReferenceLootTemplateHolder:
-        REFERENCE_LOOT_TEMPLATES: [int, list[ReferenceLootTemplate]] = {}
+        REFERENCE_LOOT_TEMPLATES: Dict[int, List[ReferenceLootTemplate]] = {}
 
         @staticmethod
         def load_reference_loot_template(reference_loot_template):
@@ -286,7 +285,7 @@ class WorldDatabaseManager(object):
         return res
 
     class PickPocketingLootTemplateHolder:
-        PICKPOCKETING_LOOT_TEMPLATES: [int, list[PickpocketingLootTemplate]] = {}
+        PICKPOCKETING_LOOT_TEMPLATES: Dict[int, List[PickpocketingLootTemplate]] = {}
 
         @staticmethod
         def load_pickpocketing_loot_template(pickpocketing_loot_template):
@@ -315,7 +314,7 @@ class WorldDatabaseManager(object):
     # Gameobject.
 
     class GameobjectTemplateHolder:
-        GAMEOBJECT_TEMPLATES: [int, GameobjectTemplate] = {}
+        GAMEOBJECT_TEMPLATES: Dict[int, GameobjectTemplate] = {}
 
         @staticmethod
         def load_gameobject_template(gameobject_template):
@@ -334,7 +333,7 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def gameobject_get_all_spawns() -> [list[SpawnsGameobjects], scoped_session]:
+    def gameobject_get_all_spawns() -> List[SpawnsGameobjects]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(ignored=0).all()
         world_db_session.close()
@@ -348,14 +347,14 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def gameobject_get_all_spawns_by_map_id(map_id) -> [list[SpawnsGameobjects], scoped_session]:
+    def gameobject_get_all_spawns_by_map_id(map_id) -> List[SpawnsGameobjects]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(ignored=0, spawn_map=map_id).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def gameobject_spawn_get_by_spawn_id(spawn_id) -> [Optional[SpawnsGameobjects], scoped_session]:
+    def gameobject_spawn_get_by_spawn_id(spawn_id) -> Optional[SpawnsGameobjects]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=spawn_id).first()
         world_db_session.close()
@@ -370,14 +369,14 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def gameobject_get_loot_templates() -> list[GameobjectLootTemplate]:
+    def gameobject_get_loot_templates() -> List[GameobjectLootTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(GameobjectLootTemplate).all()
         world_db_session.close()
         return res
 
     class GameObjectLootTemplateHolder:
-        GAMEOBJECT_LOOT_TEMPLATES: [int, list[GameobjectLootTemplate]] = {}
+        GAMEOBJECT_LOOT_TEMPLATES: Dict[int, List[GameobjectLootTemplate]] = {}
 
         @staticmethod
         def load_gameobject_loot_template(gameobject_loot_template):
@@ -404,7 +403,7 @@ class WorldDatabaseManager(object):
         return res
 
     class FishingLootTemplateHolder:
-        FISHING_LOOT_TEMPLATES: [int, list[FishingLootTemplate]] = {}
+        FISHING_LOOT_TEMPLATES: Dict[int, List[FishingLootTemplate]] = {}
 
         @staticmethod
         def load_fishing_loot_template(fishing_loot_template):
@@ -431,22 +430,24 @@ class WorldDatabaseManager(object):
 
     # Pools.
     class PoolsHolder:
-        POOL_POOL: [int, PoolPool] = {}
-        POOL_TEMPLATES: [int, PoolTemplate] = {}
-        POOL_CREATURES: [int, PoolCreature] = {}
-        POOL_CREATURES_TEMPLATES: [int, list[PoolCreatureTemplate]] = {}
-        POOL_GAMEOBJECTS: [int, list[PoolGameobject]] = {}
-        POOL_GAMEOBJECTS_TEMPLATES: [int, list[PoolGameobjectTemplate]] = {}
+        POOL_POOL: Dict[int, PoolPool] = {}
+        POOL_TEMPLATES: Dict[int, PoolTemplate] = {}
+        POOL_CREATURES: Dict[int, PoolCreature] = {}
+        POOL_CREATURES_TEMPLATES: Dict[int, List[PoolCreatureTemplate]] = {}
+        POOL_GAMEOBJECTS: Dict[int, List[PoolGameobject]] = {}
+        POOL_GAMEOBJECTS_TEMPLATES: Dict[int, List[PoolGameobjectTemplate]] = {}
 
         @staticmethod
         def get_pool_pool_by_entry(entry):
             if entry in WorldDatabaseManager.PoolsHolder.POOL_POOL:
                 return WorldDatabaseManager.PoolsHolder.POOL_POOL[entry]
+            return None
 
         @staticmethod
         def get_pool_template_by_entry(entry):
             if entry in WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES:
                 return WorldDatabaseManager.PoolsHolder.POOL_TEMPLATES[entry]
+            return None
 
         @staticmethod
         def get_gameobject_pool_by_spawn_id(spawn_id):
@@ -596,9 +597,9 @@ class WorldDatabaseManager(object):
             return []
 
     class CreatureMovementHolder:
-        CREATURE_WAYPOINTS: [int, list[CreatureMovement]] = {}
-        CREATURE_MOVEMENT_TEMPLATES: [int, list[CreatureMovementTemplate]] = {}
-        CREATURE_MOVEMENT_SPECIAL: [int, list[CreatureMovementSpecial]] = {}
+        CREATURE_WAYPOINTS: Dict[int, List[CreatureMovement]] = {}
+        CREATURE_MOVEMENT_TEMPLATES: Dict[int, List[CreatureMovementTemplate]] = {}
+        CREATURE_MOVEMENT_SPECIAL: Dict[int, List[CreatureMovementSpecial]] = {}
 
         @staticmethod
         def load_creature_movement_template(movement_template):
@@ -652,7 +653,7 @@ class WorldDatabaseManager(object):
             return []
 
     class CreatureTemplateHolder:
-        CREATURE_TEMPLATES: [int, CreatureTemplate] = {}
+        CREATURE_TEMPLATES: Dict[int, CreatureTemplate] = {}
 
         @staticmethod
         def load_creature_template(creature_template):
@@ -663,7 +664,7 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
 
         @staticmethod
-        def creature_get_by_name(name, return_all=False, remove_space=False) -> [list, Optional[CreatureTemplate]]:
+        def creature_get_by_name(name, return_all=False, remove_space=False) -> list[Optional[CreatureTemplate]]:
             creatures = []
             for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
                 formatted_creature_name = creature.name.lower()
@@ -727,7 +728,7 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def creature_get_all_spawns() -> [list[SpawnsCreatures], scoped_session]:
+    def creature_get_all_spawns() -> list[SpawnsCreatures]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0).all()
         world_db_session.close()
@@ -741,28 +742,28 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def creature_spawn_get_by_entry(entry) -> [list[SpawnsCreatures], scoped_session]:
+    def creature_spawn_get_by_entry(entry) -> list[SpawnsCreatures]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(spawn_entry1=entry).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def creature_spawn_get_by_map_id(map_id) -> [list[SpawnsCreatures], scoped_session]:
+    def creature_spawn_get_by_map_id(map_id) -> list[SpawnsCreatures]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0, map=map_id).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def creature_spawn_get_by_spawn_id(spawn_id) -> [Optional[SpawnsCreatures], scoped_session]:
+    def creature_spawn_get_by_spawn_id(spawn_id) -> Optional[SpawnsCreatures]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=spawn_id).first()
         world_db_session.close()
         return res
 
     class CreatureModelInfoHolder:
-        CREATURE_MODEL_INFOS: [int, CreatureModelInfo] = {}
+        CREATURE_MODEL_INFOS: Dict[int, CreatureModelInfo] = {}
 
         @staticmethod
         def load_creature_model_info(creature_model_info):
@@ -781,7 +782,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureLootTemplateHolder:
-        CREATURE_LOOT_TEMPLATES: [int, list[CreatureLootTemplate]] = {}
+        CREATURE_LOOT_TEMPLATES: Dict[int, List[CreatureLootTemplate]] = {}
 
         @staticmethod
         def load_creature_loot_template(creature_loot_template):
@@ -805,7 +806,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureClassLevelStatsHolder:
-        CREATURE_CLASS_LEVEL_STATS: [int, dict[int, CreatureClassLevelStats]] = {}
+        CREATURE_CLASS_LEVEL_STATS: Dict[int, Dict[int, CreatureClassLevelStats]] = {}
 
         @staticmethod
         def load_creature_class_level_stats(creature_class_level_stats):
@@ -829,7 +830,7 @@ class WorldDatabaseManager(object):
         return res
 
     class SkinningLootTemplateHolder:
-        SKINNING_LOOT_TEMPLATES: [int, list[SkinningLootTemplate]] = {}
+        SKINNING_LOOT_TEMPLATES: Dict[int, List[SkinningLootTemplate]] = {}
 
         @staticmethod
         def load_skinning_loot_template(skinning_loot_template):
@@ -854,7 +855,7 @@ class WorldDatabaseManager(object):
 
     @staticmethod
     @lru_cache
-    def creature_get_vendor_data(entry) -> [Optional[list[NpcVendor]], scoped_session]:
+    def creature_get_vendor_data(entry) -> Optional[list[NpcVendor]]:
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry).order_by(NpcVendor.slot.asc()).all()
         world_db_session.close()
@@ -862,7 +863,7 @@ class WorldDatabaseManager(object):
 
     @staticmethod
     @lru_cache
-    def creature_get_vendor_template_data(vendor_id) -> [Optional[list[NpcVendorTemplate]], scoped_session]:
+    def creature_get_vendor_template_data(vendor_id) -> Optional[list[NpcVendorTemplate]]:
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendorTemplate).filter_by(entry=vendor_id).order_by(
             NpcVendorTemplate.slot.asc()).all()
@@ -870,7 +871,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureEquipmentHolder:
-        CREATURE_EQUIPMENT: [int, CreatureEquipTemplate] = {}
+        CREATURE_EQUIPMENT: Dict[int, CreatureEquipTemplate] = {}
 
         @staticmethod
         def load_creature_equip_template(creature_equip_template):
@@ -890,7 +891,7 @@ class WorldDatabaseManager(object):
 
     class CreatureSpellHolder:
         CREATURE_SPELLS_MAX_SPELLS = 8
-        CREATURE_SPELL_TEMPLATE: [int, list[CreatureSpellsEntry]] = {}
+        CREATURE_SPELL_TEMPLATE: Dict[int, List[CreatureSpellsEntry]] = {}
 
         @staticmethod
         def load_creature_spells(creature_spell):
@@ -913,7 +914,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureOnKillReputationHolder:
-        CREATURE_ON_KILL_REPUTATION: [int, CreatureOnkillReputation] = {}
+        CREATURE_ON_KILL_REPUTATION: Dict[int, CreatureOnkillReputation] = {}
 
         @staticmethod
         def load_creature_on_kill_reputation(creature_on_kill_reputation):
@@ -951,12 +952,12 @@ class WorldDatabaseManager(object):
         return res
         
     class QuestRelationHolder:
-        QUEST_UNIT_STARTERS: [int, list[t_creature_quest_starter]] = {}
-        QUEST_UNIT_FINISHERS = {}
-        UNIT_STARTER_BY_QUEST: [int, list[t_creature_quest_starter]] = {}
-        UNIT_FINISHER_BY_QUEST: [int, list[t_creature_quest_starter]] = {}
-        QUEST_GAMEOBJECT_STARTERS: [int, list[t_gameobject_quest_starter]] = {}
-        QUEST_GAMEOBJECT_FINISHERS = {}
+        QUEST_UNIT_STARTERS: Dict[int, List[t_creature_quest_starter]] = {}
+        QUEST_UNIT_FINISHERS: Dict[int, List[t_creature_quest_finisher]] = {}
+        UNIT_STARTER_BY_QUEST: Dict[int, List[t_creature_quest_starter]] = {}
+        UNIT_FINISHER_BY_QUEST: Dict[int, List[t_creature_quest_starter]] = {}
+        QUEST_GAMEOBJECT_STARTERS: Dict[int, List[t_gameobject_quest_starter]] = {}
+        QUEST_GAMEOBJECT_FINISHERS: Dict[int, List[t_gameobject_quest_finisher]] = {}
         AREA_TRIGGER_RELATION = {}
 
         @staticmethod
@@ -1011,7 +1012,7 @@ class WorldDatabaseManager(object):
                 .append(go_quest_finisher)
 
         @staticmethod
-        def creature_quest_starter_get_by_entry(entry) -> list[t_creature_quest_starter]:
+        def creature_quest_starter_get_by_entry(entry) -> List[t_creature_quest_starter]:
             return WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_STARTERS.get(entry, [])
 
         @staticmethod
@@ -1021,7 +1022,7 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.QuestRelationHolder.UNIT_STARTER_BY_QUEST.get(quest_id, [])[0]
 
         @staticmethod
-        def creature_quest_finisher_get_by_entry(entry) -> list[t_creature_quest_finisher]:
+        def creature_quest_finisher_get_by_entry(entry) -> List[t_creature_quest_finisher]:
             return WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_FINISHERS.get(entry, [])
 
         @staticmethod
@@ -1031,36 +1032,36 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.QuestRelationHolder.UNIT_FINISHER_BY_QUEST.get(quest_id, [])[0]
 
         @staticmethod
-        def gameobject_quest_starter_get_by_entry(entry) -> list[t_gameobject_quest_starter]:
+        def gameobject_quest_starter_get_by_entry(entry) -> List[t_gameobject_quest_starter]:
             return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS.get(entry, [])
 
         @staticmethod
-        def gameobject_quest_finisher_get_by_entry(entry) -> list[t_gameobject_quest_finisher]:
+        def gameobject_quest_finisher_get_by_entry(entry) -> List[t_gameobject_quest_finisher]:
             return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS.get(entry, [])
 
     @staticmethod
-    def creature_quest_starter_get_all() -> list[t_creature_quest_starter]:
+    def creature_quest_starter_get_all() -> List[t_creature_quest_starter]:
         world_db_session = SessionHolder()
         res = world_db_session.query(t_creature_quest_starter).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def creature_quest_finisher_get_all() -> list[t_creature_quest_finisher]:
+    def creature_quest_finisher_get_all() -> List[t_creature_quest_finisher]:
         world_db_session = SessionHolder()
         res = world_db_session.query(t_creature_quest_finisher).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def gameobject_quest_starter_get_all() -> list[t_gameobject_quest_starter]:
+    def gameobject_quest_starter_get_all() -> List[t_gameobject_quest_starter]:
         world_db_session = SessionHolder()
         res = world_db_session.query(t_gameobject_quest_starter).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def gameobject_quest_finisher_get_all() -> list[t_gameobject_quest_finisher]:
+    def gameobject_quest_finisher_get_all() -> List[t_gameobject_quest_finisher]:
         world_db_session = SessionHolder()
         res = world_db_session.query(t_gameobject_quest_finisher).all()
         world_db_session.close()
@@ -1147,7 +1148,7 @@ class WorldDatabaseManager(object):
         return res
 
     class EventScriptHolder:
-        SCRIPTS: dict[int, list[t_event_scripts]] = {}
+        SCRIPTS: Dict[int, List[t_event_scripts]] = {}
 
         @staticmethod
         def load_event_script(event_script):
@@ -1177,6 +1178,16 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Areatrigger scripts.
+
+    @staticmethod
+    @lru_cache
+    def area_trigger_script_get_by_id(area_trigger_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_area_trigger_scripts).filter_by(id=area_trigger_id).all()
+        world_db_session.close()
+        return res
+
     # Gameobject scripts.
 
     @staticmethod
@@ -1187,7 +1198,7 @@ class WorldDatabaseManager(object):
         return res
 
     class GameobjectScriptHolder:
-        SCRIPTS: dict[int, list[t_gameobject_scripts]] = {}
+        SCRIPTS: Dict[int, List[t_gameobject_scripts]] = {}
 
         @staticmethod
         def load_gameobject_script(script):
@@ -1209,7 +1220,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureMovementScriptHolder:
-        SCRIPTS: dict[int, list[t_creature_movement_scripts]] = {}
+        SCRIPTS: Dict[int, List[t_creature_movement_scripts]] = {}
 
         @staticmethod
         def load_creature_movement_script(movement_script):
@@ -1231,7 +1242,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureAIScriptHolder:
-        SCRIPTS: dict[int, list[t_creature_ai_scripts]] = {}
+        SCRIPTS: Dict[int, List[t_creature_ai_scripts]] = {}
 
         @staticmethod
         def load_creature_ai_script(ai_script):
@@ -1311,7 +1322,7 @@ class WorldDatabaseManager(object):
         return res
 
     class GenericScriptsHolder:
-        GENERIC_SCRIPTS: [int, list[t_generic_scripts]] = {}
+        GENERIC_SCRIPTS: Dict[int, List[t_generic_scripts]] = {}
 
         @staticmethod
         def load_generic_script(generic_script):
