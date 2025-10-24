@@ -416,14 +416,19 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.SESSILE
 
     def is_at_home(self):
-        return self.location == self.spawn_position and not self.is_moving()
+        from game.world.managers.abstractions.Vector import Vector
+        v1 = Vector(round(self.location.x, 2), round(self.location.y, 2), round(self.location.z, 2))
+        v2 = Vector(round(self.spawn_position.x, 2), round(self.spawn_position.y, 2), round(self.spawn_position.z, 2))
+        return v1 == v2 and not self.is_moving()
 
     def on_at_home(self, was_at_home=False):
         self.apply_default_auras()
         self.movement_manager.face_angle(self.spawn_position.o)
+        if was_at_home:
+            return
         # Scan surrounding for enemies.
         self.on_relocation()
-        if self.object_ai and not was_at_home:
+        if self.object_ai:
             self.object_ai.ai_event_handler.reset()
             self.object_ai.just_reached_home()
 
@@ -821,7 +826,7 @@ class CreatureManager(UnitManager):
         self.set_has_moved(has_moved=True, has_turned=True)
         self.get_map().send_surrounding(self.get_heartbeat_packet(), self, False)
 
-        if location == self.spawn_position:
+        if self.is_at_home():
             self.on_at_home()
         return True
 

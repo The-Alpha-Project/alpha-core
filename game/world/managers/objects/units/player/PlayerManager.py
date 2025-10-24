@@ -1702,7 +1702,7 @@ class PlayerManager(UnitManager):
         return self.damage
 
     # override
-    def can_detect_target(self, target, distance=0):
+    def can_detect_target(self, target, distance=-1):
         # Party group.
         if self.group_manager and self.group_manager.is_party_member(target.guid):
             duel_arbiter = self.get_duel_arbiter()
