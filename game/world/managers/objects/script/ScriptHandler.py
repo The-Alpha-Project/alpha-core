@@ -734,6 +734,10 @@ class ScriptHandler:
             target_mask = SpellTargetMask.DEST_LOCATION
 
         spell = command.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
+        if not spell:
+            Logger.warning(f'[Script] [{command.script_id}], Unable to cast spell {command.datalong}')
+            return command.should_abort()
+
         if command.datalong2 & CastFlags.CF_TRIGGERED:
             spell.force_instant_cast()
         elif not targets_terrain and command.source.is_unit():
