@@ -15,7 +15,6 @@ class DetectionManager:
 
     def update(self):
         all_units = [u for u in list(self.units.values()) if self.can_target_unit_for_aggro(u)]
-        print(f'Map {self.grid_manager.map_id} Found {len(all_units)} units')
         for unit_a in all_units:
             # Query potential targets using the search box.
             search_box = unit_a.get_detection_range_box()
