@@ -184,9 +184,8 @@ class UnitManager(ObjectManager):
         # Cheat flags, used by Players.
         self.beast_master = False
 
-        # Relocation (Players/Creatures) & Call for help (Creatures).
-        self.relocation_call_for_help_timer = 0
-        self.pending_relocation = False
+        # Call for help and swim updates (Creatures).
+        self.call_for_help_and_swim_timer = 0
 
         # Defensive passive spells are not handled through the aura system.
         # The effects will instead flag the unit with these fields.
@@ -263,7 +262,7 @@ class UnitManager(ObjectManager):
 
         # Player only checks.
         if self.is_player() or self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
-            if target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
+            if target.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_PLAYER:
                 return False
         # Creature only checks.
         elif target.is_unit():
@@ -319,9 +318,13 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
-        # Send AI reaction.
-        if self.object_ai and victim.is_player():
-            self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+        if victim.is_player() or victim.is_player_controlled_pet():
+            if self.object_ai: # Send AI reaction.
+                self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+            # Force players or player pets in-combat.
+            victim.threat_manager.add_threat(source=self)
+
+        print(f'{self.get_name()} attacks {victim.get_name()}')
 
         self.send_attack_start(self.combat_target.guid)
 
@@ -1788,9 +1791,8 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
-        self.pending_relocation = False
         self.set_has_moved(False, False, True)
-        self.relocation_call_for_help_timer = 0
+        self.call_for_help_and_swim_timer = 0
 
         if self.object_ai:
             self.object_ai.just_died(killer)
@@ -1885,6 +1887,11 @@ class UnitManager(ObjectManager):
         self.remove_all_dynamic_flags()
         self.set_stand_state(StandState.UNIT_STANDING)
 
+    def can_be_targeted_for_surrounding_aggro(self):
+        return (not self.is_evading and self.is_alive and not self.beast_master
+        and not self.unit_state & UnitStates.STUNNED
+        and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED)
+
     def is_in_world(self):
         pass
 
@@ -1908,112 +1915,41 @@ class UnitManager(ObjectManager):
     def on_cell_change(self):
         pass
 
-    # Used by players/creatures.
-    def on_relocation(self):
-        pass
-
     # Used by creatures.
-    def get_detection_range(self):
+    def get_detection_range(self, unit):
         return 0
 
-    def notify_move_in_line_of_sight(self):
-        if self.beast_master:
+    def notify_move_in_line_of_sight(self, map_, unit):
+        self_has_ooc_los_events = not self.is_player() and self.object_ai.ai_event_handler.has_ooc_los_events()
+        los_check = None
+
+        # If self or unit has ooc los events.
+        if self_has_ooc_los_events and unit.is_player():
+            los_check = map_.los_check(self.get_ray_position(), unit.get_ray_position())
+            if los_check:
+                self.object_ai.move_in_line_of_sight(unit, ai_event=True)
+
+        if not self.is_hostile_to(unit) or not self.can_attack_target(unit):
             return
 
-        if not self.is_alive:
+        # Check for stealth/invisibility.
+        can_detect_unit, alert = self.can_detect_target(unit, self.location.distance(unit.location))
+        if alert and unit.is_player() and not self.is_player():
+            self.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
+
+        if not can_detect_unit or self.is_player():
             return
 
-        charmer_or_summoner = self.get_charmer_or_summoner()
-        if charmer_or_summoner and charmer_or_summoner.beast_master:
-            return
-
-        map_ = self.get_map()
-        self_is_player = self.is_player()
-        surrounding_units = map_.get_surrounding_units(self, not self_is_player)
-        self_has_ooc_los_events = not self_is_player and self.object_ai.ai_event_handler.has_ooc_los_events()
-
-        # Merge units and players.
-        if not self_is_player:
-            surrounding_units = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
-        # Only creatures.
-        else:
-            surrounding_units = surrounding_units.values()
-
-        for unit in surrounding_units:
-            if (unit == self or not self.is_alive or unit.unit_state & UnitStates.STUNNED
-                    or unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED):
-                continue
-
-            unit_is_player = unit.is_player()
-            unit_has_ooc_los_events = not unit_is_player and unit.object_ai.ai_event_handler.has_ooc_los_events()
-
-            los_check = None
-            # If self or unit has ooc los events.
-            if self_has_ooc_los_events or unit_has_ooc_los_events:
-                los_check = map_.los_check(unit.get_ray_position(), self.get_ray_position())
-                if los_check:
-                    # Player notifies creature.
-                    if self_is_player and unit.object_ai:
-                        unit.object_ai.move_in_line_of_sight(unit=self, ai_event=True)
-                    # Self notifies player/creature presence.
-                    elif not self_is_player and self.object_ai:
-                        self.object_ai.move_in_line_of_sight(unit=unit, ai_event=True)
-
-            detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
-            max_detection_range = detection_range
-
-            # Adjustments due to level differences, cap at 25 level difference. Aggro radius seems to vary at a rate of
-            # 1 yard per level (it can both grow or shrink). Only make this effective if one of the parties involved is
-            # a player (or a player controlled pet) and always take its level into account, not the level from the
-            # creature.
-            if unit_is_player or unit.is_player_controlled_pet() or unit.is_guardian():
-                detection_range -= max(-25, min(unit.level - self.level, 25))
-            elif self_is_player or self.is_player_controlled_pet() or self.is_guardian():
-                detection_range -= max(-25, min(self.level - unit.level, 25))
-            # Minimum aggro radius seems to be combat distance.
-            detection_range = max(detection_range, UnitFormulas.combat_distance(self, unit))
-
-            # Cap on creature template detection range.
-            if not self_is_player and detection_range > max_detection_range:
-                detection_range = max_detection_range
-
-            distance = unit.location.distance(self.location)
-
-            if distance > detection_range or not unit.is_hostile_to(self) or not unit.can_attack_target(self):
-                continue
-            # Both have seen each other, skip.
-            if unit.threat_manager.has_aggro_from(self) and self.threat_manager.has_aggro_from(unit):
-                continue
-
-            # Check for stealth/invisibility.
-            unit_can_detect_self, alert = unit.can_detect_target(self, distance)
-            if alert and self_is_player:
-                unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
-            if not unit_can_detect_self:
-                continue
-
-            los_check = los_check if los_check is not None else map_.los_check(unit.get_ray_position(),
+        los_check = los_check if los_check is not None else map_.los_check(unit.get_ray_position(),
                                                                                self.get_ray_position())
-            if not los_check:
-                continue
+        if not los_check:
+            return
 
-            # Player standing still case.
-            if unit_is_player and not unit.pending_relocation and not unit.beast_master:
-                unit.pending_relocation = True
-            elif not unit_is_player:
-                charmer_or_summoner = unit.get_charmer_or_summoner()
-                if charmer_or_summoner and charmer_or_summoner.beast_master:
-                    continue
-                unit.object_ai.move_in_line_of_sight(self)
+        self.object_ai.move_in_line_of_sight(unit)
 
-    def set_has_moved(self, has_moved, has_turned, flush=False, instant=False):
+    def set_has_moved(self, has_moved, has_turned, flush=False):
         # Only turn off once processed.
         if flush:
-            self.has_moved = False
-            self.has_turned = False
-        elif instant:
-            self.on_relocation()
-            self.relocation_call_for_help_timer = 0
             self.has_moved = False
             self.has_turned = False
         else:  # Only turn ON.

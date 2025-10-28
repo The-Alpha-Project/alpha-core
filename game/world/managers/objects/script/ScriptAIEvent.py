@@ -33,4 +33,4 @@ class ScriptAIEvent:
         return uniform(self.min_delay, self.max_delay)
 
     def get_event_info(self):
-        return f'Event id: {self.id}, Comment: {self.comment}'
+        return f'Id: {self.id}, Comment: {self.comment}'

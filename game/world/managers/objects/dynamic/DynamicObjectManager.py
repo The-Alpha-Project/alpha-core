@@ -65,12 +65,8 @@ class DynamicObjectManager(ObjectManager):
 
         self.last_tick = now
 
-    @staticmethod
-    def spawn(summoner, location, radius, effect, dynamic_type, ttl=-1):
-        dynamic_object = DynamicObjectManager(owner=summoner, location=location, radius=radius, effect=effect,
-                                              dynamic_type=dynamic_type, ttl=ttl)
-        summoner.get_map().spawn_object(world_object_instance=dynamic_object)
-        return dynamic_object
+    def spawn(self, owner=None):
+        self.owner.get_map().spawn_object(world_object_instance=self)
 
     @classmethod
     def spawn_from_spell_effect(cls, effect, dynamic_type, orientation=0, ttl=-1):
@@ -85,9 +81,11 @@ class DynamicObjectManager(ObjectManager):
         if orientation:
             target.set_orientation(orientation)
 
-        effect.casting_spell.dynamic_object = DynamicObjectManager.spawn(effect.casting_spell.spell_caster,
-                                                                         target, effect.get_radius(), effect,
-                                                                         dynamic_type, ttl=ttl)
+        effect.casting_spell.dynamic_object = DynamicObjectManager(effect.casting_spell.spell_caster, target,
+                                                                   effect.get_radius(), effect,
+                                                                   dynamic_type, ttl=ttl)
+        effect.casting_spell.dynamic_object.spawn()
+
         return effect.casting_spell.dynamic_object
 
     def add_dynamic_target(self, target):

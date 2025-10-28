@@ -453,6 +453,10 @@ class ObjectManager:
         pass
 
     # override
+    def spawn(self, owner=None):
+        pass
+
+    # override
     def despawn(self, ttl=0, respawn_delay=0):
         self.is_spawned = False
         if self.spell_manager:

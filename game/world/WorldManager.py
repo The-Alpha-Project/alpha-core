@@ -236,6 +236,7 @@ class WorldServerSessionHandler:
             WorldServerSessionHandler.build_scheduler('Spawn', MapManager.update_spawns, 1.0, 1),
             WorldServerSessionHandler.build_scheduler('Corpse', MapManager.update_corpses, 10.0, 1),
             WorldServerSessionHandler.build_scheduler('Script/Event', MapManager.update_map_scripts_and_events, 1.0, 1),
+            WorldServerSessionHandler.build_scheduler('Detection', MapManager.update_detection_range_collision, 1.0, 1),
             WorldServerSessionHandler.build_scheduler('Tile Loading', MapManager.initialize_pending_tiles, 0.2, 4),
             WorldServerSessionHandler.build_scheduler('Tile Unloading', MapManager.deactivate_cells, 300.0, 1)]
 

@@ -17,7 +17,7 @@ from game.world.managers.objects.units.creature.groups.CreatureGroupManager impo
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
-from utils.Formulas import Distances
+from utils.Formulas import Distances, UnitFormulas
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
@@ -25,6 +25,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
     MoveType, EmoteUnitState, TempSummonType
 from utils.constants.OpCodes import OpCode
+from utils.constants.ScriptCodes import TemporaryFactionFlags
 from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
@@ -72,6 +73,7 @@ class CreatureManager(UnitManager):
         self.loading = False
         self.killed_by = None
         self.known_players = {}
+        self.temp_faction_flags = 0
 
         # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
@@ -118,7 +120,7 @@ class CreatureManager(UnitManager):
             self.set_unit_flag(UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC, active=True)
         # NPC is immune to player characters.
         if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_PLAYER:
-            self.set_unit_flag(UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC, active=True)
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_IMMUNE_TO_PLAYER, active=True)
 
         # Innate school and mechanic immunities.
         if self.creature_template.mechanic_immune_mask:
@@ -321,11 +323,13 @@ class CreatureManager(UnitManager):
         return self.addon.equipment_id if self.addon and self.addon.equipment_id \
             else self.creature_template.equipment_id
 
-    def set_faction(self, faction_id):
+    def set_faction(self, faction_id, temp_faction_flags=TemporaryFactionFlags.TEMPFACTION_NONE):
+        self.temp_faction_flags |= temp_faction_flags
         self.faction = faction_id
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
     def reset_faction(self):
+        self.temp_faction_flags = 0
         self.faction = self.creature_template.faction
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
@@ -424,10 +428,10 @@ class CreatureManager(UnitManager):
     def on_at_home(self, was_at_home=False):
         self.apply_default_auras()
         self.movement_manager.face_angle(self.spawn_position.o)
+        if self.temp_faction_flags & TemporaryFactionFlags.TEMPFACTION_RESTORE_REACH_HOME:
+            self.reset_faction()
         if was_at_home:
             return
-        # Scan surrounding for enemies.
-        self.on_relocation()
         if self.object_ai:
             self.object_ai.ai_event_handler.reset()
             self.object_ai.just_reached_home()
@@ -586,7 +590,7 @@ class CreatureManager(UnitManager):
 
             if self.is_alive:
                 # Update relocate/call for help timer.
-                self.relocation_call_for_help_timer += elapsed
+                self.call_for_help_and_swim_timer += elapsed
                 # Regeneration.
                 self.regenerate(elapsed)
                 # Spell/Aura Update.
@@ -603,28 +607,29 @@ class CreatureManager(UnitManager):
                 self.attack_update(elapsed)
                 # Movement checks.
                 if self.has_moved or self.has_turned:
-                    # Relocate only if x, y changed.
-                    if self.has_moved and not self.pending_relocation:
-                        self.pending_relocation = True
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
 
-                if self.relocation_call_for_help_timer >= 1:
-                    if self.pending_relocation:
-                        self.on_relocation()
-                        self.pending_relocation = False
+                if self.call_for_help_and_swim_timer >= 1:
                     if self.combat_target:
                         self.threat_manager.call_for_help(self.combat_target)
-                    self.relocation_call_for_help_timer = 0
+                    self._update_swimming_state()
+                    self.call_for_help_and_swim_timer = 0
 
             has_changes = self.has_pending_updates()
             # Check if this creature object should be updated yet or not.
             if has_changes or self.has_moved:
-                self.set_has_moved(False, False, flush=True)
                 self.get_map().update_object(self, has_changes=has_changes)
+                self.set_has_moved(False, False, flush=True)
 
         self.last_tick = now
+
+    # override
+    def spawn(self, owner=None):
+        if self.temp_faction_flags & TemporaryFactionFlags.TEMPFACTION_RESTORE_RESPAWN:
+            self.reset_faction()
+        self.get_map().spawn_object(world_object_spawn=owner, world_object_instance=self)
 
     # override
     def despawn(self, ttl=0, respawn_delay=0):
@@ -681,6 +686,12 @@ class CreatureManager(UnitManager):
             self.set_emote_unit_state(EmoteUnitState.NONE)
 
         self.object_ai.attack_start(victim)
+
+    # override
+    def attack_stop(self):
+        super().attack_stop()
+        if self.temp_faction_flags & TemporaryFactionFlags.TEMPFACTION_RESTORE_COMBAT_STOP:
+            self.reset_faction()
 
     # override
     def attack_update(self, elapsed):
@@ -889,12 +900,17 @@ class CreatureManager(UnitManager):
             self.dmg_min
         )
 
-    def on_relocation(self):
-        self._update_swimming_state()
-        self.notify_move_in_line_of_sight()
-
-    def get_detection_range(self):
-        return self.creature_template.detection_range
+    def get_detection_range(self, unit):
+        # Adjustments due to level differences, cap at 25 level difference. Aggro radius seems to vary at a rate of
+        # 1 yard per level (it can both grow or shrink). Only make this effective if one of the parties involved is
+        # a player (or a player controlled pet) and always take its level into account, not the level from the
+        # creature.
+        detection_range = self.creature_template.detection_range
+        if unit.is_player() or unit.is_player_controlled_pet() or unit.is_guardian():
+            detection_range -= max(-25, min(unit.level - self.level, 25))
+        # Minimum aggro radius seems to be combat distance.
+        detection_range = max(detection_range, UnitFormulas.combat_distance(self, unit))
+        return detection_range
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):

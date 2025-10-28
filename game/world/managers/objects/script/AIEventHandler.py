@@ -151,7 +151,7 @@ class AIEventHandler:
         map_ = self.creature.get_map()
         target = target if target else self.creature
         for event in events:
-            if event.event_id == event_id and event.event_param1 == event_data:
+            if event.event_param1 == event_id and event.event_param2 == event_data:
                 if not self._validate_event(event, target=target):
                     continue
                 self._enqueue_creature_ai_event(map_, event, target=target)

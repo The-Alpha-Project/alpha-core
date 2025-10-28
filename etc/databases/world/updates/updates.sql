@@ -2805,6 +2805,156 @@ begin not atomic
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (258601, 0, 0, 15, 1784, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Highwayman - Cast Spell Stealth');
 
+        -- Fix Blackwood Warriors Thunderclap.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=216802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (216802, 0, 0, 15, 6343, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackwood Warrior - Cast Spell Thunderclap');
+    
+        -- Fix Theramore Practice Targets - Faction 69: Creature.
+        UPDATE `creature_template` SET `faction` = '69' WHERE (`entry` = '4952');
+        UPDATE `creature_template` SET `static_flags` = '1048878' WHERE (`entry` = '4952');
+        UPDATE `creature_template` SET `faction` = '69' WHERE (`entry` = '5674');    
+        
+        -- Guard Jarad
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '4923');
+        -- Guard Edward
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '4922');
+        -- Guard Lana
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5092');
+        -- Guard Kahil
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5091');
+        -- Guard Guard Narrisha
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5091');
+   
+        -- Theramore Fighting event.
+        DELETE FROM `generic_scripts` WHERE `id`=492402;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (492402, 0, 0, 61, 4400, 120, 0, 0, 0, 0, 0, 8, 0, 44400, 0, 44400, 0, 0, 0, 0, 0, 'Start Edward vs Jarad Event'),
+        (492402, 1, 0, 63, 4400, 0, 0, 0, 4922, 30, 8, 2, 0, 44403, 0, 44403, 0, 0, 0, 0, 0, 'Guard Edward - Add to Scripted Map Event'),
+        (492402, 1, 0, 63, 4400, 0, 0, 0, 4923, 30, 8, 2, 0, 44402, 0, 44402, 0, 0, 0, 0, 0, 'Guard Jarad - Add to Scripted Map Event'),
+        (492402, 1, 0, 63, 4400, 0, 0, 0, 5199, 30, 8, 2, 0, 44404, 0, 44404, 0, 0, 0, 0, 0, 'Medic Tamberlyn - Add to Scripted Map Event'),
+        (492402, 1, 0, 63, 4400, 0, 0, 0, 5200, 30, 8, 2, 0, 44405, 0, 44405, 0, 0, 0, 0, 0, 'Medic Helaina - Add to Scripted Map Event'),
+        (492402, 2, 0, 44, 1, 0, 0, 0, 4923, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Set Phase to 1'),
+        (492402, 2, 0, 34, 0, 0, 0, 0, 4923, 30, 8, 2, 0, 0, 0, 0, -3652.81, -4515.01, 9.49876, 0.787199, 0, 'Guard Jarad - Set Home Position'),
+        (492402, 2, 0, 3, 0, 0, 2, 2, 4923, 30, 8, 2, 0, 0, 0, 0, -3652.81, -4515.01, 9.49876, 1.53, 0, 'Guard Jarad - Move'),
+        (492402, 2, 0, 0, 0, 0, 0, 0, 5095, 30, 8, 2, 1775, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain Andrews - Say Text'),
+        (492402, 3, 0, 0, 0, 0, 0, 0, 5096, 30, 8, 2, 1776, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain Thomas - Say Text'),
+        (492402, 3, 0, 3, 0, 0, 2, 2, 4922, 30, 8, 2, 0, 0, 0, 0, -3644.49, -4506.66, 9.49876, 4.50295, 0, 'Guard Edward - Move'),
+        (492402, 3, 0, 44, 1, 0, 0, 0, 4922, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Edward - Set Phase to 1'),
+        (492402, 3, 0, 34, 0, 0, 0, 0, 4922, 30, 8, 2, 0, 0, 0, 0, -3644.49, -4506.66, 9.49876, 3.9285, 0, 'Guard Edward - Set Home Position'),
+        (492402, 6, 0, 35, 1, 0, 0, 0, 4923, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0.787199, 0, 'Guard Jarad - Set Facing'),
+        (492402, 7, 0, 35, 1, 0, 0, 0, 4922, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 3.9285, 0, 'Guard Edward - Set Facing'),
+        (492402, 8, 0, 1, 66, 0, 0, 0, 4923, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Emote Salute'),
+        (492402, 8, 0, 0, 0, 0, 0, 0, 4923, 30, 8, 2, 1778, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Say Text'),
+        (492402, 9, 0, 1, 66, 0, 0, 0, 4922, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Edward - Emote Salute'),
+        (492402, 9, 0, 0, 0, 0, 0, 0, 4922, 30, 8, 2, 1777, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Edward - Say Text'),
+        (492402, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1643, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (492402, 22, 0, 22, 149, 2, 0, 0, 4922, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Edward -Set Faction to Blue'),
+        (492402, 22, 0, 22, 69, 2, 0, 0, 4923, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Set Faction to Red'),
+        (492402, 22, 0, 4, 46, 256, 1, 0, 4923, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Set Immune to Player Flag'),
+        (492402, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1641, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (492402, 22, 0, 1, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Emote Point'),
+        (492402, 23, 0, 66, 4400, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Send Fight Begin Event');
+
+        DELETE FROM `generic_scripts` WHERE `id`=44402;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (44402, 0, 0, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Enter Evade Mode'),
+        (44402, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Set Phase to 0'),
+        (44402, 0, 0, 4, 46, 256, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Remove Immune to Player Flag'),
+        (44402, 2, 0, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Set Sheath Unarmed'),
+        (44402, 3, 0, 1, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Jarad - Emote Salute'),
+        (44402, 6, 0, 3, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, -3653.16, -4520.27, 9.49876, 1.36136, 0, 'Guard Jarad - Move to Spawn Position'),
+        (44402, 6, 0, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3653.16, -4520.27, 9.49876, 1.36136, 0, 'Guard Jarad - Set Home Position');
+
+        DELETE FROM `generic_scripts` WHERE `id`=44400;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (44400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1636, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (44400, 0, 0, 1, 4, 0, 0, 0, 5092, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4404, 'Guard Lana - Emote Cheer'),
+        (44400, 0, 0, 1, 4, 0, 0, 0, 5094, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4404, 'Guard Tark - Emote Cheer'),
+        (44400, 0, 0, 1, 4, 0, 0, 0, 5093, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4403, 'Guard Narrisha - Emote Cheer'),
+        (44400, 0, 0, 1, 25, 0, 0, 0, 5090, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Szigeti - Emote Point'),
+        (44400, 0, 0, 0, 0, 0, 0, 0, 5090, 30, 8, 2, 1794, 0, 0, 0, 0, 0, 0, 0, 4404, 'Combat Master Szigeti - Say Text'),
+        (44400, 0, 0, 0, 0, 0, 0, 0, 5090, 30, 8, 2, 1795, 0, 0, 0, 0, 0, 0, 0, 4403, 'Combat Master Szigeti - Say Text'),
+        (44400, 0, 0, 1, 4, 0, 0, 0, 5091, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4403, 'Guard Kahil - Emote Cheer'),
+        (44400, 10, 0, 0, 0, 0, 0, 0, 5095, 30, 8, 2, 1766, 0, 0, 0, 0, 0, 0, 0, 4403, 'Captain Andrews - Say Text'),
+        (44400, 10, 0, 0, 0, 0, 0, 0, 5096, 30, 8, 2, 1760, 0, 0, 0, 0, 0, 0, 0, 4404, 'Captain Thomas - Say Text'),
+        (44400, 11, 0, 61, 4401, 120, 0, 0, 0, 0, 0, 8, 0, 44401, 0, 44401, 0, 0, 0, 0, 0, 'Combat Master Criton - Start Kahil vs Lana Event'),
+        (44400, 12, 0, 63, 4401, 0, 0, 0, 5199, 30, 8, 2, 0, 44411, 0, 44411, 0, 0, 0, 0, 0, 'Medic Tamberlyn - Add to Scripted Map Event'),
+        (44400, 12, 0, 63, 4401, 0, 0, 0, 5092, 30, 8, 2, 0, 44406, 0, 44406, 0, 0, 0, 0, 0, 'Guard Lana - Add To Scripted Map Event'),
+        (44400, 12, 0, 63, 4401, 0, 0, 0, 5200, 30, 8, 2, 0, 44410, 0, 44410, 0, 0, 0, 0, 0, 'Medic Helaina - Add to Scripted Map Event'),
+        (44400, 12, 0, 63, 4401, 0, 0, 0, 5091, 30, 8, 2, 0, 44407, 0, 44407, 0, 0, 0, 0, 0, 'Guard Kahil - Add To Scripted Map Event'),
+        (44400, 21, 0, 3, 0, 0, 2, 2, 5091, 30, 8, 2, 0, 0, 0, 0, -3644.45, -4506.66, 9.49876, 3.92848, 0, 'Guard Kahil - Move'),
+        (44400, 21, 0, 44, 1, 0, 0, 0, 5091, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Kahil - Set Phase to 1'),
+        (44400, 21, 0, 34, 0, 0, 0, 0, 5091, 30, 8, 2, 0, 0, 0, 0, -3644.45, -4506.66, 9.49876, 3.92848, 0, 'Guard Kahil - Set Home Position'),
+        (44400, 23, 0, 3, 0, 0, 2, 2, 5092, 30, 8, 2, 0, 0, 0, 0, -3652.83, -4515.06, 9.49876, 0.786819, 0, 'Guard Lana - Move'),
+        (44400, 23, 0, 34, 0, 0, 0, 0, 5092, 30, 8, 2, 0, 0, 0, 0, -3652.83, -4515.06, 9.49876, 0.786819, 0, 'Guard Lana - Set Home Position'),
+        (44400, 23, 0, 44, 1, 0, 0, 0, 5092, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Set Phase to 1'),
+        (44400, 26, 0, 0, 0, 0, 0, 0, 5091, 30, 8, 2, 1777, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Kahil - Say Text'),
+        (44400, 26, 0, 1, 66, 0, 0, 0, 5091, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Kahil - Emote Salute'),
+        (44400, 29, 0, 1, 66, 0, 0, 0, 5092, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Emote Salute'),
+        (44400, 29, 0, 0, 0, 0, 0, 0, 5092, 30, 8, 2, 1778, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Say Text'),
+        (44400, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1643, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (44400, 39, 0, 22, 149, 2, 0, 0, 5091, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Kahil - Set Faction to Blue'),
+        (44400, 39, 0, 4, 46, 256, 1, 0, 5092, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Set Immune To Player Flag'),
+        (44400, 39, 0, 22, 69, 2, 0, 0, 5092, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Set Faction to Red'),
+        (44400, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1641, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (44400, 40, 0, 66, 4401, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Send Fight Begin Event');
+
+        DELETE FROM `generic_scripts` WHERE `id`=44406;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (44406, 0, 0, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Enter Evade Mode'),
+        (44406, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Set Phase to 0'),
+        (44406, 0, 0, 4, 46, 256, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Remove Immune To Player Flag'),
+        (44406, 2, 0, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Set Sheath Unarmed'),
+        (44406, 3, 0, 1, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Lana - Emote Salute'),
+        (44406, 6, 0, 3, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, -3651.52, -4520.24, 9.49876, 1.41372, 0, 'Guard Lana - Move to Spawn Position'),
+        (44406, 6, 0, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3651.52, -4520.24, 9.49876, 1.41372, 0, 'Guard Lana - Set Home Position');
+
+        DELETE FROM `generic_scripts` WHERE `id`=44401;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (44401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1636, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (44401, 0, 0, 0, 0, 0, 0, 0, 5090, 30, 8, 2, 1795, 0, 0, 0, 0, 0, 0, 0, 4405, 'Combat Master Szigeti - Say Text'),
+        (44401, 0, 0, 0, 0, 0, 0, 0, 5090, 30, 8, 2, 1794, 0, 0, 0, 0, 0, 0, 0, 4406, 'Combat Master Szigeti - Say Text'),
+        (44401, 0, 0, 1, 25, 0, 0, 0, 5090, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Szigeti - Emote Point'),
+        (44401, 0, 0, 1, 4, 0, 0, 0, 4922, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4405, 'Guard Edward - Emote Cheer'),
+        (44401, 0, 0, 1, 4, 0, 0, 0, 5093, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4405, 'Guard Narrisha - Emote Cheer'),
+        (44401, 0, 0, 1, 4, 0, 0, 0, 5094, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4406, 'Guard Tark - Emote Cheer'),
+        (44401, 0, 0, 1, 4, 0, 0, 0, 4923, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4406, 'Guard Jarad - Emote Cheer'),
+        (44401, 10, 0, 0, 0, 0, 0, 0, 5096, 30, 8, 2, 1762, 0, 0, 0, 0, 0, 0, 0, 4406, 'Captain Thomas - Say Text'),
+        (44401, 10, 0, 0, 0, 0, 0, 0, 5095, 30, 8, 2, 1767, 0, 0, 0, 0, 0, 0, 0, 4405, 'Captain Andrews - Say Text'),
+        (44401, 11, 0, 61, 4402, 120, 0, 0, 0, 0, 0, 8, 0, 44414, 0, 44414, 0, 0, 0, 0, 0, 'Combat Master Criton - Start Narrisha vs Tark Event'),
+        (44401, 12, 0, 63, 4402, 0, 0, 0, 5093, 30, 8, 2, 0, 44409, 0, 44409, 0, 0, 0, 0, 0, 'Guard Narrisha - Add To Scripted Map Event'),
+        (44401, 12, 0, 63, 4402, 0, 0, 0, 5094, 30, 8, 2, 0, 44408, 0, 44408, 0, 0, 0, 0, 0, 'Guard Tark - Add To Scripted Map Event'),
+        (44401, 12, 0, 63, 4402, 0, 0, 0, 5199, 30, 8, 2, 0, 44413, 0, 44413, 0, 0, 0, 0, 0, 'Medic Tamberlyn - Add to Scripted Map Event'),
+        (44401, 12, 0, 63, 4402, 0, 0, 0, 5200, 30, 8, 2, 0, 44412, 0, 44412, 0, 0, 0, 0, 0, 'Medic Helaina - Add to Scripted Map Event'),
+        (44401, 21, 0, 44, 1, 0, 0, 0, 5093, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Narrisha - Set Phase to 1'),
+        (44401, 21, 0, 34, 0, 0, 0, 0, 5093, 30, 8, 2, 0, 0, 0, 0, -3644.45, -4506.66, 9.49876, 3.93051, 0, 'Guard Narrisha - Set Home Position'),
+        (44401, 21, 0, 3, 0, 0, 2, 2, 5093, 30, 8, 2, 0, 0, 0, 0, -3644.45, -4506.66, 9.49876, 3.93051, 0, 'Guard Narrisha - Move'),
+        (44401, 23, 0, 3, 0, 0, 2, 2, 5094, 30, 8, 2, 0, 0, 0, 0, -3652.83, -4515.06, 9.49876, 2.1, 0, 'Guard Tark - Move'),
+        (44401, 23, 0, 34, 0, 0, 0, 0, 5094, 30, 8, 2, 0, 0, 0, 0, -3652.83, -4515.06, 9.49876, 0.786819, 0, 'Guard Tark - Set Home Position'),
+        (44401, 23, 0, 44, 1, 0, 0, 0, 5094, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Set Phase to 1'),
+        (44401, 26, 0, 0, 0, 0, 0, 0, 5093, 30, 8, 2, 1777, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Narrisha - Say Text'),
+        (44401, 26, 0, 35, 1, 0, 0, 0, 5094, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0.786819, 0, 'Guard Tark - Set Facing'),
+        (44401, 26, 0, 1, 66, 0, 0, 0, 5093, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Narrisha - Emote Salute'),
+        (44401, 29, 0, 1, 66, 0, 0, 0, 5094, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Emote Salute'),
+        (44401, 29, 0, 0, 0, 0, 0, 0, 5094, 30, 8, 2, 1778, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Say Text'),
+        (44401, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1643, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (44401, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1641, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Say Text'),
+        (44401, 39, 0, 22, 149, 2, 0, 0, 5093, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Narrisha - Set Faction to Blue'),
+        (44401, 39, 0, 22, 69, 2, 0, 0, 5094, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Set Faction to Red'),
+        (44401, 39, 0, 4, 46, 256, 1, 0, 5094, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Add Immune To Player Flag'),
+        (44401, 40, 0, 66, 4402, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Combat Master Criton - Send Fight Begin Event');
+
+        DELETE FROM `generic_scripts` WHERE `id`=44408;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (44408, 0, 0, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Enter Evade Mode'),
+        (44408, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Set Phase to 0'),
+        (44408, 0, 0, 4, 46, 256, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Remove Immune To Player Flag'),
+        (44408, 2, 0, 51, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Set Sheath Unarmed'),
+        (44408, 3, 0, 1, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Emote Salute'),
+        (44408, 6, 0, 3, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, -3649.81, -4520.19, 9.49876, 1.62316, 0, 'Guard Tark - Move to Spawn Position'),
+        (44408, 6, 0, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3649.81, -4520.19, 9.49876, 1.62316, 0, 'Guard Tark - Set Home Position');
+
         insert into applied_updates values ('191020251');
     end if;
 

@@ -19,7 +19,7 @@ class Map:
         self.dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         self.instance_id = instance_id
         self.name = self.dbc_map.MapName_enUS
-        self.grid_manager = GridManager(map_id, instance_id, active_cell_callback, inactive_cell_callback)
+        self.grid_manager = GridManager(self, map_id, instance_id, active_cell_callback, inactive_cell_callback)
         self.script_handler = ScriptHandler(self)
         self.map_event_manager = MapEventManager()
         self.pool_manager = PoolManager()
@@ -93,7 +93,7 @@ class Map:
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
             go_spawn_instance = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
-            if config.Server.Settings.load_pools:
+            if config.Server.Settings.load_pools and config.Server.Settings.load_gameobjects:
                 go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
             if not go_spawn_instance.pool:
                 go_spawn_instances.append(go_spawn_instance)
@@ -110,7 +110,7 @@ class Map:
         length = len(creature_spawns)
         for creature_spawn in creature_spawns:
             creature_spawn_instance = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
-            if config.Server.Settings.load_pools:
+            if config.Server.Settings.load_pools and config.Server.Settings.load_creatures:
                 creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
             if not creature_spawn_instance.pool:
                 creature_spawn_instances.append(creature_spawn_instance)
@@ -149,8 +149,8 @@ class Map:
         self.map_event_manager.edit_map_event_data(event_id, success_condition, success_script, failure_condition,
                                                    failure_script)
 
-    def send_event_data(self, event_id, data_index, options):
-        self.map_event_manager.send_event_data(event_id, data_index, options)
+    def send_event_data(self, event_id, data, options):
+        self.map_event_manager.send_event_data(event_id, data, options)
 
     def get_map_event_data(self, event_id):
         return self.map_event_manager.get_map_event_data(event_id)
@@ -279,6 +279,9 @@ class Map:
     def activate_cell_by_world_object(self, world_object, load_tile_data=False):
         self.grid_manager.activate_cell_by_world_object(world_object, load_tile_data)
 
+    def get_detection_manager(self):
+        return self.grid_manager.detection_manager
+
     # Objects updates.
     def update_creatures(self):
         self.grid_manager.update_creatures()
@@ -304,3 +307,6 @@ class Map:
 
     def deactivate_cells(self):
         self.grid_manager.deactivate_cells()
+
+    def update_detection_range_collision(self):
+        self.grid_manager.update_detection_range_collision()

@@ -28,9 +28,7 @@ class GuardAI(CreatureAI):
         super().move_in_line_of_sight(unit, ai_event=ai_event)
         if ai_event or not self.is_ready_for_new_attack():
             return
-        if self.creature.threat_manager.has_aggro_from(unit):
-            return
-        self.creature.object_ai.attacked_by(unit)
+        self.creature.attack(unit)
 
     # override
     def enter_combat(self, source=None):

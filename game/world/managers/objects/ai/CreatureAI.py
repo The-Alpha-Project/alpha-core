@@ -94,7 +94,7 @@ class CreatureAI:
         self.creature.get_map().send_surrounding(packet, self.creature, False)
         return True
 
-    def on_script_event_happened(self, event_id, event_data, target):
+    def on_script_event(self, event_id, event_data, target):
         self.ai_event_handler.on_script_event_happened(event_id, event_data, target)
 
     # Called when the creature is killed.
@@ -443,10 +443,8 @@ class CreatureAI:
                and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
                and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
-               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
-
-    def on_scripted_event(self, event_id, data):
-        pass
+               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
+               and not self.creature.combat_target
 
     def assist_unit(self, target):
         if not self.creature.is_alive:

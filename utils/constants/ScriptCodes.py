@@ -277,6 +277,14 @@ class EventFlags(IntEnum):
     DEBUG_ONLY = 0x10
 
 
+class TemporaryFactionFlags(IntEnum):
+    TEMPFACTION_NONE = 0  # When no flag is used in temporary faction change, faction will be persistent.
+    TEMPFACTION_RESTORE_RESPAWN = 1  # Default faction will be restored at respawn
+    TEMPFACTION_RESTORE_COMBAT_STOP = 2  # ... at CombatStop() (happens at creature death, at evade or custom scripte among others)
+    TEMPFACTION_RESTORE_REACH_HOME = 4  # ... at reaching home in home movement (evade), if not already done at CombatStop()
+    TEMPFACTION_ALL = 5,
+
+
 class SetMapScriptDataOptions(IntEnum):
     SO_MAPEVENTDATA_RAW = 0
     SO_MAPEVENTDATA_INCREMENT = 1

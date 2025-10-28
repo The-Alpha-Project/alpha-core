@@ -665,6 +665,12 @@ class MapManager:
                 instance_map.update_map_scripts_and_events(now)
 
     @staticmethod
+    def update_detection_range_collision():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
+                instance_map.update_detection_range_collision()
+
+    @staticmethod
     def deactivate_cells():
         for map_id, instances in list(MAPS.items()):
             for instance_map in list(instances.values()):

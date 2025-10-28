@@ -21,7 +21,7 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, WeaponMode
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureStaticFlags
 from utils.constants.UpdateFields import PlayerFields
 
 import platform
@@ -742,6 +742,21 @@ class CommandManager(object):
             return -1, 'please specify a valid display id.'
 
     @staticmethod
+    def set_faction(world_session, args):
+        try:
+            faction = int(args)
+            unit = CommandManager._target_or_self(world_session)
+            if not unit.is_unit():
+                return -1, 'please select a valid unit.'
+            if not faction:
+                unit.reset_faction()
+            else:
+                unit.set_faction(faction)
+            return 0, f'New faction set to "{faction} for {unit.get_name()}".'
+        except ValueError:
+            return -1, 'please specify a valid faction id.'
+
+    @staticmethod
     def morph(world_session, args):
         try:
             display_id = int(args)
@@ -805,19 +820,24 @@ class CommandManager(object):
             for flag in UnitFlags:
                 if unit.unit_flags & flag:
                     flag_count += 1
-                    result += f'|c0066FF00[SET]|r {UnitFlags(flag).name}\n'
+                    result += f'|c0066FF00[SET] UnitFlag|r {UnitFlags(flag).name}\n'
                 if flag == UnitFlags.UNIT_FLAG_SHEATHE:  # Last unit flag, prevent checking masks.
                     break
 
             for flag in UnitDynamicTypes:
                 if unit.dynamic_flags & flag:
                     flag_count += 1
-                    result += f'|c0066FF00[SET]|r {UnitDynamicTypes(flag).name}\n'
+                    result += f'|c0066FF00[SET] DynamicFlag|r {UnitDynamicTypes(flag).name}\n'
+
+            for flag in CreatureStaticFlags:
+                if unit.static_flags & flag:
+                    flag_count += 1
+                    result += f'|c0066FF00[SET] StaticFlag|r {CreatureStaticFlags(flag).name}\n'
 
             for flag in MoveFlags:
                 if unit.movement_flags & flag:
                     flag_count += 1
-                    result += f'|c0066FF00[SET]|r {MoveFlags(flag).name}\n'
+                    result += f'|c0066FF00[SET] MoveFlag|r {MoveFlags(flag).name}\n'
 
             result += f'{flag_count} active unit flags.'
         return 0, result
@@ -1250,6 +1270,7 @@ GM_COMMAND_DEFINITIONS = {
     'mount': [CommandManager.mount, 'mount'],
     'unmount': [CommandManager.unmount, 'dismount'],
     'morph': [CommandManager.morph, 'morph the targeted unit'],
+    'setfaction': [CommandManager.set_faction, 'modify target faction'],
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     'setvirtualitem': [CommandManager.setvirtualitem, 'equips virtual item on unit main hand'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],

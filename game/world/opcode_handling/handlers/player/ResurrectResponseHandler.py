@@ -1,5 +1,6 @@
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
+from utils.constants.MiscCodes import ObjectTypeIds
 
 
 class ResurrectResponseHandler(object):
@@ -31,5 +32,18 @@ class ResurrectResponseHandler(object):
                 return 0
 
             player_mgr.resurrect()
+
+        return 0
+
+    @staticmethod
+    def handle_reclaim_corpse(world_session, reader: PacketReader) -> int:
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
+
+        if len(reader.data) >= 8:  # Avoid handling empty reclaim corpse packet.
+            guid = unpack('<Q', reader.data[:8])[0]
+            player_mgr.reclaim_corpse(guid)
 
         return 0

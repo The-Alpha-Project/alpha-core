@@ -52,10 +52,10 @@ class ScriptHandler:
                             f'Caller: {source.get_name()}')
             return
 
-        if not event:
-            Logger.script(f'{source.get_name()} triggered script {script_id} with type {ScriptTypes(script_type).name}')
+        if event:
+            Logger.script(f'Id [{script_id}] [{source.get_name()}] Event [{event.get_event_info()}]')
         else:
-            Logger.script(f'{source.get_name()} triggered event {event.get_event_info()}, script {script_id}, with type {ScriptTypes(script_type).name}')
+            Logger.script(f'Id [{script_id}] [{source.get_name()}] Type [{ScriptTypes(script_type).name}]')
 
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, event=event)
@@ -587,17 +587,12 @@ class ScriptHandler:
 
         # Attack target type.
         if command.dataint3 < ScriptTarget.TARGET_T_PROVIDED_TARGET:  # Can be -1.
-            command.source.set_has_moved(has_moved=True, has_turned=True, instant=True)
-            creature_manager.set_has_moved(has_moved=True, has_turned=True, instant=True)
             return False
 
         from game.world.managers.objects.script.ScriptManager import ScriptManager
         attack_target = ScriptManager.get_target_by_type(command.source, command.target, command.dataint3)
         if attack_target and attack_target.is_alive:
             creature_manager.attack(attack_target)
-
-        command.source.set_has_moved(has_moved=True, has_turned=True, instant=True)
-        creature_manager.set_has_moved(has_moved=True, has_turned=True, instant=True)
 
         return False
 
@@ -920,7 +915,7 @@ class ScriptHandler:
         if not command.datalong:
             command.source.reset_faction()
         else:
-            command.source.set_faction(command.datalong)
+            command.source.set_faction(command.datalong, command.datalong2)
 
         return False
 
@@ -1004,9 +999,9 @@ class ScriptHandler:
         return False
 
     @staticmethod
-    def handle_script_command_attack_start(command):
-        # source = Creature
-        # target = Player
+    def handle_script_command_start_attack(command):
+        # source = Unit
+        # target = Unit
         if not command.source:
             Logger.warning(f'ScriptHandler: Invalid attacker, {command.get_info()}.')
             return command.should_abort()
@@ -1525,8 +1520,7 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_command_add_map_event_target(command):
-        # source = Map
-        # target = WorldObject
+        # source = WorldObject
         # datalong = event_id
         # dataint = success_condition
         # dataint2 = success_script
@@ -1542,7 +1536,7 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return command.should_abort()
 
-        map_.add_event_target(command.target, command.datalong, command.dataint, command.dataint2, command.dataint3,
+        map_.add_event_target(command.source, command.datalong, command.dataint, command.dataint2, command.dataint3,
                               command.dataint4)
         return False
 
@@ -1695,6 +1689,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source, {command.get_info()}')
             return command.should_abort()
 
+        print(f'{command.source.get_name()} attack stop.')
         command.source.attack_stop()
         command.source.leave_combat()
         return False
@@ -1825,7 +1820,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No creature AI manager found, {command.get_info()}.')
             return command.should_abort()
 
-        command.source.object_ai.on_script_event_happened(command.datalong, command.datalong2, command.target)
+        command.source.object_ai.on_script_event(command.datalong, command.datalong2, command.target)
         return False
 
     @staticmethod
@@ -1967,7 +1962,7 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL: ScriptHandler.handle_script_command_morph_to_entry_or_model,
     ScriptCommands.SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL: ScriptHandler.handle_script_command_mount_to_entry_or_model,
     ScriptCommands.SCRIPT_COMMAND_SET_RUN: ScriptHandler.handle_script_command_set_run,
-    ScriptCommands.SCRIPT_COMMAND_ATTACK_START: ScriptHandler.handle_script_command_attack_start,
+    ScriptCommands.SCRIPT_COMMAND_ATTACK_START: ScriptHandler.handle_script_command_start_attack,
     ScriptCommands.SCRIPT_COMMAND_UPDATE_ENTRY: ScriptHandler.handle_script_command_update_entry,
     ScriptCommands.SCRIPT_COMMAND_STAND_STATE: ScriptHandler.handle_script_command_stand_state,
     ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: ScriptHandler.handle_script_command_modify_threat,
