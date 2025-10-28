@@ -26,7 +26,6 @@ class QuadTree:
     def update_unit_placement(self, unit):
         if not unit.has_moved_significantly():
             return
-        print(f'{unit.get_name()} has moved significantly')
         self.remove_unit(unit.guid)
         self.insert_unit(unit)
 
