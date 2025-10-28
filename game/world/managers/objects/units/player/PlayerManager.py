@@ -1539,6 +1539,7 @@ class PlayerManager(UnitManager):
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
                     # Reset flags.
                     self.set_has_moved(False, False, flush=True)
+                    self.get_map().get_detection_manager().update_unit_placement(self)
 
             # Update system, propagate player changes to surrounding units.
             if self.online and (has_changes or has_inventory_changes):

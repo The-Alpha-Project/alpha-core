@@ -610,6 +610,8 @@ class CreatureManager(UnitManager):
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    if self.has_moved and self.has_player_observers():
+                        self.get_map().get_detection_manager().update_unit_placement(self)
 
                 if self.call_for_help_and_swim_timer >= 1:
                     if self.combat_target:
@@ -908,6 +910,9 @@ class CreatureManager(UnitManager):
         detection_range = self.creature_template.detection_range
         if unit.is_player() or unit.is_player_controlled_pet() or unit.is_guardian():
             detection_range -= max(-25, min(unit.level - self.level, 25))
+        elif self.is_player() or self.is_player_controlled_pet() or self.is_guardian():
+            detection_range -= max(-25, min(self.level - unit.level, 25))
+
         # Minimum aggro radius seems to be combat distance.
         detection_range = max(detection_range, UnitFormulas.combat_distance(self, unit))
         return detection_range

@@ -7,6 +7,8 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.helpers.BoundingBox import BoundingBox
+from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.aura.AuraManager import AuraManager
@@ -203,6 +205,7 @@ class UnitManager(ObjectManager):
         self.movement_info = MovementInfo(self)
         self.has_moved = False
         self.has_turned = False
+        self.quadtree_node = None
 
         self.invincibility_hp_level = 0
         self.melee_disabled = False
@@ -1919,17 +1922,28 @@ class UnitManager(ObjectManager):
     def get_detection_range(self, unit):
         return 0
 
-    def notify_move_in_line_of_sight(self, map_, unit):
-        self_has_ooc_los_events = not self.is_player() and self.object_ai.ai_event_handler.has_ooc_los_events()
+    def get_detection_range_box(self):
+        x = self.location.x - VIEW_DISTANCE
+        y = self.location.y - VIEW_DISTANCE
+        width = VIEW_DISTANCE * 2
+        height = VIEW_DISTANCE * 2
+        return BoundingBox(x, y, width, height)
+
+    def has_moved_significantly(self):
+        if not self.quadtree_node:
+            return True
+        return not self.quadtree_node.bounds.contains_box(self.get_detection_range_box())
+
+    def notify_move_in_line_of_sight(self, map_, unit, ooc_event=False, in_range=False):
         los_check = None
 
-        # If self or unit has ooc los events.
-        if self_has_ooc_los_events and unit.is_player():
+        # Check ooc events for self (Which can have greater range than detection range).
+        if ooc_event:
             los_check = map_.los_check(self.get_ray_position(), unit.get_ray_position())
             if los_check:
                 self.object_ai.move_in_line_of_sight(unit, ai_event=True)
 
-        if not self.is_hostile_to(unit) or not self.can_attack_target(unit):
+        if not in_range or not self.is_hostile_to(unit) or not self.can_attack_target(unit):
             return
 
         # Check for stealth/invisibility.
