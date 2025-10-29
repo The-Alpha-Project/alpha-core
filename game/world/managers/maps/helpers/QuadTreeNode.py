@@ -16,29 +16,23 @@ class QuadTreeNode:
         unit_guid = unit_object.guid
 
         if not self.bounds.intersects(unit_box):
-            return None  # Indicate no insertion happened
+            return None
 
-        if len(self.children) == 0:
-            if len(self.units) < self.capacity or self.depth >= 10:
-                self.units.append(unit_guid)
-                return self  # Return the current leaf node
-            else:
-                self.subdivide(all_units_dict)
-                return self.insert(all_units_dict, unit_object)
+        # Check if the unit can be inserted into a child.
+        if len(self.children) > 0:
+            fits_in_child = False
+            for child in self.children:
+                if child.bounds.contains_box(unit_box):
+                    # If it fits perfectly, insert it into that child and stop.
+                    return child.insert(all_units_dict, unit_object)
 
-        inserted_node = None
-        for child in self.children:
-            if child.bounds.intersects(unit_box):
-                node = child.insert(all_units_dict, unit_object)
-                if node:
-                    inserted_node = node
+        # If it doesn't fit in a single child, place it in this node.
+        if len(self.children) == 0 and len(self.units) >= self.capacity and self.depth < 10:
+            self.subdivide(all_units_dict)
+            return self.insert(all_units_dict, unit_object)
 
-        if inserted_node:
-            return inserted_node
-
-        # If it wasn't inserted into a child, keep it in the parent.
         self.units.append(unit_guid)
-        return self  # Return the current node.
+        return self
 
     def subdivide(self, all_units_dict):
         sub_width = self.bounds.width / 2
@@ -46,21 +40,26 @@ class QuadTreeNode:
         x = self.bounds.x
         y = self.bounds.y
 
-        self.children.append(QuadTreeNode(BoundingBox(x, y, sub_width, sub_height), self.capacity, self.depth + 1))
-        self.children.append(
-            QuadTreeNode(BoundingBox(x + sub_width, y, sub_width, sub_height), self.capacity, self.depth + 1))
-        self.children.append(
-            QuadTreeNode(BoundingBox(x, y + sub_height, sub_width, sub_height), self.capacity, self.depth + 1))
-        self.children.append(
-            QuadTreeNode(BoundingBox(x + sub_width, y + sub_height, sub_width, sub_height), self.capacity,
-                         self.depth + 1))
+        # Pre-calculate the bounding boxes for each quadrant.
+        ne_bounds = BoundingBox(x + sub_width, y, sub_width, sub_height)
+        nw_bounds = BoundingBox(x, y, sub_width, sub_height)
+        se_bounds = BoundingBox(x + sub_width, y + sub_height, sub_width, sub_height)
+        sw_bounds = BoundingBox(x, y + sub_height, sub_width, sub_height)
 
-        units_to_reinsert_guids = self.units
+        # Create the child nodes using the pre-calculated bounding boxes.
+        self.children.append(QuadTreeNode(nw_bounds, self.capacity, self.depth + 1))
+        self.children.append(QuadTreeNode(ne_bounds, self.capacity, self.depth + 1))
+        self.children.append(QuadTreeNode(sw_bounds, self.capacity, self.depth + 1))
+        self.children.append(QuadTreeNode(se_bounds, self.capacity, self.depth + 1))
+
+        units_to_reinsert_guids = self.units.copy()
         self.units = []
 
         for unit_guid in units_to_reinsert_guids:
-            unit_object = all_units_dict[unit_guid]
-            self.insert(all_units_dict, unit_object)
+            unit_object = all_units_dict.get(unit_guid)
+            if unit_object:
+                unit_object.quadtree_node = None  # Make sure unit is not stuck at Root after division.
+                self.insert(all_units_dict, unit_object)
 
     def query(self, all_units_dict, search_box, found_unit_guids):
         if not self.bounds.intersects(search_box):

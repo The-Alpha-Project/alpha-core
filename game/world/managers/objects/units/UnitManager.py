@@ -206,6 +206,7 @@ class UnitManager(ObjectManager):
         self.has_moved = False
         self.has_turned = False
         self.quadtree_node = None
+        self.detection_bound = None
 
         self.invincibility_hp_level = 0
         self.melee_disabled = False
@@ -1923,16 +1924,18 @@ class UnitManager(ObjectManager):
         return 0
 
     def get_detection_range_box(self):
-        x = self.location.x - VIEW_DISTANCE
-        y = self.location.y - VIEW_DISTANCE
-        width = VIEW_DISTANCE * 2
-        height = VIEW_DISTANCE * 2
-        return BoundingBox(x, y, width, height)
+        if not self.detection_bound:
+            self.detection_bound = BoundingBox(0, 0, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2)
+        self.detection_bound.x = self.location.x - VIEW_DISTANCE
+        self.detection_bound.y = self.location.y - VIEW_DISTANCE
+        return self.detection_bound
 
     def has_moved_significantly(self):
         if not self.quadtree_node:
             return True
-        return not self.quadtree_node.bounds.contains_box(self.get_detection_range_box())
+        unit_box = self.get_detection_range_box()
+        node_bounds = self.quadtree_node.bounds
+        return not node_bounds.contains_box(unit_box)
 
     def notify_move_in_line_of_sight(self, map_, unit, ooc_event=False, in_range=False):
         los_check = None

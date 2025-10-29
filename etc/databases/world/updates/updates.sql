@@ -2819,12 +2819,14 @@ begin not atomic
         UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '4923');
         -- Guard Edward
         UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '4922');
-        -- Guard Lana
-        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5092');
         -- Guard Kahil
         UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5091');
-        -- Guard Guard Narrisha
-        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5091');
+        -- Guard Lana
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5092');
+        -- Guard Narrisha
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5093');
+        -- Guard Tark
+        UPDATE `creature_template` SET `static_flags` = '4718598' WHERE (`entry` = '5094');
    
         -- Theramore Fighting event.
         DELETE FROM `generic_scripts` WHERE `id`=492402;
@@ -2954,6 +2956,11 @@ begin not atomic
         (44408, 3, 0, 1, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Tark - Emote Salute'),
         (44408, 6, 0, 3, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, -3649.81, -4520.19, 9.49876, 1.62316, 0, 'Guard Tark - Move to Spawn Position'),
         (44408, 6, 0, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3649.81, -4520.19, 9.49876, 1.62316, 0, 'Guard Tark - Set Home Position');
+        
+        -- Fix Chest Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '14.809' WHERE (`spawn_id` = '18566');
+        -- Fix Bruiseweed Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '13.643' WHERE (`spawn_id` = '3309');
 
         insert into applied_updates values ('191020251');
     end if;
