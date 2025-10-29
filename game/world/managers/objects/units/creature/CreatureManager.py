@@ -436,6 +436,7 @@ class CreatureManager(UnitManager):
         return dx <= 1.0 and dy <= 1.0 and not self.is_moving()
 
     def on_at_home(self, was_at_home=False):
+        self.tmp_home_position = None
         self.apply_default_auras()
         self.movement_manager.face_angle(self.spawn_position.o)
         if self.temp_faction_flags & TemporaryFactionFlags.TEMPFACTION_RESTORE_REACH_HOME:
