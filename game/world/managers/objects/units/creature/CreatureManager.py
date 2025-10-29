@@ -430,10 +430,10 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.SESSILE
 
     def is_at_home(self):
-        from game.world.managers.abstractions.Vector import Vector
-        v1 = Vector(round(self.location.x, 2), round(self.location.y, 2), round(self.location.z, 2))
-        v2 = Vector(round(self.spawn_position.x, 2), round(self.spawn_position.y, 2), round(self.spawn_position.z, 2))
-        return v1 == v2 and not self.is_moving()
+        dx = abs(self.location.x - self.spawn_position.x)
+        dy = abs(self.location.y - self.spawn_position.y)
+        # Tolerance of 1.0 since it might not be entirely equal.
+        return dx <= 1.0 and dy <= 1.0 and not self.is_moving()
 
     def on_at_home(self, was_at_home=False):
         self.apply_default_auras()
