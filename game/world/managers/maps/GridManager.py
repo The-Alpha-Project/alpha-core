@@ -82,7 +82,7 @@ class GridManager:
         cell = self.cells.get(from_cell if from_cell else world_object.current_cell)
         if cell and cell.remove(world_object):
             if not is_update and world_object.is_player():
-                self.detection_manager.remove(world_object)
+                self.detection_manager.queue_remove(world_object)
             if update_players:
                 self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
