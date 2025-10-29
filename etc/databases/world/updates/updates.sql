@@ -2961,6 +2961,8 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '14.809' WHERE (`spawn_id` = '18566');
         -- Fix Bruiseweed Z.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '13.643' WHERE (`spawn_id` = '3309');
+        -- Volcor AI name.
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '3692');
 
         insert into applied_updates values ('191020251');
     end if;

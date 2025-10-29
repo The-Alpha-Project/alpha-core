@@ -67,6 +67,16 @@ class GroupManager(object):
             if member_instance_token and member_instance_token.id == instance_token.id:
                 InstancesManager.remove_token_for_player(guid, member_instance_token)
 
+    def get_members_players(self, alive=False):
+        players = []
+        for guid, member in list(self.members.items()):
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
+            if player_mgr:
+                if alive and not player_mgr.is_alive:
+                    continue
+                players.append(player_mgr)
+        return players
+
     def get_member_at(self, index):
         for idx, member in enumerate(list(self.members.keys())):
             if index == idx:

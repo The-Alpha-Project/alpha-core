@@ -1,10 +1,10 @@
-import math
 import random
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureGroup
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.ai.EscortAI import EscortAI
 from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
 from game.world.managers.objects.gameobjects.managers.DoorManager import DoorManager
 from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
@@ -916,6 +916,13 @@ class ScriptHandler:
             command.source.reset_faction()
         else:
             command.source.set_faction(command.datalong, command.datalong2)
+            # Check if we need to link player and escortee, this is done via .cpp script in VMaNGOS.
+            is_escortee_faction = DbcDatabaseManager.FactionTemplateHolder.is_escortee_faction(command.datalong)
+            if is_escortee_faction and command.target and command.target.is_player():
+                if command.source.object_ai and isinstance(command.source.object_ai, EscortAI):
+                    command.source.object_ai.link_player(command.target)
+                else:
+                    Logger.error(f'Unable to link Escortee and player for unit {command.source.get_name()}.')
 
         return False
 

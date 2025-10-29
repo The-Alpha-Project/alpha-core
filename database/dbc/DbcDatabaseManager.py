@@ -655,10 +655,15 @@ class DbcDatabaseManager:
 
     class FactionTemplateHolder:
         FACTION_TEMPLATES = {}
+        ESCORTEE_FACTIONS = {10, 33, 113, 231, 232, 250}
 
         @staticmethod
         def load_faction_template(faction_template):
             DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES[faction_template.ID] = faction_template
+
+        @staticmethod
+        def is_escortee_faction(faction_id):
+            return faction_id in DbcDatabaseManager.FactionTemplateHolder.ESCORTEE_FACTIONS
 
         @staticmethod
         def faction_template_get_by_id(faction_template_id):

@@ -111,6 +111,7 @@ class QuestManager(object):
         if quest_db_state:
             RealmDatabaseManager.character_delete_quest(quest_db_state.guid, quest_id)
 
+        should_update_status = quest_db_state or quest_id in self.completed_quests or quest_id in self.active_quests
         # Remove from completed if needed.
         if quest_id in self.completed_quests:
             self.completed_quests.remove(quest_id)
@@ -120,7 +121,7 @@ class QuestManager(object):
             self.remove_from_quest_log(quest_id)
 
         # Update surrounding quests.
-        if quest_db_state:
+        if should_update_status:
             self.update_surrounding_quest_status()
 
     def get_dialog_status(self, quest_giver):

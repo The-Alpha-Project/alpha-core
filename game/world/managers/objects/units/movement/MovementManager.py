@@ -230,6 +230,7 @@ class MovementManager:
             return
 
         if movement_behavior.initialize(self.unit):
+            self.stop()  # Stop the current behavior if needed.
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
             if movement_behavior.is_default:
