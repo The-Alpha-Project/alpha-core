@@ -206,7 +206,7 @@ class UnitManager(ObjectManager):
         self.has_moved = False
         self.has_turned = False
         self.quadtree_node = None
-        self.detection_bound = None
+        self.visibility_bound = None
 
         self.invincibility_hp_level = 0
         self.melee_disabled = False
@@ -1924,11 +1924,11 @@ class UnitManager(ObjectManager):
         return 0
 
     def get_detection_range_box(self):
-        if not self.detection_bound:
-            self.detection_bound = BoundingBox(0, 0, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2)
-        self.detection_bound.x = self.location.x - VIEW_DISTANCE
-        self.detection_bound.y = self.location.y - VIEW_DISTANCE
-        return self.detection_bound
+        if not self.visibility_bound:
+            self.visibility_bound = BoundingBox(0, 0, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2)
+        self.visibility_bound.x = self.location.x - VIEW_DISTANCE
+        self.visibility_bound.y = self.location.y - VIEW_DISTANCE
+        return self.visibility_bound
 
     def has_moved_significantly(self):
         if not self.quadtree_node:

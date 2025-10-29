@@ -24,12 +24,12 @@ class KnownObjects(dict):
         if not delete_item:
             # Add self player if needed.
             if not detection_manager.has_unit(self.player_mgr):
-                detection_manager.add(self.player_mgr)
+                detection_manager.queue_add(self.player_mgr)
 
             # Unit has not been added to our detection_manager.
             if guid not in self:
-                detection_manager.add(world_object)
+                detection_manager.queue_add(world_object)
         else:
             # Unit won't know any player after self removal.
             if not world_object.is_player() and not (len(world_object.known_players) - 1):
-                detection_manager.remove(world_object)
+                detection_manager.queue_remove(world_object)

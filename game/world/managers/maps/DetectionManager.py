@@ -9,11 +9,22 @@ class DetectionManager:
         self.units = {}  # key: guid, value: unit object.
         self.world_bounds = BoundingBox(x=-ORIGIN, y=-ORIGIN, width=ORIGIN * 2, height=ORIGIN * 2)
         self.quadtree = QuadTree(self.world_bounds, 4)
+        self.pending_placement_updates = []
+        self.pending_adds = []
+        self.pending_removes = []
 
     def has_unit(self, unit):
         return unit.guid in self.units
 
     def update(self):
+
+        # Process batched additions.
+        self.process_add_batch()
+        # Process batched removals.
+        self.process_remove_batch()
+        # Process batched updates.
+        self.process_update_placement_batch()
+
         all_units = [u for u in list(self.units.values()) if self.can_target_unit_for_aggro(u)]
         for unit_a in all_units:
             # Query potential targets using the search box.
@@ -38,14 +49,47 @@ class DetectionManager:
         return (unit.current_cell and unit.current_cell in self.grid_manager.active_cell_keys
                 and unit.can_be_targeted_for_surrounding_aggro())
 
-    def update_unit_placement(self, unit):
+    def queue_update_unit_placement(self, unit):
+        self.pending_placement_updates.append(unit)
+
+    def queue_add(self, unit):
+        self.pending_adds.append(unit)
+
+    def queue_remove(self, unit):
+        self.pending_removes.append(unit)
+
+    def process_add_batch(self):
+        if not self.pending_adds:
+            return
+        batch = self.pending_adds.copy()
+        self.pending_adds.clear()
+        for unit in batch:
+            self._add(unit)
+
+    def process_remove_batch(self):
+        if not self.pending_removes:
+            return
+        batch = self.pending_removes.copy()
+        self.pending_removes.clear()
+        for unit_guid in batch:
+            self._remove(unit_guid)
+
+    def process_update_placement_batch(self):
+        if not self.pending_placement_updates:
+            return
+        batch = self.pending_placement_updates.copy()
+        self.pending_placement_updates.clear()
+        for unit in batch:
+            self._update_unit_placement(unit)
+
+    def _update_unit_placement(self, unit):
         if not unit.is_unit(by_mask=True):
             return
         if unit.guid not in self.units:
             return
         self.quadtree.update_unit_placement(unit)
 
-    def add(self, unit):
+    def _add(self, unit):
         if not unit.is_unit(by_mask=True):
             return False
         if unit.guid in self.units:
@@ -54,7 +98,7 @@ class DetectionManager:
         self.quadtree.insert_unit(unit)
         return True
 
-    def remove(self, unit):
+    def _remove(self, unit):
         if not unit.is_unit(by_mask=True):
             return False
         if unit.guid not in self.units:

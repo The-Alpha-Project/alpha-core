@@ -611,7 +611,7 @@ class CreatureManager(UnitManager):
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
                     if self.has_moved and self.has_player_observers():
-                        self.get_map().get_detection_manager().update_unit_placement(self)
+                        self.get_map().get_detection_manager().queue_update_unit_placement(self)
 
                 if self.call_for_help_and_swim_timer >= 1:
                     if self.combat_target:
