@@ -42,6 +42,7 @@ class CreatureManager(UnitManager):
         self.creature_template = None
         self.location = None
         self.spawn_position = None
+        self.tmp_home_position = None
         self.creature_group = None
         self.map_id = 0
         self.health_percent = 100
@@ -330,6 +331,9 @@ class CreatureManager(UnitManager):
 
     def reset_faction(self):
         self.temp_faction_flags = 0
+        # Unlink escort if needed.
+        if self.is_escort():
+            self.object_ai.link_player(player_mgr=None)
         self.faction = self.creature_template.faction
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
@@ -338,6 +342,12 @@ class CreatureManager(UnitManager):
                                         self.creature_template.spell_id2,
                                         self.creature_template.spell_id3,
                                         self.creature_template.spell_id4]))
+
+    # override
+    def is_escort(self):
+        from game.world.managers.objects.ai.EscortAI import EscortAI
+        return (DbcDatabaseManager.FactionTemplateHolder.is_escortee_faction(self.faction)
+                or isinstance(self.object_ai, EscortAI))
 
     def is_guard(self):
         return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD
@@ -520,7 +530,8 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, waypoints = self.get_map().calculate_path(self.location, self.spawn_position.copy())
+        return_position = self.tmp_home_position.copy() if self.tmp_home_position else self.spawn_position.copy()
+        failed, in_place, waypoints = self.get_map().calculate_path(self.location, return_position)
 
         # We are at spawn position already.
         if in_place:
@@ -531,8 +542,8 @@ class CreatureManager(UnitManager):
             if failed:
                 Logger.warning(f'Unit: {self.get_name()}, Namigator was unable to provide a valid return home path:')
                 Logger.warning(f'Start: {self.location}')
-                Logger.warning(f'End: {self.spawn_position}')
-            self.near_teleport(self.spawn_position)
+                Logger.warning(f'End: {return_position}')
+            self.near_teleport(return_position)
             self.is_evading = False
         else:
             self.movement_manager.move_home(waypoints)

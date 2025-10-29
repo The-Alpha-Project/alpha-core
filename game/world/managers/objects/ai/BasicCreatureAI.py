@@ -34,6 +34,10 @@ class BasicCreatureAI(CreatureAI):
         return Permits.PERMIT_BASE_NORMAL
 
     # override
+    def link_player(self, player_mgr=None):
+        pass
+
+    # override
     def movement_inform(self, move_type=None, data=None, units=None):
         pass
 

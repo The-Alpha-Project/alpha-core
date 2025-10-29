@@ -87,8 +87,8 @@ class WaypointMovement(BaseMovement):
     # override
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
-        # Always update home position.
-        self.unit.spawn_position = new_position.copy()
+        # Always update tmp home position.
+        self.unit.tmp_home_position = new_position.copy()
         if not waypoint_completed:
             return
 
@@ -125,6 +125,12 @@ class WaypointMovement(BaseMovement):
          # Make sure the last known position gets updated.
         self.spline.update_to_now()
         self.spline = None
+
+    # override
+    def on_removed(self):
+        if not self.unit.is_at_home():
+            return
+        self.unit.on_at_home()
 
     # override
     def can_remove(self):

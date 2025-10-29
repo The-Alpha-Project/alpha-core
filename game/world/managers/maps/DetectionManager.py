@@ -23,8 +23,10 @@ class DetectionManager:
         self.process_remove_batch()
         self.process_update_placement_batch()
 
-        all_units = [u for u in list(self.units.values()) if self.can_target_unit_for_aggro(u)]
+        all_units = list(self.units.values())
         for unit_a in all_units:
+            if not self.can_target_unit_for_aggro(unit_a):
+                continue
             # Query potential targets using the search box.
             search_box = unit_a.get_detection_range_box()
             potential_targets_guids = self.quadtree.query_guids(search_box)
@@ -33,6 +35,8 @@ class DetectionManager:
             for unit_b_guid in potential_targets_guids:
                 unit_b = self.units.get(unit_b_guid, None)
                 if not unit_b or unit_b.guid == unit_a.guid:
+                    continue
+                if not self.can_target_unit_for_aggro(unit_b):
                     continue
                 # Perform the precise distance check using unit_a's potentially dynamic
                 # detection range against unit_b.

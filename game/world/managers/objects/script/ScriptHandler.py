@@ -917,12 +917,8 @@ class ScriptHandler:
         else:
             command.source.set_faction(command.datalong, command.datalong2)
             # Check if we need to link player and escortee, this is done via .cpp script in VMaNGOS.
-            is_escortee_faction = DbcDatabaseManager.FactionTemplateHolder.is_escortee_faction(command.datalong)
-            if is_escortee_faction and command.target and command.target.is_player():
-                if command.source.object_ai and isinstance(command.source.object_ai, EscortAI):
-                    command.source.object_ai.link_player(command.target)
-                else:
-                    Logger.error(f'Unable to link Escortee and player for unit {command.source.get_name()}.')
+            if command.source.is_escort() and command.target and command.target.is_player():
+                command.source.object_ai.link_player(command.target)
 
         return False
 

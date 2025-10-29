@@ -43,7 +43,7 @@ class GroupMovement(BaseMovement):
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update home position.
-        self.unit.spawn_position = new_position.copy()
+        self.unit.tmp_home_position = new_position.copy()
         if not waypoint_completed or not self.unit.creature_group or not self.unit.creature_group.is_leader(self.unit):
             return
         current_wp = self._get_waypoint()

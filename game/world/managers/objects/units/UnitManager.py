@@ -1397,6 +1397,10 @@ class UnitManager(ObjectManager):
         return False
 
     # Implemented by CreatureManager.
+    def is_escort(self):
+        return False
+
+    # Implemented by CreatureManager.
     def is_temp_summon_or_pet_or_guardian(self):
         return False
 

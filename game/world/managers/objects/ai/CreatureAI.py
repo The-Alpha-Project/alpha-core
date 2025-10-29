@@ -74,6 +74,9 @@ class CreatureAI:
     def permissible(self, creature):
         pass
 
+    def link_player(self, player_mgr=None):
+        pass
+
     # Distract creature, if player gets too close while stealth/prowling.
     # AIReactionStates.AI_REACT_ALERT
     def trigger_alert(self, unit):

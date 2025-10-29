@@ -33,9 +33,10 @@ class ChaseMovement(BaseMovement):
             return
 
         target_is_moving = unit.combat_target.is_moving()
-        spawn_distance = unit.location.distance(unit.spawn_position)
+        spawn_position = unit.tmp_home_position if unit.tmp_home_position else unit.spawn_position
+        spawn_distance = unit.location.distance(spawn_position)
         target_distance = unit.location.distance(unit.combat_target.location)
-        target_to_spawn_distance = unit.combat_target.location.distance(unit.spawn_position)
+        target_to_spawn_distance = unit.combat_target.location.distance(spawn_position)
         combat_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
         evade_distance = Distances.CREATURE_EVADE_DISTANCE
         combat_target = unit.combat_target

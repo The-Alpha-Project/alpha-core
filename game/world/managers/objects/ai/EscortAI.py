@@ -12,10 +12,6 @@ class EscortAI(BasicCreatureAI):
         self.group_mgr = None
         self.assist_timer = 0  # Check every second.
 
-    def link_player(self, player_mgr):
-        self.player_mgr = player_mgr
-        self.group_mgr = player_mgr.group_manager
-
     # override
     def update_ai(self, elapsed, now):
         super().update_ai(elapsed, now)
@@ -32,9 +28,15 @@ class EscortAI(BasicCreatureAI):
         return Permits.PERMIT_BASE_NO
 
     # override
+    def link_player(self, player_mgr=None):
+        self.player_mgr = player_mgr
+        self.group_mgr = player_mgr.group_manager if player_mgr else None
+        print(f'{('Linked' if player_mgr else 'Unlinked')}')
+
+    # override
     def just_died(self, killer=None):
         super().just_died(killer)
-        self._unlink_player()
+        self.link_player()
 
     # override
     def assist_unit(self, target):
@@ -46,12 +48,7 @@ class EscortAI(BasicCreatureAI):
     # override
     def just_despawned(self):
         super().just_despawned()
-        self._unlink_player()
-
-    # override
-    def _unlink_player(self):
-        self.player_mgr = None
-        self.group_mgr = None
+        self.link_player()
 
     # override
     def is_ready_for_new_attack(self):

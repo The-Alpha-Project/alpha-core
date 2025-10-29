@@ -35,6 +35,7 @@ class EvadeMovement(BaseMovement):
             return
         self.path_ended = True
         self.unit.is_evading = False
+        self.unit.tmp_home_position = None
         if not self.unit.is_at_home():
             return
         self.unit.on_at_home()
