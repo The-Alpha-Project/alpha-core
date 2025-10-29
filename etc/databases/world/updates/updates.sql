@@ -2963,6 +2963,22 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '13.643' WHERE (`spawn_id` = '3309');
         -- Volcor AI name.
         UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '3692');
+        -- Defias Traitor AI name.
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI' WHERE (`entry` = '467');
+        -- Anaya AI name.
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI' WHERE (`entry` = '3843');
+        -- Wizzlecrank's Shredder AI name.
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '3439');
+        -- Deathstalker Erland AI name.
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '1978');
+        -- Prospector Remtravel AI name.
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '2917');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1504 - Only added Sunrock sign at -48 -262 1 1, since we had an unused GO template for that and no 'Venture Co Camp' or 'Windshar Craig' templates.
+        INSERT INTO `spawns_gameobjects`                                                                (`spawn_id`,`spawn_entry`,`spawn_map`,`spawn_positionX`,`spawn_positionY`,`spawn_positionZ`,`spawn_orientation`,`spawn_rotation0`,`spawn_rotation1`,`spawn_rotation2`,`spawn_rotation3`,`spawn_spawntimemin`,`spawn_spawntimemax`,`spawn_animprogress`,`spawn_state`,`spawn_flags`,`spawn_visibility_mod`,`ignored`) VALUES (4000010,141076,1,-54.674,-265.04,2.13,3,0,0,0,0,900,900,100,1,0,0,0);
+
+        -- Food crate Z
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '0.698' WHERE (`spawn_id` = '28085');
 
         insert into applied_updates values ('191020251');
     end if;

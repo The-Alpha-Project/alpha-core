@@ -80,4 +80,3 @@ class EscortAI(BasicCreatureAI):
         if not victim:
             return None
         return victim
-

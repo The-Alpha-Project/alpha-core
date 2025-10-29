@@ -180,6 +180,31 @@ class CommandManager(object):
             return -1, 'invalid unit selection.'
 
     @staticmethod
+    def rotate_object(world_session, args):
+        game_object = world_session.player_mgr.last_debug_ai_state_object
+        if not game_object:
+            return -1, 'invalid object selection.'
+
+        if not game_object.is_gameobject():
+            return -1, 'invalid gameobject selection.'
+
+        try:
+            player_mgr = world_session.player_mgr
+            operator, step = args.split()
+            current_loc = game_object.location.copy()
+            exec(f'current_loc.o {operator}= {step}')
+            from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id,
+                                                  player_mgr.instance_id, state=1, ttl=0)
+            world_session.player_mgr.get_map().spawn_object(world_object_instance=new_object)
+            game_object.get_map().remove_object(game_object)
+            # Replace old selection with new.
+            world_session.player_mgr.last_debug_ai_state_object = new_object
+            return 0, (f'{new_object.get_name()} rotated to: O:{round(new_object.location.o, 3)}')
+        except ValueError:
+            return -1, 'invalid arguments, e.g. .rotobject + .1.'
+
+    @staticmethod
     def move_object(world_session, args):
         game_object = world_session.player_mgr.last_debug_ai_state_object
         if not game_object:
@@ -1297,6 +1322,7 @@ DEV_COMMAND_DEFINITIONS = {
     'los': [CommandManager.los, 'check unit line of sight'],
     'fevent': [CommandManager.fevent, 'force the given event to execute'],
     'moveobject': [CommandManager.move_object, 'move last debug ai state mouse hovered object'],
+    'rotobject': [CommandManager.rotate_object, 'rotate last debug ai state mouse hovered object'],
     'savewp': [CommandManager.save_waypoint, 'save your current location as creature_movement waypoint'],
     'mapstats': [CommandManager.mapstats, 'active maps, adts and cells'],
     'deactivatecells': [CommandManager.deactivate_cells, 'run cell deactivate process'],
