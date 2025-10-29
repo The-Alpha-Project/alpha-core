@@ -916,9 +916,6 @@ class ScriptHandler:
             command.source.reset_faction()
         else:
             command.source.set_faction(command.datalong, command.datalong2)
-            # Check if we need to link player and escortee, this is done via .cpp script in VMaNGOS.
-            if command.source.is_escort() and command.target and command.target.is_player():
-                command.source.object_ai.link_player(command.target)
 
         return False
 

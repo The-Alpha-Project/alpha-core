@@ -2,6 +2,7 @@ import time
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.script.ScriptManager import ScriptManager
 from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
@@ -22,6 +23,18 @@ class ActiveQuest:
         self.failed = False
         self.load_area_triggers()
         self.set_quest_givers_entries()
+
+    def get_quest_giver_starter(self):
+        if not self.quest_starter_entry:
+            return None
+        quest_giver = ScriptManager.resolve_nearest_creature_with_entry(self.owner, param1=self.quest_starter_entry)
+        return quest_giver
+
+    def get_quest_giver_finisher(self):
+        if not self.quest_finisher_entry:
+            return None
+        quest_giver = ScriptManager.resolve_nearest_creature_with_entry(self.owner, param1=self.quest_finisher_entry)
+        return quest_giver
 
     def set_quest_givers_entries(self):
         self.quest_starter_entry = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_entry_by_quest(

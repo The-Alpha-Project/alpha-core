@@ -34,7 +34,11 @@ class BasicCreatureAI(CreatureAI):
         return Permits.PERMIT_BASE_NORMAL
 
     # override
-    def link_player(self, player_mgr=None):
+    def attach_escort_link(self, player_mgr):
+        pass
+
+    # override
+    def detach_escort_link(self, player_mgr=None):
         pass
 
     # override

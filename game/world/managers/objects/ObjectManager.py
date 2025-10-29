@@ -551,6 +551,10 @@ class ObjectManager:
     def can_detect_target(self, target, distance=-1):
         return True, False
 
+    # Implemented by CreatureManager.
+    def is_escort(self):
+        return False
+
     # Implemented by UnitManager.
     def get_charmer_or_summoner(self, include_self=False):
         return self if include_self else None

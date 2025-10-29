@@ -74,7 +74,10 @@ class CreatureAI:
     def permissible(self, creature):
         pass
 
-    def link_player(self, player_mgr=None):
+    def attach_escort_link(self, player_mgr):
+        pass
+
+    def detach_escort_link(self, player_mgr=None):
         pass
 
     # Distract creature, if player gets too close while stealth/prowling.

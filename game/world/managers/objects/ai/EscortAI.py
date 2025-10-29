@@ -28,15 +28,25 @@ class EscortAI(BasicCreatureAI):
         return Permits.PERMIT_BASE_NO
 
     # override
-    def link_player(self, player_mgr=None):
+    def attach_escort_link(self, player_mgr):
+        if self.player_mgr:
+            return
         self.player_mgr = player_mgr
         self.group_mgr = player_mgr.group_manager if player_mgr else None
-        print(f'{('Linked' if player_mgr else 'Unlinked')}')
+
+    # override
+    def detach_escort_link(self, player_mgr=None):
+        if not self.player_mgr:
+            return
+        if player_mgr and player_mgr.guid != self.player_mgr.guid:
+            return
+        self.player_mgr = None
+        self.group_mgr = None
 
     # override
     def just_died(self, killer=None):
         super().just_died(killer)
-        self.link_player()
+        self.detach_escort_link()
 
     # override
     def assist_unit(self, target):
@@ -48,7 +58,7 @@ class EscortAI(BasicCreatureAI):
     # override
     def just_despawned(self):
         super().just_despawned()
-        self.link_player()
+        self.detach_escort_link()
 
     # override
     def is_ready_for_new_attack(self):

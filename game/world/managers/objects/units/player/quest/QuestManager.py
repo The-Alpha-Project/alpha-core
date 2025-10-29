@@ -885,6 +885,9 @@ class QuestManager(object):
         active_quest.update_required_items_from_inventory()
         if active_quest.can_complete_quest():
             self.complete_quest(active_quest, update_surrounding=False)
+        # Check if we need to link escort and player.
+        elif quest_giver and quest_giver.is_escort() and QuestHelpers.is_event_quest(quest):
+            quest_giver.object_ai.attach_escort_link(self.player_mgr)
 
         self.update_surrounding_quest_status()
 
@@ -913,9 +916,11 @@ class QuestManager(object):
 
     def handle_remove_quest(self, slot):
         quest_entry = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
-        if quest_entry in self.active_quests:
-            self.remove_from_quest_log(quest_entry)
-            RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_entry)
+        if quest_entry not in self.active_quests:
+            return
+
+        self.remove_from_quest_log(quest_entry)
+        RealmDatabaseManager.character_delete_quest(self.player_mgr.guid, quest_entry)
 
     def handle_complete_quest(self, quest_id, quest_giver_guid):
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
@@ -1118,10 +1123,18 @@ class QuestManager(object):
                                                                SpellTargetMask.UNIT, validate=False)
 
     def remove_from_quest_log(self, quest_id):
-        if quest_id in self.active_quests:
-            del self.active_quests[quest_id]
-            self.build_update()
-            self.update_surrounding_quest_status()
+        active_quest = self.active_quests.get(quest_id, None)
+        if not active_quest:
+            return
+
+        # Try to remove player-escort link if needed.
+        quest_giver_starter = active_quest.get_quest_giver_starter()
+        if quest_giver_starter and quest_giver_starter.is_escort():
+            quest_giver_starter.object_ai.detach_escort_link(self.player_mgr)
+
+        del self.active_quests[quest_id]
+        self.build_update()
+        self.update_surrounding_quest_status()
 
     def add_to_quest_log(self, quest_id, active_quest):
         self.active_quests[quest_id] = active_quest
@@ -1224,6 +1237,11 @@ class QuestManager(object):
         if update_surrounding:
             self.update_surrounding_quest_status()
 
+        # Try to remove player-escort link if needed.
+        quest_giver_starter = active_quest.get_quest_giver_starter()
+        if quest_giver_starter and quest_giver_starter.is_escort():
+            quest_giver_starter.object_ai.detach_escort_link(self.player_mgr)
+
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
         active_quest.set_explored_or_event_complete()
@@ -1233,6 +1251,11 @@ class QuestManager(object):
 
         if update_surrounding:
             self.update_surrounding_quest_status()
+
+        # Try to remove player-escort link if needed.
+        quest_giver_starter = active_quest.get_quest_giver_starter()
+        if quest_giver_starter and quest_giver_starter.is_escort():
+            quest_giver_starter.object_ai.detach_escort_link(self.player_mgr)
 
     def send_quest_complete_event(self, quest_id):
         data = pack('<I', quest_id)

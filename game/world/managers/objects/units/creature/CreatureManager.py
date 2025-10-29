@@ -331,9 +331,6 @@ class CreatureManager(UnitManager):
 
     def reset_faction(self):
         self.temp_faction_flags = 0
-        # Unlink escort if needed.
-        if self.is_escort():
-            self.object_ai.link_player(player_mgr=None)
         self.faction = self.creature_template.faction
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
@@ -530,8 +527,8 @@ class CreatureManager(UnitManager):
             self.on_at_home(was_at_home=at_home)
             return
 
-        # Get the path we are using to get back to spawn location.
-        return_position = self.tmp_home_position.copy() if self.tmp_home_position else self.spawn_position.copy()
+        # Get the path we are using to get back to spawn location or latest known location for movement behaviors.
+        return_position = self.get_home_position().copy()
         failed, in_place, waypoints = self.get_map().calculate_path(self.location, return_position)
 
         # We are at spawn position already.
@@ -913,6 +910,9 @@ class CreatureManager(UnitManager):
             self.dmg_max,
             self.dmg_min
         )
+
+    def get_home_position(self):
+        return self.tmp_home_position if self.tmp_home_position else self.spawn_position
 
     def get_detection_range(self, unit):
         # Adjustments due to level differences, cap at 25 level difference. Aggro radius seems to vary at a rate of
