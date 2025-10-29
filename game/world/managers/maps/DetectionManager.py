@@ -18,11 +18,9 @@ class DetectionManager:
 
     def update(self):
 
-        # Process batched additions.
+        # Process pending queues.
         self.process_add_batch()
-        # Process batched removals.
         self.process_remove_batch()
-        # Process batched updates.
         self.process_update_placement_batch()
 
         all_units = [u for u in list(self.units.values()) if self.can_target_unit_for_aggro(u)]
