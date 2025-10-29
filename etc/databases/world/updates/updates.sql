@@ -2992,136 +2992,134 @@ begin not atomic
         (155, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Say Text'),
         (155, 1, 4, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Start Waypoints');
 
-        -- Prospector Remtravel Waypoints.
+        -- Prospector Remtravel.
 
--- Events list for Prospector Remtravel
-DELETE FROM `creature_ai_events` WHERE `creature_id`=2917;
-INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
-(291701, 2917, 0, 4, 0, 65, 0, 0, 0, 0, 0, 291701, 0, 0, 'Prospector Remtravel - Aggro Texts');
+        -- Events list for Prospector Remtravel
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2917;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (291701, 2917, 0, 4, 0, 65, 0, 0, 0, 0, 0, 291701, 0, 0, 'Prospector Remtravel - Aggro Texts');
 
-DELETE FROM `creature_ai_scripts` WHERE `id`=291701;
-INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 941, 0, 0, 0, 0, 0, 0, 0, 0, 'Prospector Remtravel - Say Aggro Text');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=291701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 941, 0, 0, 0, 0, 0, 0, 0, 0, 'Prospector Remtravel - Say Aggro Text');
 
-DELETE FROM creature_movement_template WHERE entry = 2917;
-INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
-(2917, 1, 4675.81, 598.615, 17.6457, 0, 0, 0, 0),
-(2917, 2, 4672.84, 599.325, 16.4176, 0, 0, 0, 291701),
-(2917, 3, 4663.45, 607.43, 10.4948, 0, 0, 0, 0),
-(2917, 4, 4655.97, 613.761, 8.52327, 0, 0, 0, 0),
-(2917, 5, 4640.8, 623.999, 8.37705, 0, 0, 0, 0),
-(2917, 6, 4631.68, 630.801, 6.415, 0, 5000, 0, 291702),
-(2917, 7, 4633.53, 632.476, 6.50983, 0, 0, 0, 0),
-(2917, 8, 4639.41, 637.121, 13.3381, 0, 0, 0, 0),
-(2917, 9, 4641.19, 638.577, 13.4229, 0, 5000, 0, 0),
-(2917, 10, 4641.19, 638.577, 13.4229, 0, 3000, 0, 291703),
-(2917, 11, 4639.63, 637.234, 13.3398, 0, 0, 0, 291704),
-(2917, 12, 4631.68, 630.801, 6.415, 0, 0, 0, 0),
-(2917, 13, 4624.71, 631.724, 6.26403, 0, 0, 0, 0),
-(2917, 14, 4623.53, 629.719, 6.20134, 0, 5000, 0, 291705),
-(2917, 15, 4632.03, 641.491, 7.211, 0, 0, 0, 0),
-(2917, 16, 4628.08, 646.288, 6.63, 0, 0, 0, 0),
-(2917, 17, 4623.37, 649.335, 6.301, 0, 0, 0, 0),
-(2917, 18, 4625.96, 643.41, 6.641, 0, 0, 0, 0),
-(2917, 19, 4622.62, 637.222, 6.31285, 0, 0, 0, 291706),
-(2917, 20, 4619.76, 637.386, 6.31205, 0, 5000, 0, 291707),
-(2917, 21, 4620.03, 637.368, 6.295, 0, 0, 0, 0),
-(2917, 22, 4624.15, 637.56, 6.228, 0, 0, 0, 0),
-(2917, 23, 4622.97, 634.016, 5.688, 0, 0, 0, 0),
-(2917, 24, 4616.93, 630.303, 6.239, 0, 0, 0, 0),
-(2917, 25, 4614.55, 616.983, 5.703, 0, 0, 0, 0),
-(2917, 26, 4600.695, 604.896, 2.054, 0, 0, 0, 0),
-(2917, 27, 4585.764, 597.204, 1.271, 0, 0, 0, 0),
-(2917, 28, 4577.34, 593.451, 1.271, 0, 0, 0, 291708),
-(2917, 29, 4570.48, 593.73, 1.271, 0, 6000, 0, 0),
-(2917, 30, 4568.47, 588.936, 1.271, 0, 3000, 0, 291709),
-(2917, 31, 4564.69, 561.121, 1.69401, 0, 3000, 0, 291710),
-(2917, 32, 4573.92, 582.566, 0.75, 0, 0, 0, 0),
-(2917, 33, 4594.21, 598.533, 1.03406, 0, 0, 0, 0),
-(2917, 34, 4601.19, 604.283, 2.06015, 0, 0, 0, 0),
-(2917, 35, 4609.54, 610.845, 5.40222, 0, 0, 0, 0),
-(2917, 36, 4624.8, 618.076, 5.85154, 0, 0, 0, 0),
-(2917, 37, 4632.41, 623.778, 7.28624, 0, 0, 0, 0),
-(2917, 38, 4645.92, 621.984, 8.57997, 0, 0, 0, 0),
-(2917, 39, 4658.67, 611.093, 8.89175, 0, 0, 0, 0),
-(2917, 40, 4671.92, 599.752, 16.0124, 0, 5000, 0, 291711),
-(2917, 41, 4678.63, 601.614, 18.49, 2.21, 5000, 0, 0);
+        DELETE FROM creature_movement_template WHERE entry = 2917;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (2917, 1, 4675.81, 598.615, 17.6457, 0, 0, 0, 0),
+        (2917, 2, 4672.84, 599.325, 16.4176, 0, 0, 0, 291701),
+        (2917, 3, 4663.45, 607.43, 10.4948, 0, 0, 0, 0),
+        (2917, 4, 4655.97, 613.761, 8.52327, 0, 0, 0, 0),
+        (2917, 5, 4640.8, 623.999, 8.37705, 0, 0, 0, 0),
+        (2917, 6, 4631.68, 630.801, 6.415, 0, 5000, 0, 291702),
+        (2917, 7, 4633.53, 632.476, 6.50983, 0, 0, 0, 0),
+        (2917, 8, 4639.41, 637.121, 13.3381, 0, 0, 0, 0),
+        (2917, 9, 4641.19, 638.577, 13.4229, 0, 5000, 0, 0),
+        (2917, 10, 4641.19, 638.577, 13.4229, 0, 3000, 0, 291703),
+        (2917, 11, 4639.63, 637.234, 13.3398, 0, 0, 0, 291704),
+        (2917, 12, 4631.68, 630.801, 6.415, 0, 0, 0, 0),
+        (2917, 13, 4624.71, 631.724, 6.26403, 0, 0, 0, 0),
+        (2917, 14, 4623.53, 629.719, 6.20134, 0, 5000, 0, 291705),
+        (2917, 15, 4632.03, 641.491, 7.211, 0, 0, 0, 0),
+        (2917, 16, 4628.08, 646.288, 6.63, 0, 0, 0, 0),
+        (2917, 17, 4623.37, 649.335, 6.301, 0, 0, 0, 0),
+        (2917, 18, 4625.96, 643.41, 6.641, 0, 0, 0, 0),
+        (2917, 19, 4622.62, 637.222, 6.31285, 0, 0, 0, 291706),
+        (2917, 20, 4619.76, 637.386, 6.31205, 0, 5000, 0, 291707),
+        (2917, 21, 4620.03, 637.368, 6.295, 0, 0, 0, 0),
+        (2917, 22, 4624.15, 637.56, 6.228, 0, 0, 0, 0),
+        (2917, 23, 4622.97, 634.016, 5.688, 0, 0, 0, 0),
+        (2917, 24, 4616.93, 630.303, 6.239, 0, 0, 0, 0),
+        (2917, 25, 4614.55, 616.983, 5.703, 0, 0, 0, 0),
+        (2917, 26, 4600.695, 604.896, 2.054, 0, 0, 0, 0),
+        (2917, 27, 4585.764, 597.204, 1.271, 0, 0, 0, 0),
+        (2917, 28, 4577.34, 593.451, 1.271, 0, 0, 0, 291708),
+        (2917, 29, 4570.48, 593.73, 1.271, 0, 6000, 0, 0),
+        (2917, 30, 4568.47, 588.936, 1.271, 0, 3000, 0, 291709),
+        (2917, 31, 4564.69, 561.121, 1.69401, 0, 3000, 0, 291710),
+        (2917, 32, 4573.92, 582.566, 0.75, 0, 0, 0, 0),
+        (2917, 33, 4594.21, 598.533, 1.03406, 0, 0, 0, 0),
+        (2917, 34, 4601.19, 604.283, 2.06015, 0, 0, 0, 0),
+        (2917, 35, 4609.54, 610.845, 5.40222, 0, 0, 0, 0),
+        (2917, 36, 4624.8, 618.076, 5.85154, 0, 0, 0, 0),
+        (2917, 37, 4632.41, 623.778, 7.28624, 0, 0, 0, 0),
+        (2917, 38, 4645.92, 621.984, 8.57997, 0, 0, 0, 0),
+        (2917, 39, 4658.67, 611.093, 8.89175, 0, 0, 0, 0),
+        (2917, 40, 4671.92, 599.752, 16.0124, 0, 5000, 0, 291711),
+        (2917, 41, 4678.63, 601.614, 18.49, 2.21, 5000, 0, 0);
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291701;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 925, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291701;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 925, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291702;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291702, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 926, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291702;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291702, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 926, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291703;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291703, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 927, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291703;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291703, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 927, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291704;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291704, 0, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4646.581, 634.06, 13.513, 2.36, 0, 'The Absent Minded Prospector: Remtravel - Ambush 1');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291704;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291704, 2, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4642.101, 635.436, 7.842, 3.663, 0, 'The Absent Minded Prospector: Remtravel - Ambush 1');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291705;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291705, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 928, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291705;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291705, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 928, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291706;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291706, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 929, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk'),
-(291706, 0, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4615.792, 642.73, 7.266, 5.7, 0, 'The Absent Minded Prospector: Remtravel - Ambush 2'),
-(291706, 0, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4617.521, 642.492, 6.951, 5.41, 0, 'The Absent Minded Prospector: Remtravel - Ambush 2');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291706;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291706, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 929, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk'),
+        (291706, 0, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4615.792, 642.73, 7.266, 5.7, 0, 'The Absent Minded Prospector: Remtravel - Ambush 2'),
+        (291706, 0, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4617.521, 642.492, 6.951, 5.41, 0, 'The Absent Minded Prospector: Remtravel - Ambush 2');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291707;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291707, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 930, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291707;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291707, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 930, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291708;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 931, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291708;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 931, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291709;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291709, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 933, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291709;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291709, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 933, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291710;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291710, 0, 0, 10, 2159, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4552.662, 565.257, 1.585, 6.023, 0, 'The Absent Minded Prospector: Remtravel - Ambush 3'),
-(291710, 0, 0, 10, 2160, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4550.036, 565.686, 1.885, 6.117, 0, 'The Absent Minded Prospector: Remtravel - Ambush 3'),
-(291710, 0, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4553.262, 566.603, 1.379, 6.008, 0, 'The Absent Minded Prospector: Remtravel - Ambush 3');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291710;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291710, 0, 0, 10, 2159, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4552.662, 565.257, 1.585, 6.023, 0, 'The Absent Minded Prospector: Remtravel - Ambush 3'),
+        (291710, 0, 0, 10, 2160, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4550.036, 565.686, 1.885, 6.117, 0, 'The Absent Minded Prospector: Remtravel - Ambush 3'),
+        (291710, 0, 0, 10, 2158, 30000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4553.262, 566.603, 1.379, 6.008, 0, 'The Absent Minded Prospector: Remtravel - Ambush 3');
 
-DELETE FROM `creature_movement_scripts` WHERE `id`=291711;
-INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(291711, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 936, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk'),
-(291711, 0, 0, 62, 731, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - End Map Event');
+        DELETE FROM `creature_movement_scripts` WHERE `id`=291711;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (291711, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 936, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Talk'),
+        (291711, 0, 0, 62, 731, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - End Map Event');
 
-DELETE FROM `quest_start_scripts` WHERE `id`=731;
-INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(731, 0, 0, 61, 731, 1200, 0, 0, 0, 0, 0, 0, 0, 73101, 1019, 73102, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Start Map Event'),
-(731, 0, 0, 22, 10, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Set Escortee'),
-(731, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Remove Immune Flag'),
-(731, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Remove QuestGiver Flag'),
-(731, 3, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Start Waypoints');
+        DELETE FROM `quest_start_scripts` WHERE `id`=731;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (731, 0, 0, 61, 731, 1200, 0, 0, 0, 0, 0, 0, 0, 73101, 1019, 73102, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Start Map Event'),
+        (731, 0, 0, 22, 10, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Set Escortee'),
+        (731, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Remove Immune Flag'),
+        (731, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Remove QuestGiver Flag'),
+        (731, 3, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Start Waypoints');
 
+        DELETE FROM `generic_scripts` WHERE `id`=73101;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (73101, 0, 0, 7, 731, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Complete Quest'),
+        (73101, 0, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Restore QuestGiver Flag'),
+        (73101, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Restore Immune Flag');
 
-DELETE FROM `generic_scripts` WHERE `id`=73101;
-INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(73101, 0, 0, 7, 731, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Complete Quest'),
-(73101, 0, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Restore QuestGiver Flag'),
-(73101, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Restore Immune Flag');
+        DELETE FROM `generic_scripts` WHERE `id`=73102;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (73102, 0, 0, 70, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Fail Quest'),
+        (73102, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Despawn');
 
-
-DELETE FROM `generic_scripts` WHERE `id`=73102;
-INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(73102, 0, 0, 70, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Fail Quest'),
-(73102, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Absent Minded Prospector: Remtravel - Despawn');
-
--- Gravelflint Scout and Gravelflint Bonesnapper display id.
-UPDATE `creature_template` SET `display_id1` = '830' WHERE (`entry` = '2158');
-UPDATE `creature_template` SET `display_id1` = '830' WHERE (`entry` = '2159');
--- Stone Bahemoth placement.
-UPDATE `spawns_creatures` SET `position_x` = '4606.902', `position_y` = '567.736', `position_z` = '1.271' WHERE (`spawn_id` = '37091');
+        -- Gravelflint Scout and Gravelflint Bonesnapper display id.
+        UPDATE `creature_template` SET `display_id1` = '830' WHERE (`entry` = '2158');
+        UPDATE `creature_template` SET `display_id1` = '830' WHERE (`entry` = '2159');
+        -- Stone Bahemoth placement.
+        UPDATE `spawns_creatures` SET `position_x` = '4606.902', `position_y` = '567.736', `position_z` = '1.271' WHERE (`spawn_id` = '37091');
 
         insert into applied_updates values ('191020251');
     end if;
