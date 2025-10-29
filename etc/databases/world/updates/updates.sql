@@ -3045,7 +3045,7 @@ begin not atomic
         (2917, 38, 4645.92, 621.984, 8.57997, 0, 0, 0, 0),
         (2917, 39, 4658.67, 611.093, 8.89175, 0, 0, 0, 0),
         (2917, 40, 4671.92, 599.752, 16.0124, 0, 5000, 0, 291711),
-        (2917, 41, 4678.63, 601.614, 18.49, 2.21, 5000, 0, 0);
+        (2917, 41, 4678.63, 601.614, 18.49, 2.21, 0, 0, 0);
 
         DELETE FROM `creature_movement_scripts` WHERE `id`=291701;
         INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
