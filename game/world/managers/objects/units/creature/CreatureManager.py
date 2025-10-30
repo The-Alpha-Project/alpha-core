@@ -454,7 +454,7 @@ class CreatureManager(UnitManager):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
 
     def can_exit_water(self):
-        return self.static_flags & CreatureStaticFlags.AQUATIC == 0
+        return not (self.static_flags & (CreatureStaticFlags.AQUATIC | CreatureStaticFlags.AMPHIBIOUS))
 
     # override
     def can_block(self, attacker_location=None, in_combat=False):
