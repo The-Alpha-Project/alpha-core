@@ -1,7 +1,6 @@
-import os
 from collections import defaultdict
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Dict
 
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -400,7 +399,7 @@ class DbcDatabaseManager:
     # MdxModelsData
 
     class MdxModelsDataHolder:
-        MDX_MODELS_INFOS: dict[int, t_mdx_models_data] = {}
+        MDX_MODELS_INFOS: Dict[int, t_mdx_models_data] = {}
 
         @staticmethod
         def load_mdx_model_info(mdx_model_info):
@@ -451,7 +450,7 @@ class DbcDatabaseManager:
     # CreatureFamily
 
     class CreatureFamilyHolder:
-        CREATURE_FAMILIES: [int, CreatureFamily] = {}
+        CREATURE_FAMILIES: Dict[int, CreatureFamily] = {}
 
         @staticmethod
         def load_creature_family(creature_family):
@@ -656,10 +655,15 @@ class DbcDatabaseManager:
 
     class FactionTemplateHolder:
         FACTION_TEMPLATES = {}
+        ESCORTEE_FACTIONS = {10, 33, 113, 231, 232, 250}
 
         @staticmethod
         def load_faction_template(faction_template):
             DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES[faction_template.ID] = faction_template
+
+        @staticmethod
+        def is_escortee_faction(faction_id):
+            return faction_id in DbcDatabaseManager.FactionTemplateHolder.ESCORTEE_FACTIONS
 
         @staticmethod
         def faction_template_get_by_id(faction_template_id):

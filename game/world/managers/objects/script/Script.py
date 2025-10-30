@@ -59,8 +59,11 @@ class Script:
             if target and target != source and not target.get_map().is_active_cell(target.current_cell):
                 target.get_map().activate_cell_by_world_object(target)
 
-            # Condition is not met, skip.
+            # Condition is not met, skip or abort.
             if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):
+                if script_command.should_abort():
+                    self.abort()
+                    return
                 continue
 
             # Execute action.

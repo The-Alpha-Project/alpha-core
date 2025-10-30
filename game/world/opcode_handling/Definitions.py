@@ -354,6 +354,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_PET_NAME_QUERY: PetNameQueryHandler.handle,
     OpCode.CMSG_RESURRECT_RESPONSE: ResurrectResponseHandler.handle,
     OpCode.CMSG_PVP_PORT: PvPPortHandler.handle,
+    OpCode.CMSG_RECLAIM_CORPSE: ResurrectResponseHandler.handle_reclaim_corpse,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,

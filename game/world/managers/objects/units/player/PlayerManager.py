@@ -13,6 +13,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.spell.EquipmentProcManager import EquipmentProcManager
+from game.world.managers.objects.units.creature.KnownObjects import KnownObjects
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -73,7 +74,7 @@ class PlayerManager(UnitManager):
         self.pending_teleport_data = []
         self.update_lock = False
         self.possessed_unit = None
-        self.known_objects = dict()
+        self.known_objects = KnownObjects(self)
         self.known_items = dict()
         self.known_stealth_units = dict()
 
@@ -147,6 +148,9 @@ class PlayerManager(UnitManager):
             if self.session.account_mgr.is_gm():
                 self.set_gm_tag()
 
+            # Debug
+            self.last_debug_ai_state_object = None
+
             # Update exploration data.
             if self.player.explored_areas and len(self.player.explored_areas) > 0:
                 self.explored_areas = bitarray(self.player.explored_areas, 'little')
@@ -180,6 +184,10 @@ class PlayerManager(UnitManager):
         if not race_data:
             race_data = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
         return race_data.MaleDisplayId if is_male else race_data.FemaleDisplayId
+
+    def get_res_sickness_spell(self):
+        race_data = DbcDatabaseManager.chr_races_get_by_race(self.player.race)
+        return race_data.ResSicknessSpellID
 
     def set_player_variables(self):
         race = DbcDatabaseManager.chr_races_get_by_race(self.race)
@@ -613,9 +621,6 @@ class PlayerManager(UnitManager):
         if self.group_manager and self.group_manager.is_party_formed():
             self.group_manager.send_update()
 
-        # Notify surrounding for proximity checks.
-        self.on_relocation()
-
         # Remove this pending teleport data.
         self.pending_teleport_data.pop(0)
 
@@ -758,22 +763,14 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
     # override
-    def set_stealthed(self, active=True, index=-1):
-        stealthed = super().set_stealthed(active, index)
-        if not stealthed:
-            # Notify surrounding units about fading stealth for proximity aggro.
-            self.pending_relocation = True
-
-    # override
     def set_sanctuary(self, active=True, time_secs=0):
         super().set_sanctuary(active, time_secs)
-        if active:
-            self.spell_manager.remove_casts()
-            self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
-            # Remove self from combat and attackers.
-            self.leave_combat()
-        else:
-            self.on_relocation()
+        if not active:
+            return
+        self.spell_manager.remove_casts()
+        self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
+        # Remove self from combat and attackers.
+        self.leave_combat()
 
     def send_minimap_ping(self, guid, vector):
         data = pack('<Q2f', guid, vector.x, vector.y)
@@ -1478,9 +1475,6 @@ class PlayerManager(UnitManager):
         if now > self.last_tick > 0 and self.online:
             elapsed = now - self.last_tick
 
-            # Relocation timer.
-            self.relocation_call_for_help_timer += elapsed
-
             # Update played time.
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
@@ -1543,15 +1537,13 @@ class PlayerManager(UnitManager):
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    # Relocate only if x, y changed.
-                    if self.has_moved and not self.pending_relocation:
-                        self.pending_relocation = True
                     # Reset flags.
                     self.set_has_moved(False, False, flush=True)
+                    self.get_map().get_detection_manager().queue_update_unit_placement(self)
 
             # Update system, propagate player changes to surrounding units.
             if self.online and (has_changes or has_inventory_changes):
-                self.get_map().update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
+                self.get_map().update_object(self, has_changes, has_inventory_changes)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
                 self.trigger_teleport()
@@ -1562,12 +1554,6 @@ class PlayerManager(UnitManager):
 
             # If not teleporting, notify self movement to surrounding units for proximity aggro.
             if not self.update_lock:
-                # Relocation.
-                if self.relocation_call_for_help_timer >= 1:
-                    if self.pending_relocation:
-                        self.on_relocation()
-                    self.relocation_call_for_help_timer = 0
-
                 self.update_manager.process_tick_updates()
 
         self.last_tick = now
@@ -1623,13 +1609,22 @@ class PlayerManager(UnitManager):
         # Add Resurrection Sickness (2146) to the player.
         # TODO: Unsure if it should always be applied regardless of whether the player resurrected normally or was
         #  resurrected by another player, assuming it was always applied for now.
-        self.spell_manager.handle_cast_attempt(2146, self, SpellTargetMask.SELF, validate=False)
+        self.spell_manager.handle_cast_attempt(self.get_res_sickness_spell(), self, SpellTargetMask.SELF, validate=False)
+
+    def reclaim_corpse(self, corpse_guid):
+        corpses = self.get_map().get_surrounding_objects(self, [ObjectTypeIds.ID_CORPSE])[0]
+        corpse = next((c for c in corpses.values() if c.guid == corpse_guid and c.owner.guid == self.guid), None)
+        if not corpse:
+            return
+        corpse.get_map().remove_object(corpse)
+        # TODO: Unsure how reclaim corpse worked, for now, remove res sickness upon corpse recovery.
+        self.aura_manager.cancel_auras_by_spell_id(self.get_res_sickness_spell())
 
     def resurrect(self, release_spirit=False):
         # Spawn its corpse.
         if not self.resurrect_data:
             from game.world.managers.objects.corpse.CorpseManager import CorpseManager
-            CorpseManager.spawn(self)
+            CorpseManager(owner=self).spawn()
 
         if self.resurrect_data and not release_spirit:
             is_instant = self.resurrect_data.resurrect_map == self.map_id and \
@@ -1699,7 +1694,7 @@ class PlayerManager(UnitManager):
         return self.damage
 
     # override
-    def can_detect_target(self, target, distance=0):
+    def can_detect_target(self, target, distance=-1):
         # Party group.
         if self.group_manager and self.group_manager.is_party_member(target.guid):
             duel_arbiter = self.get_duel_arbiter()
@@ -1736,9 +1731,6 @@ class PlayerManager(UnitManager):
                 self.update_manager.enqueue_object_update(object_type=unit.get_type_id())
 
             self.stealth_detect_timer = 0
-
-    def on_relocation(self):
-        self.notify_move_in_line_of_sight()
 
     # override
     def on_cell_change(self):

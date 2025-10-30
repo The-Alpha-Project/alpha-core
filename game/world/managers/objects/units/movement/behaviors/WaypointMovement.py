@@ -19,8 +19,7 @@ class WaypointMovement(BaseMovement):
         self.should_repeat = is_default
         self.points = waypoints
         self.waypoints: list[MovementWaypoint] = []
-        self.last_waypoint_movement = 0
-        self.wait_time_seconds = 0
+        self.initial_wait_time_seconds = 0
 
     # override
     def initialize(self, unit):
@@ -55,8 +54,7 @@ class WaypointMovement(BaseMovement):
 
         # Set initial delay if needed.
         if self.command_move_info.initial_delay:
-            self.wait_time_seconds = self.command_move_info.initial_delay / 1000
-            self.last_waypoint_movement = time.time()
+            self.initial_wait_time_seconds = self.command_move_info.initial_delay / 1000
 
         # We found waypoints data according to script provided data.
         if self.creature_movement:
@@ -69,23 +67,39 @@ class WaypointMovement(BaseMovement):
 
     # override
     def update(self, now, elapsed):
-        if self._can_perform_waypoint(now):
-            self.speed_dirty = False
-            self._perform_waypoint()
-            self.last_waypoint_movement = now
-            self.wait_time_seconds = self.get_total_time_secs()
+        # Initial delay provided by script.
+        if self.initial_wait_time_seconds:
+            self.initial_wait_time_seconds = max(0, self.initial_wait_time_seconds - elapsed)
+
+        if not self.initial_wait_time_seconds:
+            waypoint = self._get_waypoint()
+            if waypoint:
+                # Ongoing waypoint, update.
+                if waypoint.initialized:
+                    waypoint.update(elapsed)
+
+                if self._can_perform_waypoint(waypoint):
+                    self.speed_dirty = False
+                    self._perform_waypoint()
 
         super().update(now, elapsed)
 
     # override
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
-        # Always update home position.
-        self.unit.spawn_position = new_position.copy()
+        # Always update tmp home position.
+        self.unit.tmp_home_position = new_position.copy()
         if not waypoint_completed:
             return
 
         current_wp = self._get_waypoint()
+        if not current_wp:
+            return
+
+        current_behavior = self.unit.movement_manager.get_current_behavior()
+        if current_behavior and current_behavior.move_type != self.move_type:
+            return
+
         if self._should_use_facing(current_wp):
             self.unit.movement_manager.face_angle(current_wp.orientation)
 
@@ -103,27 +117,36 @@ class WaypointMovement(BaseMovement):
 
     # override
     def reset(self):
-        if self.spline:
-            # Make sure the last known position gets updated.
-            self.spline.update_to_now()
-            self.spline = None
-        self.wait_time_seconds = 0
-        self.last_waypoint_movement = 0
+        current_wp = self._get_waypoint()
+        if current_wp:
+            current_wp.reset()
+        if not self.spline:
+            return
+         # Make sure the last known position gets updated.
+        self.spline.update_to_now()
+        self.spline = None
+
+    # override
+    def on_removed(self):
+        if not self.unit.is_at_home():
+            return
+        self.unit.on_at_home()
 
     # override
     def can_remove(self):
         return not self.unit.is_alive or (not self.waypoints and not self.spline)
 
-    def _can_perform_waypoint(self, now):
-        return self.waypoints and not self.spline \
-            and (now > self.last_waypoint_movement + self.wait_time_seconds or self.speed_dirty)
+    def _can_perform_waypoint(self, waypoint):
+        return self.waypoints and not self.spline and (waypoint.completed or not waypoint.initialized or self.speed_dirty)
 
     def _perform_waypoint(self):
         waypoint = self._get_waypoint()
+        waypoint.initialized = True
         speed = self._get_speed()
         spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint.location], speed=speed,
                                                    extra_time_seconds=waypoint.wait_time_seconds)
         self.spline_callback(spline, movement_behavior=self)
+        waypoint.set_total_wait_time_seconds(self.get_total_time_secs())
 
     # TODO: We are missing a lot of code regarding speed handling.
     #  VMaNGOS - Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
@@ -162,9 +185,12 @@ class WaypointMovement(BaseMovement):
             (waypoint.wait_time_seconds or self.is_single)
 
     def _get_waypoint(self):
+        if not self.waypoints:
+            return None      
         return self.waypoints[0]
 
     def _waypoint_push_back(self):
         waypoint = self.waypoints[0]
+        waypoint.reset()
         self.waypoints.remove(waypoint)
         self.waypoints.append(waypoint)

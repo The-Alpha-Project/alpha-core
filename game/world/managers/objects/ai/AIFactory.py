@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from game.world.managers.objects.ai.BasicCreatureAI import BasicCreatureAI
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from game.world.managers.objects.ai.CritterAI import CritterAI
+from game.world.managers.objects.ai.EscortAI import EscortAI
 from game.world.managers.objects.ai.GuardAI import GuardAI
 from game.world.managers.objects.ai.NullCreatureAI import NullCreatureAI
 from game.world.managers.objects.ai.PetAI import PetAI
@@ -24,7 +25,8 @@ class AIFactory:
             'CritterAI': CritterAI(None),
             'GuardAI': GuardAI(None),
             'PetAI': PetAI(None),
-            'TotemAI': TotemAI(None)
+            'TotemAI': TotemAI(None),
+            'EscortAI': EscortAI(None)
             # 'EventAI': EventAI(None),
             # 'PetEventAI': PetEventAI(None),
             # 'GuardEventAI': GuardEventAI(None)
@@ -100,6 +102,8 @@ class AIFactory:
             return PetAI(creature)
         elif ai_name == 'TotemAI':
             return TotemAI(creature)
+        elif ai_name == 'EscortAI':
+            return EscortAI(creature)
         # elif ai_name == 'EventAI':
         #    return EventAI(creature)
         # elif ai_name == 'PetEventAI':

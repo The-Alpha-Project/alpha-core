@@ -17,7 +17,7 @@ class CorpseManager(ObjectManager):
         self.map_id = owner.map_id
         self.instance_id = owner.instance_id
         self.guild_id = owner.guild_manager.guild.guild_id if owner.guild_manager else 0
-        self.location = owner.location
+        self.location = owner.location.copy()
         self.current_scale = owner.current_scale
         self.native_display_id = owner.native_display_id
         self.current_display_id = owner.native_display_id
@@ -87,11 +87,8 @@ class CorpseManager(ObjectManager):
                 self.despawn()
         self.last_tick = now
 
-    @staticmethod
-    def spawn(player_mgr):
-        corpse = CorpseManager(owner=player_mgr)
-        player_mgr.get_map().update_object(corpse)
-        return corpse
+    def spawn(self, owner=None):
+        self.owner.get_map().update_object(self)
 
     # override
     def get_name(self):

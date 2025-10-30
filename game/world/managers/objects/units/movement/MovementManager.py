@@ -1,4 +1,7 @@
+import math
 from typing import Optional
+
+from game.world.managers.objects.units.movement.behaviors.FollowMovement import FollowMovement
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
@@ -34,6 +37,7 @@ class MovementManager:
             MoveType.DISTRACTED: None,
             MoveType.CHASE: None,
             MoveType.PET: None,
+            MoveType.FOLLOW: None,
             MoveType.GROUP: None,
             MoveType.WAYPOINTS: None,
             MoveType.WANDER: None,
@@ -153,6 +157,9 @@ class MovementManager:
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback,
                                        target=target, seek_assist=seek_assist))
 
+    def move_follow(self, target, dist=2, angle=math.pi / 2):
+        self.set_behavior(FollowMovement(spline_callback=self.spline_callback, target=target, dist=dist, angle=angle))
+
     def move_confused(self, duration_seconds=-1):
         self.set_behavior(ConfusedMovement(spline_callback=self.spline_callback, duration_seconds=duration_seconds))
 
@@ -230,6 +237,7 @@ class MovementManager:
             return
 
         if movement_behavior.initialize(self.unit):
+            self.stop()  # Stop the current behavior if needed.
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
             if movement_behavior.is_default:
@@ -240,7 +248,8 @@ class MovementManager:
     def unit_is_moving(self):
         if self.is_player and (self.unit.movement_flags & MoveFlags.MOVEFLAG_MOVE_MASK or self.unit.has_moved):
             return True
-        return True if self._get_current_spline() else False
+        spline = self._get_current_spline()
+        return True if spline and not spline.is_complete() else False
 
     def try_build_movement_packet(self):
         spline = self._get_current_spline()

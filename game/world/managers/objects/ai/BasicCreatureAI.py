@@ -34,6 +34,14 @@ class BasicCreatureAI(CreatureAI):
         return Permits.PERMIT_BASE_NORMAL
 
     # override
+    def attach_escort_link(self, player_mgr):
+        pass
+
+    # override
+    def detach_escort_link(self, player_mgr=None):
+        pass
+
+    # override
     def movement_inform(self, move_type=None, data=None, units=None):
         pass
 
@@ -42,7 +50,7 @@ class BasicCreatureAI(CreatureAI):
         super().move_in_line_of_sight(unit, ai_event=ai_event)
         if ai_event or not self.is_ready_for_new_attack():
             return
-        self.creature.object_ai.attacked_by(unit)
+        self.creature.attack(unit)
 
     # override
     def just_respawned(self):

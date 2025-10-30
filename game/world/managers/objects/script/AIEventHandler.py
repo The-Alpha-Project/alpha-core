@@ -146,6 +146,18 @@ class AIEventHandler:
                 if casting_spell.get_damage_school_mask() & event.event_param2:
                     self._enqueue_creature_ai_event(map_, event, target=target)
 
+    def on_script_event_happened(self, event_id, event_data, target):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SCRIPT_EVENT)
+        map_ = self.creature.get_map()
+        target = target if target else self.creature
+        for event in events:
+            if event.event_param1 == event_id and event.event_param2 == event_data:
+                if not self._validate_event(event, target=target):
+                    continue
+                self._enqueue_creature_ai_event(map_, event, target=target)
+            else:
+                Logger.warning(f'Unable to start script on event {event_id} for unit {self.creature.get_name()}')
+
     def on_group_member_died(self, source, is_leader):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_GROUP_MEMBER_DIED)
         map_ = self.creature.get_map()

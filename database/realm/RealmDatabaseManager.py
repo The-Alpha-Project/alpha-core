@@ -353,7 +353,6 @@ class RealmDatabaseManager(object):
             realm_db_session.commit()
             realm_db_session.refresh(character_social)
             realm_db_session.close()
-            return character_social
 
     @staticmethod
     def character_social_delete_social(character_social):

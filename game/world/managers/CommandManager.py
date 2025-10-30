@@ -21,7 +21,7 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, WeaponMode
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureStaticFlags
 from utils.constants.UpdateFields import PlayerFields
 
 import platform
@@ -178,6 +178,57 @@ class CommandManager(object):
             return 0, ''
         except ValueError:
             return -1, 'invalid unit selection.'
+
+    @staticmethod
+    def rotate_object(world_session, args):
+        game_object = world_session.player_mgr.last_debug_ai_state_object
+        if not game_object:
+            return -1, 'invalid object selection.'
+
+        if not game_object.is_gameobject():
+            return -1, 'invalid gameobject selection.'
+
+        try:
+            player_mgr = world_session.player_mgr
+            operator, step = args.split()
+            current_loc = game_object.location.copy()
+            exec(f'current_loc.o {operator}= {step}')
+            from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id,
+                                                  player_mgr.instance_id, state=1, ttl=0)
+            world_session.player_mgr.get_map().spawn_object(world_object_instance=new_object)
+            game_object.get_map().remove_object(game_object)
+            # Replace old selection with new.
+            world_session.player_mgr.last_debug_ai_state_object = new_object
+            return 0, (f'{new_object.get_name()} rotated to: O:{round(new_object.location.o, 3)}')
+        except ValueError:
+            return -1, 'invalid arguments, e.g. .rotobject + .1.'
+
+    @staticmethod
+    def move_object(world_session, args):
+        game_object = world_session.player_mgr.last_debug_ai_state_object
+        if not game_object:
+            return -1, 'invalid object selection.'
+
+        if not game_object.is_gameobject():
+            return -1, 'invalid gameobject selection.'
+
+        try:
+            player_mgr = world_session.player_mgr
+            operator, prop, step = args.split()
+            current_loc = game_object.location.copy()
+            exec(f'current_loc.{prop} {operator}= {step}')
+            from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id,
+                                                  player_mgr.instance_id, state=1, ttl=0)
+            world_session.player_mgr.get_map().spawn_object(world_object_instance=new_object)
+            game_object.get_map().remove_object(game_object)
+            # Replace old selection with new.
+            world_session.player_mgr.last_debug_ai_state_object = new_object
+            return 0, (f'{new_object.get_name()} moved to: X:{round(new_object.location.x,3)}'
+                       f' Y:{round(new_object.location.y,3)} Z:{round(new_object.location.z,3)}')
+        except ValueError:
+            return -1, 'invalid arguments, e.g. .moveobject + z .1.'
 
     @staticmethod
     def distance_unit(world_session, args):
@@ -716,6 +767,21 @@ class CommandManager(object):
             return -1, 'please specify a valid display id.'
 
     @staticmethod
+    def set_faction(world_session, args):
+        try:
+            faction = int(args)
+            unit = CommandManager._target_or_self(world_session)
+            if not unit.is_unit():
+                return -1, 'please select a valid unit.'
+            if not faction:
+                unit.reset_faction()
+            else:
+                unit.set_faction(faction)
+            return 0, f'New faction set to "{faction} for {unit.get_name()}".'
+        except ValueError:
+            return -1, 'please specify a valid faction id.'
+
+    @staticmethod
     def morph(world_session, args):
         try:
             display_id = int(args)
@@ -779,19 +845,24 @@ class CommandManager(object):
             for flag in UnitFlags:
                 if unit.unit_flags & flag:
                     flag_count += 1
-                    result += f'|c0066FF00[SET]|r {UnitFlags(flag).name}\n'
+                    result += f'|c0066FF00[SET] UnitFlag|r {UnitFlags(flag).name}\n'
                 if flag == UnitFlags.UNIT_FLAG_SHEATHE:  # Last unit flag, prevent checking masks.
                     break
 
             for flag in UnitDynamicTypes:
                 if unit.dynamic_flags & flag:
                     flag_count += 1
-                    result += f'|c0066FF00[SET]|r {UnitDynamicTypes(flag).name}\n'
+                    result += f'|c0066FF00[SET] DynamicFlag|r {UnitDynamicTypes(flag).name}\n'
+
+            for flag in CreatureStaticFlags:
+                if unit.static_flags & flag:
+                    flag_count += 1
+                    result += f'|c0066FF00[SET] StaticFlag|r {CreatureStaticFlags(flag).name}\n'
 
             for flag in MoveFlags:
                 if unit.movement_flags & flag:
                     flag_count += 1
-                    result += f'|c0066FF00[SET]|r {MoveFlags(flag).name}\n'
+                    result += f'|c0066FF00[SET] MoveFlag|r {MoveFlags(flag).name}\n'
 
             result += f'{flag_count} active unit flags.'
         return 0, result
@@ -1135,6 +1206,21 @@ class CommandManager(object):
             return -1, 'please use it like: .sloc comment'
 
     @staticmethod
+    def save_waypoint(world_session, args):
+        try:
+            entry = int(args)
+            Path(CommandManager.DEV_LOG_PATH).mkdir(parents=True, exist_ok=True)
+            f_name = path.join(CommandManager.DEV_LOG_PATH, f'{entry}_waypoints.log')
+            l = world_session.player_mgr.location
+            with open(f_name, 'a+') as f:
+                point_id = len(f.readlines())
+                f.write(f'({entry}, {point_id}, {round(l.x, 3)}, {round(l.y, 3)}, {round(l.z, 3)}, 0, 0, 0, 0),\n')
+
+            return 0, f'Successfully created/updated waypoints in {f_name}'
+        except ValueError:
+            return -1, 'please use it like: .savewp <entry>'
+
+    @staticmethod
     def gmtag(world_session, args):
         arg = str(args).strip().lower()
         if arg not in ('on', 'off', 'enable', 'disable', '1', '0'):
@@ -1176,7 +1262,6 @@ GM_COMMAND_DEFINITIONS = {
     'collision': [CommandManager.toggle_collision, 'toggle collision'],
     'speed': [CommandManager.speed, 'change your run speed'],
     'swimspeed': [CommandManager.swim_speed, 'change your swim speed'],
-    'scriptwp': [CommandManager.activate_script_waypoints, 'tries to activate the selected unit script waypoints'],
     'gps': [CommandManager.gps, 'display information about your location'],
     'tel': [CommandManager.tel, 'teleport you to a location'],
     'stel': [CommandManager.stel, 'search for a location where you can teleport'],
@@ -1186,7 +1271,6 @@ GM_COMMAND_DEFINITIONS = {
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],
-    'flushbags': [CommandManager.flushbags, 'flush all items from bags'],
     'sspell': [CommandManager.sspell, 'search spells'],
     'lspell': [CommandManager.lspell, 'learn a spell'],
     'lspells': [CommandManager.lspells, 'learn multiple spells'],
@@ -1211,6 +1295,7 @@ GM_COMMAND_DEFINITIONS = {
     'mount': [CommandManager.mount, 'mount'],
     'unmount': [CommandManager.unmount, 'dismount'],
     'morph': [CommandManager.morph, 'morph the targeted unit'],
+    'setfaction': [CommandManager.set_faction, 'modify target faction'],
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     'setvirtualitem': [CommandManager.setvirtualitem, 'equips virtual item on unit main hand'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],
@@ -1222,18 +1307,23 @@ GM_COMMAND_DEFINITIONS = {
     'petlevel': [CommandManager.petlevel, 'set your active pet level'],
     'money': [CommandManager.money, 'give yourself money'],
     'die': [CommandManager.die, 'kills target or yourself if no target is selected'],
-    'los': [CommandManager.los, 'check unit line of sight'],
     'kick': [CommandManager.kick, 'kick your target from the server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
     'alltaxis': [CommandManager.alltaxis, 'discover all flight paths'],
     'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log'],
     'qdel': [CommandManager.qdel, 'delete active or completed quest'],
-    'fevent': [CommandManager.fevent, 'force the given event to execute'],
     'gmtag': [CommandManager.gmtag, 'enable or disable the <GM> tag']
 }
 
 DEV_COMMAND_DEFINITIONS = {
+    'scriptwp': [CommandManager.activate_script_waypoints, 'tries to activate the selected unit script waypoints'],
+    'flushbags': [CommandManager.flushbags, 'flush all items from bags'],
+    'los': [CommandManager.los, 'check unit line of sight'],
+    'fevent': [CommandManager.fevent, 'force the given event to execute'],
+    'moveobject': [CommandManager.move_object, 'move last debug ai state mouse hovered object'],
+    'rotobject': [CommandManager.rotate_object, 'rotate last debug ai state mouse hovered object'],
+    'savewp': [CommandManager.save_waypoint, 'save your current location as creature_movement waypoint'],
     'mapstats': [CommandManager.mapstats, 'active maps, adts and cells'],
     'deactivatecells': [CommandManager.deactivate_cells, 'run cell deactivate process'],
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],

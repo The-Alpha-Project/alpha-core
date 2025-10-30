@@ -33,9 +33,10 @@ class ChaseMovement(BaseMovement):
             return
 
         target_is_moving = unit.combat_target.is_moving()
-        spawn_distance = unit.location.distance(unit.spawn_position)
+        home_position = unit.get_home_position()  # Either spawn_position or tmp_home_position.
+        home_distance = unit.location.distance(home_position)
         target_distance = unit.location.distance(unit.combat_target.location)
-        target_to_spawn_distance = unit.combat_target.location.distance(unit.spawn_position)
+        target_to_home_distance = unit.combat_target.location.distance(home_position)
         combat_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
         evade_distance = Distances.CREATURE_EVADE_DISTANCE
         combat_target = unit.combat_target
@@ -47,8 +48,8 @@ class ChaseMovement(BaseMovement):
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
-            if (spawn_distance > evade_distance or target_distance > evade_distance) \
-                    and target_to_spawn_distance > evade_distance:
+            if (home_distance > evade_distance or target_distance > evade_distance) \
+                    and target_to_home_distance > evade_distance:
                 unit.threat_manager.remove_unit_threat(combat_target)
                 return
 
@@ -61,7 +62,7 @@ class ChaseMovement(BaseMovement):
 
         # Face the target if necessary.
         if not unit.location.has_in_arc(combat_target.location, math.pi):
-            unit.movement_manager.face_target(unit.combat_target)
+            unit.movement_manager.face_target(combat_target)
 
         # Use less distance if target is moving.
         combat_distance = combat_distance / 1.1 if target_is_moving else combat_distance

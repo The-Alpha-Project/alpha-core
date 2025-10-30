@@ -67,6 +67,16 @@ class GroupManager(object):
             if member_instance_token and member_instance_token.id == instance_token.id:
                 InstancesManager.remove_token_for_player(guid, member_instance_token)
 
+    def get_members_players(self, alive=False):
+        players = []
+        for guid, member in list(self.members.items()):
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
+            if player_mgr:
+                if alive and not player_mgr.is_alive:
+                    continue
+                players.append(player_mgr)
+        return players
+
     def get_member_at(self, index):
         for idx, member in enumerate(list(self.members.keys())):
             if index == idx:
@@ -336,7 +346,7 @@ class GroupManager(object):
             if quest_entry not in player_mgr.quest_manager.active_quests:
                 continue
             player_mgr.quest_manager.active_quests[quest_entry].set_explored_or_event_complete()
-            player_mgr.quest_manager.reward_quest_event()
+            player_mgr.quest_manager.reward_quest_event(quest_entry)
 
     def fail_quest_for_group(self, requester, quest_entry):
         for player_mgr in self.get_close_members(requester):

@@ -120,8 +120,7 @@ class CreatureSpawn:
                                                         movement_type=self.creature_spawn.movement_type,
                                                         spawn_id=self.spawn_id)
 
-        self.creature_instance.get_map().spawn_object(world_object_spawn=self,
-                                                      world_object_instance=self.creature_instance)
+        self.creature_instance.spawn(self)
         return True
 
     def _update_respawn(self, elapsed):

@@ -369,6 +369,10 @@ class GameObjectManager(ObjectManager):
         super().respawn()
 
     # override
+    def spawn(self, owner=None):
+        self.get_map().spawn_object(world_object_spawn=owner, world_object_instance=self)
+
+    # override
     def despawn(self, ttl=0, respawn_delay=0):
         # Handle temporary respawn_delay if provided.
         if not self.is_dynamic_spawn and respawn_delay:

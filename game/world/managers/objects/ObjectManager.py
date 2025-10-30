@@ -453,6 +453,10 @@ class ObjectManager:
         pass
 
     # override
+    def spawn(self, owner=None):
+        pass
+
+    # override
     def despawn(self, ttl=0, respawn_delay=0):
         self.is_spawned = False
         if self.spell_manager:
@@ -510,6 +514,10 @@ class ObjectManager:
         return False
 
     # override
+    def is_temp_summon_or_pet_or_guardian(self):
+        return False
+
+    # override
     def is_temp_summon(self):
         return False
 
@@ -542,6 +550,10 @@ class ObjectManager:
     # Returns 1. if the target can be detected and 2. if alert should happen (AI reaction).
     def can_detect_target(self, target, distance=-1):
         return True, False
+
+    # Implemented by CreatureManager.
+    def is_escort(self):
+        return False
 
     # Implemented by UnitManager.
     def get_charmer_or_summoner(self, include_self=False):

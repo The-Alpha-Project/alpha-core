@@ -703,18 +703,19 @@ class MapTileStates(IntEnum):
 
 
 class MoveType(IntEnum):
-    INSTANT = 0x0
-    IDLE = 0x1
-    WANDER = 0x2
-    WAYPOINTS = 0x3
-    CHASE = 0x4
-    FLIGHT = 0x5
-    EVADE = 0x6
-    FEAR = 0x7
-    DISTRACTED = 0x8
-    GROUP = 0x9
-    PET = 0xA
-    CONFUSED = 0xB
+    INSTANT = 0
+    IDLE = 1
+    WANDER = 2
+    WAYPOINTS = 3
+    CHASE = 4
+    FLIGHT = 5
+    EVADE = 6
+    FEAR = 7
+    DISTRACTED = 8
+    GROUP = 9
+    PET = 10
+    CONFUSED = 11
+    FOLLOW = 12
 
 
 class MoveFlags(IntEnum):
@@ -1058,6 +1059,7 @@ class ScriptTypes(IntEnum):
     SCRIPT_TYPE_SPELL = 7
     SCRIPT_TYPE_AI = 8
     SCRIPT_TYPE_EVENT_SCRIPT = 9
+    SCRIPT_TYPE_AREA_TRIGGER = 10
 
 
 class TeleportToOptions(IntEnum):
@@ -1184,6 +1186,7 @@ class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_TARGET_MISSING_AURA = 28
     # AI_EVENT_TYPE_MOVEMENT_INFORM = 29
     AI_EVENT_TYPE_LEAVE_COMBAT = 30
+    AI_EVENT_TYPE_SCRIPT_EVENT = 31
     AI_EVENT_TYPE_GROUP_MEMBER_DIED = 32
     AI_EVENT_TYPE_TARGET_ROOTED = 33
 

@@ -26,17 +26,34 @@ class ScriptedEvent:
 
     def update(self, now):
         if self.ended:
-            return
+            return True
+
+        if self.expire_time == -1:
+            Logger.warning(f'Event {self.event_id} has expired with no expiration time set.')
+            self.end_event(False)
+            return True
+
+        if self.expire_time < now:
+            self.end_event(False)
+            return True
 
         # While active, keep checking fail/success conditions.
-        # No expire time - Event should have both failure and success conditions set.
-        if self.expire_time == -1 or self.expire_time >= now:
-            if self.failure_condition and ConditionChecker.validate(self.failure_condition, self.source, self.target):
-                self.end_event(False)
-            elif self.success_condition and ConditionChecker.validate(self.success_condition, self.source, self.target):
-                self.end_event(True)
-        else:
+        if self.failure_condition and ConditionChecker.validate(self.failure_condition, self.source, self.target):
             self.end_event(False)
+            return True
+        elif self.success_condition and ConditionChecker.validate(self.success_condition, self.source, self.target):
+            self.end_event(True)
+            return True
+
+        for t in self.event_targets:
+            if t.failure_condition and ConditionChecker.validate(t.failure_condition, self.source, t.target):
+                self.end_event(False)
+                return True
+            elif t.success_condition and ConditionChecker.validate(t.success_condition, self.source, t.target):
+                self.end_event(True)
+                return True
+
+        return False
 
     def end_event(self, success):
         self.ended = True
@@ -49,54 +66,59 @@ class ScriptedEvent:
         if script:
             self.source.get_map().enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, script)
 
-    def send_event_data(self, data_index, options):
+        for t in self.event_targets:
+            script = t.success_script if success else t.failure_script
+            if script:
+                t.target.get_map().enqueue_script(t.target, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, script)
+
+    def send_event_data(self, data, options):
         if options == SendMapEventOptions.SO_SENDMAPEVENT_ALL_TARGETS:
-            self.send_event_to_all_targets(data_index)
+            self.send_event_to_all_targets(data)
         elif options == SendMapEventOptions.SO_SENDMAPEVENT_MAIN_TARGETS_ONLY:
-            self.send_event_to_main_targets(data_index)
+            self.send_event_to_main_targets(data)
         elif options == SendMapEventOptions.SO_SENDMAPEVENT_EXTRA_TARGETS_ONLY:
-            self.send_event_to_additional_targets(data_index)
+            self.send_event_to_additional_targets(data)
 
-    def send_event_to_main_targets(self, data_index):
-        self.target.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
+    def send_event_to_main_targets(self, data):
+        self.target.object_ai.on_script_event(self.event_id, data, None)
 
-    def send_event_to_additional_targets(self, data_index):
+    def send_event_to_additional_targets(self, data):
         for t in self.event_targets:
-            t.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
+            t.target.object_ai.on_script_event(self.event_id, data, None)
 
-    def send_event_to_all_targets(self, data_index):
-        self.target.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
+    def send_event_to_all_targets(self, data):
+        self.target.object_ai.on_script_event(self.event_id, data, None)
         for t in self.event_targets:
-            t.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
+            t.target.object_ai.on_script_event(self.event_id, data, None)
 
-    def set_source(self, _source):
-        self.source = _source
+    def set_source(self, source):
+        self.source = source
 
-    def set_target(self, _target):
-        self.target = _target
+    def set_target(self, target):
+        self.target = target
 
     def get_target(self, entry=0):
         if not entry:
             return self.target
-        for event_target in self.event_targets:
-            if event_target.target.entry == entry:
-                return event_target.target
-        return None
+        event_target = next(t for t in self.event_targets if t.entry == entry)
+        return event_target.target if event_target else None
 
     def get_source(self):
         return self.source
 
-    def add_or_update_extra_target(self, _target, _failure_condition, _failure_script, _success_condition,
-                                   _success_script):
-        for event_target in self.event_targets:
-            if event_target.target == _target:
-                event_target.failure_condition = _failure_condition
-                event_target.failure_script = _failure_script
-                event_target.success_condition = _success_condition
-                event_target.success_script = _success_script
-            else:
-                self.event_targets.append(ScriptedEventTarget(_target, _failure_condition, _failure_script,
-                                                              _success_condition, _success_script))
+    def add_or_update_extra_target(self, target, failure_condition, failure_script, success_condition,
+                                   success_script):
+        event_target = [t for t in self.event_targets if t.target.entry == target.entry]
+        if not event_target:
+            self.event_targets.append(ScriptedEventTarget(target, failure_condition, failure_script,
+                                                          success_condition, success_script))
+            return
+
+        event_target = target[0]
+        event_target.failure_condition = failure_condition
+        event_target.failure_script = failure_script
+        event_target.success_condition = success_condition
+        event_target.success_script = success_script
 
     def remove_event_target(self, _target, condition_id, options):
         if options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_TARGETS:
@@ -119,11 +141,11 @@ class ScriptedEvent:
             if matches == len(self.event_targets):
                 self.event_targets = {}
 
-    def update_event_data(self, _success_condition, _success_script, _failure_condition, _failure_script):
-        self.success_condition = _success_condition
-        self.success_script = _success_script
-        self.failure_condition = _failure_condition
-        self.failure_script = _failure_script
+    def update_event_data(self, success_condition, success_script, failure_condition, failure_script):
+        self.success_condition = success_condition
+        self.success_script = success_script
+        self.failure_condition = failure_condition
+        self.failure_script = failure_script
 
     def get_data(self, index):
         return self.event_data[index]

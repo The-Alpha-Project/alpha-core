@@ -55,7 +55,7 @@ class ScriptCommand:
                                                       self.target_param1, self.target_param2)
             if not target:
                 if not self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:
-                    Logger.error(f'Unable to find target for script {self.script_id}, {self.comments}')
+                    Logger.warning(f'Unable to find target for script {self.script_id}, {self.comments}')
                 return False, None, None
 
         if self.data_flags & ScriptFlags.SF_GENERAL_SWAP_FINAL_TARGETS:

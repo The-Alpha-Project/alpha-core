@@ -1,3 +1,8 @@
+import time
+
+from utils.constants.UnitCodes import CreatureReactStates
+
+
 class BaseMovement:
     def __init__(self, move_type, spline_callback, is_default=False):
         self.is_default = is_default
@@ -6,6 +11,7 @@ class BaseMovement:
         self.speed_dirty = False
         self.spline = None
         self.unit = None
+        self.last_change = time.time()
 
     def initialize(self, unit):
         self.unit = unit
@@ -14,10 +20,14 @@ class BaseMovement:
     def update(self, now, elapsed):
         if not self.spline:
             return
+
         position_changed, new_position, wp_complete = self.spline.update(elapsed)
+
         # Position changed either guessed or wp complete.
         if position_changed:
             self.on_new_position(new_position, wp_complete, len(self.spline.pending_waypoints))
+            self.last_change = now
+
         # Spline ended.
         if self.spline.is_complete():
             self.on_spline_finished()

@@ -59,11 +59,11 @@ class MapEventManager:
         self.scripted_events[event_id].update_event_data(success_condition, success_script, failure_condition,
                                                          failure_script)
 
-    def send_event_data(self, event_id, data_index, options):
+    def send_event_data(self, event_id, data, options):
         if not self.is_event_active(event_id):
             return
 
-        self.scripted_events[event_id].send_event_data(data_index, options)
+        self.scripted_events[event_id].send_event_data(data, options)
 
     def get_map_event_data(self, event_id):
         return self.scripted_events.get(event_id)
