@@ -432,14 +432,13 @@ class CreatureManager(UnitManager):
         # Tolerance of 1.0 since it might not be entirely equal.
         return dx <= 1.0 and dy <= 1.0 and not self.is_moving()
 
-    def on_at_home(self, was_at_home=False):
+    def on_at_home(self):
         self.tmp_home_position = None
         self.apply_default_auras()
-        self.movement_manager.face_angle(self.spawn_position.o)
+        if not self.is_controlled():
+            self.movement_manager.face_angle(self.spawn_position.o)
         if self.temp_faction_flags & TemporaryFactionFlags.TEMPFACTION_RESTORE_REACH_HOME:
             self.reset_faction()
-        if was_at_home:
-            return
         if self.object_ai:
             self.object_ai.ai_event_handler.reset()
             self.object_ai.just_reached_home()
@@ -519,20 +518,12 @@ class CreatureManager(UnitManager):
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.replenish_powers()
 
-        # Pets should return to owner on evading, not to spawn position.
-        at_home = self.is_at_home()
-        if self.is_controlled() or at_home:
-            # Should turn off flag since we are not sending move packets.
-            self.is_evading = False
-            self.on_at_home(was_at_home=at_home)
-            return
-
         # Get the path we are using to get back to spawn location or latest known location for movement behaviors.
         return_position = self.get_home_position().copy()
         failed, in_place, waypoints = self.get_map().calculate_path(self.location, return_position)
 
         # We are at spawn position already.
-        if in_place:
+        if in_place or self.is_at_home():
             return
 
         # Near teleport the unit instance if unable to acquire a valid path.

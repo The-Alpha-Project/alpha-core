@@ -168,14 +168,14 @@ class PetAI(CreatureAI):
     def do_spell_cast(self, spell, target, autocast=False, validate_range=True):
         if self.creature.spell_manager.is_casting() or \
                 self.creature.spell_manager.is_on_cooldown(spell):
-            return
+            return None
 
         target_mask = SpellTargetMask.SELF if target.guid == self.creature.guid else SpellTargetMask.UNIT
 
         if validate_range:
             pet_movement = self._get_pet_movement_behavior()
             if not pet_movement:
-                return
+                return None
 
             casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, target_mask, validate=False)
             if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA) or \
@@ -184,10 +184,14 @@ class PetAI(CreatureAI):
 
             range_max = casting_spell.range_entry.RangeMax
             if self.creature.location.distance(target.location) > range_max:
-                pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
+                # Avoid nonstop invalid casting when the target is moving away.
+                casting_time = casting_spell.get_cast_time_secs() + 2.0
+                casting_time = casting_time + 5.0 if target.is_moving() else casting_time
+                range_max = range_max - casting_time
+                pet_movement.move_in_range(target, range_max, casting_time)
                 self.pending_spell_cast = (spell, target, autocast)
                 self.move_state = PetMoveState.MOVE_RANGE
-                return
+                return None
 
         self.pending_spell_cast = None
         casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, target_mask,

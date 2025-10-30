@@ -811,6 +811,10 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No target found, {command.get_info()}.')
             return command.should_abort()
 
+        if not source or not source.is_unit(by_mask=True):
+            Logger.warning(f'ScriptHandler: No creature manager found, {command.get_info()}.')
+            return command.should_abort()
+
         if not source.is_alive:
             return command.should_abort()
 
@@ -818,26 +822,20 @@ class ScriptHandler:
         bool_param = command.datalong2 != 0
         motion_type = MotionTypes(command.datalong)
 
-        # Helper to flush movement manager.
-        def flush_movement():
+        if clear:
             source.movement_manager.flush()
 
         # Handler functions for each motion type.
         def handle_idle():
-            flush_movement()
+            source.movement_manager.flush()
             return False
 
         def handle_random():
-            if clear:
-                flush_movement()
             wandering_distance = command.x if command.x else 0
             source.movement_manager.move_wander(use_current_position=bool_param, wandering_distance=wandering_distance)
             return False
 
         def handle_waypoint():
-            if clear:
-                flush_movement()
-
             move_info = CommandMoveInfo(
                 wp_source=WaypointPathOrigin.PATH_NO_PATH,
                 start_point=command.datalong3,
@@ -850,8 +848,6 @@ class ScriptHandler:
             return False
 
         def handle_confused():
-            if clear:
-                flush_movement()
             source.movement_manager.move_confused()
             return False
 
@@ -873,9 +869,8 @@ class ScriptHandler:
             source.movement_manager.move_distracted(command.datalong3)
             return False
 
-        def handle_not_implemented():
-            Logger.warning(f'ScriptHandler: handle_script_command_movement, {motion_type} not implemented yet')
-            return command.should_abort()
+        def handle_follow():
+            source.movement_manager.move_follow(command.target)
 
         # Map motion types to handler functions
         motion_handlers = {
@@ -887,14 +882,18 @@ class ScriptHandler:
             MotionTypes.HOME_MOTION_TYPE: handle_home,
             MotionTypes.FLEEING_MOTION_TYPE: handle_flee,
             MotionTypes.DISTRACT_MOTION_TYPE: handle_distracted,
-            MotionTypes.FOLLOW_MOTION_TYPE: handle_not_implemented,
-            MotionTypes.CHARGE_MOTION_TYPE: handle_not_implemented,
+            MotionTypes.FOLLOW_MOTION_TYPE: handle_follow,
         }
 
         # Execute handler or abort result for unknown types.
         handler = motion_handlers.get(motion_type, None)
 
-        return handler() if handler else command.should_abort()
+        if not handler:
+            Logger.warning(f'ScriptHandler: handle_script_command_movement, {motion_type} not implemented yet')
+            return command.should_abort()
+
+        handler()
+        return False
 
     @staticmethod
     def handle_script_command_set_activeobject(command):
@@ -1689,7 +1688,6 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source, {command.get_info()}')
             return command.should_abort()
 
-        print(f'{command.source.get_name()} attack stop.')
         command.source.attack_stop()
         command.source.leave_combat()
         return False

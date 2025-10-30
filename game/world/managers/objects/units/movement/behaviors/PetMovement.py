@@ -58,6 +58,8 @@ class PetMovement(BaseMovement):
         # Spline finished after reaching point and cast time ending.
         if self.follow_state == PetMoveState.AT_RANGE:
             self.pet_range_move = None
+        # Always update tmp home position.
+        self.unit.tmp_home_position = self.home_position
 
     def _check_facing(self):
         if self.follow_state != PetMoveState.AT_HOME or self.stay_position or self.spline:

@@ -2594,6 +2594,8 @@ begin not atomic
         UPDATE `spawns_creatures` SET `spawntimesecsmin` = '10', `spawntimesecsmax` = '10' WHERE (`spawn_id` = '32783');
         -- Caedakar display id.
         UPDATE `creature_template` SET `display_id1` = '2007' WHERE (`entry` = '3900');
+        -- Text in order to match quest objective change.
+        UPDATE `broadcast_text` SET `male_text` = 'Well done! I should be fine on my own from here. Remember to talk to Sentinel Elissa Starbreeze when you return to Auberdine in Ashenvale.' WHERE (`entry` = '1315');
 
         -- Feero Ironhand - Waypoints
         DELETE FROM creature_movement_template WHERE entry = 4484;
@@ -2975,6 +2977,10 @@ begin not atomic
         UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '2917');
         -- Feero Ironhand
         UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '4484');
+        -- Corporal Keeshan
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '349');
+        -- Mist
+        UPDATE `creature_template` SET `ai_name` = 'EscortAI', `script_name` = '' WHERE (`entry` = '3568');
 
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1504 - Only added Sunrock sign at -48 -262 1 1, since we had an unused GO template for that and no 'Venture Co Camp' or 'Windshar Craig' templates.
         INSERT INTO `spawns_gameobjects`                                                                (`spawn_id`,`spawn_entry`,`spawn_map`,`spawn_positionX`,`spawn_positionY`,`spawn_positionZ`,`spawn_orientation`,`spawn_rotation0`,`spawn_rotation1`,`spawn_rotation2`,`spawn_rotation3`,`spawn_spawntimemin`,`spawn_spawntimemax`,`spawn_animprogress`,`spawn_state`,`spawn_flags`,`spawn_visibility_mod`,`ignored`) VALUES (4000010,141076,1,-54.674,-265.04,2.13,3,0,0,0,0,900,900,100,1,0,0,0);
@@ -3120,6 +3126,65 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1` = '830' WHERE (`entry` = '2159');
         -- Stone Bahemoth placement.
         UPDATE `spawns_creatures` SET `position_x` = '4606.902', `position_y` = '567.736', `position_z` = '1.271' WHERE (`spawn_id` = '37091');
+        -- Quest: Supplies to Auberdine, add reward that matches horde side. Modify Objectives.
+        UPDATE `quest_template` SET `Objectives` = 'Speak with Sentinel Elissa Starbreeze in Auberdine after seeing Feero safely through Ashenvale Forest.', `RewChoiceItemId2` = '5322', `RewChoiceItemCount2` = '1' WHERE (`entry` = '976');
+        -- Sentinel Elissa Starbreeze as Quest finisher. (TODO: Maybe The Tower of Althalaxx chain required quest 976 to be completed first)
+        UPDATE `creature_quest_finisher` SET `entry` = '3657' WHERE (`entry` = '3663') and (`quest` = '976');
+        -- Wailing Highbornes and Writhing Highbornes should be neutral. https://github.com/The-Alpha-Project/alpha-core/issues/1518
+        UPDATE `creature_template` SET `faction` = '7' WHERE (`entry` = '2177');
+        UPDATE `creature_template` SET `faction` = '7' WHERE (`entry` = '2178');
+        -- Anaya Dawnrunner should be elite.
+        UPDATE `creature_template` SET `rank` = 1 WHERE `entry` = 3667;
+        -- Hogger Poster.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-9749.665', `spawn_positionY` = '682.293', `spawn_positionZ` = '27.579', `spawn_orientation` = '3.603', `spawn_rotation0` = '0', `spawn_rotation1` = '0', `spawn_rotation2` = '0', `spawn_rotation3` = '0' WHERE (`spawn_id` = '26843');
+
+        -- Mising in action fixes.
+        DELETE FROM `quest_start_scripts` WHERE `id`=219;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (219, 0, 0, 61, 219, 0, 0, 0, 0, 0, 0, 0, 0, 21902, 1019, 21901, 0, 0, 0, 0, 0, 'Missing in Action - Start Map Event'),
+        (219, 0, 2, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Remove NPC flags'),
+        (219, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 16, 25, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Say Text'),
+        (219, 3, 4, 60, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Start Waypoints');
+
+        DELETE FROM `generic_scripts` WHERE `id`=21901;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (21901, 0, 0, 70, 219, 0, 0, 0, 219, 0, 21, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1014, 'Missing in Action - Fail Quest'),
+        (21901, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Despawn Keeshan');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=34903;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (34903, 0, 0, 0, 0, 0, 0, 0, 219, 0, 21, 16, 29, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Say Text'),
+        (34903, 0, 0, 62, 219, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - End Map Event');
+
+        DELETE FROM `generic_scripts` WHERE `id`=21902;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (21902, 0, 0, 7, 219, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Complete Quest');
+
+        -- Quest: Mist 938
+        
+        DELETE FROM `quest_start_scripts` WHERE `id`=938;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (938, 0, 0, 61, 938, 540, 0, 0, 0, 0, 0, 0, 93801, 93801, 1019, 93802, 0, 0, 0, 0, 0, 'Mist - Start Map Event'),
+        (938, 0, 0, 4, 46, 512, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Remove Immune Flag'),
+        (938, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Remove QuestGiver Flag'),
+        (938, 0, 0, 22, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Set Escortee Faction'),
+        (938, 0, 0, 20, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Follow Player');
+
+        DELETE FROM `generic_scripts` WHERE `id`=93801;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (93801, 0, 0, 7, 938, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Complete Quest'),
+        (93801, 0, 0, 20, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Remove Follow Movement'),
+        (93801, 0, 0, 0, 0, 0, 0, 0, 3519, 0, 8, 2, 1330, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Sentinel Arynia Cloudsbreak - Talk'),
+        (93801, 6, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Despawn');
+
+        -- 93801: Creature 3519 Is Alive Within 10 Yards Of The Target
+        DELETE FROM `conditions` WHERE `condition_entry` = 93801;
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (93801, 20, 3519, 10, 0, 0, 0);
+
+        DELETE FROM `generic_scripts` WHERE `id`=93802;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (93802, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Fail Quest'),
+        (93802, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Despawn');
 
         insert into applied_updates values ('191020251');
     end if;

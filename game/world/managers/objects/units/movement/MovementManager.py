@@ -1,4 +1,7 @@
+import math
 from typing import Optional
+
+from game.world.managers.objects.units.movement.behaviors.FollowMovement import FollowMovement
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
@@ -34,6 +37,7 @@ class MovementManager:
             MoveType.DISTRACTED: None,
             MoveType.CHASE: None,
             MoveType.PET: None,
+            MoveType.FOLLOW: None,
             MoveType.GROUP: None,
             MoveType.WAYPOINTS: None,
             MoveType.WANDER: None,
@@ -152,6 +156,9 @@ class MovementManager:
         self.reset(clean_behaviors=True)
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback,
                                        target=target, seek_assist=seek_assist))
+
+    def move_follow(self, target, dist=2, angle=math.pi / 2):
+        self.set_behavior(FollowMovement(spline_callback=self.spline_callback, target=target, dist=dist, angle=angle))
 
     def move_confused(self, duration_seconds=-1):
         self.set_behavior(ConfusedMovement(spline_callback=self.spline_callback, duration_seconds=duration_seconds))
