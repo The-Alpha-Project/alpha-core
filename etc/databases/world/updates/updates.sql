@@ -3590,5 +3590,16 @@ begin not atomic
         insert into applied_updates values ('301020251');
     end if;
 
+
+    -- 30/10/2025 2
+    if (select count(*) from applied_updates where id='301020252') = 0 then
+        -- Fix Cerellean Whiteclaw position. https://github.com/The-Alpha-Project/alpha-core/issues/1130
+        UPDATE `spawns_creatures` SET `position_x` = 6446.96533203125, `position_y` = 629.848449707031, `position_z` = 7.64285755157471, `orientation` = 0.13590 WHERE `spawn_id` = 37062;
+        -- Fix Anaya spawn position.
+        UPDATE `quest_end_scripts` SET `x` = 6448.65, `y` = 630.078, `z` = 7.35879, `o` = 3.27749 WHERE `id` = 963 AND `delay` = 0 AND `datalong` = 3843 AND `command` = 10;
+
+        insert into applied_updates values ('301020252');
+    end if;
+
 end $
 delimiter ;
