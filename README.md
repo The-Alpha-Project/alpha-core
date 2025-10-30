@@ -22,7 +22,7 @@
 1. In `etc/config`, create a copy of `config.yml.dist` and rename it to `config.yml`.  
    Edit the file as needed for your setup.
 
-2. You need **Python 3.9 or higher**. Install it from [python.org](https://www.python.org/downloads/).
+2. You need **Python 3.11 or higher**. Install it from [python.org](https://www.python.org/downloads/).
 
 3. **Generate `.map` and `.nav` files**
    - In `config.yml`, configure the `Extractor` section by setting `wow_root_path`.
