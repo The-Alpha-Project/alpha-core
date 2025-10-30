@@ -3204,9 +3204,6 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_spawntimemin` = 10, `spawn_spawntimemax` = 10 WHERE `spawn_id` IN (3996164, 26772, 49695, 12863, 14137, 40668, 11014, 12872, 12864, 12871, 40688, 30277, 15008, 40688, 234778, 350470, 362149, 35792, 29680);
         UPDATE `spawns_gameobjects` SET `spawn_animprogress` = 100 WHERE `spawn_id` IN (35876, 82575);
         -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- Fix Creature Under Map (credit cmangos)
-        UPDATE `spawns_creatures` SET `position_x` = 544.298828, `position_y` = -3755.502930, `position_z` = 15.736476, `wander_distance` = 10, `movement_type` = 1 WHERE `spawn_id` = 13565;
-        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- Restore Stranglekelp Pre 1.7
         UPDATE `pool_template` SET `max_limit` = 3 WHERE `pool_entry` = 1064 AND `patch_min`=0 AND `patch_max`=4;
         UPDATE `pool_template` SET `max_limit` = 4 WHERE `pool_entry` = 1322 AND `patch_min`=0 AND `patch_max`=4;
@@ -3323,9 +3320,6 @@ begin not atomic
         -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- Correct State For Object
         UPDATE `spawns_gameobjects` SET `spawn_state` = 1 WHERE `spawn_id` = 60099;
-        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- Prevent Creature From Evading
-        UPDATE `spawns_creatures` SET `position_z`=42.3186 WHERE `spawn_id`=11352;
         -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- Add Swifthistle to Barrens Herbs
         INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES
@@ -3518,9 +3512,6 @@ begin not atomic
         -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- Add Correct Completion Text to Quest Id 7907 (Taken from WoWHead)
         UPDATE `quest_template` SET `OfferRewardText` = 'So you have put together a deck of Beasts. Your gesture of returning it to us will create a tie between you and the Darkmoon that will not soon be forgotten. Allow me to present you with one of the greater darkmoon cards as a small token of our appreciation.' WHERE `entry` = 7907;
-        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        -- Stop Creature Flying Across Map
-        UPDATE `spawns_creatures` SET `position_x` = -1034.05, `position_y` = -2803.35, `position_z` = 49.2393 WHERE `spawn_id` = 12048;
         -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         -- Creatures Dont Have Mana
         UPDATE `spawns_creatures` SET `mana_percent` = 0 WHERE  `spawn_id` IN (75066, 75065);
