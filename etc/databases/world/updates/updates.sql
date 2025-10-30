@@ -1476,7 +1476,6 @@ begin not atomic
         INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`, `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`, `level_min`, `level_max`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`, `detection_range`, `call_for_help_range`, `leash_range`, `rank`, `xp_multiplier`, `damage_school`, `damage_variance`, `damage_multiplier`, `health_multiplier`, `mana_multiplier`, `armor_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`, `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`, `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`, `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`, `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`, `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`, `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`, `script_name`) VALUES
         (4543, 2606, 0, 0, 0, 0, 'Bloodmage Thalnos', '', 0, 0, 37, 37, 21, 0, 1, 1.14286, 0, 20, 5, 0, 1, 2, 0, 0.14, 1.7, 8, 2.5, 0.95, 2000, 2000, 2, 0, 0, 0, 0, 0, 0, 0, 6, 0, 4543, 4543, 0, 0, 0, 0, 0, 0, 0, 6131, 2138, 2121, 7641, 43050, 0, NULL, 121, 720, '', 1, 1, 0, 0, 3, 4543, 0, 0, 617299931, 0, 0, '');
 
-
         -- Events list for Bloodmage Thalnos
         DELETE FROM `creature_ai_events` WHERE `creature_id`=4543;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (454300, 4543, 0, 30, 0, 100, 0, 0, 0, 0, 0, 454300, 0, 0, 'Bloodmage Thalnos - Spawn Ghosts on Reset');
@@ -3187,6 +3186,408 @@ begin not atomic
         (93802, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mist - Despawn');
 
         insert into applied_updates values ('191020251');
+    end if;
+
+    -- 30/10/2025 1
+    if (select count(*) from applied_updates where id='301020251') = 0 then
+        -- Partial https://github.com/vmangos/core/commit/6b117f8921888058338a1b10d93e0d4ff2b4d806
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Events list for Therylune (creature uses cpp script added for future)
+        UPDATE `spawns_creatures` SET `wander_distance` = 3, `movement_type` = 1 WHERE `spawn_id` = 36533;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (358401, 3584, 0, 1, 0, 100, 1, 0, 3000, 60000, 100000, 358401, 0, 0, 'Therylune - Talk OOC');
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (358401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1186, 0, 0, 0, 0, 0, 0, 0, 0, 'Therylune - Talk OOC');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Update Respawn Times
+        UPDATE `spawns_gameobjects` SET `spawn_spawntimemin` = 0, `spawn_spawntimemax` = 0 WHERE `spawn_id` IN (42673, 42662, 35422, 13767, 16617, 16611, 16610, 13260, 15090, 15099, 32614, 47598, 47599, 47600, 47602, 45008, 6929, 12671, 12194, 11829, 47699, 45014, 35412, 15719, 42620, 49828, 13166, 6849, 45332, 10663, 45719, 45720, 45721, 32686, 49376, 46198, 46199, 13525, 27085, 9986 , 10135, 10030, 17201, 10043, 47905, 12699, 11418, 32387, 14067, 29362);
+        UPDATE `spawns_gameobjects` SET `spawn_spawntimemin` = 10, `spawn_spawntimemax` = 10 WHERE `spawn_id` IN (3996164, 26772, 49695, 12863, 14137, 40668, 11014, 12872, 12864, 12871, 40688, 30277, 15008, 40688, 234778, 350470, 362149, 35792, 29680);
+        UPDATE `spawns_gameobjects` SET `spawn_animprogress` = 100 WHERE `spawn_id` IN (35876, 82575);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Fix Creature Under Map (credit cmangos)
+        UPDATE `spawns_creatures` SET `position_x` = 544.298828, `position_y` = -3755.502930, `position_z` = 15.736476, `wander_distance` = 10, `movement_type` = 1 WHERE `spawn_id` = 13565;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Restore Stranglekelp Pre 1.7
+        UPDATE `pool_template` SET `max_limit` = 3 WHERE `pool_entry` = 1064 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `max_limit` = 4 WHERE `pool_entry` = 1322 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `max_limit` = 2 WHERE `pool_entry` = 1145 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `max_limit` = 2 WHERE `pool_entry` = 1190 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `max_limit` = 3 WHERE `pool_entry` = 1123 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `patch_min` = 0 WHERE `pool_entry` = 43522 AND `patch_min`=7 AND `patch_max`=10;
+        UPDATE `pool_template` SET `max_limit` = 2 WHERE `pool_entry` = 1065 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `max_limit` = 2 WHERE `pool_entry` = 984 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `max_limit` = 4 WHERE `pool_entry` = 1122 AND `patch_min`=0 AND `patch_max`=4;
+        UPDATE `pool_template` SET `max_limit` = 5 WHERE `pool_entry` = 1149 AND `patch_min`=0 AND `patch_max`=4;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Deathclasp Should Only Be Accompanied with Stonelash Flayers
+        UPDATE `spawns_creatures` SET `spawn_entry2`=0 WHERE  `spawn_id` IN (44396, 44397);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Remove Duplicate Creatures
+        DELETE FROM `spawns_creatures` WHERE `spawn_id` IN (16672, 16722);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Defias Rogue Wizard Should Wander
+        UPDATE `spawns_creatures` SET `movement_type` = 1, `wander_distance` = 10 WHERE `spawn_id` IN (81164, 81160, 81159, 81166, 81162, 81165, 81161, 81320, 81311, 81294, 81299, 81167, 81172, 81171, 81170, 81176, 81173);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Soriid the Devourer Should Not Be Skinnable
+        DELETE FROM `skinning_loot_template` WHERE `entry` = 8204;
+        UPDATE `creature_template` SET `skinning_loot_id` = 0 WHERE `entry` = 8204;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Other unskinnable mobs.
+        UPDATE `creature_template` SET `skinning_loot_id` = 0 WHERE `entry` IN (14476, 4242, 4243, 5347, 6582, 7376, 10619, 10979, 11181, 11671, 11672, 11710, 11896, 11897, 14344, 14477, 14566, 15172, 15338, 15718, 11741, 11740, 14476, 14344);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct Serpentbloom Spawns Ammount
+        UPDATE `pool_template` SET `max_limit` = 13 WHERE `pool_entry` = 4893;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Events list for Trade Master Kovic
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (844402, 8444, 0, 4, 0, 100, 0, 0, 0, 0, 0, 844402, 0, 0, 'Trade Master Kovic - Talk on Aggro');
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (844402, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4422, 4421, 0, 0, 0, 0, 0, 0, 0, 'Trade Master Kovic - Talk on Aggro');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Creatures Should Share ID's
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 5333, `spawn_entry2` = 5336 WHERE `spawn_id` IN (51496, 51637, 51497, 51636, 51494, 51635, 51608, 51493, 51554, 51492);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct Some Skinning Tables
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4396, `spawn_entry2` = 4397 WHERE spawn_entry1 IN (4396, 4397);
+
+        -- Mudrock Spikeshell
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 77, `groupid` = 1 WHERE `entry` = 4397 AND `item` = 4234;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 3, `groupid` = 1 WHERE `entry` = 4397 AND `item` = 4235;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 20, `groupid` = 1 WHERE `entry` = 4397 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 25, `groupid` = 2 WHERE `entry` = 4397 AND `item` = 8167;
+
+        -- Mudrock Tortoise
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 77, `groupid` = 1 WHERE `entry` = 4397 AND `item` = 4234;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 26, `groupid` = 2 WHERE `entry` = 4397 AND `item` = 8167;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 20, `groupid` = 1 WHERE `entry` = 4397 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 3, `groupid` = 1 WHERE `entry` = 4397 AND `item` = 4235;
+
+        -- Mudrock Snapjaw
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 51, `groupid` = 2 WHERE `entry` = 4400 AND `item` = 8167;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 49, `groupid` = 1 WHERE `entry` = 4400 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 44, `groupid` = 1 WHERE `entry` = 4400 AND `item` = 4234;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 4, `groupid` = 1 WHERE `entry` = 4400 AND `item` = 8169;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 3, `groupid` = 1 WHERE `entry` = 4400 AND `item` = 4235;
+
+        -- Mudrock Burrower
+        UPDATE `creature_template` SET `skinning_loot_id` = 4398 WHERE `entry` = 4398;
+        INSERT INTO `skinning_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES
+        (4398, 4234, 77, 1),
+        (4398, 8167, 26, 2),
+        (4398, 4304, 19, 1),
+        (4398, 4235, 4, 1);
+
+        -- Saltwater Snapjaw
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 50 WHERE `entry` = 2505 AND `item` = 8167;
+
+        -- Steeljaw Snapper
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 50, `groupid` = 2 WHERE `entry` = 14123 AND `item` = 8167;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 49, `groupid` = 1 WHERE `entry` = 14123 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 43, `groupid` = 1 WHERE `entry` = 14123 AND `item` = 4234;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 3, `groupid` = 1 WHERE `entry` = 14123 AND `item` = 8169;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 3, `groupid` = 1 WHERE `entry` = 14123 AND `item` = 4235;
+
+        -- Stolid Snapjaw
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 77, `groupid` = 1 WHERE `entry` = 13599 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 49, `groupid` = 2 WHERE `entry` = 13599 AND `item` = 8167;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 20, `groupid` = 1 WHERE `entry` = 13599 AND `item` = 8170;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 3, `groupid` = 1 WHERE `entry` = 13599 AND `item` = 8169;
+
+        -- Gammerita
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 70, `groupid` = 1 WHERE `entry` = 7977 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 51, `groupid` = 2 WHERE `entry` = 7977 AND `item` = 8167;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 24, `groupid` = 1 WHERE `entry` = 7977 AND `item` = 8170;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 6, `groupid` = 1 WHERE `entry` = 7977 AND `item` = 8169;
+
+        -- Ironback
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 50, `groupid` = 1 WHERE `entry` = 8213 AND `item` = 8170;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 48, `groupid` = 1 WHERE `entry` = 8213 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 44, `groupid` = 2 WHERE `entry` = 8213 AND `item` = 8167;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 1, `groupid` = 1 WHERE `entry` = 8213 AND `item` = 8169;
+        INSERT INTO `skinning_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES
+        (8213, 8171, 1, 1);
+
+        -- Scalebeard
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 49, `groupid` = 1 WHERE `entry` = 13896 AND `item` = 8170;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 45, `groupid` = 1 WHERE `entry` = 13896 AND `item` = 4304;
+        UPDATE `skinning_loot_template` SET `ChanceOrQuestChance` = 40, `groupid` = 2 WHERE `entry` = 13896 AND `item` = 8167;
+        INSERT INTO `skinning_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`) VALUES
+        (13896, 8171, 5, 1),
+        (13896, 8169, 1, 1);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Creature 5469 Shares Spawns With 5470
+        UPDATE `spawns_creatures` SET `spawn_entry2` = 5470 WHERE `spawn_entry1`= 5469;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct Call For Help For Silithid Hive Drone
+        UPDATE `creature_ai_scripts` SET `x` = 20 WHERE `id` IN (413301, 413302);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct State For Object
+        UPDATE `spawns_gameobjects` SET `spawn_state` = 1 WHERE `spawn_id` = 60099;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Prevent Creature From Evading
+        UPDATE `spawns_creatures` SET `position_z`=42.3186 WHERE `spawn_id`=11352;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Add Swifthistle to Barrens Herbs
+        INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES
+        (2514, 2452, 20, 0, 1, 2, 0),
+        (2515, 2452, 40, 0, 1, 2, 0);
+
+        -- Barrens Herbs Should Drop Betreen 1 and 3 Herbs
+        UPDATE `gameobject_loot_template` SET `mincountOrRef` = 1, `maxcount` = 3 WHERE `entry` = 2514 AND `item` = 785;
+        UPDATE `gameobject_loot_template` SET `mincountOrRef` = 1, `maxcount` = 3 WHERE `entry` = 2515 AND `item` = 2450;
+        UPDATE `gameobject_loot_template` SET `mincountOrRef` = 1, `maxcount` = 3 WHERE `entry` = 2512 AND `item` = 2447;
+        UPDATE `gameobject_loot_template` SET `mincountOrRef` = 1, `maxcount` = 3 WHERE `entry` = 2513 AND `item` = 2449;
+        UPDATE `gameobject_loot_template` SET `mincountOrRef` = 1, `maxcount` = 3 WHERE `entry` = 2511 AND `item` = 765;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Remove Unused Quest From NPC
+        DELETE FROM `creature_quest_starter` WHERE  `entry` = 14358 AND `quest` = 7462;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Remove Dire Pool Object Added In Classic
+        DELETE FROM `spawns_gameobjects` WHERE `spawn_id` = 1936;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Add Derina Rumdnul Script
+        UPDATE `spawns_creatures` SET `wander_distance` = 0, `movement_type` = 2 WHERE `spawn_id` = 9569;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (148401, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 394, 395, 396, 0, 0, 0, 0, 0, 0, 'Derina Rumdnul - Talk');
+        INSERT INTO `creature_movement_template` VALUES
+        (1484, 1, -3743.43, -886.878, 11.0101, 100, 360000, 1, 0),
+        (1484, 2, -3742.26, -876.78, 9.90981, 100, 0, 0, 0),
+        (1484, 3, -3741.16, -871.94, 9.90022, 100, 8000, 0, 148401);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct SPAWN Orientation For Squire Maltrake
+        UPDATE `spawns_creatures` SET `orientation` = 2.86234 WHERE `spawn_id` = 5598;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Add Events list for Kalaran Windblade
+        UPDATE `creature_template` SET `ai_name` = 'EventAI' WHERE `entry` = 8479;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (847901, 8479, 0, 1, 0, 100, 1, 360000, 600000, 360000, 600000, 847901, 0, 0, 'Kalaran Windblade - Emote - OOC');
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (847901, 0, 0, 39, 847901, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Kalaran Windblade - Start Script');
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (847901, 0, 0, 1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kalaran Windblade - Emote'),
+        (847901, 5, 0, 1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kalaran Windblade - Emote'),
+        (847901, 9, 0, 1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kalaran Windblade - Emote');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Add Correct Gossip to Joseph Redpath (NOTE: currently his gossip is controlled by a cpp script that only displays the placeholder gossip. If the script is converted to DB in the future this correct gossip menu will be used.)
+        UPDATE `creature_template` SET `gossip_menu_id` = 3861 WHERE `entry` = 10936;
+        INSERT INTO `gossip_menu` VALUES
+        (3861, 4778, 0, 0);
+        UPDATE `spawns_creatures` SET `wander_distance` = 1.5, `movement_type` = 1 WHERE `spawn_id` = 53736;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Remove Duplicate Object
+        DELETE FROM `spawns_gameobjects` WHERE `spawn_id` = 21;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Remove Incorrect Pre-Quests
+        UPDATE `quest_template` SET `PrevQuestId` = 0 WHERE `entry` IN (8846, 8847, 8848, 8849, 8850, 8851, 8852, 8853, 8854, 8855);
+        UPDATE `quest_template` SET `PrevQuestId` = 0 WHERE `PrevQuestId` IN (8795, 8792);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct Rethban Gauntlet Complete Script (credit cmangos)
+        DELETE FROM `quest_end_scripts` WHERE `id`=1699;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1699, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Remove NpcFlags'),
+        (1699, 0, 1, 1, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Emote Shout'),
+        (1699, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2308, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Say Text'),
+        (1699, 0, 3, 20, 0, 0, 0, 0, 379, 20, 10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Darcy - Stop Waypoint'),
+        (1699, 0, 4, 35, 0, 0, 0, 0, 379, 20, 10, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Darcy - Face Player'),
+        (1699, 1, 0, 1, 4, 0, 0, 0, 5620, 20, 10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Bartender Wental - Emote Cheer'),
+        (1699, 3, 0, 1, 21, 0, 0, 0, 346, 20, 10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Barkeep Daniels - Emote OneShotApplaud'),
+        (1699, 3, 1, 1, 21, 0, 0, 0, 379, 20, 10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Darcy - Emote OneShotApplaud'),
+        (1699, 5, 0, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Emote Cheer'),
+        (1699, 5, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2309, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Say Text'),
+        (1699, 6, 0, 1, 4, 0, 0, 0, 379, 20, 10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Darcy - Emote OneShotCheer'),
+        (1699, 6, 1, 1, 21, 0, 0, 0, 5620, 20, 10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Bartender Wental - Emote OneShotApplaud'),
+        (1699, 9, 0, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Emote Cheer'),
+        (1699, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2309, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Say Text'),
+        (1699, 10, 0, 20, 2, 0, 12, 0, 379, 20, 10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Darcy - Start Waypoint'),
+        (1699, 13, 0, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Emote Cheer'),
+        (1699, 13, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2309, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Say Text'),
+        (1699, 14, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Rethban Gauntlet: Yorus Barleybrew - Add NpcFlags');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct Sully Balloo\'s Letter Complete Script (credit cmangos)
+        DELETE FROM `quest_end_scripts` WHERE `id`=637;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (637, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sully Balloo\'s Letter: Sara Balloo - Remove NpcFlags'),
+        (637, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 792, 0, 0, 0, 0, 0, 0, 0, 0, 'Sully Balloo\'s Letter: Sara Balloo - Say EmotedText'),
+        (637, 6, 0, 1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sully Balloo\'s Letter: Sara Balloo - Emote Roar'),
+        (637, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 793, 0, 0, 0, 0, 0, 0, 0, 0, 'Sully Balloo\'s Letter: Sara Balloo - Say Text'),
+        (637, 10, 0, 1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sully Balloo\'s Letter: Sara Balloo - Emote Cry'),
+        (637, 15, 0, 1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sully Balloo\'s Letter: Sara Balloo - Emote Beg'),
+        (637, 20, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sully Balloo\'s Letter: Sara Balloo - Add NpcFlags');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct The Scythe of Elune Script (credit cmangos)
+        DELETE FROM `event_scripts` WHERE `id`=664;
+        INSERT INTO `event_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (664, 0, 0, 10, 3946, 13000, 1, 10, 0, 0, 0, 0, 8, 0, -1, 1, -11141.1, -1152.68, 43.5816, 4.7822, 0, 'The Scythe of Elune: Mound of Dirt - Summon Creature Velinde Starsong'),
+        (664, 1, 0, 35, 0, 0, 0, 0, 0, 0, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Scythe of Elune: Velinde Starsong - Set Orientation'),
+        (664, 5, 0, 0, 0, 0, 0, 0, 0, 0, 8, 2, 1359, 0, 0, 0, 0, 0, 0, 0, 0, 'The Scythe of Elune: Velinde Starsong - Say Text'),
+        (664, 9, 0, 0, 0, 0, 0, 0, 0, 0, 8, 2, 1360, 0, 0, 0, 0, 0, 0, 0, 0, 'The Scythe of Elune: Velinde Starsong - Say Text'),
+        (664, 9, 1, 1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Scythe of Elune - Velinde Starsong - Emote OneShotCry');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Add Pearl Diving Script (credit cmangos)
+        UPDATE `quest_template` SET `CompleteScript`=705 WHERE `entry`=705;
+
+        DELETE FROM `generic_scripts` WHERE `id` IN (70501, 70502);
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (70501, 1, 0, 60, 3, 1, 0, 0, 0, 0, 0, 0, 0, 601301, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Wayward Buzzard - Start Waypoints'),
+        (70502, 1, 0, 60, 3, 1, 0, 0, 0, 0, 0, 0, 0, 601301, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Wayward Buzzard - Start Waypoints');
+        DELETE FROM `creature_movement_special` WHERE `id` = 601301;
+        INSERT INTO `creature_movement_special` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
+        (601301, 1, -6752.36, -3161.91, 244.696, 100, 0, 0, 0),
+        (601301, 2, -6756.26, -3154.47, 243.139, 100, 0, 0, 0),
+        (601301, 3, -6759.12, -3146.12, 242.102, 100, 0, 0, 11),
+        (601301, 4, -6759.85, -3144.31, 241.801, 100, 0, 0, 0),
+        (601301, 5, -6766.58, -3169, 240.869, 100, 0, 0, 0),
+        (601301, 6, -6760.42, -3182.86, 240.869, 100, 0, 0, 0),
+        (601301, 7, -6752.39, -3193.63, 240.869, 100, 0, 0, 0),
+        (601301, 8, -6739.17, -3199.83, 241.064, 100, 0, 0, 0),
+        (601301, 9, -6730.48, -3200.03, 244.274, 100, 0, 0, 4);
+
+        DELETE FROM `quest_end_scripts` WHERE `id`=705;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (705, 0, 0, 31, 6013, 60, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Terminate Script'),
+        (705, 0, 1, 35, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3.66519, 0, 'Pearl Diving: Rigglefuzz - Set Orientation'),
+        (705, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1021, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Say Text'),
+        (705, 0, 3, 10, 6013, 22951, 0, 0, 0, 0, 0, 0, 0, 70502, -1, 1, -6744, -3170.58, 249.026, 2.3911, 0, 'Pearl Diving: Rigglefuzz - Summon Creature Wayward Buzzard'),
+        (705, 0, 4, 10, 6013, 22951, 0, 0, 0, 0, 0, 0, 0, 70501, -1, 1, -6749.5, -3168.62, 246.617, 1.97383, 0, 'Pearl Diving: Rigglefuzz - Summon Creature Wayward Buzzard'),
+        (705, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1023, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Say Text'),
+        (705, 7, 0, 35, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5.20016, 0, 'Pearl Diving: Rigglefuzz - Set Orientation'),
+        (705, 7, 0, 0, 0, 0, 0, 0, 6013, 60, 10, 0, 1022, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Say Text'),
+        (705, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Say Text'),
+        (705, 10, 0, 15, 5134, 0, 0, 0, 6013, 60, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Cast Spell Flash Bomb'),
+        (705, 11, 0, 15, 5134, 0, 0, 0, 6013, 60, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Cast Spell Flash Bomb'),
+        (705, 11, 0, 15, 5134, 0, 0, 0, 6013, 60, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Pearl Diving: Rigglefuzz - Cast Spell Flash Bomb');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Add Thandol Span Script
+        UPDATE `quest_template` SET `StartScript`=632 WHERE  `entry`=632;
+
+        -- 390: Creature 4062 Is Dead Within 50 Yards Of The Target
+        DELETE FROM `conditions` WHERE `condition_entry` = 390;
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES
+        (390, 20, 4062, 50, 1, 0, 1);
+
+        DELETE FROM `creature_movement_special` WHERE `id` = 63101;
+        INSERT INTO `creature_movement_special` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
+        (63101, 1, -2372.22388, -2483.4741, 74.6390, 100, 0, 0, 0),
+        (63101, 2, -2367.6418, -2490.2195, 75.35177, 100, 0, 0, 0),
+        (63101, 3, -2376.869, -2491.26, 75.351776, 100, 0, 0, 0),
+        (63101, 4, -2372.9832, -2495.345, 75.35177, 100, 0, 0, 0),
+        (63101, 5, -2372.842, -2498.6948, 75.35177, 100, 0, 0, 0),
+        (63101, 6, -2376.5527, -2499.2554, 75.35176, 100, 0, 0, 0),
+        (63101, 7, -2376.8274, -2504.2578, 78.392426, 100, 0, 0, 0),
+        (63101, 8, -2376.3125, -2511.2085, 82.58866, 100, 0, 0, 0),
+        (63101, 9, -2372.1162, -2514.5889, 82.35177, 100, 0, 0, 0);
+
+        DELETE FROM `generic_scripts` WHERE `id`=63101;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (63101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 782, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Iron Bombardier - Talk'),
+        (63101, 0, 1, 26, 0, 0, 0, 0, 30, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Iron Bombardier - Start Attack');
+
+        DELETE FROM `generic_scripts` WHERE `id`=63102;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (63102, 0, 0, 60, 3, 1, 0, 0, 0, 0, 0, 0, 0, 63101, 0, 0, 0, 0, 0, 0, 0, 'Dark Iron Bombardier - Start Waypoints'),
+        (63102, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 783, 784, 0, 0, 0, 0, 0, 0, 0, 'Dark Iron Bombardier - Talk');
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=632;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (632, 0, 0, 31, 4062, 50, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Thandol Span: Terminate Script'),
+        (632, 0, 1, 10, 4062, 300000, 0, 0, 0, 0, 0, 0, 0, 63101, -1, 1, -2370.93, -2523.82, 74.639, 2.56563, 390, 'The Thandol Span: Summon Creature'),
+        (632, 0, 2, 10, 4062, 300000, 0, 0, 0, 0, 0, 0, 0, 63102, -1, 1, -2372.22, -2483.47, 74.639, 0.174533, 390, 'The Thandol Span: Summon Creature');
+
+        -- Events list for Dark Iron Saboteur
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1052;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (105202, 1052, 0, 2, 0, 100, 0, 15, 0, 0, 0, 105202, 0, 0, 'Dark Iron Saboteur - Say and Text Emote then Cast Sapper Explode at 15% HP'),
+        (105203, 1052, 0, 4, 0, 100, 0, 0, 0, 0, 0, 105201, 0, 0, 'Dark Iron Saboteur - Talk on Aggro');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=105201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (105201, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1935, 1934, 1936, 0, 0, 0, 0, 0, 0, 'Dark Iron Saboteur - Talk');
+
+        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id` = 12039;
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
+        (12039, 1, -2374.99, -2492.29, 82.2887, 100, 20000, 0, 0),
+        (12039, 2, -2367.67, -2495.42, 82.2887, 100, 0, 0, 0),
+        (12039, 3, -2366.35, -2501.89, 82.2887, 100, 0, 0, 0),
+        (12039, 4, -2367.59, -2510.21, 82.2887, 100, 0, 0, 0),
+        (12039, 5, -2372.84, -2513.92, 82.2887, 100, 20000, 0, 0),
+        (12039, 6, -2367.59, -2510.21, 82.2887, 100, 0, 0, 0),
+        (12039, 7, -2366.35, -2501.89, 82.2887, 100, 0, 0, 0),
+        (12039, 8, -2367.67, -2495.42, 82.2887, 100, 0, 0, 0);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Increase Enraged Stanley Xp Multiplier (credit cmangos)
+        UPDATE `creature_template` SET `xp_multiplier` = 7 WHERE `entry` = 2275;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Add Correct Completion Text to Quest Id 7907 (Taken from WoWHead)
+        UPDATE `quest_template` SET `OfferRewardText` = 'So you have put together a deck of Beasts. Your gesture of returning it to us will create a tie between you and the Darkmoon that will not soon be forgotten. Allow me to present you with one of the greater darkmoon cards as a small token of our appreciation.' WHERE `entry` = 7907;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Stop Creature Flying Across Map
+        UPDATE `spawns_creatures` SET `position_x` = -1034.05, `position_y` = -2803.35, `position_z` = 49.2393 WHERE `spawn_id` = 12048;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Creatures Dont Have Mana
+        UPDATE `spawns_creatures` SET `mana_percent` = 0 WHERE  `spawn_id` IN (75066, 75065);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Unstuck Creature
+        UPDATE `spawns_creatures` SET `position_x` = -471.59, `position_y` = 1956.37, `position_z` = 115.50, `movement_type` = 1, `wander_distance` = 10 WHERE `spawn_id` = 28811;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Remove Redundant npc_gossip Entries
+        DELETE FROM `npc_gossip` WHERE `npc_guid` IN (42301, 53646, 86167, 86184, 89359, 89360, 89361, 89362, 89363, 89364, 89365, 89366, 89367, 89368, 89369, 89370, 89371, 89372, 89375, 89376, 89379, 89380, 89381, 89382, 89383, 89384, 89385, 89386, 89387, 89388, 89389, 89390, 89391, 89392, 89393, 89394, 89395, 89396, 89397, 89398, 89405, 89406, 89413, 89414, 89416, 89417, 89418, 89432, 89440);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Gaffer Jacks Requires Fishing 30
+        UPDATE `quest_template` SET `RequiredSkillValue` = 30 WHERE `entry`= 1579;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Events list for Ancient Equine Spirit
+        UPDATE `creature_template` SET `auras` = '17327', `ai_name` = 'EventAI' WHERE `entry` = 14566;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (1456601, 14566, 0, 11, 0, 100, 0, 0, 0, 0, 0, 1456601, 0, 0, 'Ancient Equine Spirit - Talk on Spawn');
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1456601, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9763, 0, 0, 0, 0, 0, 0, 0, 0, 'Ancient Equine Spirit - Talk');
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct Creature Position
+        UPDATE `spawns_creatures` SET `position_x` = -1686.72, `position_y` = -4326.52, `position_z` = 3.89036, `orientation` = 4.75596 WHERE `spawn_id` = 14358;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Correct Creature Position
+        UPDATE `spawns_creatures` SET `position_x`=-12358.4, `position_y`=-977.508, `position_z`=14.1008, `orientation`=1.2761 WHERE  `spawn_id`=855;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Creatures Should Wander
+        UPDATE `spawns_creatures` SET `wander_distance` = 2, `movement_type` = 1 WHERE `spawn_id` IN (2488, 2161, 2173, 2163, 2165, 2176, 2488, 2491, 2511);
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Low Level Creatures Should Not Be Skinnable
+        UPDATE `creature_template` SET `skinning_loot_id` = 0  WHERE `skinning_loot_id` = 100008;
+        DELETE FROM `skinning_loot_template` WHERE `entry`=100008;
+        -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -- Stop Creature Clipping Through Walls
+        UPDATE `spawns_creatures` SET `wander_distance` = 2 WHERE `spawn_id` = 16985;
+
+        -- Delete not needed patch data for pools
+        DELETE FROM `pool_creature` WHERE `patch_min` > 0;
+        DELETE FROM `pool_creature_template` WHERE `patch_min` > 0;
+        DELETE FROM `pool_gameobject` WHERE `patch_min` > 0;
+        DELETE FROM `pool_gameobject_template` WHERE `patch_min` > 0;
+        DELETE FROM `pool_template` WHERE `patch_min` > 0;
+
+        ALTER TABLE `pool_creature`
+          DROP COLUMN `patch_min`,
+          DROP COLUMN `patch_max`;
+
+        ALTER TABLE `pool_creature_template`
+          DROP COLUMN `patch_min`,
+          DROP COLUMN `patch_max`;
+
+        ALTER TABLE `pool_gameobject`
+          DROP COLUMN `patch_min`,
+          DROP COLUMN `patch_max`;
+
+        ALTER TABLE `pool_gameobject_template`
+          DROP COLUMN `patch_min`,
+          DROP COLUMN `patch_max`;
+
+        ALTER TABLE `pool_template`
+          DROP PRIMARY KEY,
+          ADD PRIMARY KEY (`pool_entry`);
+        ALTER TABLE `pool_template`
+          DROP COLUMN `patch_min`,
+          DROP COLUMN `patch_max`;
+
+        insert into applied_updates values ('301020251');
     end if;
 
 end $

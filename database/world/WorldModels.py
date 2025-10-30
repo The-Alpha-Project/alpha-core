@@ -1440,8 +1440,6 @@ class PoolCreature(Base):
     chance = Column(Float, nullable=False, server_default=text("0"))
     description = Column(String(255), nullable=False)
     flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_min = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_max = Column(INTEGER(10), nullable=False, server_default=text("0"))
 
 
 class PoolCreatureTemplate(Base):
@@ -1452,8 +1450,6 @@ class PoolCreatureTemplate(Base):
     chance = Column(Float, nullable=False, server_default=text("0"))
     description = Column(String(255), nullable=False)
     flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_min = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_max = Column(INTEGER(10), nullable=False, server_default=text("0"))
 
 
 class PoolGameobject(Base):
@@ -1464,8 +1460,6 @@ class PoolGameobject(Base):
     chance = Column(Float, nullable=False, server_default=text("0"))
     description = Column(String(255), nullable=False)
     flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_min = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_max = Column(INTEGER(10), nullable=False, server_default=text("0"))
 
 class PoolGameobjectTemplate(Base):
     __tablename__ = 'pool_gameobject_template'
@@ -1475,8 +1469,6 @@ class PoolGameobjectTemplate(Base):
     chance = Column(Float, nullable=False, server_default=text("0"))
     description = Column(String(255), nullable=False)
     flags = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_min = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_max = Column(INTEGER(10), nullable=False, server_default=text("0"))
 
 
 class PoolPool(Base):
@@ -1497,5 +1489,3 @@ class PoolTemplate(Base):
     description = Column(String(255), nullable=False)
     flags = Column(INTEGER(11), nullable=False, server_default=text("0"))
     instance = Column(MEDIUMINT(8), nullable=False, server_default=text("0"))
-    patch_min = Column(INTEGER(10), nullable=False, server_default=text("0"))
-    patch_max = Column(INTEGER(10), nullable=False, server_default=text("0"))
