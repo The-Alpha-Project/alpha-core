@@ -655,6 +655,7 @@ class DbcDatabaseManager:
 
     class FactionTemplateHolder:
         FACTION_TEMPLATES = {}
+        # TODO: This shouldn't be needed once all NPCs involved in escort quests have the proper EscortAI ai_name.
         ESCORTEE_FACTIONS = {10, 33, 113, 231, 232, 250}
 
         @staticmethod
