@@ -4,6 +4,8 @@ import os
 from datetime import datetime
 from os import path
 from pathlib import Path
+
+from database.auth.AuthDatabaseManager import AuthDatabaseManager
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -1205,8 +1207,8 @@ class CommandManager(object):
             if new_password != confirmation_password:
                 return -1, 'please make sure the confirmation password matches the new password'
 
-            success = RealmDatabaseManager.account_try_update_password(world_session.account_mgr.account.name,
-                                                                       old_password, new_password)
+            success = AuthDatabaseManager.account_try_update_password(world_session.account_mgr.account.name,
+                                                                      old_password, new_password)
             if not success:
                 return -1, 'something went wrong, make sure the current password is correct and the new ' \
                            'password has 16 characters maximum'
@@ -1260,7 +1262,7 @@ class CommandManager(object):
         username, password = args
         salt = os.urandom(32)
         verifier = Srp6.calculate_password_verifier(username, password, salt)
-        account = RealmDatabaseManager.account_create(username, hashlib.sha256(password.encode('utf-8')).hexdigest(),
+        account = AuthDatabaseManager.account_create(username, hashlib.sha256(password.encode('utf-8')).hexdigest(),
                                                       "127.0.0.1", salt.hex(), verifier.hex())
         if not account:
             return -1, 'unable to create account'

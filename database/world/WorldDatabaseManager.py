@@ -13,11 +13,11 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import Languages
 from utils.constants.ScriptCodes import WaypointPathOrigin
 
-DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
-DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
-DB_HOST = os.getenv('MYSQL_HOST', config.Database.Connection.host)
-DB_PORT = os.getenv('MYSQL_TCP_PORT', config.Database.Connection.port)
-DB_WORLD_NAME = config.Database.DBNames.world_db
+DB_USER = os.getenv('MYSQL_USERNAME', config.Database.World.username)
+DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.World.password)
+DB_HOST = os.getenv('MYSQL_HOST', config.Database.World.host)
+DB_PORT = os.getenv('MYSQL_TCP_PORT', config.Database.World.port)
+DB_WORLD_NAME = config.Database.World.db_name
 
 world_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_WORLD_NAME}?charset=utf8mb4',
                                 pool_pre_ping=True)

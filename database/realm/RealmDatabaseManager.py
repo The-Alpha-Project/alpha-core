@@ -4,16 +4,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.realm.RealmModels import *
-from game.realm.AccountManager import AccountManager
 from utils.ConfigManager import *
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.MiscCodes import HighGuid
 
-DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
-DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
-DB_HOST = os.getenv('MYSQL_HOST', config.Database.Connection.host)
-DB_PORT = os.getenv('MYSQL_TCP_PORT', config.Database.Connection.port)
-DB_REALM_NAME = config.Database.DBNames.realm_db
+DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Realm.username)
+DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Realm.password)
+DB_HOST = os.getenv('MYSQL_HOST', config.Database.Realm.host)
+DB_PORT = os.getenv('MYSQL_TCP_PORT', config.Database.Realm.port)
+DB_REALM_NAME = config.Database.Realm.db_name
 
 realm_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_REALM_NAME}?charset=utf8mb4',
                                 pool_pre_ping=True)
@@ -21,123 +20,19 @@ SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autoflush=Fals
 
 
 class RealmDatabaseManager(object):
-    # Realm.
-    
-    @staticmethod
-    def realm_get_list():
-        realm_db_session = SessionHolder()
-        realm = realm_db_session.query(RealmList).all()
-        realm_db_session.close()
-        return realm
-              
-    # Account-
+    # Character.
 
     @staticmethod
-    def account_try_get(username):
-        realm_db_session = SessionHolder()
-        account_mgr = None
-        account = realm_db_session.query(Account).filter_by(name=username).first()
-        if account:
-            account_mgr = AccountManager(account)
-        realm_db_session.close()
-        return account_mgr
-
-    @staticmethod
-    def account_try_login(username, password, ip, client_digest, server_digest):
-        realm_db_session = SessionHolder()
-        account = realm_db_session.query(Account).filter_by(name=username).first()
-        status = -1
-        account_mgr = None
-        if account:
-            if (password and account.password == password) or (client_digest and client_digest == server_digest):
-                status = 1
-                account.ip = ip
-                account_mgr = AccountManager(account)
-
-                realm_db_session.flush()
-                realm_db_session.commit()
-                realm_db_session.refresh(account)
-            else:
-                status = 0
-        realm_db_session.close()
-
-        return status, account_mgr
-
-    @staticmethod
-    def account_create(username, password, ip, salt, verifier):
-        realm_db_session = SessionHolder()
-        account = Account(name=username, password=password, ip=ip,
-                          gmlevel=int(config.Server.Settings.auto_create_gm_accounts),
-                          salt=salt,
-                          verifier=verifier,
-                          sessionkey=""
-                          )
-        realm_db_session.add(account)
-        realm_db_session.flush()
-        realm_db_session.commit()
-        realm_db_session.refresh(account)
-        realm_db_session.close()
-        return AccountManager(account)
-
-    @staticmethod
-    def account_try_update_session_key(username, session_key):
-        realm_db_session = SessionHolder()
-        try:
-            account = realm_db_session.query(Account).filter_by(name=username).first()
-            if not account:
-                return False
-
-            account.sessionkey = session_key
-
-            realm_db_session.merge(account)
-            realm_db_session.flush()
-            realm_db_session.commit()
-        finally:
-            realm_db_session.close()
-
-        return True
-
-    @staticmethod
-    def account_try_update_password(username, old_password, new_password):
-        realm_db_session = SessionHolder()
-        try:
-            account = realm_db_session.query(Account).filter_by(name=username).first()
-            if not account:
-                return False
-
-            # Client limitation.
-            if len(new_password) > 16:
-                return False
-
-            hashed_old_password = hashlib.sha256(old_password.encode('utf-8')).hexdigest()
-            if account.password != hashed_old_password:
-                return False
-
-            hashed_new_password = hashlib.sha256(new_password.encode('utf-8')).hexdigest()
-            account.password = hashed_new_password
-
-            realm_db_session.merge(account)
-            realm_db_session.flush()
-            realm_db_session.commit()
-        finally:
-            realm_db_session.close()
-
-        return True
-
-    @staticmethod
-    def account_get_characters(account_id):
+    def character_get_by_account(account_id):
         realm_db_session = SessionHolder()
         characters = realm_db_session.query(Character).filter_by(account_id=account_id, realm_id=config.Server.Connection.Realm.local_realm_id).limit(10).all()
         realm_db_session.close()
         return characters if characters else []
 
-    # Character.
-
     @staticmethod
     def character_set_all_offline():
         realm_db_session = SessionHolder()
         realm_db_session.query(Character).update({Character.online: 0})
-        realm_db_session.query(RealmList).update({RealmList.online_player_count: 0})
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.close()
@@ -912,21 +807,3 @@ class RealmDatabaseManager(object):
         realm_db_session.commit()
         realm_db_session.refresh(petition)
         realm_db_session.close()
-
-    # Realm
-
-    @staticmethod
-    def realmlist_set_online_player_count(realm_id, player_count):
-        realm_db_session = SessionHolder()
-        realmlist_entry = realm_db_session.query(RealmList).filter_by(realm_id=realm_id).first()
-        realmlist_entry.online_player_count = player_count
-        realm_db_session.flush()
-        realm_db_session.commit()
-        realm_db_session.close()
-
-    @staticmethod
-    def realmlist_get_online_player_count(realm_id):
-        realm_db_session = SessionHolder()
-        realmlist_entry = realm_db_session.query(RealmList).filter_by(realm_id=realm_id).first()
-        realm_db_session.close()
-        return realmlist_entry.online_player_count

@@ -50,7 +50,7 @@ class CharCreateHandler(object):
             if RealmDatabaseManager.character_does_name_exist(name):
                 result = CharCreate.CHAR_CREATE_NAME_IN_USE
             # Validate max allowed characters, client is unable to properly do it when flooded.
-            elif len(RealmDatabaseManager.account_get_characters(world_session.account_mgr.account.id)) >= 10:
+            elif len(RealmDatabaseManager.character_get_by_account(world_session.account_mgr.account.id)) >= 10:
                 result = CharCreate.CHAR_CREATE_FAILED
             elif not TextUtils.TextChecker.valid_text(name, is_name=True):
                 result = CharCreate.CHAR_CREATE_ERROR

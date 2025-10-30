@@ -9,6 +9,7 @@ function init_database() {
     echo "${SQL_DUMP}" | docker_process_sql
 }
 
+init_database 'auth'
 init_database 'dbc'
 init_database 'realm'
 init_database 'world'

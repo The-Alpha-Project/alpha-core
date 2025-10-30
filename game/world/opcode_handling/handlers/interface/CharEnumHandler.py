@@ -8,7 +8,7 @@ class CharEnumHandler(object):
 
     @staticmethod
     def handle(world_session, reader):
-        characters = RealmDatabaseManager.account_get_characters(world_session.account_mgr.account.id)
+        characters = RealmDatabaseManager.character_get_by_account(world_session.account_mgr.account.id)
         count = len(characters)
 
         data = pack('<B', count)

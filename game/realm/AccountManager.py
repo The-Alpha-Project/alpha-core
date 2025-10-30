@@ -67,5 +67,5 @@ class AccountManager(object):
         return PacketWriter.get_srp6_packet(data)
 
     def save_session_key(self):
-        from database.realm.RealmDatabaseManager import RealmDatabaseManager
-        return RealmDatabaseManager.account_try_update_session_key(self.account.name, self._session_key.hex())
+        from database.auth.AuthDatabaseManager import AuthDatabaseManager
+        return AuthDatabaseManager.account_try_update_session_key(self.account.name, self._session_key.hex())

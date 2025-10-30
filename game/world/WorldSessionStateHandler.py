@@ -1,4 +1,6 @@
 import time
+
+from database.auth.AuthDatabaseManager import AuthDatabaseManager
 from database.realm.RealmDatabaseManager import *
 from utils.Logger import Logger
 
@@ -105,8 +107,8 @@ class WorldSessionStateHandler(object):
                     online_player_count += 1
                     WorldSessionStateHandler.save_character(session.player_mgr)
 
-            RealmDatabaseManager.realmlist_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
-                                                                   online_player_count)
+            AuthDatabaseManager.realm_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
+                                                              online_player_count)
         except AttributeError as ae:
             Logger.error(f'Error while saving all active characters into db: {ae}.')
 

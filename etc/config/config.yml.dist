@@ -1,17 +1,34 @@
 Version:
-    current: 21
+    current: 22
 
 Database:
-    Connection:
+    Auth:
+        db_name: alpha_auth
         host: 127.0.0.1
         port: 3306
         username: alphapython
         password: alphapython
 
-    DBNames:
-        realm_db: alpha_realm
-        world_db: alpha_world
-        dbc_db: alpha_dbc
+    Realm:
+        db_name: alpha_realm
+        host: 127.0.0.1
+        port: 3306
+        username: alphapython
+        password: alphapython
+
+    World:
+        db_name: alpha_world
+        host: 127.0.0.1
+        port: 3306
+        username: alphapython
+        password: alphapython
+
+    DBC:
+        db_name: alpha_dbc
+        host: 127.0.0.1
+        port: 3306
+        username: alphapython
+        password: alphapython
 
 Server:
     Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work

@@ -12,11 +12,11 @@ from utils.ConfigManager import *
 from utils.constants.SpellCodes import SpellImplicitTargets
 
 
-DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
-DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
-DB_HOST = os.getenv('MYSQL_HOST', config.Database.Connection.host)
-DB_PORT = os.getenv('MYSQL_TCP_PORT', config.Database.Connection.port)
-DB_DBC_NAME = config.Database.DBNames.dbc_db
+DB_USER = os.getenv('MYSQL_USERNAME', config.Database.DBC.username)
+DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.DBC.password)
+DB_HOST = os.getenv('MYSQL_HOST', config.Database.DBC.host)
+DB_PORT = os.getenv('MYSQL_TCP_PORT', config.Database.DBC.port)
+DB_DBC_NAME = config.Database.DBC.db_name
 
 dbc_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DBC_NAME}?charset=utf8mb4',
                               pool_pre_ping=True)
