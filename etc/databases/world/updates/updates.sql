@@ -3601,5 +3601,13 @@ begin not atomic
         insert into applied_updates values ('301020252');
     end if;
 
+    -- 30/10/2025 3
+    if (select count(*) from applied_updates where id='301020253') = 0 then
+        -- Delete orphan pools from Iron and Tin spawns added in later Vanilla patches.
+        DELETE FROM `pool_gameobject`  WHERE `pool_entry` IN (43520, 43521);
+
+        insert into applied_updates values ('301020253');
+    end if;
+
 end $
 delimiter ;
