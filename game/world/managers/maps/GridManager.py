@@ -242,7 +242,7 @@ class GridManager:
     def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None,
                                   use_ignore=False):
         if not world_object.current_cell:
-            Logger.warning(f'{world_object.get_name() } Cannot send surrounding in range without current cell')
+            Logger.warning(f'{world_object.get_name()} Cannot send surrounding in range without current cell.')
             return
 
         for cell in self._get_surrounding_cells_by_object(world_object):

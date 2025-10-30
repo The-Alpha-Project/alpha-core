@@ -47,7 +47,10 @@ class DebugAIStateHandler(object):
                     message_bytes
                 )
 
-            player_mgr.last_debug_ai_state_object = world_object
+            # This is only useful for dev accounts in case they want to interact with objects through commands.
+            if world_session.account_mgr.is_dev():
+                player_mgr.last_debug_ai_state_object = world_object
+
             player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DEBUG_AISTATE, data))
 
         return 0

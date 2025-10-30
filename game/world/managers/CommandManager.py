@@ -1,4 +1,5 @@
 import hashlib
+import operator
 import os
 from datetime import datetime
 from os import path
@@ -180,7 +181,7 @@ class CommandManager(object):
             return -1, 'invalid unit selection.'
 
     @staticmethod
-    def rotate_object(world_session, args):
+    def _adjust_object_property(world_session, prop: str, op_symbol: str, step: float, label: str):
         game_object = world_session.player_mgr.last_debug_ai_state_object
         if not game_object:
             return -1, 'invalid object selection.'
@@ -188,47 +189,67 @@ class CommandManager(object):
         if not game_object.is_gameobject():
             return -1, 'invalid gameobject selection.'
 
-        try:
-            player_mgr = world_session.player_mgr
-            operator, step = args.split()
-            current_loc = game_object.location.copy()
-            exec(f'current_loc.o {operator}= {step}')
-            from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
-            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id,
-                                                  player_mgr.instance_id, state=1, ttl=0)
-            world_session.player_mgr.get_map().spawn_object(world_object_instance=new_object)
-            game_object.get_map().remove_object(game_object)
-            # Replace old selection with new.
-            world_session.player_mgr.last_debug_ai_state_object = new_object
-            return 0, (f'{new_object.get_name()} rotated to: O:{round(new_object.location.o, 3)}')
-        except ValueError:
-            return -1, 'invalid arguments, e.g. .rotobject + .1.'
+        # Allowed operators.
+        ops = {
+            '+': operator.iadd,
+            '-': operator.isub,
+            '*': operator.imul,
+            '/': operator.itruediv
+        }
+
+        if op_symbol not in ops:
+            return -1, f'invalid operator: {op_symbol}. expected one of {list(ops.keys())}.'
+
+        current_loc = game_object.location.copy()
+
+        # Validate that the property exists on the location object.
+        if not hasattr(current_loc, prop):
+            return -1, f'invalid property: {prop}.'
+
+        old_value = getattr(current_loc, prop)
+        new_value = ops[op_symbol](old_value, step)
+        setattr(current_loc, prop, new_value)
+
+        from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+        player_mgr = world_session.player_mgr
+        new_object = GameObjectBuilder.create(
+            game_object.entry,
+            current_loc,
+            player_mgr.map_id,
+            player_mgr.instance_id,
+            state=1,
+            ttl=0
+        )
+
+        game_map = world_session.player_mgr.get_map()
+        game_map.spawn_object(world_object_instance=new_object)
+        game_object.get_map().remove_object(game_object)
+
+        # Replace old selection.
+        world_session.player_mgr.last_debug_ai_state_object = new_object
+
+        return 0, f'{new_object.get_name()} {label}: {prop.upper()}={round(new_value, 3)}'
 
     @staticmethod
     def move_object(world_session, args):
-        game_object = world_session.player_mgr.last_debug_ai_state_object
-        if not game_object:
-            return -1, 'invalid object selection.'
-
-        if not game_object.is_gameobject():
-            return -1, 'invalid gameobject selection.'
-
         try:
-            player_mgr = world_session.player_mgr
-            operator, prop, step = args.split()
-            current_loc = game_object.location.copy()
-            exec(f'current_loc.{prop} {operator}= {step}')
-            from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
-            new_object = GameObjectBuilder.create(game_object.entry, current_loc, player_mgr.map_id,
-                                                  player_mgr.instance_id, state=1, ttl=0)
-            world_session.player_mgr.get_map().spawn_object(world_object_instance=new_object)
-            game_object.get_map().remove_object(game_object)
-            # Replace old selection with new.
-            world_session.player_mgr.last_debug_ai_state_object = new_object
-            return 0, (f'{new_object.get_name()} moved to: X:{round(new_object.location.x,3)}'
-                       f' Y:{round(new_object.location.y,3)} Z:{round(new_object.location.z,3)}')
+            op_symbol, prop, step = args.split()
+            step = float(step)
+            # restrict to x, y, z for movement.
+            if prop not in {'x', 'y', 'z'}:
+                return -1, f'invalid property: {prop}. expected one of x, y, z.'
+            return CommandManager._adjust_object_property(world_session, prop, op_symbol, step, 'moved to')
         except ValueError:
             return -1, 'invalid arguments, e.g. .moveobject + z .1.'
+
+    @staticmethod
+    def rotate_object(world_session, args):
+        try:
+            op_symbol, step = args.split()
+            step = float(step)
+            return CommandManager._adjust_object_property(world_session, 'o', op_symbol, step, 'rotated to')
+        except ValueError:
+            return -1, 'invalid arguments, e.g. .rotobject + .1.'
 
     @staticmethod
     def distance_unit(world_session, args):

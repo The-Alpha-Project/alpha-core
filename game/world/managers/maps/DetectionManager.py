@@ -17,7 +17,6 @@ class DetectionManager:
         return unit.guid in self.units
 
     def update(self):
-
         # Process pending queues.
         self.process_add_batch()
         self.process_remove_batch()

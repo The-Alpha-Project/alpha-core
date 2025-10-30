@@ -142,13 +142,13 @@ class PlayerManager(UnitManager):
             self.regen_flags = RegenStatsFlags.REGEN_FLAG_HEALTH | RegenStatsFlags.REGEN_FLAG_POWER
             self.online = self.player.online
 
-            # GM checks
+            # GM checks.
             self.is_god = False
             self.collision_cheat = False
             if self.session.account_mgr.is_gm():
                 self.set_gm_tag()
 
-            # Debug
+            # Dev/Debug.
             self.last_debug_ai_state_object = None
 
             # Update exploration data.
@@ -1616,8 +1616,9 @@ class PlayerManager(UnitManager):
         corpse = next((c for c in corpses.values() if c.guid == corpse_guid and c.owner.guid == self.guid), None)
         if not corpse:
             return
+
+        # TODO: Unsure how reclaim corpse worked; for now, despawn corpse and remove res sickness upon corpse recovery.
         corpse.get_map().remove_object(corpse)
-        # TODO: Unsure how reclaim corpse worked, for now, remove res sickness upon corpse recovery.
         self.aura_manager.cancel_auras_by_spell_id(self.get_res_sickness_spell())
 
     def resurrect(self, release_spirit=False):
