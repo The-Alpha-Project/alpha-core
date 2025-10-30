@@ -328,8 +328,6 @@ class UnitManager(ObjectManager):
             # Force players or player pets in-combat.
             victim.threat_manager.add_threat(source=self)
 
-        print(f'{self.get_name()} attacks {victim.get_name()}')
-
         self.send_attack_start(self.combat_target.guid)
 
         return True
