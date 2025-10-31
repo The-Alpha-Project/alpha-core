@@ -2,6 +2,7 @@ import os
 from struct import pack
 
 from network.packet.PacketWriter import PacketWriter
+from utils.ConfigManager import config
 from utils.Srp6 import Srp6
 from utils.constants import CustomCodes
 from utils.constants.AuthCodes import Srp6ResponseType, AuthCode
@@ -24,7 +25,7 @@ class AccountManager(object):
         return self.get_security_level() == CustomCodes.AccountSecurityLevel.PLAYER
 
     def is_gm(self):
-        return self.get_security_level() >= CustomCodes.AccountSecurityLevel.GM
+        return self.get_security_level() >= CustomCodes.AccountSecurityLevel.GM or config.Server.Settings.is_gm_server
 
     def is_dev(self):
         return self.get_security_level() >= CustomCodes.AccountSecurityLevel.DEV

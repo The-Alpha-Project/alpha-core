@@ -8,7 +8,7 @@ from utils.PathManager import PathManager
 
 
 class ConfigManager:
-    EXPECTED_VERSION = 22
+    EXPECTED_VERSION = 23
 
     def __init__(self):
         self.config = None

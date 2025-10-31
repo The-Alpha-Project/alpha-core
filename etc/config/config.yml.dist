@@ -1,5 +1,5 @@
 Version:
-    current: 22
+    current: 23
 
 Database:
     Auth:
@@ -31,9 +31,9 @@ Database:
         password: alphapython
 
 Server:
-    Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work
+    Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work.
         Realm:
-            local_realm_id: 1  # id of the realm running on this machine (realmlist table)
+            local_realm_id: 1  # id of the realm running on this machine (realmlist table).
 
         UpdateServer:
             host: 0.0.0.0
@@ -44,23 +44,24 @@ Server:
             port: 3724
 
         WorldServer:
-            # You can use the FORWARD_ADDRESS_OVERRIDE environment variable to define a different forward IP address
+            # You can use the FORWARD_ADDRESS_OVERRIDE environment variable to define a different forward IP address.
             # (the one that will be served to external players) than the bind one.
             host: 0.0.0.0
             port: 8100
 
     Settings:
-        auto_create_accounts: True  # Automatically create an account the first time credentials are provided
-        auto_create_gm_accounts: False  # Give all new accounts GM permissions
-        blizzlike_names: True  # If True, names won't have any restriction as it was back in the day
+        auto_create_accounts: True  # Automatically create an account the first time credentials are provided.
+        auto_create_gm_accounts: False  # Give all new accounts GM permissions.
+        blizzlike_names: True  # If True, names won't have any restriction as it was back in the day.
         xp_rate: 1.0
+        is_gm_server: False  # If True, all players will have GM permissions regardless of their account security.
         load_gameobjects: True
         load_creatures: True
         load_pools: True  # If False, creatures and gameobject spawns will ignore pooling.
         supported_client: 3368
         realm_saving_interval_seconds: 60
         view_distance: 100  # Define the maximum distance to determine if an object should be considered visible.
-        console_mode: True  # Set it to False if you intend to run the server on background
+        console_mode: True  # Set it to False if you intend to run the server on background.
         # MapTiles:
         # Extract running main.py -e, files should be automatically placed over '/etc/maps/'
         # Enables terrain Z calculations, improving npc units movement.
