@@ -34,13 +34,13 @@ class EvadeMovement(BaseMovement):
         if self.waypoints:
             return
         self.path_ended = True
-        self.unit.is_evading = False
-        self.unit.tmp_home_position = None
 
     # override
     def on_removed(self):
         if not self.unit.is_at_home():
             return
+        self.unit.tmp_home_position = None
+        self.unit.is_evading = False
         self.unit.on_at_home()
         self.unit.attack_stop()
         self.unit.threat_manager.reset()
