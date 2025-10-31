@@ -524,6 +524,7 @@ class CreatureManager(UnitManager):
 
         # We are at spawn position already.
         if in_place or self.is_at_home():
+            self.is_evading = False
             return
 
         # Near teleport the unit instance if unable to acquire a valid path.
