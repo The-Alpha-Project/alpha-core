@@ -8,7 +8,7 @@ function init_database() {
 }
 
 type="default"
-databases=('dbc' 'realm' 'world')
+databases=('auth', 'dbc' 'realm' 'world')
 
 for database in "${databases[@]}"; do
   echo "Updated"  "$database" "$type"

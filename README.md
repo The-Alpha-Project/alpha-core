@@ -49,14 +49,14 @@
 
 5. In `etc/databases`, run `create_databases.sql` with a root (or equivalent) user. This creates:
    - User: `alphapython`
-   - Databases: `alpha_realm`, `alpha_world`, `alpha_dbc`
+   - Databases: `alpha_auth`, `alpha_realm`, `alpha_world`, `alpha_dbc`
 
 > [!NOTE]  
 > If you're using Docker and want to use the `alphapython` user, you may need to change
 > `'alphapython'@'localhost'` to `'alphapython'@'IPv4OfYourDockerContainer'` in `create_databases.sql`
 > if you encounter permission errors.
 
-6. Each folder (`dbc`, `realm`, `world`) in `etc/databases` contains:
+6. Each folder (`auth`, `dbc`, `realm`, `world`) in `etc/databases` contains:
    - Base SQL files
    - Updates in the `/updates` subfolder  
      Example: `dbc/updates` should be applied to the `alpha_dbc` database.
