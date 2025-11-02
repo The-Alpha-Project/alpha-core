@@ -544,7 +544,7 @@ class CreatureManager(UnitManager):
                 failed, in_place, waypoints = self.get_map().calculate_path(land, return_position)
                 if not failed:
                     Logger.warning('Found valid land location to complete Namigator evade pathing.')
-                    # Insert creature to land waypoint.
+                    # Insert creature water to land waypoint.
                     waypoints.insert(0, land)
 
         # Near teleport the unit instance if unable to acquire a valid path.
