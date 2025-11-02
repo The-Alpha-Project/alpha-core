@@ -21,10 +21,11 @@ class SplineBuilder:
 
     @staticmethod
     def build_stop_spline(unit, extra_time_seconds=0):
-        # Update Z on the spot.
-        z, z_locked = unit.get_map().calculate_z_for_object(unit)
-        if not z_locked:
-            unit.location.z = z
+        # Only update Z if not swimming, to avoid setting Z to the water bottom.
+        if not unit.is_swimming():
+            z, z_locked = unit.get_map().calculate_z_for_object(unit)
+            if not z_locked:
+                unit.location.z = z
 
         return Spline(
             unit=unit,

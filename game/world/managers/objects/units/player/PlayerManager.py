@@ -94,6 +94,8 @@ class PlayerManager(UnitManager):
         self.loot_selection: Optional[LootSelection] = None
 
         self.chat_flags = chat_flags
+        self.afk_message = ''
+        self.dnd_message = ''
         self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
@@ -235,6 +237,32 @@ class PlayerManager(UnitManager):
 
         if reload:
             self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.get_player_bytes_2())
+
+    def is_afk(self):
+        return self.player.extra_flags & PlayerFlags.PLAYER_FLAGS_AFK
+
+    def toggle_afk(self):
+        if self.is_afk():
+            self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_AFK
+            self.chat_flags &= ~ChatFlags.CHAT_TAG_AFK
+        else:
+            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_AFK
+            self.chat_flags |= ChatFlags.CHAT_TAG_AFK
+
+        self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.get_player_bytes_2())
+
+    def is_dnd(self):
+        return self.player.extra_flags & PlayerFlags.PLAYER_FLAGS_DND
+
+    def toggle_dnd(self):
+        if self.is_dnd():
+            self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_DND
+            self.chat_flags &= ~ChatFlags.CHAT_TAG_DND
+        else:
+            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_DND
+            self.chat_flags |= ChatFlags.CHAT_TAG_DND
+
+        self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.get_player_bytes_2())
 
     def set_player_to_deathbind_location(self):
         self.map_id = self.deathbind.deathbind_map

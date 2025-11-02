@@ -18,6 +18,7 @@ from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.maps.helpers.Namigator import Namigator
 from utils.ConfigManager import config
+from utils.Formulas import Distances
 from utils.GitUtils import GitUtils
 from utils.Logger import Logger
 from utils.PathManager import PathManager
@@ -249,6 +250,15 @@ class MapManager:
             return False
 
         return True
+
+    @staticmethod
+    def is_land_location(map_id, vector, x=0, y=0, z=0):
+        if vector:
+            x = vector.x
+            y = vector.y
+            z = vector.z
+        liq_info = MapManager.get_liquid_information(map_id, x, y, z, ignore_z=True)
+        return not liq_info
 
     @staticmethod
     def calculate_z_for_object(w_object):
@@ -559,6 +569,26 @@ class MapManager:
         except:
             Logger.error(traceback.format_exc())
             return None
+
+    @staticmethod
+    def find_land_location_in_angle(world_object, destination):
+        # Circular ref.
+        from game.world.managers.abstractions.Vector import Vector
+        start_range = 5
+        start_location = world_object.location.copy()
+        orientation = world_object.location.get_angle_towards_vector(destination)
+        map_ = world_object.get_map()
+        while start_range <= Distances.CREATURE_EVADE_DISTANCE:
+            fx = start_location.x + start_range * math.cos(orientation)
+            fy = start_location.y + start_range * math.sin(orientation)
+            fz = start_location.z
+            liquid_info = map_.get_liquid_information(fx, fy, fz, ignore_z=True)
+            if not liquid_info:
+                z = map_.calculate_z(fx, fy, fz, is_rand_point=True)[0]
+                land_vector = Vector(fx, fy, z)
+                return land_vector
+            start_range += 5
+        return None
 
     @staticmethod
     def find_liquid_location_in_range(world_object, min_range, max_range):

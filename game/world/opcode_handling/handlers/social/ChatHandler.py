@@ -50,7 +50,6 @@ class ChatHandler(object):
                 # Always whisper in universal language when speaking with a GM.
                 if target_player_mgr.session.account_mgr.is_gm():
                     lang = Languages.LANG_UNIVERSAL
-
                 ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, lang)
             return 0
         # Party.
@@ -65,6 +64,30 @@ class ChatHandler(object):
                 message = PacketReader.read_string(reader.data, 8)
                 ChatManager.send_guild(world_session.player_mgr, message, lang, chat_type)
             return 0
+        # AFK.
+        elif chat_type == ChatMsgs.CHAT_MSG_AFK:
+            if not ChatHandler.check_if_command(world_session, message):
+                message = PacketReader.read_string(reader.data, 8)
+                if message and message != world_session.player_mgr.afk_message:
+                    world_session.player_mgr.afk_message = message
+
+                if not message or not world_session.player_mgr.is_afk():
+                    world_session.player_mgr.toggle_afk()
+
+                if world_session.player_mgr.is_afk() and world_session.player_mgr.is_dnd():
+                    world_session.player_mgr.toggle_dnd()
+        # DND.
+        elif chat_type == ChatMsgs.CHAT_MSG_DND:
+            if not ChatHandler.check_if_command(world_session, message):
+                message = PacketReader.read_string(reader.data, 8)
+                if message or not world_session.player_mgr.is_dnd():
+                    world_session.player_mgr.dnd_message = message
+
+                if not message or not world_session.player_mgr.is_dnd():
+                    world_session.player_mgr.toggle_dnd()
+
+                if world_session.player_mgr.is_afk() and world_session.player_mgr.is_dnd():
+                    world_session.player_mgr.toggle_afk()
 
         return 0
 
