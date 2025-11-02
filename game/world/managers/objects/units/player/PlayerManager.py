@@ -1152,9 +1152,6 @@ class PlayerManager(UnitManager):
         else:
             self.liquid_information = None
 
-    def is_swimming(self):
-        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
-
     # override
     def is_above_water(self):
         return not self.is_swimming()
