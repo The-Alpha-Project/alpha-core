@@ -20,5 +20,14 @@ begin not atomic
         insert into applied_updates values ('311020252');
     end if;
 
+    -- 02/11/2025 1
+    if (select count(*) from applied_updates where id='021120251') = 0 then
+        -- Fix level for Healing Wards.
+        -- Closes https://github.com/The-Alpha-Project/alpha-core/issues/1531
+        UPDATE `creature_template` SET `level_min` = 1, `level_max` = 1 WHERE `entry` IN (2992, 3560, 3844);
+
+        insert into applied_updates values ('021120251');
+    end if;
+
 end $
 delimiter ;

@@ -252,7 +252,7 @@ class MapManager:
         return True
 
     @staticmethod
-    def is_land_location(map_id, vector, x=0, y=0, z=0):
+    def is_land_location(map_id, vector=None, x=0, y=0, z=0):
         if vector:
             x = vector.x
             y = vector.y

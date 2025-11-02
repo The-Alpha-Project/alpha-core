@@ -205,7 +205,7 @@ class Map:
     def calculate_z(self, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, z_locked (Could not use map files Z)
         return self.map_manager.calculate_z(self.map_id, x, y, current_z=current_z, is_rand_point=is_rand_point)
 
-    def is_land_location(self, vector, x=0, y=0, z=0):
+    def is_land_location(self, vector=None, x=0, y=0, z=0):
         return self.map_manager.is_land_location(self.map_id, vector, x, y, z)
 
     def los_check(self, start_vector, end_vector, doodads=False):
