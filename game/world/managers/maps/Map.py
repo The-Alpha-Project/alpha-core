@@ -171,6 +171,9 @@ class Map:
     def find_liquid_location_in_range(self, world_object, min_range, max_range):
         return self.map_manager.find_liquid_location_in_range(world_object, min_range, max_range)
 
+    def find_land_location_in_angle(self, world_object, destination):
+        return self.map_manager.find_land_location_in_angle(world_object, destination)
+
     def get_area_information(self, x, y):
         return self.map_manager.get_area_information(self.map_id, x, y)
 
@@ -201,6 +204,9 @@ class Map:
 
     def calculate_z(self, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, z_locked (Could not use map files Z)
         return self.map_manager.calculate_z(self.map_id, x, y, current_z=current_z, is_rand_point=is_rand_point)
+
+    def is_land_location(self, vector, x=0, y=0, z=0):
+        return self.map_manager.is_land_location(self.map_id, vector, x, y, z)
 
     def los_check(self, start_vector, end_vector, doodads=False):
         return self.map_manager.los_check(self.map_id, start_vector, end_vector, doodads=doodads)

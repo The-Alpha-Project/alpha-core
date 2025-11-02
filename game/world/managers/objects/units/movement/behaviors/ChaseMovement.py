@@ -4,6 +4,7 @@ from game.world.managers.objects.units.movement.helpers.SplineBuilder import Spl
 from utils.Formulas import UnitFormulas, Distances
 from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
+from utils.constants.UnitCodes import SplineFlags
 
 
 class ChaseMovement(BaseMovement):
@@ -14,6 +15,7 @@ class ChaseMovement(BaseMovement):
     # override
     def update(self, now, elapsed):
         if self._can_chase():
+            self.speed_dirty = False
             self._chase(self.unit)
 
         super().update(now, elapsed)
@@ -44,6 +46,9 @@ class ChaseMovement(BaseMovement):
         if not combat_target:
             return
 
+        self_swimming = unit.is_swimming()
+        target_swimming = unit.combat_target.is_swimming()
+
         if not unit.is_pet():
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
@@ -53,10 +58,10 @@ class ChaseMovement(BaseMovement):
                 unit.threat_manager.remove_unit_threat(combat_target)
                 return
 
-            if unit.is_swimming() or combat_target.is_swimming() and not unit.can_swim():
+            if (self_swimming or target_swimming) and not unit.can_swim():
                 unit.threat_manager.remove_unit_threat(combat_target)
                 return
-            elif unit.is_swimming() and not combat_target.is_swimming() and not unit.can_exit_water():
+            elif self_swimming and not target_swimming and not unit.can_exit_water():
                 unit.threat_manager.remove_unit_threat(combat_target)
                 return
 
@@ -75,19 +80,20 @@ class ChaseMovement(BaseMovement):
 
         final_location = combat_target.location
         # Use direct combat location if target is over water.
-        if not combat_target.is_swimming():
+        if not target_swimming:
             failed, in_place, path = self.unit.get_map().calculate_path(unit.location, final_location)
             if not failed and not in_place:
                 final_location = path[0]
             elif in_place:
                 return
 
-        speed = self.unit.running_speed
-        spline = SplineBuilder.build_normal_spline(unit, points=[final_location], speed=speed)
+        speed = self.unit.running_speed if not self_swimming else unit.swim_speed
+        spline_flags = SplineFlags.SPLINEFLAG_RUNMODE if not self_swimming else SplineFlags.SPLINEFLAG_NONE
+        spline = SplineBuilder.build_normal_spline(unit, points=[final_location], speed=speed, spline_flags=spline_flags)
         self.spline_callback(spline, movement_behavior=self)
 
     def _can_chase(self):
-        return (not self.unit.is_casting() and self.unit.is_alive and self.unit.combat_target
+        return self.speed_dirty or (not self.unit.is_casting() and self.unit.is_alive and self.unit.combat_target
                 and self.unit.combat_target.is_alive
                 and (True if not self.unit.object_ai else self.unit.object_ai.is_combat_movement_enabled()))
 

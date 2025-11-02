@@ -451,10 +451,14 @@ class CreatureManager(UnitManager):
             camera.update_camera_on_players()
 
     def can_swim(self):
-        return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
+        # Amphibious or Aquatic.
+        return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) != 0 or (
+                    self.static_flags & CreatureStaticFlags.AQUATIC) != 0
 
     def can_exit_water(self):
-        return not (self.static_flags & (CreatureStaticFlags.AQUATIC | CreatureStaticFlags.AMPHIBIOUS))
+        # Amphibious and NOT Aquatic.
+        return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) != 0 and (
+                    self.static_flags & CreatureStaticFlags.AQUATIC) == 0
 
     # override
     def can_block(self, attacker_location=None, in_combat=False):
@@ -486,7 +490,7 @@ class CreatureManager(UnitManager):
         if self.is_player_controlled_pet() or self.is_guardian():
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, True)
         self.object_ai.enter_combat(source)
-        self._update_swimming_state()
+        self.swim_checks_enabled = True
         return True
 
     # override
@@ -518,14 +522,30 @@ class CreatureManager(UnitManager):
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.replenish_powers()
 
+        # TODO: Move all pathing checks/logic inside Evade movement.
         # Get the path we are using to get back to spawn location or latest known location for movement behaviors.
         return_position = self.get_home_position().copy()
         failed, in_place, waypoints = self.get_map().calculate_path(self.location, return_position)
 
-        # We are at spawn position already.
+        # We are at home position already.
         if in_place or self.is_at_home():
             self.is_evading = False
+            self.tmp_home_position = None
+            self.swim_checks_enabled = False
             return
+
+        # If Namigator fails, swimming and heading to land, try to locate a near
+        # land point in the direction of home position.
+        from game.world.managers.abstractions.Vector import Vector
+        if failed and self.is_swimming() and self.get_map().is_land_location(vector=return_position):
+            land = self.get_map().find_land_location_in_angle(self, return_position)
+            if land:
+                # Path from land to home.
+                failed, in_place, waypoints = self.get_map().calculate_path(land, return_position)
+                if not failed:
+                    Logger.warning('Found valid land location to complete Namigator evade pathing.')
+                    # Insert creature water to land waypoint.
+                    waypoints.insert(0, land)
 
         # Near teleport the unit instance if unable to acquire a valid path.
         if failed or self.location.distance(waypoints[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
@@ -535,6 +555,8 @@ class CreatureManager(UnitManager):
                 Logger.warning(f'End: {return_position}')
             self.near_teleport(return_position)
             self.is_evading = False
+            self.tmp_home_position = None
+            self.swim_checks_enabled = False
         else:
             self.movement_manager.move_home(waypoints)
 
@@ -591,7 +613,7 @@ class CreatureManager(UnitManager):
 
             if self.is_alive:
                 # Update relocate/call for help timer.
-                self.call_for_help_and_swim_timer += elapsed
+                self.call_for_help_timer += elapsed
                 # Regeneration.
                 self.regenerate(elapsed)
                 # Spell/Aura Update.
@@ -614,11 +636,13 @@ class CreatureManager(UnitManager):
                     if self.has_moved and self.has_player_observers():
                         self.get_map().get_detection_manager().queue_update_unit_placement(self)
 
-                if self.call_for_help_and_swim_timer >= 1:
+                if self.call_for_help_timer >= 1:
                     if self.combat_target:
                         self.threat_manager.call_for_help(self.combat_target)
+                    self.call_for_help_timer = 0
+
+                if self.swim_checks_enabled:
                     self._update_swimming_state()
-                    self.call_for_help_and_swim_timer = 0
 
             has_changes = self.has_pending_updates()
             # Check if this creature object should be updated yet or not.
@@ -923,16 +947,17 @@ class CreatureManager(UnitManager):
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
-        # Not in combat or evading, skip.
-        if not self.in_combat or self.is_evading:
+        if not self.can_swim():
             return
+
         is_under_water = self.is_under_water()
+
         if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=True)
-            self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
+            self.movement_manager.set_speed_dirty()
         elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=False)
-            self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
+            self.movement_manager.set_speed_dirty()
 
     # override
     def has_mainhand_weapon(self):

@@ -7,7 +7,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, \
-    GuildTypeCommand, ChannelNotifications
+    GuildTypeCommand, ChannelNotifications, Languages
 from utils.constants.OpCodes import OpCode
 
 
@@ -110,6 +110,18 @@ class ChatManager(object):
             receiver_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                               ChatMsgs.CHAT_MSG_WHISPER, lang)
             receiver.enqueue_packet(receiver_packet)
+
+            # DND.
+            if receiver.is_dnd():
+                packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, receiver.dnd_message,
+                                                         ChatMsgs.CHAT_MSG_DND, Languages.LANG_UNIVERSAL)
+                sender.enqueue_packet(packet)
+            # AFK.
+            elif receiver.is_afk():
+                packet = ChatManager._get_message_packet(receiver.guid, receiver.chat_flags, receiver.afk_message,
+                                                         ChatMsgs.CHAT_MSG_AFK, Languages.LANG_UNIVERSAL)
+                sender.enqueue_packet(packet)
+
             ChatLogManager.log_whisper(sender, message, receiver)
 
     @staticmethod
