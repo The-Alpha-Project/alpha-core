@@ -1796,6 +1796,7 @@ class UnitManager(ObjectManager):
 
         self.set_has_moved(False, False, True)
         self.call_for_help_timer = 0
+        self.swim_checks_enabled = False
 
         if self.object_ai:
             self.object_ai.just_died(killer)
