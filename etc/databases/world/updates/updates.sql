@@ -43,14 +43,34 @@ begin not atomic
         (478101, 0, 0, 15, 6900, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Snufflenose - Create Tuber');
 
         DELETE FROM `conditions` WHERE `condition_entry` in (122101, 122102, 122103, 122104);
-        -- 122101: (122102: GameObject 20920 Is Within 60 Yards Of The Target) And (122103:  Not (GameObject 20920 Is Within 5 Yards Of The Target)) And (122104: Friendly Player Within 15 Yards Of The Target)
+        -- 122101: (122102: GameObject 20920 Is Within 50 Yards Of The Target) And (122103:  Not (GameObject 20920 Is Within 5 Yards Of The Target)) And (122104: Friendly Player Within 15 Yards Of The Target)
         INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (122101, -1, 122102, 122103, 122104, 0, 0);
-        -- 122102: GameObject 20920 Is Within 60 Yards Of The Target
-        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (122102, 21, 20920, 60, 0, 0, 0);
+        -- 122102: GameObject 20920 Is Within 50 Yards Of The Target
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (122102, 21, 20920, 50, 0, 0, 0);
         -- 122103:  Not (GameObject 20920 Is Within 5 Yards Of The Target)
         INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (122103, 21, 20920, 5, 0, 0, 1);
         -- 122104: Friendly Player Within 15 Yards Of The Target
         INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (122104, 56, 2, 15, 0, 0, 0);
+        
+        -- Remove all reference to non existent Command Stick, change blueleaf -> redleaf. Must delete pagetextcache.wdb cache.
+        UPDATE `quest_template` SET `Objectives` = 'Grab a Crate with Holes. Grab a Snufflenose Command Stick. Grab and read the Snufflenose Owner\'s Manual. In Razorfen Kraul, use the Crate with Holes to summon a Snufflenose Gopher and let him search for Tubers while he follows you. Bring 10 Redleaf Tubers and the Crate with Holes to Mebok Mizzyrix in Ratchet.' WHERE (`entry` = '1221');
+        
+        UPDATE `page_text` SET `text` = 'CONGRATULATIONS!\n\nYou are the proud new owner of the amazing snufflenose gopher!  Although a shy creature, we are positive you\'ll find your new pet\'s fuzzy cuteness and incredible olfactory capabilities endearing.\n\nIn the following pages, you\'ll find information on your gopher\'s:\n\n1. Feeding and care\n2. Eccentric (and adorable) behavior\n3. Finding Tubers\n\nAgain, congratulations.  You won\'t be disappounted,\n\n-Marwig Rustbolt\nOwner, Snuff Inc.\n\n' WHERE (`entry` = '467');
+
+        UPDATE `page_text` SET `text` = 'FEEDING AND CARE:\n\nWe are committed to providing you with everything needed to care for your pet.  Our customers have come to expect this level of service from Snuff Inc, and we agree!\n\nTo that end, we have designed sturdy gopher crates with small holes, perfect for keeping your pet safe, secure and out of the light.\n\nFor your convenience, inside every crate is a food pellet receptacle, infused with the alluring scent of redleaf tubers (the snufflenose gopher\'s favorite treat)!' WHERE (`entry` = '771');
+
+        UPDATE `page_text` SET `text` = 'WALKING YOUR GOPHER\n\nThe snufflenose gopher likes small, dark places.  And it is very shy.\n\nIf you wish to walk your gopher, then you must take it to a place that feels like home.  And you MUST take it to where your gopher can smell its favorite food: redleaf tubers!\n\nThe closest such place is the \"trench\" area of Razorfen Kraul.  If you open your crate near the trench, and your gopher can smell any nearby tubers, then he will venture out and follow you.' WHERE (`entry` = '1211');
+
+        UPDATE `page_text` SET `text` = 'FINDING TUBERS\n\nThe snufflenose gopher is an amazing animal.  Not only does it inspire love and affection from even the most ornery plainstrider, it can smell a buried redleaf tuber from up to fifty yards away!\n\nAs your gopher follows you, it will sniff and dig for hidden reedleaf tubers; once they appear, be sure to collect them.\n', `next_page` = '0' WHERE (`entry` = '1212');
+
+        -- Bonfire Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.200' WHERE (`spawn_id` = '48743');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41' WHERE (`spawn_id` = '48738');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '53.225' WHERE (`spawn_id` = '48705');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '43.400' WHERE (`spawn_id` = '48701');
+
+        -- Brrel of Milk Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '33.746' WHERE (`spawn_id` = '39055');
 
         insert into applied_updates values ('031120251');
     end if;
