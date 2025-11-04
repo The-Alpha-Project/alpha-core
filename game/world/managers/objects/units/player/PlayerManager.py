@@ -148,6 +148,7 @@ class PlayerManager(UnitManager):
             self.is_god = False
             self.collision_cheat = False
             if self.session.account_mgr.is_gm():
+                self.set_beast_master(active=True)
                 self.set_gm_tag()
 
             # Dev/Debug.

@@ -1103,6 +1103,12 @@ class UnitManager(ObjectManager):
             self.set_unit_state(UnitStates.SANCTUARY, active=False)
             self.sanctuary_timer = 0
 
+    def set_beast_master(self, active=True):
+        self.beast_master = active
+        controlled_pet = self.pet_manager.get_active_controlled_pet()
+        if controlled_pet:
+            controlled_pet.beast_master = active
+
     def update_sanctuary(self, elapsed):
         if self.sanctuary_timer > 0:
             self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
@@ -1895,6 +1901,11 @@ class UnitManager(ObjectManager):
         return (not self.is_evading and self.is_alive and not self.beast_master
         and not self.unit_state & UnitStates.STUNNED
         and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED)
+
+    def get_ai_name(self):
+        if not self.object_ai:
+            return 'None'
+        return type(self.object_ai).__name__
 
     def is_in_world(self):
         pass

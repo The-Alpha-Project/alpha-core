@@ -52,7 +52,9 @@ class MovementManager:
         # Make sure to flush any existent behaviors if this was re-initialized.
         self.flush()
 
-        if self.unit.is_controlled() or self.unit.is_guardian():
+        if self.unit.is_guardian():
+            self.set_behavior(FollowMovement(spline_callback=self.spline_callback, is_default=True))
+        elif self.unit.is_controlled():
             is_default = self.unit.is_pet()
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=is_default))
         elif self.unit.creature_group and self.unit.creature_group.is_formation():
@@ -214,6 +216,8 @@ class MovementManager:
     def stop(self, force=False):
         if not force and not self.unit.is_moving():
             return
+        if self.unit.is_sessile():
+            return
         current_behavior = self.get_current_behavior()
         # Make sure the current behavior spline does not update an extra tick.
         if current_behavior:
@@ -327,6 +331,11 @@ class MovementManager:
             return None
         movement_behavior = self.movement_behaviors.get(self.active_behavior_type, None)
         return movement_behavior if movement_behavior else None
+
+    def get_current_behavior_name(self):
+        if not self.active_behavior_type:
+            return 'None'
+        return MoveType(self.active_behavior_type).name
 
     def _get_default_behavior(self):
         if not self.default_behavior_type:

@@ -479,7 +479,7 @@ class AIEventHandler:
 
     def _event_get_by_type(self, event_type):
         # Skip for controlled units.
-        if self.creature.is_controlled():
+        if self.creature.is_controlled() and not self.creature.is_guardian():
             return []
         if not self.initialized:
             self.initialized = True

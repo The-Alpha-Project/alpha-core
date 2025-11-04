@@ -901,13 +901,14 @@ class CommandManager(object):
                       f'Entry: {creature.creature_template.entry}\n' \
                       f'Display ID: {creature.current_display_id}\n' \
                       f'Faction: {creature.faction}\n' \
-                      f'Unit Flags: {hex(creature.unit_flags)}\n' \
+                      f'AI: {creature.get_ai_name()}\n' \
+                      f'Movement: {creature.movement_manager.get_current_behavior_name()}\n' \
                       f'Static Flags: {hex(creature.static_flags)}\n' \
                       f'Alive: {creature.is_alive}\n' \
-                      f'X: {creature.location.x}, ' \
-                      f'Y: {creature.location.y}, ' \
-                      f'Z: {creature.location.z}, ' \
-                      f'O: {creature.location.o}\n' \
+                      f'X: {round(creature.location.x, 3)}, ' \
+                      f'Y: {round(creature.location.y, 3)}, ' \
+                      f'Z: {round(creature.location.z, 3)}, ' \
+                      f'O: {round(creature.location.o, 2)}\n' \
                       f'Map: {creature.map_id}'
         return -1, 'error retrieving creature info.'
 

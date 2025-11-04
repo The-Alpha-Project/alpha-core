@@ -12,7 +12,7 @@ from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObject
 from game.world.managers.objects.spell import SpellEffectDummyHandler, ExtendedSpellData
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
-from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
+from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement, PET_FOLLOW_DISTANCE
 from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketWriter import PacketWriter
@@ -605,7 +605,7 @@ class SpellEffectHandler:
         amount = effect.get_effect_simple_points()
 
         if not radius:
-            radius = PetMovement.PET_FOLLOW_DISTANCE
+            radius = PET_FOLLOW_DISTANCE
 
         # Detach guardians with same entry if any.
         caster.pet_manager.detach_pets_by_entry(creature_entry)
