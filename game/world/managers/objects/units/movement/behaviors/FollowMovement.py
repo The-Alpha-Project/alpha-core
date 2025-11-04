@@ -30,8 +30,7 @@ class FollowMovement(BaseMovement):
         if unit.is_guardian():
             guardian_count = self.target.pet_manager.get_guardian_count()
             self.follow_angle = PET_FOLLOW_ANGLE + (math.pi / 6) * (guardian_count if guardian_count else 1)
-            while self.follow_angle > math.pi * 2:
-                self.follow_angle -= math.pi * 2
+            self.follow_angle %= 2 * math.pi
         return True
 
     # override
