@@ -157,13 +157,13 @@ class Spline(object):
             self.update(elapsed)
 
     def try_build_movement_packet(self):
-        # Sending no waypoints crashes the client.
-        if len(self.pending_waypoints) == 0:
-            return None
-
         # Initialize if needed.
         if not self.initialized:
             self.initialize()
+
+        # Sending no waypoints crashes the client.
+        if len(self.pending_waypoints) == 0:
+            return None
 
         # Fill header.
         data = bytearray(self._get_header_bytes())
