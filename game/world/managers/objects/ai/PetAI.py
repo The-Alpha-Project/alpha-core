@@ -53,6 +53,15 @@ class PetAI(CreatureAI):
                 self.creature.attack_stop()
 
     # override
+    def move_in_line_of_sight(self, unit, ai_event=False):
+        super().move_in_line_of_sight(unit, ai_event=ai_event)
+        if self._get_react_state() != PetReactState.REACT_AGGRESSIVE:
+            return
+        if self.creature.combat_target and self.creature.in_combat:
+            return
+        self.creature.attack(unit)
+
+    # override
     def permissible(self, creature):
         if creature.is_pet():
             return Permits.PERMIT_BASE_SPECIAL
@@ -61,7 +70,10 @@ class PetAI(CreatureAI):
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
     # override
     def attacked_by(self, target):
-        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+        if self._get_react_state() == PetReactState.REACT_PASSIVE:
+            return
+        # Combat target was set by _select_next_target, but we did not initialize attack or no current combat target.
+        if (target is self.creature.combat_target and not self.creature.in_combat) or not self.creature.combat_target:
             self.creature.attack(target)
 
     # Called from Unit::Kill() in case where pet or owner kills something.
@@ -78,10 +90,13 @@ class PetAI(CreatureAI):
     # Called when owner takes damage. This function helps keep pets from running off simply due to owner gaining aggro.
     # override
     def owner_attacked_by(self, attacker, proximity_aggro=False):
-        if self.creature.combat_target or self._get_react_state() == PetReactState.REACT_PASSIVE:
+        if self._get_react_state() == PetReactState.REACT_PASSIVE:
             return
-        # If defensive state and owner did not take a real hit yet, do not attack.
-        if self._get_react_state() == PetReactState.REACT_DEFENSIVE and proximity_aggro:
+        # Owner did not take a real hit yet, do not attack.
+        if proximity_aggro:
+            return
+        # Have a target and in combat, skip.
+        if self.creature.combat_target and self.creature.in_combat:
             return
         self.creature.attack(attacker)
 
@@ -103,7 +118,12 @@ class PetAI(CreatureAI):
         if not owner:
             return
 
-        return owner.combat_target
+        # Owner either have a combat target or being attacked without responding the attack.
+        target = owner.combat_target if owner.combat_target else owner.threat_manager.get_hostile_target()
+        if not target:
+            return None
+
+        return target
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):

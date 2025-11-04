@@ -737,7 +737,10 @@ class CreatureManager(UnitManager):
         if not super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic):
             return False
 
-        self.object_ai.damage_taken(source, damage_info)
+        if self.object_ai:
+            self.object_ai.damage_taken(source, damage_info)
+            if not is_periodic:
+                self.object_ai.attacked_by(source)
 
         # Handle COMBAT_PING creature static flag.
         if self.has_combat_ping() and not self.in_combat:
