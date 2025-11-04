@@ -1210,6 +1210,10 @@ class WorldDatabaseManager(object):
         def gameobject_scripts_get_by_id(script_id):
             return WorldDatabaseManager.GameobjectScriptHolder.SCRIPTS.get(script_id, [])
 
+        @staticmethod
+        def has_script(spawn_id):
+            return spawn_id in WorldDatabaseManager.GameobjectScriptHolder.SCRIPTS
+
     # Creature movement scripts.
 
     @staticmethod
