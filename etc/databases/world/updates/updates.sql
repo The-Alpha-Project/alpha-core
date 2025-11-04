@@ -65,12 +65,20 @@ begin not atomic
 
         -- Bonfire Z.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '35.200' WHERE (`spawn_id` = '48743');
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41' WHERE (`spawn_id` = '48738');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '41.050' WHERE (`spawn_id` = '48738');
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '53.225' WHERE (`spawn_id` = '48705');
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '43.400' WHERE (`spawn_id` = '48701');
 
-        -- Brrel of Milk Z.
+        -- Barrel of Milk Z.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '33.746' WHERE (`spawn_id` = '39055');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1569
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` in ('20458', '31619', 20459);
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1535
+        UPDATE `quest_template` SET `Details` = 'Velinde Starsong was my predecessor here in Ashenvale Forest. At first it seemed she had the situation in Felwood under control, but little by little her efforts faltered. One day, she simply disappeared.\n\nI was sent here to continue her work. I\'m afraid I know nothing of the priestess, however. Perhaps Shandris Feathermoon, commander of the Sentinels, knows further details of her disappearance that I was not a party to.\n\nSurely she will understand the import of such information.', `Objectives` = 'Speak with Shandris Feathermoon at the Hall of Justice in Darnassus.' WHERE (`entry` = '1037');
+
+        UPDATE `creature_quest_finisher` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1037');
 
         insert into applied_updates values ('031120251');
     end if;
