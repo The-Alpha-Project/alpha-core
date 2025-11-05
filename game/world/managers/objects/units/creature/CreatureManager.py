@@ -615,7 +615,7 @@ class CreatureManager(UnitManager):
                 return
 
             if self.is_alive:
-                # Update relocate/call for help timer.
+                # Update call for help timer.
                 self.call_for_help_timer += elapsed
                 # Regeneration.
                 self.regenerate(elapsed)
