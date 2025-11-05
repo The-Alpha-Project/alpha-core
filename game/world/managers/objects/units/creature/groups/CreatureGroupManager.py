@@ -145,12 +145,18 @@ class CreatureGroupManager:
 
     def compute_relative_position(self, group_member, distance=0.0):
         leader = self.get_leader()
-        if not leader:
+        if not leader or not self.leader:
             return None
         distance = distance if distance else group_member.distance_leader
-        off_x = math.cos(group_member.angle + leader.angle) * distance
-        off_y = math.sin(group_member.angle + leader.angle) * distance
-        return Vector(x=off_x + self.leader.location.x, y=off_y + self.leader.location.y, z=self.leader.location.z)
+        off_x = (math.cos(group_member.angle + leader.angle) * distance) + self.leader.location.x
+        off_y = (math.sin(group_member.angle + leader.angle) * distance) + self.leader.location.y
+        off_z = self.leader.location.z + (group_member.creature.location.z - self.leader.location.z) * 0.5
+
+        # Try to find precise Z.
+        z, z_locked = self.leader.get_map().calculate_z(off_x, off_y, off_z, is_rand_point=True)
+        if not z_locked:
+            off_z = z
+        return Vector(off_x, off_y, off_z)
 
     def _get_sorted_waypoints_by_distance(self, movement_waypoints) -> list[MovementWaypoint]:
         points = [MovementWaypoint(wp.point, wp.position_x, wp.position_y, wp.position_z, wp.orientation,

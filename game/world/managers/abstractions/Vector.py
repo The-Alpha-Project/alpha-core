@@ -56,6 +56,13 @@ class Vector:
             new_vector.z += 0.1
         return new_vector
 
+    def lerp(self, target, t):
+        return Vector(
+            self.x + (target.x - self.x) * t,
+            self.y + (target.y - self.y) * t,
+            self.z + (target.z - self.z) * t
+        )
+
     def to_bytes(self, include_orientation=True):
         if include_orientation:
             return pack('<4f', self.x, self.y, self.z, self.o)
@@ -131,21 +138,19 @@ class Vector:
         if point_in_between:
             # Convert Namigator tuple to Vector.
             result = Vector(point_in_between[0], point_in_between[1], point_in_between[2])
-            orientation = self.o if self.o != 0 else self.get_angle_towards_vector(result)
-            result.set_orientation(orientation)
-            return result
+        else:
+            general_distance = self.distance(vector)
+            # Location already in the given offset
+            if general_distance <= offset:
+                return vector
 
-        general_distance = self.distance(vector)
-        # Location already in the given offset
-        if general_distance <= offset:
-            return vector
+            factor = offset / general_distance
+            x3 = self.x + factor * (vector.x - self.x)
+            y3 = self.y + factor * (vector.y - self.y)
+            z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z), is_rand_point=True)
 
-        factor = offset / general_distance
-        x3 = self.x + factor * (vector.x - self.x)
-        y3 = self.y + factor * (vector.y - self.y)
-        z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z), is_rand_point=True)
+            result = Vector(x3, y3, z3, z_locked=z_locked)
 
-        result = Vector(x3, y3, z3, z_locked=z_locked)
         orientation = self.o if self.o != 0 else self.get_angle_towards_vector(result)
         result.set_orientation(orientation)
 

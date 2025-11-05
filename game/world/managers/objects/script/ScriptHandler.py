@@ -1,4 +1,5 @@
 import random
+import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -59,7 +60,14 @@ class ScriptHandler:
 
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, event=event)
-        self.scripts_set.add(new_script)
+
+        # If no delay, update right away.
+        if not delay:
+            new_script.update(time.time())
+            if not new_script.is_complete():
+                self.scripts_set.add(new_script)
+        else:
+            self.scripts_set.add(new_script)
 
     # noinspection PyMethodMayBeStatic
     def handle_script_command_execution(self, script_command):

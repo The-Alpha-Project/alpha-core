@@ -405,6 +405,7 @@ class CreatureAI:
     # Called for reaction on enter combat if not in combat yet (enemy can be None).
     def enter_combat(self, source=None):
         self.ai_event_handler.on_enter_combat(source)
+        self.ai_event_handler.update_target_range_events(source, 0)
 
     # Called when leaving combat.
     def on_combat_stop(self):

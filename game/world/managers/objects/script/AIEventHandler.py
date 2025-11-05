@@ -20,10 +20,13 @@ class EventLock:
     can_repeat: bool
 
     def update(self, elapsed):
+        if not self.can_repeat:
+            return
         self.elapsed_secs += elapsed
 
     def is_locked(self):
-        return not self.can_repeat or self.elapsed_secs < self.repeat_secs
+        locked = not self.can_repeat or self.elapsed_secs < self.repeat_secs
+        return locked
 
 class AIEventHandler:
     def __init__(self, creature):
@@ -69,7 +72,7 @@ class AIEventHandler:
         # Reset timer.
         self.update_diff_secs = 0
 
-    def _enqueue_creature_ai_event(self, map_, event, target, elapsed_secs=0):
+    def _enqueue_creature_ai_event(self, map_, event, target):
         scripts = ScriptHelpers.get_filtered_event_scripts(event)
         if not scripts:
             return
@@ -78,8 +81,8 @@ class AIEventHandler:
         scripts = script_event.pick_scripts()
         event_delay_seconds = script_event.get_delay_seconds()
 
-        if elapsed_secs:
-            self._lock_event(script_event)
+        if not script_event.can_repeat() or script_event.has_repeat_time():
+            self._lock_event(script_event.id, script_event.get_repeat_seconds(), script_event.can_repeat())
 
         for script in scripts:
             map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script,
@@ -211,6 +214,8 @@ class AIEventHandler:
         for event in events:
             if not self._validate_event(event, target=target):
                 continue
+            if event.event_param3 and not target.is_player():
+                continue
             self._enqueue_creature_ai_event(map_, event, target=target)
 
     def on_evade(self):
@@ -258,9 +263,9 @@ class AIEventHandler:
             if auras[0].applied_stacks < event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, target, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, target)
 
-    def update_target_missing_aura_events(self, now, elapsed_secs):
+    def update_target_missing_aura_events(self, elapsed_secs):
         target = self.creature.combat_target
         if not target:
             return
@@ -280,7 +285,7 @@ class AIEventHandler:
             if auras[0].applied_stacks >= event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, target, now)
+            self._enqueue_creature_ai_event(map_, event, target)
 
     def update_target_timer_in_combat_events(self, target, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TIMER_IN_COMBAT)
@@ -288,7 +293,7 @@ class AIEventHandler:
         for event in events:
             if not self._validate_event(event, target=self.creature, elapsed_secs=elapsed_secs):
                 continue
-            self._enqueue_creature_ai_event(map_, event, target=target, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, target=target)
 
     def update_timer_out_of_combat_events(self, elapsed_secs):
         if self.creature.combat_target:
@@ -298,7 +303,7 @@ class AIEventHandler:
         for event in events:
             if not self._validate_event(event, target=self.creature, elapsed_secs=elapsed_secs):
                 continue
-            self._enqueue_creature_ai_event(map_, event, target=self.creature, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, target=self.creature)
 
     def update_missing_aura_events(self, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MISSING_AURA)
@@ -316,7 +321,7 @@ class AIEventHandler:
             if auras[0].applied_stacks >= event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, self.creature, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, self.creature)
 
     def update_target_casting_events(self, target, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_CASTING)
@@ -328,7 +333,7 @@ class AIEventHandler:
             if not target.is_casting():
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, self.creature, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, self.creature)
 
     def update_self_hp_events(self, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
@@ -341,7 +346,7 @@ class AIEventHandler:
             if self.creature.hp_percent > event.event_param1 or self.creature.hp_percent < event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, self.creature, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, self.creature)
 
     def update_target_mana_events(self, target, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_MANA)
@@ -382,7 +387,7 @@ class AIEventHandler:
             if not self._validate_event(event, target=target, elapsed_secs=elapsed_secs):
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, target, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, target)
 
     def update_self_mana_events(self, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MANA)
@@ -398,7 +403,7 @@ class AIEventHandler:
             if self.creature.power_percent > event.event_param1 or self.creature.power_percent < event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, self.creature, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, self.creature)
 
     def update_self_friendly_missing_buff_events(self, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_FRIENDLY_MISSING_BUFF)
@@ -416,7 +421,7 @@ class AIEventHandler:
             if not missing_buff_friendly:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, missing_buff_friendly, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, missing_buff_friendly)
 
     def update_self_friendly_hp_events(self, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_FRIENDLY_HP)
@@ -435,7 +440,7 @@ class AIEventHandler:
             if not injured_friendly:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, injured_friendly, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, injured_friendly)
 
     def update_target_range_events(self, target, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RANGE)
@@ -449,12 +454,9 @@ class AIEventHandler:
             if distance < event.event_param1 or distance > event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, target, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, target)
 
     def _validate_event(self, event, target=None, elapsed_secs=0):
-        if event.event_chance != 100 and randint(0, 100) > event.event_chance:
-            return False
-
         if not ConditionChecker.validate(event.condition_id, self.creature, target if target else self.creature):
             return False
 
@@ -466,6 +468,12 @@ class AIEventHandler:
             return False
 
         if elapsed_secs and self._is_event_locked(event, elapsed_secs):
+            return False
+
+        if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+            if not event.event_flags & EventFlags.REPEATABLE:
+                # Locked until events are flushed.
+                self._lock_event(event.id, 0, False)
             return False
 
         return True
@@ -487,10 +495,10 @@ class AIEventHandler:
                 self.creature.entry)
         return self._events.get(event_type, [])
 
-    def _lock_event(self, script_event):
-        self.event_locks[script_event.id] = EventLock(event_id=script_event.id, elapsed_secs=0,
-                                                      repeat_secs=script_event.get_repeat_seconds(),
-                                                      can_repeat=script_event.can_repeat())
+    def _lock_event(self, event_id, repeat_seconds, can_repeat):
+        self.event_locks[event_id] = EventLock(event_id=event_id, elapsed_secs=0,
+                                                      repeat_secs=repeat_seconds,
+                                                      can_repeat=can_repeat)
 
     def _is_event_locked(self, event, elapsed_secs):
         event_lock = self.event_locks.get(event.id)
