@@ -82,6 +82,11 @@ begin not atomic
         UPDATE `quest_template` SET `Details` = 'Velinde Starsong was my predecessor here in Ashenvale Forest. At first it seemed she had the situation in Felwood under control, but little by little her efforts faltered. One day, she simply disappeared.\n\nI was sent here to continue her work. I\'m afraid I know nothing of the priestess, however. Perhaps Shandris Feathermoon, commander of the Sentinels, knows further details of her disappearance that I was not a party to.\n\nSurely she will understand the import of such information.', `Objectives` = 'Speak with Shandris Feathermoon at the Hall of Justice in Darnassus.' WHERE (`entry` = '1037');
 
         UPDATE `creature_quest_finisher` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1037');
+        
+        -- Healing Wards - Ignore combat. (Passive - Don't acquire targets.')
+        UPDATE `creature_template` SET `static_flags` = '34655494' WHERE (`entry` = '2992');
+        UPDATE `creature_template` SET `static_flags` = '34655494' WHERE (`entry` = '3560');
+        UPDATE `creature_template` SET `static_flags` = '34655494' WHERE (`entry` = '3844');
 
         insert into applied_updates values ('031120251');
     end if;

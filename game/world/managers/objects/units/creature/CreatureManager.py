@@ -129,7 +129,7 @@ class CreatureManager(UnitManager):
         if self.creature_template.school_immune_mask:
             self.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.creature_template.school_immune_mask)
 
-        if self.is_totem() or self.is_critter() or not self.can_have_target():
+        if self.is_totem() or self.is_critter() or not self.can_have_target() or self.ignores_combat():
             self.react_state = CreatureReactStates.REACT_PASSIVE
         elif self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO:
             self.react_state = CreatureReactStates.REACT_DEFENSIVE
@@ -411,6 +411,9 @@ class CreatureManager(UnitManager):
 
     def can_have_target(self):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
+
+    def ignores_combat(self):
+        return self.creature_template.static_flags & CreatureStaticFlags.IGNORE_COMBAT
 
     def is_quest_giver(self):
         return self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER
@@ -696,6 +699,11 @@ class CreatureManager(UnitManager):
     # override
     def attack(self, victim: UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
+
+        # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
+        if self.react_state == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
+            return
+
         can_attack = super().attack(victim)
 
         if not can_attack:
