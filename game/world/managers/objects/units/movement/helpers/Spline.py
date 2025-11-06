@@ -139,9 +139,6 @@ class Spline(object):
     def is_complete(self):
         return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()
 
-    def is_type(self, spline_type):
-        return spline_type == self.spline_type
-
     def is_flight(self):
         return self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
 
@@ -168,34 +165,43 @@ class Spline(object):
         # Fill header.
         data = bytearray(self._get_header_bytes())
 
-        if not self.is_type(SplineType.SPLINE_TYPE_STOP):
-            data.extend(self._get_payload_bytes())
+        # Use match for spline_type
+        match self.spline_type:
+            case SplineType.SPLINE_TYPE_STOP:
+                pass  # No payload if stopped.
+            case _:
+                data.extend(self._get_payload_bytes())
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
     def _get_header_bytes(self):
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
-        data = pack(
-            f'<Q{len(location_bytes)}sIB',
-            self.unit.guid,
-            location_bytes,
-            int(WorldManager.get_seconds_since_startup() * 1000),
-            int(self.spline_type)
-        )
-        if self.is_type(SplineType.SPLINE_TYPE_FACING_SPOT):
-            spot_bytes = self.spot.to_bytes(include_orientation=False)
-            data += pack(f'<{len(spot_bytes)}s', spot_bytes)
-        elif self.is_type(SplineType.SPLINE_TYPE_FACING_TARGET):
-            data += pack('<Q', self.guid)
-        elif self.is_type(SplineType.SPLINE_TYPE_FACING_ANGLE):
-            data += pack('<f', self.facing)
+        guid = self.unit.guid
+        timestamp = int(WorldManager.get_seconds_since_startup() * 1000)
+
+        # Common part first.
+        data = pack(f'<Q{len(location_bytes)}sIB', guid, location_bytes, timestamp, self.spline_type)
+
+        # Handle specific spline types.
+        match self.spline_type:
+            case SplineType.SPLINE_TYPE_FACING_SPOT:
+                spot_bytes = self.spot.to_bytes(include_orientation=False)
+                data += pack(f'<{len(spot_bytes)}s', spot_bytes)
+            case SplineType.SPLINE_TYPE_FACING_TARGET:
+                data += pack('<Q', self.guid)
+            case SplineType.SPLINE_TYPE_FACING_ANGLE:
+                data += pack('<f', self.facing)
+            case _:
+                pass  # No additional data for other types.
+
         return data
 
     def _get_payload_bytes(self):
+        total_time_remaining = max(self.total_time - int(self.elapsed), 0)
         return pack(
             f'<3I{len(self.waypoints_bytes)}s',
             self.spline_flags,
-            int(max(self.total_time - int(self.elapsed), 0)),
+            total_time_remaining,
             len(self.points),
             self.waypoints_bytes
         )
