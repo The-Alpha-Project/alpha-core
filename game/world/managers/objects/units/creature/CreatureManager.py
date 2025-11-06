@@ -430,10 +430,7 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.SESSILE
 
     def is_at_home(self):
-        dx = abs(self.location.x - self.spawn_position.x)
-        dy = abs(self.location.y - self.spawn_position.y)
-        # Tolerance of 1.0 since it might not be entirely equal.
-        return dx <= 1.0 and dy <= 1.0 and not self.is_moving()
+        return self.location.approximately_equals(self.spawn_position)
 
     def on_at_home(self):
         self.tmp_home_position = None
@@ -508,7 +505,7 @@ class CreatureManager(UnitManager):
         else:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
 
-        if self.creature_group and self.is_evading and self.is_alive:
+        if self.creature_group and self.is_evading and self.is_alive and was_in_combat:
             self.creature_group.on_leave_combat(self)
 
     def evade(self):
@@ -539,7 +536,6 @@ class CreatureManager(UnitManager):
 
         # If Namigator fails, swimming and heading to land, try to locate a near
         # land point in the direction of home position.
-        from game.world.managers.abstractions.Vector import Vector
         if failed and self.is_swimming() and self.get_map().is_land_location(vector=return_position):
             land = self.get_map().find_land_location_in_angle(self, return_position)
             if land:

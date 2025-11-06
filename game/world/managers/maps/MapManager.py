@@ -414,7 +414,7 @@ class MapManager:
             return False, False, [dst_loc]
 
         # At destination, return end vector.
-        if src_loc == dst_loc:
+        if src_loc.approximately_equals(dst_loc, tolerance=0.5):
             return False, False, [dst_loc]
 
         # Too short of a path, return end vector.
@@ -428,11 +428,17 @@ class MapManager:
         dst_adt_x, dst_adt_y = MapUtils.get_tile(dst_loc.x, dst_loc.y)
 
         # Check if loaded or unable to load.
-        if MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y) != MapTileStates.READY:
+        src_tile_state = MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y)
+        if src_tile_state != MapTileStates.READY:
+            if src_tile_state == MapTileStates.LOADING:
+                Logger.warning(f'[Namigator] Source tile was loading when path requested.')
             return True, False, [dst_loc]
 
         # Check if loaded or unable to load.
-        if MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y) != MapTileStates.READY:
+        dst_tile_state = MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y)
+        if dst_tile_state != MapTileStates.READY:
+            if dst_tile_state == MapTileStates.LOADING:
+                Logger.warning(f'[Namigator] Destination tile was loading when path requested.')
             return True, False, [dst_loc]
 
         # Calculate path.
@@ -440,7 +446,7 @@ class MapManager:
 
         if len(navigation_path) == 0:
             if not los:
-                Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
+                Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
             return True, False, [dst_loc]
 
         # Pop starting location, we already have that and WoW client seems to crash when sending
@@ -450,7 +456,7 @@ class MapManager:
         # Validate length again.
         if len(navigation_path) == 0:
             if not los:
-                Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
+                Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
             return True, False, [dst_loc]
 
         from game.world.managers.abstractions.Vector import Vector
