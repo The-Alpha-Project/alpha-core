@@ -88,6 +88,10 @@ begin not atomic
         UPDATE `creature_template` SET `static_flags` = '34655494' WHERE (`entry` = '3560');
         UPDATE `creature_template` SET `static_flags` = '34655494' WHERE (`entry` = '3844');
 
+        -- Report to Goldshire reward.
+        UPDATE `quest_template` SET `RewItemId1` = '6078', `RewItemCount1` = '1' WHERE (`entry` = '54');
+
+
         insert into applied_updates values ('031120251');
     end if;
 

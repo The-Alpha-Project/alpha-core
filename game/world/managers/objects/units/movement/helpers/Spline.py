@@ -100,8 +100,8 @@ class Spline(object):
                                                                    pending_waypoint.location,
                                                                    map_id=self.unit.map_id)
 
-        # For creatures try to adjust the position in case the unit is part of a group.
-        if not self.is_player:
+        # For creatures, if Z calculation failed, try to adjust the position Z in case the unit is part of a group.
+        if not self.is_player and point_in_between.z_locked:
             point_in_between = self._get_leader_z(point_in_between)
 
         return point_in_between

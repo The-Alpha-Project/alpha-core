@@ -140,7 +140,7 @@ class Vector:
         point_in_between = unit.get_map().find_point_in_between_vectors(offset, unit.location, vector)
         if point_in_between:
             # Convert Namigator tuple to Vector.
-            result = Vector(point_in_between[0], point_in_between[1], point_in_between[2])
+            result = Vector(point_in_between[0], point_in_between[1], point_in_between[2], z_locked=False)
         else:
             general_distance = self.distance(vector)
             # Location already in the given offset

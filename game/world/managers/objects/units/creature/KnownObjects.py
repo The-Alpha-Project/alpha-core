@@ -27,9 +27,10 @@ class KnownObjects(dict):
                 detection_manager.queue_add(self.player_mgr)
 
             # Unit has not been added to our detection_manager.
-            if guid not in self:
+            if not detection_manager.has_unit(world_object) and not world_object.is_critter():
                 detection_manager.queue_add(world_object)
         else:
             # Unit won't know any player after self removal.
-            if not world_object.is_player() and not (len(world_object.known_players) - 1):
+            if (detection_manager.has_unit(world_object) and not world_object.is_player()
+                    and not (len(world_object.known_players) - 1)):
                 detection_manager.queue_remove(world_object)
