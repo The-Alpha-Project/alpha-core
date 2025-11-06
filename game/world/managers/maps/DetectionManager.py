@@ -22,6 +22,9 @@ class DetectionManager:
         self.process_remove_batch()
         self.process_update_placement_batch()
 
+        if not self.units:
+            return
+
         all_units = list(self.units.values())
         for unit_a in all_units:
             if not self.can_target_unit_for_aggro(unit_a):
