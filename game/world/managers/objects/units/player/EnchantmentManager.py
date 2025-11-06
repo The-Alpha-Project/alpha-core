@@ -110,8 +110,8 @@ class EnchantmentManager(object):
         if not expired:
             item.enchantments[slot].update(value, duration, charges)
 
-        current_value = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0)
-        current_duration = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1)
+        current_value = item.get_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0)
+        current_duration = item.get_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1)
         current_charges = item.get_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2)
 
         should_reapply = current_value != value or current_charges != charges or expired
@@ -122,8 +122,8 @@ class EnchantmentManager(object):
             remove_equip_buff = expired or not item.is_equipped()
             self._handle_equip_buffs(item, remove=remove_equip_buff)
 
-        item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
-        item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
+        item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
+        item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
 
         # Notify player with duration.
