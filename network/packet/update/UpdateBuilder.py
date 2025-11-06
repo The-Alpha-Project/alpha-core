@@ -1,9 +1,7 @@
-import traceback
 from enum import IntEnum
 from multiprocessing import RLock
 from struct import pack
 
-from game.world.managers.objects.units.UnitManager import UnitManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -82,7 +80,7 @@ class UpdateBuilder:
                 self._add_packet(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 
         # Player <-> Objects linked as known.
-        if world_object.get_type_id() in self._implements_known_players:
+        if obj_type in self._implements_known_players:
             self._create_linked_known_objects_updates.add(world_object)
         # Only players need to know the object.
         else:
@@ -191,22 +189,21 @@ class UpdateBuilder:
 
             while self._destroy_owner_known_objects_updates:
                 world_object = self._destroy_owner_known_objects_updates.pop()
-                if world_object.guid not in self._player_mgr.known_objects:
-                    continue
-                del self._player_mgr.known_objects[world_object.guid]
-                if isinstance(world_object, UnitManager):
-                    world_object.threat_manager.remove_unit_threat(self._player_mgr)
-                    self._player_mgr.threat_manager.remove_unit_threat(world_object)
+                self._player_mgr.known_objects.pop(world_object.guid, None)
+                if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+                    self._remove_threats(world_object)
 
             while self._destroy_linked_known_objects_updates:
                 world_object = self._destroy_linked_known_objects_updates.pop()
-                if world_object.guid in self._player_mgr.known_objects:
-                    del self._player_mgr.known_objects[world_object.guid]
-                if self._player_mgr.guid in world_object.known_players:
-                    del world_object.known_players[self._player_mgr.guid]
-                if isinstance(world_object, UnitManager):
-                    world_object.threat_manager.remove_unit_threat(self._player_mgr)
-                    self._player_mgr.threat_manager.remove_unit_threat(world_object)
+                self._player_mgr.known_objects.pop(world_object.guid, None)
+                world_object.known_players.pop(self._player_mgr.guid, None)
+                if world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+                    self._remove_threats(world_object)
+
+    def _remove_threats(self, world_object):
+        # Helper method to remove threats.
+        world_object.threat_manager.remove_unit_threat(self._player_mgr)
+        self._player_mgr.threat_manager.remove_unit_threat(world_object)
 
     def _process_known_objects_updates(self):
         with self.update_lock:
