@@ -36,7 +36,7 @@ class ThreatManager:
         return target.guid in self.holders
 
     def has_aggro(self):
-        return self.get_targets_count() > 0
+        return bool(self.holders)
 
     def get_targets_count(self):
         return len(self.holders)
@@ -77,6 +77,8 @@ class ThreatManager:
         self.current_holder = None
 
     def remove_unit_threat(self, unit):
+        had_aggro = self.has_aggro()
+
         if unit.guid in self.holders:
             duel_arbiter = self.unit.get_duel_arbiter()
             from_duel = duel_arbiter and duel_arbiter.is_unit_involved(unit)
@@ -99,7 +101,7 @@ class ThreatManager:
             if unit.threat_manager.has_aggro_from(self.unit):
                 unit.threat_manager.remove_unit_threat(self.unit)
 
-        if not self.has_aggro():
+        if had_aggro and not self.has_aggro():
             self.unit.leave_combat()
 
     def add_threat(self, source, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
