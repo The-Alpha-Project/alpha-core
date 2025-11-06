@@ -197,7 +197,7 @@ class Spline(object):
         return data
 
     def _get_payload_bytes(self):
-        total_time_remaining = max(self.total_time - int(self.elapsed), 0)
+        total_time_remaining = max(int(self.total_time - self.elapsed), 0)
         return pack(
             f'<3I{len(self.waypoints_bytes)}s',
             self.spline_flags,
