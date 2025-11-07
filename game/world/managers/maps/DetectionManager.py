@@ -8,8 +8,8 @@ class DetectionManager:
         self.grid_manager = grid_manager
         self.units = {}  # key: guid, value: unit object.
         self.world_bounds = BoundingBox(x=-ORIGIN, y=-ORIGIN, width=ORIGIN * 2, height=ORIGIN * 2)
-        self.unit_visibility_box = BoundingBox(0, 0, 0, 0)
-        self.quadtree = QuadTree(self.world_bounds, self.unit_visibility_box, 4)
+        self.unit_visibility_bounds = BoundingBox(0, 0, 0, 0)
+        self.quadtree = QuadTree(self.world_bounds, self.unit_visibility_bounds, 4)
         self.pending_placement_updates = []
         self.pending_adds = []
         self.pending_removes = []
@@ -31,8 +31,8 @@ class DetectionManager:
             if not self.can_target_unit_for_aggro(unit_a):
                 continue
             # Query potential targets within visibility range using spatial partitioning.
-            unit_a.update_visibility_bounds(self.unit_visibility_box)
-            potential_targets_guids = self.quadtree.query_guids(self.unit_visibility_box)
+            unit_a.update_visibility_bounds(self.unit_visibility_bounds)
+            potential_targets_guids = self.quadtree.query_guids(self.unit_visibility_bounds)
             ooc_events = unit_a.has_ooc_events()
 
             for unit_b_guid in potential_targets_guids:
