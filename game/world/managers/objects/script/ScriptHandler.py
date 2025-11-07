@@ -43,6 +43,7 @@ class ScriptHandler:
     def __init__(self, map_):
         self.map = map_
         self.scripts_set = set()
+        self.forced_event_ids = set()
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, event=None):
         # Grab start script command(s).
@@ -91,6 +92,12 @@ class ScriptHandler:
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
         for script in list(self.scripts_set):
+            # Check if there is a forced event trigger.
+            if self.forced_event_ids and script.event.id in self.forced_event_ids:
+                Logger.debug(f'Event {script.event.get_event_info()}  unlocked by request.')
+                script.delay = 0
+                self.forced_event_ids.discard(script.event.id)
+            # Update/Run script.
             script.update(now)
             if not script.is_complete():
                 continue

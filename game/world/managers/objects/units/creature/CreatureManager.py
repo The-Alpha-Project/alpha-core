@@ -1048,6 +1048,10 @@ class CreatureManager(UnitManager):
     def is_in_world(self):
         return self.is_spawned and self.get_map()
 
+    # Implemented by CreatureManager
+    def has_ooc_events(self):
+        return self.object_ai and self.object_ai.ai_event_handler.has_ooc_los_events()
+
     # override
     def get_query_details_packet(self):
         return ObjectQueryUtils.get_query_details_data(instance=self)

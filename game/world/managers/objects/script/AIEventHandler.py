@@ -482,6 +482,16 @@ class AIEventHandler:
     def has_ooc_los_events(self):
         return self._has_event_type(CreatureAIEventTypes.AI_EVENT_TYPE_OOC_LOS)
 
+    def has_lock_for_event(self, event_id):
+        event_lock = self.event_locks.get(event_id, None)
+        return event_lock is not None and event_lock.is_locked()
+
+    def unlock_event(self, event_id):
+        if self.event_locks.pop(event_id, None) is not None:
+            self.creature.get_map().unlock_scripted_event(event_id)
+            return True
+        return False
+
     def _has_event_type(self, event_type):
         return any(self._event_get_by_type(event_type))
 
@@ -501,7 +511,7 @@ class AIEventHandler:
                                                       can_repeat=can_repeat)
 
     def _is_event_locked(self, event, elapsed_secs):
-        event_lock = self.event_locks.get(event.id)
+        event_lock = self.event_locks.get(event.id, None)
         if not event_lock:
             return False
 

@@ -8,11 +8,13 @@ class KnownObjects(dict):
         return super().__setitem__(key, value)
 
     def __delitem__(self, key):
-        self.update_detection_manager(key, self[key], delete_item=True)
+        if key in self:
+            self.update_detection_manager(key, self[key], delete_item=True)
         return super().__delitem__(key)
 
     def pop(self, __key, *args, **kwargs):
-        self.update_detection_manager(__key, self[__key], delete_item=True)
+        if __key in self:
+            self.update_detection_manager(__key, self[__key], delete_item=True)
         return super().pop(__key, *args, **kwargs)
 
     def update_detection_manager(self, guid, world_object, delete_item=False):

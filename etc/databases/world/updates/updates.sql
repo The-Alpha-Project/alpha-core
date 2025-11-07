@@ -90,7 +90,8 @@ begin not atomic
 
         -- Report to Goldshire reward.
         UPDATE `quest_template` SET `RewItemId1` = '6078', `RewItemCount1` = '1' WHERE (`entry` = '54');
-
+        -- Unused model for Defias Profiteer.
+        UPDATE `creature_template` SET `display_id1` = '515', `equipment_id` = '598' WHERE (`entry` = '1669');
 
         insert into applied_updates values ('031120251');
     end if;

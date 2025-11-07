@@ -6,8 +6,6 @@ from typing import Optional
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.ConfigManager import config
-from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates, UnitStates, UnitFlags
 

@@ -158,6 +158,9 @@ class Map:
     def is_event_active(self, event_id):
         return self.map_event_manager.is_event_active(event_id)
 
+    def unlock_scripted_event(self, event_id):
+        return self.script_handler.forced_event_ids.add(event_id)
+
     # Scripts.
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, event=None):
