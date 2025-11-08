@@ -159,6 +159,6 @@ class Wmo:
                         continue
                     self.has_liquids = True
                     # Iterate each available mliq and save vertices and min liq bounding box for each.
-                    for mliq in wmo_group_file.mliq:
+                    for mliq in wmo_group_file.mliqs:
                         self.liq_vertices.append(mliq.get_vertices())
                         self.liq_min_bounds.append(mliq.min_bound)
