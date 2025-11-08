@@ -31,3 +31,5 @@ venv
 **.pyd
 **.so
 
+/etc/wmo
+/etc/wmo_liquids

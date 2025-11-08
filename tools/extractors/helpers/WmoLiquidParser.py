@@ -1,8 +1,12 @@
-from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_LIQUIDS
+import struct
+
+from game.world.managers.maps.helpers.Constants import RESOLUTION_LIQUIDS
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from tools.extractors.definitions.objects.Vector3 import Vector3
-from tools.extractors.definitions.objects.Wmo import Wmo
+from tools.extractors.definitions.objects.Wmo import Wmo, WMO_LIQ_FILES_HASH_MAP
 from tools.extractors.helpers.Constants import Constants
+
+from utils.Logger import Logger
 
 
 class WmoLiquidParser:
@@ -16,43 +20,63 @@ class WmoLiquidParser:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.adt = None
 
+    def load_liq_vertices_from(self, file_path):
+        liq_vertices = []
+        liq_min_bounds = []
+        with open(file_path, 'rb') as f:
+            # Read the number of liquid bounds.
+            liquid_bounds_count = struct.unpack('i', f.read(4))[0]
+
+            for index in range(liquid_bounds_count):
+                # Read min_bound vector (3 floats)
+                min_bound_vector = Vector3.from_bytes(f.read(12))
+                liq_min_bounds.append(min_bound_vector)
+
+                # Read vertices count for this bound.
+                vertices_count = struct.unpack('i', f.read(4))[0]
+                liq_vertices.append([])
+                for _ in range(vertices_count):
+                    liq_vertices[index].append(Vector3.from_bytes(f.read(12)))
+
+        return liq_min_bounds, liq_vertices
+
     def parse(self, wmo_liquids):
         if not self.adt.wmo_placements or not self.adt.wmo_filenames:
             return
+        [self._process_wmo_placement(wmo_placement, wmo_liquids) for wmo_placement in self.adt.wmo_placements]
 
-        for wmo_placement in self.adt.wmo_placements:
-            with Wmo(self.adt.wmo_filenames[wmo_placement.name_id]) as wmo:
-                if not wmo.has_liquids():
-                    continue
+    def _process_wmo_placement(self, wmo_placement, wmo_liquids):
+        try:
+            wmo_hash = Wmo.get_hash_filename(self.adt.wmo_filenames[wmo_placement.name_id])
+            if wmo_hash not in WMO_LIQ_FILES_HASH_MAP:
+                return
 
-                self.has_liquids = True
-                t_matrix = wmo_placement.get_transform_matrix()
-                vertices = []
-                tile_size = Constants.UNIT_SIZE
+            min_bounds, liq_vertices = self.load_liq_vertices_from(WMO_LIQ_FILES_HASH_MAP[wmo_hash])
+            t_matrix = wmo_placement.get_transform_matrix()
 
-                for mliq in wmo.mliq:
-                    WmoLiquidParser._get_mliq_vertices(mliq, vertices, tile_size)
-                    WmoLiquidParser._transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq, self.adt)
+            for min_bound, vertices in zip(min_bounds, liq_vertices):
+                WmoLiquidParser._transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, min_bound)
+
+            return
+        except Exception as e:
+            Logger.error(f"Error processing WMO placement {wmo_placement.name_id}: {e}")
+            exit()
 
     @staticmethod
-    def _transform_and_save_vertices(wmo_liquids, vertices, t_matrix, mliq, adt):
-        # Transform min_bound.
-        min_bound = Vector3.transform(mliq.min_bound, t_matrix)
+    def _transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, liq_min_bound):
+        # Transform liquid min_bound.
+        min_bound = Vector3.transform(liq_min_bound, t_matrix)
 
         # Transform all vertices once.
         transformed_vertices = [Vector3.transform(vert, t_matrix) for vert in vertices]
 
-        # filename = f'/home/user/{adt.map_id}.obj'
-        # exists = os.path.exists(filename)
-        # with open(filename, 'w' if not exists else 'a') as f:
-        # print(f"OBJ file '{filename}' created with {len(vertices)} vertices.")
         for v in transformed_vertices:
-                adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
-                # Initialize wmo liquids for adt if needed.
-                WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
-                # Write wmo liquid height.
-                wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z)
-                # f.write(f"v {v.X} {v.Y} {v.Z}\n")
+            adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
+            # Initialize wmo liquids for adt if needed.
+            WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
+            # Write wmo liquid height.
+            wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z)
+            # f.write(f"v {v.X} {v.Y} {v.Z}\n")
 
         vertices.clear()
         transformed_vertices.clear()
@@ -63,22 +87,3 @@ class WmoLiquidParser:
             return
         grid_size = Constants.GRID_SIZE + 1
         wmo_liquids[adt_x][adt_y] = [[None for _ in range(grid_size)] for _ in range(grid_size)]
-
-    @staticmethod
-    def _get_mliq_vertices(mliq, vertices, tile_size):
-        c = mliq.corner  # Corner.
-        fractions = [0.0, 0.25, 0.5, 0.75]
-
-        # Loop over each tile
-        for y in range(mliq.y_tiles):
-            for x in range(mliq.x_tiles):
-                # Corner vertices.
-                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 0), c.Z))
-                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 0), c.Z))
-                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 1), c.Z))
-                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 1), c.Z))
-
-                # Generate 16 fractional points at all combinations of 0.0, 0.25, 0.5, 0.75.
-                for frac_x in fractions:
-                    for frac_y in fractions:
-                        vertices.append(Vector3(c.X + tile_size * (x + frac_x), c.Y + tile_size * (y + frac_y), c.Z))

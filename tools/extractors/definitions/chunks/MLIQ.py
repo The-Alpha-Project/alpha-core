@@ -1,4 +1,3 @@
-from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_LIQUIDS
 from tools.extractors.definitions.objects.Vector3 import Vector3
 from tools.extractors.definitions.reader.StreamReader import StreamReader
 from tools.extractors.helpers.Constants import Constants
@@ -14,7 +13,7 @@ class MLIQ:
         self.heights = None
         self.flags = None
         self.material_id = 0
-        self.min_bound = 0.0
+        self.min_bound = None
 
     @staticmethod
     def from_reader(reader: StreamReader, min_bound: Vector3):
@@ -54,3 +53,25 @@ class MLIQ:
                 mliq.flags[y][x] = reader.read_int8()
 
         return mliq
+
+    def get_vertices(self):
+        vertices = []
+        tile_size = Constants.UNIT_SIZE
+        c = self.corner  # Corner.
+        fractions = [0.0, 0.25, 0.5, 0.75]
+
+        # Loop over each tile
+        for y in range(self.y_tiles):
+            for x in range(self.x_tiles):
+                # Corner vertices.
+                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 0), c.Z))
+                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 0), c.Z))
+                vertices.append(Vector3(c.X + tile_size * (x + 0), c.Y + tile_size * (y + 1), c.Z))
+                vertices.append(Vector3(c.X + tile_size * (x + 1), c.Y + tile_size * (y + 1), c.Z))
+
+                # Generate 16 fractional points at all combinations of 0.0, 0.25, 0.5, 0.75.
+                for frac_x in fractions:
+                    for frac_y in fractions:
+                        vertices.append(Vector3(c.X + tile_size * (x + frac_x), c.Y + tile_size * (y + frac_y), c.Z))
+
+        return vertices

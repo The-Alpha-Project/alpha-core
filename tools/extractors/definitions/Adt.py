@@ -157,8 +157,8 @@ class Adt:
                 stream_reader.set_position(adt.chunks_information[x][y].offset)
                 error, token, size = stream_reader.read_chunk_information('MCNK')
                 if error:
-                    Logger.warning(f'{error}')
-                    return
+                    Logger.error(f'{error}')
+                    exit()
                 adt_tile = TileInformation.from_reader(stream_reader)
                 if adt.is_flat and not adt_tile.mcvt.is_flat:
                     adt.is_flat = False
