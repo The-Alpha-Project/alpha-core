@@ -9,10 +9,10 @@ class WmoGroupFile:
         self.flags = 0
         self.bounding = None
         self.group_liquid = 0
-        self.mliq = None
+        self.mliqs = []
 
     def has_liquids(self):
-        return self.mliq is not None
+        return bool(self.mliqs)
 
     @staticmethod
     def from_reader(reader: StreamReader):
@@ -154,10 +154,9 @@ class WmoGroupFile:
             error, token, size = reader.read_chunk_information('MLIQ')
             if error:
                 raise ValueError(f'{error}')
-            wmo_group_file.mliq = []
             final_position = reader.get_position() + size
             while reader.get_position() < final_position:
-                wmo_group_file.mliq.append(MLIQ.from_reader(reader, wmo_group_file.bounding.min))
+                wmo_group_file.mliqs.append(MLIQ.from_reader(reader, wmo_group_file.bounding.min))
         #elif group_liquid:
         #    Logger.warning(f'TODO: Wmo group liquid with no MLIQ, height hint: {bounding.max.Z}')
 
