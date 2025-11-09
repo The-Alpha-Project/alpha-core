@@ -92,6 +92,8 @@ begin not atomic
         UPDATE `quest_template` SET `RewItemId1` = '6078', `RewItemCount1` = '1' WHERE (`entry` = '54');
         -- Unused model for Defias Profiteer.
         UPDATE `creature_template` SET `display_id1` = '515', `equipment_id` = '598' WHERE (`entry` = '1669');
+        -- Fix Aedis Brom spawn, he should start besides Christoph Faral.
+        UPDATE `spawns_creatures` SET `position_x` = '-8605.97', `position_y` = '388.41', `position_z` = '102.925', `orientation` = '5.41052' WHERE (`spawn_id` = '79752');
 
         insert into applied_updates values ('031120251');
     end if;
