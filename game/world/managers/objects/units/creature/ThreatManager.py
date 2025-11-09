@@ -258,7 +258,7 @@ class ThreatManager:
 
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         if isinstance(self.unit, CreatureManager):
-            if self.unit.react_state == CreatureReactStates.REACT_PASSIVE:
+            if self.unit.get_react_state() == CreatureReactStates.REACT_PASSIVE:
                 return False
             elif not self.unit.can_assist_help_calls():
                 return False

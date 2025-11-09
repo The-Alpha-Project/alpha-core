@@ -446,15 +446,17 @@ class CreatureAI:
         self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=180)
 
     def is_ready_for_new_attack(self):
-        return self.creature.is_alive and self.creature.is_active_object() \
-               and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
-               and not self.creature.is_evading \
-               and not self.creature.unit_state & UnitStates.STUNNED \
-               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
-               and not self.creature.combat_target
+        return (self.creature.is_alive and not self.creature.is_evading
+                and not self.creature.unit_state & UnitStates.STUNNED
+                and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
+                and not self.creature.combat_target
+                and not self.get_react_state() == CreatureReactStates.REACT_PASSIVE)
 
     def assist_unit(self, target):
         if not self.creature.is_alive:
             return
 
         self.creature.attack(target.combat_target)
+
+    def get_react_state(self):
+        return self.creature.react_state

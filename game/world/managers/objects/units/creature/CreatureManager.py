@@ -5,6 +5,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
@@ -697,7 +698,7 @@ class CreatureManager(UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
 
         # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
-        if self.react_state == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
             return
 
         can_attack = super().attack(victim)
@@ -1044,6 +1045,11 @@ class CreatureManager(UnitManager):
     # override
     def get_creature_family(self):
         return self.creature_template.beast_family
+
+    def get_react_state(self):
+        if self.object_ai:
+            return self.object_ai.get_react_state()
+        return self.react_state
 
     def is_in_world(self):
         return self.is_spawned and self.get_map()
