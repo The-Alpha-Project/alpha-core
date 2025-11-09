@@ -10,6 +10,7 @@ etc/logs
 
 # Extractor
 etc/mdx
+etc/wmo_liquids
 
 # virtualenv folder
 venv
@@ -31,5 +32,4 @@ venv
 **.pyd
 **.so
 
-/etc/wmo
-/etc/wmo_liquids
+
