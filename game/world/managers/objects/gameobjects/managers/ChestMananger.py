@@ -46,7 +46,7 @@ class ChestManager(GameObjectManager):
                 if self.quest_id:
                     unit.quest_manager.handle_goober_use(self, self.quest_id)
 
-            if not from_script:
+            if not from_script and self.has_script():
                 self.trigger_script(unit)
 
             if self.linked_trap:

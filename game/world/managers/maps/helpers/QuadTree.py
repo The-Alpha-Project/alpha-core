@@ -2,8 +2,9 @@ from game.world.managers.maps.helpers.QuadTreeNode import QuadTreeNode
 
 
 class QuadTree:
-    def __init__(self, world_bounds, capacity):
-        self.root = QuadTreeNode(world_bounds, capacity, 0)
+    def __init__(self, world_bounds, visibility_bounds, capacity):
+        self.root = QuadTreeNode(world_bounds, capacity, 0, visibility_bounds)
+        self.visibility_bounds = visibility_bounds
         self.all_units = {}
 
     def insert_unit(self, unit):
@@ -24,7 +25,7 @@ class QuadTree:
             del self.all_units[unit_guid]
 
     def update_unit_placement(self, unit):
-        if not unit.has_moved_significantly():
+        if not unit.has_moved_significantly(self.visibility_bounds):
             return
         self.remove_unit(unit.guid)
         self.insert_unit(unit)

@@ -28,6 +28,9 @@ class PathManager:
     # Mdx.
     MDX_RELATIVE_PATH = 'etc/mdx/'
 
+    # Wmo.
+    WMO_RELATIVE_PATH = 'etc/wmo_liquids/'
+
     @staticmethod
     def set_root_path(root_path):
         PathManager.ROOT_PATH = root_path
@@ -63,6 +66,10 @@ class PathManager:
     @staticmethod
     def get_mdx_path():
         return path.join(PathManager.ROOT_PATH, PathManager.MDX_RELATIVE_PATH)
+
+    @staticmethod
+    def get_wmo_liquids_path():
+        return path.join(PathManager.ROOT_PATH, PathManager.WMO_RELATIVE_PATH)
 
     @staticmethod
     def get_git_path():

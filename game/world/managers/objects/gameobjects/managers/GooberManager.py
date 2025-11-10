@@ -68,7 +68,7 @@ class GooberManager(GameObjectManager):
                 # Check if object needed for given/any quest.
                 unit.quest_manager.handle_goober_use(self, self.quest_id)
 
-            if not from_script:
+            if not from_script and self.has_script():
                 self.trigger_script(unit)
 
         time_to_restore = self.get_auto_close_time()

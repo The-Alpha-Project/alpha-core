@@ -60,14 +60,6 @@ class EscortAI(BasicCreatureAI):
         super().just_despawned()
         self.detach_escort_link()
 
-    # override
-    def is_ready_for_new_attack(self):
-        return self.creature.is_alive and self.creature.is_active_object() \
-               and not self.creature.is_evading \
-               and not self.creature.unit_state & UnitStates.STUNNED \
-               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
-               and not self.creature.combat_target
-
     def _get_assist_target(self):
         victim = None
         if self.group_mgr:

@@ -1,6 +1,6 @@
 import os
 
-
+from tools.extractors.definitions.objects.Wmo import Wmo
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
@@ -20,7 +20,7 @@ MAP_SKIP = ['Scott Test', 'CashTest', 'Under Mine']
 class MapExtractor:
 
     @staticmethod
-    def run(data_path, wow_maps_folder, adt_x, adt_y):
+    def run(data_path, wow_maps_folder, wow_world_folder, adt_x, adt_y):
         # Validate /etc/maps.
         map_files_path = PathManager.get_maps_path()
         if not os.path.exists(map_files_path):
@@ -37,6 +37,12 @@ class MapExtractor:
         model_path = os.path.join(data_path, REQUIRED_MODELS_DBC)
         if not os.path.exists(model_path):
             Logger.error(f'Unable to locate {model_path}.')
+            return
+
+        # Validate WORLD path.
+        world_path = os.path.join(data_path, wow_world_folder)
+        if not os.path.exists(world_path):
+            Logger.error(f'Unable to locate {wow_world_folder}.')
             return
 
         maps_path = os.path.join(data_path, wow_maps_folder)
@@ -84,6 +90,22 @@ class MapExtractor:
         mdx_path = PathManager.get_mdx_path()
         if not os.path.exists(mdx_path):
             os.makedirs(mdx_path)
+
+        wmo_liquids_path = PathManager.get_wmo_liquids_path()
+        if not os.path.exists(wmo_liquids_path):
+            os.makedirs(wmo_liquids_path)
+
+        # Extract wmo liquid data.
+        wmo_files = [os.path.join(root, f) for root, _, fs in os.walk(world_path) for f in fs if f.endswith(".wmo.MPQ")]
+        current = 0
+        total = len(wmo_files)
+        for wmo_fime in wmo_files:
+            with Wmo(wmo_fime) as wmo:
+                current += 1
+                Logger.progress(f'Extracting wmo liquid data ...', current, total, divisions=1)
+                if not wmo.has_liquids:
+                    continue
+                wmo.save_liquid_data(wmo_liquids_path)
 
         # Extract models data.
         with MpqArchive(model_path) as archive:

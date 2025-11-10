@@ -10,8 +10,9 @@ from database.world.WorldModels import CreatureTemplate
 from utils import Formulas
 from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
-from utils.constants.PetCodes import PetReactState, PetCommandState, PetActionBarIndex
+from utils.constants.PetCodes import PetCommandState, PetActionBarIndex
 from utils.constants.SpellCodes import SpellAttributes
+from utils.constants.UnitCodes import CreatureReactStates
 
 
 class PetData:
@@ -34,7 +35,7 @@ class PetData:
         self._experience = experience
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
 
-        self.react_state = PetReactState.REACT_DEFENSIVE
+        self.react_state = CreatureReactStates.REACT_DEFENSIVE
         self.command_state = PetCommandState.COMMAND_FOLLOW
 
         self.spells = spells if spells else []

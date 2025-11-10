@@ -2,27 +2,28 @@ from game.world.managers.maps.helpers.BoundingBox import BoundingBox
 
 
 class QuadTreeNode:
-    __slots__ = ('bounds', 'capacity', 'depth', 'units', 'children')
+    __slots__ = ('bounds', 'capacity', 'depth', 'visibility_bounds', 'units', 'children')
 
-    def __init__(self, bounds, capacity, depth):
+    def __init__(self, bounds, capacity, depth, visibility_bounds):
         self.bounds = bounds
         self.capacity = capacity
         self.depth = depth
+        self.visibility_bounds = visibility_bounds
         self.units = []
         self.children = []
 
     def insert(self, all_units_dict, unit_object):
-        unit_box = unit_object.get_detection_range_box()
+        unit_object.update_visibility_bounds(self.visibility_bounds)
         unit_guid = unit_object.guid
 
-        if not self.bounds.intersects(unit_box):
+        if not self.bounds.intersects(self.visibility_bounds):
             return None
 
         # Check if the unit can be inserted into a child.
         if len(self.children) > 0:
             fits_in_child = False
             for child in self.children:
-                if child.bounds.contains_box(unit_box):
+                if child.bounds.contains_box(self.visibility_bounds):
                     # If it fits perfectly, insert it into that child and stop.
                     return child.insert(all_units_dict, unit_object)
 
@@ -47,10 +48,10 @@ class QuadTreeNode:
         sw_bounds = BoundingBox(x, y + sub_height, sub_width, sub_height)
 
         # Create the child nodes using the pre-calculated bounding boxes.
-        self.children.append(QuadTreeNode(nw_bounds, self.capacity, self.depth + 1))
-        self.children.append(QuadTreeNode(ne_bounds, self.capacity, self.depth + 1))
-        self.children.append(QuadTreeNode(sw_bounds, self.capacity, self.depth + 1))
-        self.children.append(QuadTreeNode(se_bounds, self.capacity, self.depth + 1))
+        self.children.append(QuadTreeNode(nw_bounds, self.capacity, self.depth + 1, self.visibility_bounds))
+        self.children.append(QuadTreeNode(ne_bounds, self.capacity, self.depth + 1, self.visibility_bounds))
+        self.children.append(QuadTreeNode(sw_bounds, self.capacity, self.depth + 1, self.visibility_bounds))
+        self.children.append(QuadTreeNode(se_bounds, self.capacity, self.depth + 1, self.visibility_bounds))
 
         units_to_reinsert_guids = self.units.copy()
         self.units = []

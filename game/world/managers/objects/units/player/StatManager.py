@@ -1272,8 +1272,10 @@ class StatManager(object):
     def send_cast_time_mods(self):
         if not self.unit_mgr.is_player():
             return
-        self.unit_mgr.set_float(UnitFields.UNIT_MOD_CAST_SPEED,
-                                self.get_total_stat(UnitStats.SPELL_CASTING_SPEED, accept_float=True) * 100)
+        # TODO: Check this, used to set FLOAT but field is INT.
+        mod_speed = int(self.get_total_stat(UnitStats.SPELL_CASTING_SPEED, accept_float=True) * 100)
+        self.unit_mgr.set_int32(UnitFields.UNIT_MOD_CAST_SPEED, mod_speed)
+
 
     # Arguments greater than 0 if defense is higher.
     def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):

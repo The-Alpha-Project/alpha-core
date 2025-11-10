@@ -8,7 +8,6 @@ from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 
-# TODO: Namigator: FindRandomPointAroundCircle (Detour)
 class WanderingMovement(BaseMovement):
     def __init__(self, spline_callback, is_default, use_current_position=False, wandering_distance=0.0):
         super().__init__(move_type=MoveType.WANDER, spline_callback=spline_callback, is_default=is_default)

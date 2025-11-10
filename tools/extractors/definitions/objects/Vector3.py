@@ -1,3 +1,4 @@
+import struct
 from dataclasses import dataclass
 
 
@@ -10,6 +11,11 @@ class Vector3:
      @staticmethod
      def from_reader(stream_reader):
           return Vector3(stream_reader.read_float(), stream_reader.read_float(), stream_reader.read_float())
+
+     @staticmethod
+     def from_bytes(data):
+         x, y, z = struct.unpack('fff', data)
+         return Vector3(x, y, z)
 
      @staticmethod
      def transform(position, matrix):

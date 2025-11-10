@@ -317,54 +317,53 @@ class ObjectManager:
         return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
     def set_int32(self, index, value, force=False):
-        return self._set_value(index, value, 'i', force)
+        return self._set_value(index, value, 'i', False, force)
 
     def set_uint32(self, index, value, force=False):
-        return self._set_value(index, value, 'I', force)
+        return self._set_value(index, value, 'I', False, force)
 
     def set_int64(self, index, value, force=False):
-        return self._set_value(index, value, 'q', force)
+        return self._set_value(index, value, 'q', True, force)
 
     def set_uint64(self, index, value, force=False):
-        return self._set_value(index, value, 'Q', force)
+        return self._set_value(index, value, 'Q', True, force)
 
     def set_float(self, index, value, force=False):
-        return self._set_value(index, value, 'f', force)
+        return self._set_value(index, value, 'f', force, False)
 
     def get_int32(self, index):
-        return self._get_value_by_type_at('i', index)
+        return self._get_value_by_type_at('i', index, False)
 
     def get_uint32(self, index):
-        return self._get_value_by_type_at('I', index)
+        return self._get_value_by_type_at('I', index, False)
 
     def get_int64(self, index):
-        return self._get_value_by_type_at('q', index)
+        return self._get_value_by_type_at('q', index, True)
 
     def get_uint64(self, index):
-        return self._get_value_by_type_at('Q', index)
+        return self._get_value_by_type_at('Q', index, True)
 
     def get_float(self, index):
-        return self._get_value_by_type_at('f', index)
+        return self._get_value_by_type_at('f', index, False)
 
-    def _get_value_by_type_at(self, value_type, index):
+    def _get_value_by_type_at(self, value_type, index, is_int64):
         if not self.update_packet_factory.update_values[index]:
             return 0
 
         # Return the raw value directly if not 64 bits.
-        if value_type.lower() != 'q':
+        if not is_int64:
             return self.update_packet_factory.update_values[index]
 
         # Unpack from two field bytes.
         value = self.update_packet_factory.update_values_bytes[index]
-        if value_type.lower() == 'q':
-            value += self.update_packet_factory.update_values_bytes[index + 1]
+        value += self.update_packet_factory.update_values_bytes[index + 1]
 
         return unpack(f'<{value_type}', value)[0]
 
-    def _set_value(self, index, value, value_type, force=False):
+    def _set_value(self, index, value, value_type, is_int64, force=False):
         force = force and self.is_player()
-        if force or self.update_packet_factory.should_update(index, value, value_type):
-            self.update_packet_factory.update(index, value, value_type)
+        if force or self.update_packet_factory.should_update(index, value, is_int64):
+            self.update_packet_factory.update(index, value, value_type, is_int64)
             if force and self.is_in_world():  # Changes should apply immediately.
                 self.get_map().update_object(self, has_changes=True)
             return True, force

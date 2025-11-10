@@ -178,6 +178,7 @@ class CreatureStaticFlags(IntEnum):
     AQUATIC = 262144  # Can only move in water.
     AMPHIBIOUS = 524288  # Can enter water and walk on terrain.
     NO_MELEE = 1048576  # Prevents melee, mostly used by totems.
+    IGNORE_COMBAT = 33554432  # React State = Passive
 
 
 class Genders(IntEnum):

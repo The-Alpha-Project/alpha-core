@@ -123,23 +123,23 @@ class UpdatePacketFactory(object):
             return all_clear
 
     # Check if the new value is different from the field known value.
-    def should_update(self, index, value, value_type):
-        if value_type.lower() == 'q':
-            field_0 = int(value & 0xFFFFFFFF)
-            field_1 = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
-            return self.update_values[index] != field_0 or self.update_values[index + 1] != field_1
-        else:
+    def should_update(self, index, value, is_int64):
+        if not is_int64:
             return self.update_values[index] != value
 
-    def update(self, index, value, value_type):
+        field_0 = int(value & 0xFFFFFFFF)
+        field_1 = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
+        return self.update_values[index] != field_0 or self.update_values[index + 1] != field_1
+
+    def update(self, index, value, value_type, is_int64):
         # Handle 64-bit 'q' type by splitting into two 32-bit updates.
-        if value_type.lower() == 'q':
+        if is_int64:
             lower_value = int(value & 0xFFFFFFFF)
             upper_value = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
 
             # Recursively update lower and upper parts.
-            self.update(index, lower_value, 'I')
-            self.update(index + 1, upper_value, 'I')
+            self.update(index, lower_value, 'I', False)
+            self.update(index + 1, upper_value, 'I', False)
         else:
             self.update_timestamps[index] = time.time()
             self.update_values[index] = value

@@ -28,7 +28,7 @@ class CameraManager(GameObjectManager):
                 packet = PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, pack('<I', self.cinematic_id))
                 unit.enqueue_packet(packet)
 
-            if not from_script:
+            if not from_script and self.has_script():
                 self.trigger_script(unit)
 
         super().use(unit, target, from_script)
