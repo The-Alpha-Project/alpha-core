@@ -234,7 +234,7 @@ class AIEventHandler:
                 continue
             self._enqueue_creature_ai_event(map_, event, target=self.creature)
 
-    # TODO.
+    # TODO, this is used for .cpp scripts, we should probably just deprecate.
     def on_movement_inform(self, behavior, point_id):
         Logger.warning('AI_EVENT_TYPE_MOVEMENT_INFORM is not implemented.')
         pass

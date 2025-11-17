@@ -127,14 +127,12 @@ class ScriptedEvent:
             self.event_targets.remove(_target)
         elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ONE_FIT_CONDITION:
             for t in self.event_targets:
-                # TODO: this doesn't actually do anything until the condition handler is implemented
                 if ConditionChecker.check_condition_object_fit_condition(condition_id, None, t):
                     self.event_targets.remove(t)
                     return
         elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_FIT_CONDITION:
             matches = 0
             for t in self.event_targets:
-                # TODO: this doesn't actually do anything until the condition handler is implemented
                 if ConditionChecker.check_condition_object_fit_condition(condition_id, None, t):
                     matches += 1
 
