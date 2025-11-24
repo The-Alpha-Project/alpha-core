@@ -1,6 +1,7 @@
 import math
 import random
 from enum import auto, IntFlag
+from typing import Dict, Tuple
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -97,15 +98,15 @@ class UnitStats(IntFlag):
 class StatManager(object):
 
     # Player base stats and stats scaling off base attributes (block value, weapon damage bonus from attributes etc.)
-    base_stats: dict[UnitStats, float]  # Floats for defensive chances
+    base_stats: Dict[UnitStats, float]  # Floats for defensive chances
 
     # Stat gain from items
-    item_stats: dict[UnitStats, int]
+    item_stats: Dict[UnitStats, int]
 
     # Managed by AuraManager. [Aura index, (Stat, bonus, misc value)]
     # Misc value can contain power/weapon/creature type etc. depending on the stat
-    aura_stats_flat: dict[int, (UnitStats, int, int)]
-    aura_stats_percentual: dict[int, (UnitStats, float, int, int)]
+    aura_stats_flat: Dict[int, Tuple[UnitStats, int, int]]
+    aura_stats_percentual: Dict[int, Tuple[UnitStats, float, int]]
 
     weapon_reach: float
 
@@ -300,7 +301,7 @@ class StatManager(object):
 
         return stat_map, (base_dmg_min, base_dmg_max), (ranged_dmg_min, ranged_dmg_max)
 
-    def get_base_stat(self, stat_type: UnitStats) -> int:
+    def get_base_stat(self, stat_type: UnitStats) -> float:
         return self.base_stats.get(stat_type, 0)
 
     def get_item_stat(self, stat_type: UnitStats) -> int:
@@ -340,7 +341,7 @@ class StatManager(object):
         # Don't apply bonuses for players that haven't completed login.
         # Sending a speed change before entering the world crashes the client.
         if self.unit_mgr.is_player() and not self.unit_mgr.online:
-            return
+            return 0, 0
 
         self.calculate_item_stats()
 
@@ -964,7 +965,7 @@ class StatManager(object):
             multiplier = 0.002 if rating_difference > 0 else 0.0004
             return attacker_critical_chance - rating_difference * multiplier
 
-    def get_spell_miss_result_against_self(self, casting_spell) -> (SpellMissReason, SpellHitFlags):
+    def get_spell_miss_result_against_self(self, casting_spell) -> Tuple[SpellMissReason, SpellHitFlags]:
         hit_flags = SpellHitFlags.NONE
 
         # Evading.
@@ -1004,9 +1005,16 @@ class StatManager(object):
             # Note that dual wield penalty is not applied to spells.
             # Spells can never result in crushing blows. Ranged attacks can't be parried.
             # Crit is rolled later for special damage (non-normal school) spells.
-            invalid_results = HitInfo.CRUSHING | \
-                              (HitInfo.PARRY if casting_spell.is_ranged_weapon_attack() else HitInfo.DAMAGE) | \
-                              (HitInfo.CRITICAL_HIT if is_special_damage else HitInfo.DAMAGE)
+            invalid_results = HitInfo.CRUSHING
+            if casting_spell.is_ranged_weapon_attack():
+                invalid_results |= HitInfo.PARRY
+            else:
+                invalid_results |= HitInfo.DAMAGE
+
+            if is_special_damage:
+                invalid_results |= HitInfo.CRITICAL_HIT
+            else:
+                invalid_results |= HitInfo.DAMAGE
 
             result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type(),
                                                               invalid_result_mask=invalid_results,
