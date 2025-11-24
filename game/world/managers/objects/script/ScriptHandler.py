@@ -5,7 +5,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureGroup
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.ai.EscortAI import EscortAI
 from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
 from game.world.managers.objects.gameobjects.managers.DoorManager import DoorManager
 from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager

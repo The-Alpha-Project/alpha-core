@@ -1,7 +1,6 @@
 import os
 from io import BytesIO
 from struct import unpack
-from utils.Logger import Logger
 from tools.extractors.pympqlib.MpqHash import MpqHash
 from tools.extractors.pympqlib.MpqEntry import MpqEntry
 from tools.extractors.pympqlib.MpqHeader import MpqHeader

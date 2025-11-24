@@ -2,7 +2,7 @@ import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal, EscortConditionFlags
 from utils.Logger import Logger
-from utils.constants.MiscCodes import QuestState, ObjectTypeFlags
+from utils.constants.MiscCodes import QuestState
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
 MAX_3368_SPELL_ID = 7913

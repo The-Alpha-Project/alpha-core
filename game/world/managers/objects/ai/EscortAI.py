@@ -1,6 +1,5 @@
 from game.world.managers.objects.ai.BasicCreatureAI import BasicCreatureAI
 from utils.constants.CustomCodes import Permits
-from utils.constants.UnitCodes import UnitStates, UnitFlags
 
 DEFAULT_MAX_ASSIST_DISTANCE =  40.0
 

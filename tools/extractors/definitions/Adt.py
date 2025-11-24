@@ -1,13 +1,9 @@
 import os
 from struct import pack
 
-from game.world.managers.maps.helpers.Constants import RESOLUTION_LIQUIDS, ADT_SIZE
-from game.world.managers.maps.helpers.MapUtils import MapUtils
 from tools.extractors.definitions.chunks.MDDF import MDDF
 from tools.extractors.definitions.chunks.MHDR import MHDR
 from tools.extractors.definitions.chunks.MODF import MODF
-from tools.extractors.definitions.objects.Vector3 import Vector3
-from tools.extractors.definitions.objects.Wmo import Wmo
 from tools.extractors.helpers.WmoLiquidParser import WmoLiquidParser
 from tools.extractors.helpers.WmoLiquidWriter import WmoLiquidWriter
 from utils.Logger import Logger

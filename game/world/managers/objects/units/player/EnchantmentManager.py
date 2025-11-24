@@ -218,7 +218,7 @@ class EnchantmentManager(object):
         return effect_value
 
     @staticmethod
-    def has_enchantment_in_slot(item, slot: [EnchantmentSlots]):
+    def has_enchantment_in_slot(item, slot: EnchantmentSlots):
         return item.enchantments[slot].entry if slot < MAX_ENCHANTMENTS else False
 
     @staticmethod

@@ -24,8 +24,7 @@ from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags, ItemSpellTriggerType
-from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, \
-    ItemBondingTypes
+from utils.constants.MiscCodes import HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, ItemBondingTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
@@ -680,7 +679,7 @@ class SpellManager:
         self.remove_cast(casting_spell, interrupted=True)
         self.set_on_cooldown(casting_spell, cooldown_penalty=cooldown_penalty)
 
-    def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR,
+    def remove_cast(self, casting_spell, cast_result: SpellCheckCastResult=SpellCheckCastResult.SPELL_NO_ERROR,
                     interrupted=False, cancel_auras=False) -> bool:
         if casting_spell not in self.casting_spells:
             return False

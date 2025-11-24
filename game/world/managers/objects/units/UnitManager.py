@@ -7,7 +7,6 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.helpers.BoundingBox import BoundingBox
 from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager

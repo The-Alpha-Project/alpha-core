@@ -4,7 +4,6 @@ from database.dbc.DbcModels import Spell
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
-from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -56,7 +55,7 @@ class TrainerBuySpellHandler(object):
         talent_cost = trainer_spell.talentpointcost if trainer_spell.talentpointcost > 0 else \
             TalentManager.get_talent_cost_by_id(trainer_spell.playerspell)
 
-        fail_reason = -1
+        fail_reason = None
         if talent_cost > player_mgr.talent_points:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
         elif spell_id in player_mgr.spell_manager.spells:
@@ -68,8 +67,6 @@ class TrainerBuySpellHandler(object):
         preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
         preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
         req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
-        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
-                spell.ID, player_mgr.race, player_mgr.class_)
 
         # Get talent status again to verify that client check was correct.
         verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, player_mgr,
@@ -81,7 +78,7 @@ class TrainerBuySpellHandler(object):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             player_mgr.talent_manager.send_talent_list()
 
-        if fail_reason != -1:
+        if fail_reason:
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
             return
     
@@ -117,7 +114,7 @@ class TrainerBuySpellHandler(object):
         spell_money_cost = trainer_spell.spellcost
         spell_skill_cost = trainer_spell.skillpointcost
 
-        fail_reason = -1
+        fail_reason = None
         anti_cheat = False
         if not unit.is_trainer() or not TrainerUtils.can_train(unit, player_mgr) or \
                 not TrainerUtils.trainer_has_spell(unit, training_spell_id):
@@ -164,7 +161,7 @@ class TrainerBuySpellHandler(object):
                 fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
                 TrainerUtils.send_trainer_list(unit, player_mgr)
 
-        if fail_reason != -1:
+        if fail_reason:
             if anti_cheat:
                 Logger.anticheat(f'Player {player_mgr.guid} tried to train spell {trainer_spell.playerspell} '
                                  f'(entry {trainer_spell.template_entry}) from NPC {unit.entry}.')

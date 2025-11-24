@@ -19,7 +19,6 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, Sp
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates, CreatureReactStates
 
 if TYPE_CHECKING:
-    from game.world.managers.objects.units.UnitManager import UnitManager
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 
 

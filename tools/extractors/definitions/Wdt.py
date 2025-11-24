@@ -1,4 +1,3 @@
-import os
 from io import BytesIO
 
 from game.world.managers.maps.helpers.Constants import BLOCK_SIZE

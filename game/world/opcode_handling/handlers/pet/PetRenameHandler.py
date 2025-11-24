@@ -15,4 +15,4 @@ class PetRenameHandler(object):
                 return 0
 
             world_session.player_mgr.pet_manager.handle_pet_rename(pet_guid, name)
-            return 0
+        return 0

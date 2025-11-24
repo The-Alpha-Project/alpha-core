@@ -38,6 +38,10 @@ class AreaAuraHolder:
         if not target:
             return
 
+        from game.world.managers.objects.units.UnitManager import UnitManager
+        if not isinstance(target, UnitManager):
+            return
+
         aura = target.aura_manager.get_aura_by_index(aura_index)
         if aura:
             target.aura_manager.remove_aura(aura)

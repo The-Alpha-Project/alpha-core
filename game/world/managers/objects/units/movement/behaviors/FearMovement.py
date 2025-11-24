@@ -147,8 +147,9 @@ class FearMovement(BaseMovement):
         units = self.unit.get_map().get_surrounding_units_by_location(self.unit.location, self.unit.map_id,
                                                                       self.unit.instance_id,
                                                                       FLEE_ASSISTANCE_RADIUS)[0].values()
-
         for unit in units:
             if not unit.threat_manager.unit_can_assist_help_call(self.unit, self.unit.combat_target):
                 continue
             return unit
+
+        return None

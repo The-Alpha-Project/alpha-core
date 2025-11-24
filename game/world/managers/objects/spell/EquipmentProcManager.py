@@ -46,10 +46,10 @@ class EquipmentProcManager:
     def apply_equipment_effects(self):
         self.handle_equipment_change(*list(self.player_mgr.inventory.get_backpack().sorted_slots.values()))
 
-    def handle_equipment_change(self, *items: [Optional[ItemManager]]):
+    def handle_equipment_change(self, *items: Optional[ItemManager]):
         for item in items:
             if not item:
-                return
+                continue
 
             # Spell proc enchants.
             enchantment_type = ItemEnchantmentType.PROC_SPELL

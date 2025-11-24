@@ -5,7 +5,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.objects.ai.AIFactory import AIFactory
-from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager

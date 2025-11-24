@@ -1,5 +1,5 @@
 from game.world.managers.maps.helpers.BoundingBox import BoundingBox
-from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE, ORIGIN
+from game.world.managers.maps.helpers.CellUtils import ORIGIN
 from game.world.managers.maps.helpers.QuadTree import QuadTree
 
 

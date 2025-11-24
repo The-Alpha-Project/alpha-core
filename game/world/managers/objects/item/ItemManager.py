@@ -1,6 +1,6 @@
 from functools import lru_cache
 from struct import pack
-from typing import List
+from typing import List, Union
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory, CharacterGifts
@@ -116,7 +116,7 @@ class ItemManager(ObjectManager):
                 self.initialized = False
                 self.initialize_field_values()
 
-    def is_container(self):
+    def is_container(self, by_mask=False):
         if self.item_template:
             return self.item_template.inventory_type == InventoryTypes.BAG
         return False
@@ -152,8 +152,11 @@ class ItemManager(ObjectManager):
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
 
     @staticmethod
-    def get_inv_slot_by_type(inventory_type):
-        return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
+    def get_inv_slot_by_type(inventory_type: Union[int, InventoryTypes]) -> InventorySlots:
+        # Convert Enum to int if necessary
+        type_value = inventory_type.value if isinstance(inventory_type, InventoryTypes) else inventory_type
+        slot_value = type_value if type_value <= 26 else 0
+        return InventorySlots([slot_value])
 
     @staticmethod
     def item_can_go_in_paperdoll_slot(item_template, slot):

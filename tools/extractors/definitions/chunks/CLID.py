@@ -1,8 +1,6 @@
-from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_LIQUIDS
 from tools.extractors.definitions.objects.Index3 import Index3
 from tools.extractors.definitions.objects.Vector3 import Vector3
 from tools.extractors.definitions.reader.StreamReader import StreamReader
-from tools.extractors.helpers.Constants import Constants
 
 
 class CLID:

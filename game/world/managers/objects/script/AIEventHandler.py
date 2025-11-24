@@ -362,7 +362,7 @@ class AIEventHandler:
             if target.power_percent > event.event_param1 or target.power_percent < event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, target, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, target)
 
     def update_target_hp_events(self, target, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_HP)
@@ -375,7 +375,7 @@ class AIEventHandler:
             if target.hp_percent > event.event_param1 or target.hp_percent < event.event_param2:
                 continue
 
-            self._enqueue_creature_ai_event(map_, event, target, elapsed_secs=elapsed_secs)
+            self._enqueue_creature_ai_event(map_, event, target)
 
     def update_target_rooted_events(self, target, elapsed_secs):
         if not target.unit_state & UnitStates.ROOTED:

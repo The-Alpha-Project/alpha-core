@@ -1,7 +1,5 @@
 import time
 
-from utils.constants.UnitCodes import CreatureReactStates
-
 
 class BaseMovement:
     def __init__(self, move_type, spline_callback, is_default=False):

@@ -392,12 +392,12 @@ class SkillManager(object):
     def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
         skill_id = self._get_skill_id_for_current_weapon(attack_type)
         if skill_id == -1:
-            return False
+            return
 
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         # Skip Professions.
         if skill.SkillType == SkillLineType.SECONDARY and skill.CategoryID == SkillCategories.CLASS_SKILL:
-            return False
+            return
 
         self.handle_offense_skill_gain_chance(skill_id)
 
@@ -527,11 +527,11 @@ class SkillManager(object):
 
         gather_skill_gain_factor = 1  # TODO: configurable.
         if lock_result.skill_type not in self.skills:
-            return False
+            return
 
         skill = self.skills[lock_result.skill_type]
         if skill.value >= skill.max:
-            return False
+            return
 
         chance = SkillManager._get_skill_gain_chance(skill.value,
                                                      lock_result.required_skill_value + 100,
@@ -585,11 +585,11 @@ class SkillManager(object):
 
     def _roll_profession_skill_gain_chance(self, skill_type, chance, step):
         if not skill_type or chance <= 0:
-            return False
+            return
 
         skill = self.skills.get(skill_type, None)
         if not skill:
-            return False
+            return
 
         roll = random.randint(1, 1000)
         if roll < chance:

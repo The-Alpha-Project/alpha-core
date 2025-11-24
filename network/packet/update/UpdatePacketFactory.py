@@ -1,5 +1,4 @@
 import time
-from logging import DEBUG
 from struct import pack
 from network.packet.update.UpdateData import UpdateData
 from network.packet.update.UpdateMask import UpdateMask

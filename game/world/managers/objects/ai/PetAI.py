@@ -116,7 +116,7 @@ class PetAI(CreatureAI):
 
         owner = self.creature.get_charmer_or_summoner()
         if not owner:
-            return
+            return None
 
         # Owner either have a combat target or being attacked without responding the attack.
         target = owner.combat_target if owner.combat_target else owner.threat_manager.get_hostile_target()
@@ -133,10 +133,10 @@ class PetAI(CreatureAI):
     # IMPORTANT: The order in which things are checked is important, be careful if you add or remove checks.
     def can_attack(self, target):
         if not target:
-            return
+            return False
 
         if not self.creature.can_attack_target(target):
-            return
+            return False
 
         command_state = self._get_command_state()
 

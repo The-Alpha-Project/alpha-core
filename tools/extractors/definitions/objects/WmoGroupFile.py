@@ -1,5 +1,5 @@
 from tools.extractors.definitions.chunks.MLIQ import MLIQ
-from tools.extractors.definitions.enums.LiquidFlags import MOGP_Flags, LiquidTypes
+from tools.extractors.definitions.enums.LiquidFlags import MOGP_Flags
 from tools.extractors.definitions.objects.CAaBox import CAaBox
 from tools.extractors.definitions.reader.StreamReader import StreamReader
 

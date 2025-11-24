@@ -46,7 +46,7 @@ class InventoryManager(object):
                         continue
 
                     self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
-                    self.containers[container_mgr.current_slot] = container_mgr
+                    self.containers[InventorySlots(container_mgr.current_slot)] = container_mgr
 
         # Then load items
         for item_instance in character_inventory:
