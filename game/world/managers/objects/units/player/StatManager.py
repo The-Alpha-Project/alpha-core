@@ -1123,21 +1123,21 @@ class StatManager(object):
         level = self.unit_mgr.level
         class_ = self.unit_mgr.class_
 
-        if class_ == Classes.CLASS_WARRIOR or \
-                class_ == Classes.CLASS_PALADIN:
-            attack_power = (strength * 2) + (level * 3) - 20
-        elif class_ == Classes.CLASS_DRUID:
-            attack_power = (strength * 2) - 20
-        elif class_ == Classes.CLASS_HUNTER:
-            attack_power = strength + agility + (level * 2) - 20
-        elif class_ == Classes.CLASS_MAGE or \
-                class_ == Classes.CLASS_PRIEST or \
-                class_ == Classes.CLASS_WARLOCK:
-            attack_power = strength - 10
-        elif class_ == Classes.CLASS_ROGUE:
-            attack_power = strength + ((agility * 2) - 20) + (level * 2) - 20
-        elif class_ == Classes.CLASS_SHAMAN:
-            attack_power = strength - 10 + ((agility * 2) - 20) + (level * 2)
+        # TODO: Should this match case be for players only?
+        #  We never reach creatures bode at the bottom.
+        match class_:
+            case Classes.CLASS_WARRIOR | Classes.CLASS_PALADIN:
+                return (strength * 2) + (level * 3) - 20
+            case Classes.CLASS_DRUID:
+                return (strength * 2) - 20
+            case Classes.CLASS_HUNTER:
+                return strength + agility + (level * 2) - 20
+            case Classes.CLASS_MAGE | Classes.CLASS_PRIEST | Classes.CLASS_WARLOCK:
+                return strength - 10
+            case Classes.CLASS_ROGUE:
+                return strength + ((agility * 2) - 20) + (level * 2) - 20
+            case Classes.CLASS_SHAMAN:
+                return strength - 10 + ((agility * 2) - 20) + (level * 2)
 
         # Creatures have base attack power which includes gain from base stats.
         base_attack_power = self.get_base_stat(UnitStats.ATTACK_POWER)
@@ -1275,7 +1275,7 @@ class StatManager(object):
         if not self.unit_mgr.is_player():
             return
         # Calculate the difference from the base speed,
-        # as the client expects a signed integer modifier (e.g., 50 for +50% speed, -20 for -20% speed).
+        # as the client expects a signed integer modifier (e.g., -50 for +50% speed, 20 for -20% speed).
         mod_speed = int((self.get_total_stat(UnitStats.SPELL_CASTING_SPEED, accept_float=True) - 1) * 100)
         self.unit_mgr.set_int32(UnitFields.UNIT_MOD_CAST_SPEED, mod_speed)
 
