@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, IntFlag
 
 
 class ObjectTypeFlags(IntEnum):
@@ -93,7 +93,7 @@ class NpcFlags(IntEnum):
 
 
 # COMBAT INFORMATION
-class HitInfo(IntEnum):
+class HitInfo(IntFlag):
     DAMAGE = 0x00000000
     MISS = 0x00000001
     SUCCESS = 0x00000002
