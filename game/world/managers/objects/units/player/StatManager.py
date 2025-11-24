@@ -1124,7 +1124,7 @@ class StatManager(object):
         class_ = self.unit_mgr.class_
 
         # TODO: Should this match case be for players only?
-        #  We never reach creatures bode at the bottom.
+        #  We never reach creatures code at the bottom.
         match class_:
             case Classes.CLASS_WARRIOR | Classes.CLASS_PALADIN:
                 return (strength * 2) + (level * 3) - 20
