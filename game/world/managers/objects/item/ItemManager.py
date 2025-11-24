@@ -156,7 +156,7 @@ class ItemManager(ObjectManager):
         # Convert Enum to int if necessary
         type_value = inventory_type.value if isinstance(inventory_type, InventoryTypes) else inventory_type
         slot_value = type_value if type_value <= 26 else 0
-        return InventorySlots([slot_value])
+        return InventorySlots(slot_value)
 
     @staticmethod
     def item_can_go_in_paperdoll_slot(item_template, slot):
