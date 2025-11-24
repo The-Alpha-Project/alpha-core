@@ -182,8 +182,10 @@ class StatManager(object):
         else:
             self.set_creature_stats()
 
-        # Don't overwrite base speed if it has been modified.
+        # Don't overwrite the base speed if it has been modified.
         self.base_stats[UnitStats.SPEED_RUNNING] = self.base_stats.get(UnitStats.SPEED_RUNNING, config.Unit.Defaults.run_speed)
+
+        self.base_stats[UnitStats.SPELL_CASTING_SPEED] = 1.0
 
         # Players and creatures have an unchanging base 5% chance to block and parry (before defense skill differences).
         # As block chance also scales with strength, the value is calculated in update_base_block_chance.
@@ -1272,10 +1274,10 @@ class StatManager(object):
     def send_cast_time_mods(self):
         if not self.unit_mgr.is_player():
             return
-        # TODO: Check this, used to set FLOAT but field is INT.
-        mod_speed = int(self.get_total_stat(UnitStats.SPELL_CASTING_SPEED, accept_float=True) * 100)
+        # Calculate the difference from the base speed,
+        # as the client expects a signed integer modifier (e.g., 50 for +50% speed, -20 for -20% speed).
+        mod_speed = int((self.get_total_stat(UnitStats.SPELL_CASTING_SPEED, accept_float=True) - 1) * 100)
         self.unit_mgr.set_int32(UnitFields.UNIT_MOD_CAST_SPEED, mod_speed)
-
 
     # Arguments greater than 0 if defense is higher.
     def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):
