@@ -1,6 +1,9 @@
+from typing import Dict
+
 from game.world.managers.maps.helpers.BoundingBox import BoundingBox
 from game.world.managers.maps.helpers.CellUtils import ORIGIN
 from game.world.managers.maps.helpers.QuadTree import QuadTree
+from game.world.managers.objects.units.UnitManager import UnitManager
 
 
 class DetectionManager:
@@ -10,9 +13,9 @@ class DetectionManager:
         self.world_bounds = BoundingBox(x=-ORIGIN, y=-ORIGIN, width=ORIGIN * 2, height=ORIGIN * 2)
         self.unit_visibility_bounds = BoundingBox(0, 0, 0, 0)
         self.quadtree = QuadTree(self.world_bounds, self.unit_visibility_bounds, 4)
-        self.pending_placement_updates = []
-        self.pending_adds = []
-        self.pending_removes = []
+        self.pending_placement_updates: Dict[int, UnitManager] = {}
+        self.pending_adds: Dict[int, UnitManager] = {}
+        self.pending_removes: Dict[int, UnitManager] = {}
 
     def has_unit(self, unit):
         return unit.guid in self.units
@@ -55,18 +58,18 @@ class DetectionManager:
                 and unit.can_be_targeted_for_surrounding_aggro())
 
     def queue_update_unit_placement(self, unit):
-        self.pending_placement_updates.append(unit)
+        self.pending_placement_updates[unit.guid] = unit
 
     def queue_add(self, unit):
-        self.pending_adds.append(unit)
+        self.pending_adds[unit.guid] = unit
 
     def queue_remove(self, unit):
-        self.pending_removes.append(unit)
+        self.pending_removes[unit.guid] = unit
 
     def process_add_batch(self):
         if not self.pending_adds:
             return
-        batch = self.pending_adds.copy()
+        batch = list(self.pending_adds.values())
         self.pending_adds.clear()
         for unit in batch:
             self._add(unit)
@@ -74,7 +77,7 @@ class DetectionManager:
     def process_remove_batch(self):
         if not self.pending_removes:
             return
-        batch = self.pending_removes.copy()
+        batch = list(self.pending_removes.values())
         self.pending_removes.clear()
         for unit_guid in batch:
             self._remove(unit_guid)
@@ -82,7 +85,7 @@ class DetectionManager:
     def process_update_placement_batch(self):
         if not self.pending_placement_updates:
             return
-        batch = self.pending_placement_updates.copy()
+        batch = list(self.pending_placement_updates.values())
         self.pending_placement_updates.clear()
         for unit in batch:
             self._update_unit_placement(unit)
