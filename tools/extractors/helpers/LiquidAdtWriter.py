@@ -60,7 +60,7 @@ class LiquidAdtWriter:
         # Write to file.
         for y in range(Constants.GRID_SIZE):
             for x in range(Constants.GRID_SIZE):
-                if self.lq_show[y][x] is True:
+                if self.lq_show[y][x]:
                     self._write_cell_liquid(file_writer, self.lq_height[y][x], self.lq_flags[y][x])
                 else:  # Empty cell.
                     file_writer.write(pack('<b', -1))
