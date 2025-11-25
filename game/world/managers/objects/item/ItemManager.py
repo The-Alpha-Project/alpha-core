@@ -21,7 +21,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, 
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import ObjectFields, ItemFields, PlayerFields
 
-AVAILABLE_EQUIP_SLOTS = [
+AVAILABLE_EQUIP_SLOTS: List[InventorySlots] = [
     InventorySlots.SLOT_INBACKPACK,  # None equip
     InventorySlots.SLOT_HEAD,
     InventorySlots.SLOT_NECK,
@@ -153,10 +153,10 @@ class ItemManager(ObjectManager):
 
     @staticmethod
     def get_inv_slot_by_type(inventory_type: Union[int, InventoryTypes]) -> InventorySlots:
-        # Convert Enum to int if necessary
+        global AVAILABLE_EQUIP_SLOTS
         type_value = inventory_type.value if isinstance(inventory_type, InventoryTypes) else inventory_type
         slot_value = type_value if type_value <= 26 else 0
-        return InventorySlots(slot_value)
+        return AVAILABLE_EQUIP_SLOTS[slot_value]
 
     @staticmethod
     def item_can_go_in_paperdoll_slot(item_template, slot):
