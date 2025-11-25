@@ -21,7 +21,7 @@ from game.world.managers.objects.units.movement.helpers.SplineEvent import Splin
     SplineTargetedEmoteEvent
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
+from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, \
     GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders, CreatureReactStates
