@@ -1116,31 +1116,33 @@ class PlayerManager(UnitManager):
 
     def set_area_explored(self, area_information):
         self.explored_areas[area_information.explore_bit] = True
-        if area_information.level > 0:
-            if self.level < config.Unit.Player.Defaults.max_level:
-                # The following calculations are taken from VMaNGOS core.
-                xp_rate = int(config.Server.Settings.xp_rate)
-                diff = self.level - area_information.level
-                if diff < -5:
-                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(self.level + 5) * xp_rate
-                elif diff > 5:
-                    exploration_percent = (100 - ((diff - 5) * 5))
-                    if exploration_percent > 100:
-                        exploration_percent = 100
-                    elif exploration_percent < 0:
-                        exploration_percent = 0
-                    base_xp = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level)
-                    xp_gain = base_xp * exploration_percent / 100 * xp_rate
-                else:
-                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * xp_rate
-                self.give_xp([xp_gain], notify=False)
-            else:
-                xp_gain = 0
+        if area_information.level <= 0:
+            return
 
-            # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_information.zone_id, int(xp_gain * config.Server.Settings.xp_rate))
-            packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
-            self.enqueue_packet(packet)
+        if self.level < config.Unit.Player.Defaults.max_level:
+            # The following calculations are taken from VMaNGOS core.
+            xp_rate = int(config.Server.Settings.xp_rate)
+            diff = self.level - area_information.level
+            if diff < -5:
+                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(self.level + 5) * xp_rate
+            elif diff > 5:
+                exploration_percent = (100 - ((diff - 5) * 5))
+                if exploration_percent > 100:
+                    exploration_percent = 100
+                elif exploration_percent < 0:
+                    exploration_percent = 0
+                base_xp = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level)
+                xp_gain = base_xp * exploration_percent / 100 * xp_rate
+            else:
+                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * xp_rate
+            self.give_xp([xp_gain], notify=False)
+        else:
+            xp_gain = 0
+
+        # Notify client new discovered zone + xp gain.
+        data = pack('<2I', area_information.zone_id, int(xp_gain * config.Server.Settings.xp_rate))
+        packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
+        self.enqueue_packet(packet)
 
     def update_swimming_state(self, state):
         if state:
