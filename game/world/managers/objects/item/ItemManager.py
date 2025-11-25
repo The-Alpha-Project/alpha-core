@@ -21,35 +21,6 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, 
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import ObjectFields, ItemFields, PlayerFields
 
-AVAILABLE_EQUIP_SLOTS: List[InventorySlots] = [
-    InventorySlots.SLOT_INBACKPACK,  # None equip
-    InventorySlots.SLOT_HEAD,
-    InventorySlots.SLOT_NECK,
-    InventorySlots.SLOT_SHOULDERS,
-    InventorySlots.SLOT_SHIRT,
-    InventorySlots.SLOT_CHEST,
-    InventorySlots.SLOT_WAIST,
-    InventorySlots.SLOT_LEGS,
-    InventorySlots.SLOT_FEET,
-    InventorySlots.SLOT_WRISTS,
-    InventorySlots.SLOT_HANDS,
-    InventorySlots.SLOT_FINGERL,
-    InventorySlots.SLOT_TRINKETL,
-    InventorySlots.SLOT_MAINHAND,  # 1H
-    InventorySlots.SLOT_OFFHAND,  # Shield
-    InventorySlots.SLOT_RANGED,
-    InventorySlots.SLOT_BACK,
-    InventorySlots.SLOT_MAINHAND,  # 2H
-    InventorySlots.SLOT_BAG1,
-    InventorySlots.SLOT_TABARD,
-    InventorySlots.SLOT_CHEST,  # Robe
-    InventorySlots.SLOT_MAINHAND,  # Main Hand
-    InventorySlots.SLOT_OFFHAND,  # Off Hand
-    InventorySlots.SLOT_OFFHAND,  # Held
-    InventorySlots.SLOT_INBACKPACK,  # Ammo
-    InventorySlots.SLOT_RANGED,  # Throw
-    InventorySlots.SLOT_RANGED  # Ranged right
-]
 
 GIFT_ENTRY_RELATIONSHIP = {
     5014: 5015,  # Wrapping Paper (PT) -> Wrapped Item (PT).
@@ -153,10 +124,9 @@ class ItemManager(ObjectManager):
 
     @staticmethod
     def get_inv_slot_by_type(inventory_type: Union[int, InventoryTypes]) -> InventorySlots:
-        global AVAILABLE_EQUIP_SLOTS
-        type_value = inventory_type.value if isinstance(inventory_type, InventoryTypes) else inventory_type
-        slot_value = type_value if type_value <= 26 else 0
-        return AVAILABLE_EQUIP_SLOTS[slot_value]
+        if not isinstance(inventory_type, InventoryTypes):
+            inventory_type = InventoryTypes(inventory_type)
+        return inventory_type.get_inventory_slot_for_inventory_type()
 
     @staticmethod
     def item_can_go_in_paperdoll_slot(item_template, slot):

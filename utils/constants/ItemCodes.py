@@ -140,37 +140,6 @@ class BagFamilies(IntEnum):
     KEYS = 9
 
 
-class InventoryTypes(IntEnum):
-    NONE_EQUIP = 0x00
-    HEAD = 0x01
-    NECK = 0x02
-    SHOULDER = 0x03
-    BODY = 0x04
-    CHEST = 0x05
-    WAIST = 0x06
-    LEGS = 0x07
-    FEET = 0x08
-    WRIST = 0x09
-    HAND = 0x0A
-    FINGER = 0x0B
-    TRINKET = 0x0C
-    WEAPON = 0x0D
-    SHIELD = 0x0E
-    RANGED = 0x0F
-    CLOAK = 0x10
-    TWOHANDEDWEAPON = 0x11
-    BAG = 0x12
-    TABARD = 0x13
-    ROBE = 0x14
-    WEAPONMAINHAND = 0x15
-    WEAPONOFFHAND = 0x16
-    HOLDABLE = 0x17
-    AMMO = 0x18
-    THROWN = 0x19
-    RANGEDRIGHT = 0x1A
-    NUM_TYPES = 0x1B
-
-
 class InventorySlots(IntEnum):
     SLOT_HEAD = 0
     SLOT_NECK = 1
@@ -213,6 +182,69 @@ class InventorySlots(IntEnum):
 
     SLOT_BANK_END = 68
     PLAYER_INVENTORY_SLOTS = 69
+
+
+class InventoryTypes(IntEnum):
+    NONE_EQUIP = 0x00
+    HEAD = 0x01
+    NECK = 0x02
+    SHOULDER = 0x03
+    BODY = 0x04
+    CHEST = 0x05
+    WAIST = 0x06
+    LEGS = 0x07
+    FEET = 0x08
+    WRIST = 0x09
+    HAND = 0x0A
+    FINGER = 0x0B
+    TRINKET = 0x0C
+    WEAPON = 0x0D
+    SHIELD = 0x0E
+    RANGED = 0x0F
+    CLOAK = 0x10
+    TWOHANDEDWEAPON = 0x11
+    BAG = 0x12
+    TABARD = 0x13
+    ROBE = 0x14
+    WEAPONMAINHAND = 0x15
+    WEAPONOFFHAND = 0x16
+    HOLDABLE = 0x17
+    AMMO = 0x18
+    THROWN = 0x19
+    RANGEDRIGHT = 0x1A
+    NUM_TYPES = 0x1B
+
+    def get_inventory_slot_for_inventory_type(self) -> InventorySlots:
+        mapping = {
+            InventoryTypes.NONE_EQUIP: InventorySlots.SLOT_INBACKPACK,
+            InventoryTypes.HEAD: InventorySlots.SLOT_HEAD,
+            InventoryTypes.NECK: InventorySlots.SLOT_NECK,
+            InventoryTypes.SHOULDER: InventorySlots.SLOT_SHOULDERS,
+            InventoryTypes.BODY: InventorySlots.SLOT_SHIRT,
+            InventoryTypes.CHEST: InventorySlots.SLOT_CHEST,
+            InventoryTypes.WAIST: InventorySlots.SLOT_WAIST,
+            InventoryTypes.LEGS: InventorySlots.SLOT_LEGS,
+            InventoryTypes.FEET: InventorySlots.SLOT_FEET,
+            InventoryTypes.WRIST: InventorySlots.SLOT_WRISTS,
+            InventoryTypes.HAND: InventorySlots.SLOT_HANDS,
+            InventoryTypes.FINGER: InventorySlots.SLOT_FINGERL,
+            InventoryTypes.TRINKET: InventorySlots.SLOT_TRINKETL,
+            InventoryTypes.WEAPON: InventorySlots.SLOT_MAINHAND,
+            InventoryTypes.SHIELD: InventorySlots.SLOT_OFFHAND,
+            InventoryTypes.RANGED: InventorySlots.SLOT_RANGED,
+            InventoryTypes.CLOAK: InventorySlots.SLOT_BACK,
+            InventoryTypes.TWOHANDEDWEAPON: InventorySlots.SLOT_MAINHAND,
+            InventoryTypes.BAG: InventorySlots.SLOT_BAG1,  # Or handle multiple bags
+            InventoryTypes.TABARD: InventorySlots.SLOT_TABARD,
+            InventoryTypes.ROBE: InventorySlots.SLOT_CHEST,
+            InventoryTypes.WEAPONMAINHAND: InventorySlots.SLOT_MAINHAND,
+            InventoryTypes.WEAPONOFFHAND: InventorySlots.SLOT_OFFHAND,
+            InventoryTypes.HOLDABLE: InventorySlots.SLOT_OFFHAND,
+            InventoryTypes.AMMO: InventorySlots.SLOT_INBACKPACK,
+            InventoryTypes.THROWN: InventorySlots.SLOT_RANGED,
+            InventoryTypes.RANGEDRIGHT: InventorySlots.SLOT_RANGED,
+        }
+        return mapping.get(self, InventorySlots.SLOT_INBACKPACK)
 
 
 class InventoryStats(IntEnum):
