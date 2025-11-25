@@ -1,7 +1,7 @@
 import math
 import random
 from enum import auto, IntFlag
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -1175,7 +1175,7 @@ class StatManager(object):
             self.unit_mgr.set_resistance(i, *self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_START << i))
             self.unit_mgr.set_resistance_mods(i, *self._get_positive_negative_bonus(UnitStats.RESISTANCE_START << i))
 
-    def _get_positive_negative_bonus(self, stat_type: UnitStats):
+    def _get_positive_negative_bonus(self, stat_type: Union[UnitStats, int]):
         aura_bonuses = self.get_aura_stat_bonuses(stat_type)
         percentual = self.get_aura_stat_bonuses(stat_type, percentual=True)
 
@@ -1191,7 +1191,7 @@ class StatManager(object):
             positive *= percentual_bonus
         return negative, positive
 
-    def _get_total_and_item_stat_bonus(self, stat_type: UnitStats):
+    def _get_total_and_item_stat_bonus(self, stat_type: Union[UnitStats, int]):
         return self.get_total_stat(stat_type, accept_negative=True), self.get_item_stat(stat_type)
 
     def send_attributes(self):
