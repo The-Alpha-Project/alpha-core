@@ -1926,6 +1926,10 @@ class UnitManager(ObjectManager):
         pass
 
     # Implemented by CreatureManager and PlayerManager
+    # char comboPoints;
+    # char padding;
+    # char padding;
+    # char padding;
     def get_bytes_2(self):
         pass
 

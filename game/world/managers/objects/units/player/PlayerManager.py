@@ -1713,9 +1713,9 @@ class PlayerManager(UnitManager):
     # override
     def get_bytes_2(self):
         return ByteUtils.bytes_to_int(
-            0,  # Unknown.
-            0,  # Pet flags (0 for players).
-            0,  # Misc flags (0 for players?).
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Unused.
             self.combo_points  # Combo points.
         )
 

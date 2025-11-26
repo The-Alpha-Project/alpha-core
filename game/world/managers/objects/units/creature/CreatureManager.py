@@ -921,10 +921,10 @@ class CreatureManager(UnitManager):
     # This update field is unused and private in 0.5.3.
     def get_bytes_2(self):
         return ByteUtils.bytes_to_int(
-            0,  # unknown
-            0,  # pet flags
-            0,  # misc flags
-            0,  # unknown
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Combo points.
         )
 
     # override
