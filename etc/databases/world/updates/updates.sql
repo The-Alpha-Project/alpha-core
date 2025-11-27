@@ -100,6 +100,10 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '1659.186', `position_y` = '303.587', `position_z` = '-42.692' WHERE (`spawn_id` = '38426');
         -- Fix Francis Eliot placement.
         UPDATE `spawns_creatures` SET `position_x` = '1661.217', `position_y` = '301.482', `position_z` = '-42.688' WHERE (`spawn_id` = '38109');
+        -- Fix Joanna Whitehall placement. https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Undercity/000904.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '1630.627', `position_y` = '331.262', `position_z` = '-45.486', `orientation` = '1.029' WHERE (`spawn_id` = '38112');
+        -- Fix Leona Tharpe placement. https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Undercity/000904.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '1634.472', `position_y` = '331.704', `position_z` = '-45.481', `orientation` = '2.639' WHERE (`spawn_id` = '38111');
 
         insert into applied_updates values ('031120251');
     end if;
