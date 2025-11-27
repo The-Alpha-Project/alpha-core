@@ -415,7 +415,7 @@ class CommandManager(object):
         if code == 0:
             spell_id = res
             if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
-                return -1, 'unable to learn spell, already known or skill limit reached.'
+                return -1, 'unable to learn spell, already known, skill limit reached or not available to your race/class.'
             return 0, 'Spell learned.'
         return code, res
 
