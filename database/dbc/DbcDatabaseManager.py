@@ -362,6 +362,10 @@ class DbcDatabaseManager:
                     continue
 
                 # Validate Skill Line.
+                # Some skill lines abilities do not have race/class requirements until you reach the actual skill.
+                # Also, some skill lines point to different skill lines with different requirements.
+                # e.g. Language: Orcish (Spell 669) which points to either Skill line 109 or 110.
+                # So, the Orc can learn skill 109 which os probably native and a human can learn skill 110. (Temp orcish).
                 skill_line = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
                 req_race_mask = skill_line.RaceMask
                 req_class_mask = skill_line.ClassMask
