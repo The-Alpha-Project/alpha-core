@@ -40,7 +40,7 @@ class DoorManager(GameObjectManager):
         self.switch_door_state(True)
         self.set_cooldown(time.time())
 
-        if not from_script:
+        if not from_script and self.has_script():
             self.trigger_script(unit)
 
         super().use(unit, target, from_script)

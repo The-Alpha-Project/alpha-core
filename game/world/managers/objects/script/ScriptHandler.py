@@ -1,10 +1,10 @@
 import random
+import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureGroup
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.ai.EscortAI import EscortAI
 from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
 from game.world.managers.objects.gameobjects.managers.DoorManager import DoorManager
 from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
@@ -21,7 +21,7 @@ from game.world.managers.objects.units.movement.helpers.SplineEvent import Splin
     SplineTargetedEmoteEvent
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
+from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, \
     GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders, CreatureReactStates
@@ -42,6 +42,7 @@ class ScriptHandler:
     def __init__(self, map_):
         self.map = map_
         self.scripts_set = set()
+        self.forced_event_ids = set()
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, event=None):
         # Grab start script command(s).
@@ -59,7 +60,14 @@ class ScriptHandler:
 
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, event=event)
-        self.scripts_set.add(new_script)
+
+        # If no delay, update right away.
+        if not delay:
+            new_script.update(time.time())
+            if not new_script.is_complete():
+                self.scripts_set.add(new_script)
+        else:
+            self.scripts_set.add(new_script)
 
     # noinspection PyMethodMayBeStatic
     def handle_script_command_execution(self, script_command):
@@ -83,6 +91,12 @@ class ScriptHandler:
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
         for script in list(self.scripts_set):
+            # Check if there is a forced event trigger.
+            if self.forced_event_ids and script.event.id in self.forced_event_ids:
+                Logger.debug(f'Event {script.event.get_event_info()}  unlocked by request.')
+                script.delay = 0
+                self.forced_event_ids.discard(script.event.id)
+            # Update/Run script.
             script.update(now)
             if not script.is_complete():
                 continue

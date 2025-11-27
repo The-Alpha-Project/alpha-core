@@ -2,7 +2,7 @@ import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal, EscortConditionFlags
 from utils.Logger import Logger
-from utils.constants.MiscCodes import QuestState, ObjectTypeFlags
+from utils.constants.MiscCodes import QuestState
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
 MAX_3368_SPELL_ID = 7913
@@ -696,15 +696,26 @@ class ConditionChecker:
         Logger.warning('CONDITION_OBJECT_LOOT_STATE is not implemented.')
         return False
 
+    # TODO: Find example to test this, since our handling of spawns is different than VMaNGOS.
     @staticmethod
-    def check_condition_object_fit_condition(_condition, _source, _target):
-        # Requires Map.
+    def check_condition_object_fit_condition(condition, source, target):
         # Check if the target object with guid exists and satisfies the given condition.
         # Condition_value1 = object guid.
         # Condition_value2 = condition id.
-        # Unused in 0.5.3.
-        Logger.warning('CONDITION_OBJECT_FIT_CONDITION is not implemented.')
-        return False
+        source = source if source and source.is_gameobject() else target if target and target.is_gameobject() else None
+        if not source:
+            return False
+        map_ = source.get_map()
+        if not map_:
+            return False
+        go_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(source, condition.value1)
+        if not go_spawn:
+            return False
+        data = go_spawn.gameobject_spawn
+        go_instance = go_spawn.gameobject_instance
+        if not data or not go_instance:
+            return False
+        return ConditionChecker.validate(condition.value2, go_instance, source)
 
     @staticmethod
     def check_condition_pvp_rank(_condition, _source, _target):

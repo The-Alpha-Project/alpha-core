@@ -7,6 +7,7 @@ from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from game.world.managers.objects.ai.CritterAI import CritterAI
 from game.world.managers.objects.ai.EscortAI import EscortAI
 from game.world.managers.objects.ai.GuardAI import GuardAI
+from game.world.managers.objects.ai.GuardianAI import GuardianAI
 from game.world.managers.objects.ai.NullCreatureAI import NullCreatureAI
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.ai.TotemAI import TotemAI
@@ -25,6 +26,7 @@ class AIFactory:
             'CritterAI': CritterAI(None),
             'GuardAI': GuardAI(None),
             'PetAI': PetAI(None),
+            'GuardianAI': GuardianAI(None),
             'TotemAI': TotemAI(None),
             'EscortAI': EscortAI(None)
             # 'EventAI': EventAI(None),
@@ -40,7 +42,7 @@ class AIFactory:
         #      return new NullCreatureAI(creature);
 
         ai_name = creature.creature_template.ai_name
-        selected_ai = None
+        selected_ai_name = ''
 
         # TODO: Allow scripting AI for normal creatures and not controlled pets (guardians and mini-pets)
         #  if not creature.is_pet() or not creature.is_controlled() and not creature.is_charmed():
@@ -49,10 +51,12 @@ class AIFactory:
         #          return selected_ai
 
         if creature.is_totem():
-            selected_ai = TotemAI(creature)
-        elif creature.is_controlled() or creature.is_guardian():
-            # Use PetAI for any controlled creature or guardians.
-            selected_ai = PetAI(creature)
+            selected_ai_name = TotemAI.__name__
+        elif creature.is_guardian():
+            selected_ai_name = GuardianAI.__name__
+        elif creature.is_controlled():
+            # Use PetAI for any controlled creature.
+            selected_ai_name = PetAI.__name__
 
         # TODO: EventAI assigned but creature is Pet.
         #  if not selected_ai and ai_name and creature.is_pet() and ai_name == 'EventAI':
@@ -63,17 +67,17 @@ class AIFactory:
         #         selected_ai = GuardEventAI(creature)
 
         # Select by script name.
-        if not selected_ai and ai_name:
-            selected_ai = AIFactory._get_ai_by_ai_name(ai_name, creature)
+        if not selected_ai_name and ai_name:
+            selected_ai_name = AIFactory._get_ai_name_by_ai_template_name(ai_name)
 
-        if not selected_ai and creature.is_guard():
-            selected_ai = GuardAI(creature)
+        if not selected_ai_name and creature.is_guard():
+            selected_ai_name = GuardAI.__name__
 
-        if not selected_ai and creature.is_critter():
-            selected_ai = CritterAI(creature)
+        if not selected_ai_name and creature.is_critter():
+            selected_ai_name = CritterAI.__name__
 
         # Select by permits.
-        if not selected_ai:
+        if not selected_ai_name:
             best_permit = Permits.PERMIT_BASE_NO
             best_ai_name = None
             for ai_name, instance in AIFactory.AI_REGISTRY.items():
@@ -83,31 +87,40 @@ class AIFactory:
                     best_ai_name = ai_name
 
             if best_permit != Permits.PERMIT_BASE_NO and best_ai_name:
-                selected_ai = AIFactory._get_ai_by_ai_name(best_ai_name, creature)
+                selected_ai_name = AIFactory._get_ai_name_by_ai_template_name(best_ai_name)
 
-        # Return selected AI if found, else NullCreatureAI.
-        return selected_ai if selected_ai else NullCreatureAI(creature)
+        # Creature already has an AI set, and it did not change.
+        if selected_ai_name and creature.object_ai and type(creature.object_ai).__name__ == selected_ai_name:
+            return creature.object_ai
+
+        if selected_ai_name:
+            return eval(f'{selected_ai_name}(creature)')
+
+        # Return NullCreatureAI.
+        return NullCreatureAI(creature)
 
     @staticmethod
-    def _get_ai_by_ai_name(ai_name, creature):
+    def _get_ai_name_by_ai_template_name(ai_name):
         if ai_name == 'NullAI':
-            return NullCreatureAI(creature)
+            return NullCreatureAI.__name__
         elif ai_name == 'BasicAI':
-            return BasicCreatureAI(creature)
+            return BasicCreatureAI.__name__
         elif ai_name == 'CritterAI':
-            return CritterAI(creature)
+            return CritterAI.__name__
         elif ai_name == 'GuardAI':
-            return GuardAI(creature)
+            return GuardAI.__name__
         elif ai_name == 'PetAI':
-            return PetAI(creature)
+            return PetAI.__name__
         elif ai_name == 'TotemAI':
-            return TotemAI(creature)
+            return TotemAI.__name__
         elif ai_name == 'EscortAI':
-            return EscortAI(creature)
+            return EscortAI.__name__
+        elif ai_name == 'GuardianAI':
+            return GuardianAI.__name__
         # elif ai_name == 'EventAI':
-        #    return EventAI(creature)
+        #    return EventAI.__name__
         # elif ai_name == 'PetEventAI':
-        #    return PetEventAI(creature)
+        #    return PetEventAI.__name__
         # elif ai_name == 'GuardEventAI':
-        #    return GuardEventAI(creature)
+        #    return GuardEventAI.__name__
         return None

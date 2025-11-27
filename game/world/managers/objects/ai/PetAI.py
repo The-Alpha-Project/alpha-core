@@ -6,9 +6,9 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import MoveType
-from utils.constants.PetCodes import PetCommandState, PetReactState, PetMoveState
+from utils.constants.PetCodes import PetCommandState, PetMoveState
 from utils.constants.SpellCodes import SpellTargetMask, SpellEffects
-from utils.constants.UnitCodes import UnitStates
+from utils.constants.UnitCodes import UnitStates, CreatureReactStates
 
 
 class PetAI(CreatureAI):
@@ -53,6 +53,15 @@ class PetAI(CreatureAI):
                 self.creature.attack_stop()
 
     # override
+    def move_in_line_of_sight(self, unit, ai_event=False):
+        super().move_in_line_of_sight(unit, ai_event=ai_event)
+        if self.get_react_state() != CreatureReactStates.REACT_AGGRESSIVE:
+            return
+        if self.creature.combat_target and self.creature.in_combat:
+            return
+        self.creature.attack(unit)
+
+    # override
     def permissible(self, creature):
         if creature.is_pet():
             return Permits.PERMIT_BASE_SPECIAL
@@ -61,7 +70,10 @@ class PetAI(CreatureAI):
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
     # override
     def attacked_by(self, target):
-        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
+            return
+        # Combat target was set by _select_next_target, but we did not initialize attack or no current combat target.
+        if (target is self.creature.combat_target and not self.creature.in_combat) or not self.creature.combat_target:
             self.creature.attack(target)
 
     # Called from Unit::Kill() in case where pet or owner kills something.
@@ -78,17 +90,20 @@ class PetAI(CreatureAI):
     # Called when owner takes damage. This function helps keep pets from running off simply due to owner gaining aggro.
     # override
     def owner_attacked_by(self, attacker, proximity_aggro=False):
-        if self.creature.combat_target or self._get_react_state() == PetReactState.REACT_PASSIVE:
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
             return
-        # If defensive state and owner did not take a real hit yet, do not attack.
-        if self._get_react_state() == PetReactState.REACT_DEFENSIVE and proximity_aggro:
+        # Owner did not take a real hit yet, do not attack.
+        if proximity_aggro:
+            return
+        # Have a target and in combat, skip.
+        if self.creature.combat_target and self.creature.in_combat:
             return
         self.creature.attack(attacker)
 
     # Called when owner attacks something.
     # override
     def owner_attacked(self, target):
-        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+        if self.get_react_state() != CreatureReactStates.REACT_PASSIVE and not self.creature.combat_target:
             self.creature.attack(target)
 
     # Provides next target selection after current target death.
@@ -96,14 +111,19 @@ class PetAI(CreatureAI):
     # Targets are not evaluated here for being valid targets, that is done in _CanAttack().
     # The parameter: allowAutoSelect lets us disable aggressive pet auto targeting for certain situations.
     def select_next_target(self, allow_auto_select=True):
-        if self._get_react_state() == PetReactState.REACT_PASSIVE:
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
             return None
 
         owner = self.creature.get_charmer_or_summoner()
         if not owner:
-            return
+            return None
 
-        return owner.combat_target
+        # Owner either have a combat target or being attacked without responding the attack.
+        target = owner.combat_target if owner.combat_target else owner.threat_manager.get_hostile_target()
+        if not target:
+            return None
+
+        return target
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):
@@ -113,16 +133,15 @@ class PetAI(CreatureAI):
     # IMPORTANT: The order in which things are checked is important, be careful if you add or remove checks.
     def can_attack(self, target):
         if not target:
-            return
+            return False
 
         if not self.creature.can_attack_target(target):
-            return
+            return False
 
-        react_state = self._get_react_state()
         command_state = self._get_command_state()
 
         # Passive - passive pets can attack if told to.
-        if react_state == PetReactState.REACT_PASSIVE:
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
             return command_state == PetCommandState.COMMAND_ATTACK
 
         # TODO: Check HasAuraPetShouldAvoidBreaking.
@@ -259,7 +278,7 @@ class PetAI(CreatureAI):
             pet_movement.stay(state=False)
 
     def react_state_update(self):
-        if self._get_react_state() == PetReactState.REACT_PASSIVE:
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
             self.creature.attack_stop()
 
     def _get_pet_movement_behavior(self):
@@ -276,13 +295,14 @@ class PetAI(CreatureAI):
 
         return controlled_pet.get_pet_data().command_state
 
-    def _get_react_state(self):
+    # override
+    def get_react_state(self):
         charmer_or_summoner = self.creature.get_charmer_or_summoner()
         if not charmer_or_summoner:
-            return PetReactState.REACT_PASSIVE
+            return CreatureReactStates.REACT_PASSIVE
 
         controlled_pet = charmer_or_summoner.pet_manager.get_active_controlled_pet()
         if not controlled_pet:
-            return PetReactState.REACT_PASSIVE
+            return CreatureReactStates.REACT_PASSIVE
 
         return controlled_pet.get_pet_data().react_state

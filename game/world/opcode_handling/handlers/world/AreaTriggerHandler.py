@@ -3,7 +3,6 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ScriptTypes

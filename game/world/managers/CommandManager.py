@@ -415,7 +415,7 @@ class CommandManager(object):
         if code == 0:
             spell_id = res
             if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
-                return -1, 'unable to learn spell, already known or skill limit reached.'
+                return -1, 'unable to learn spell, already known, skill limit reached or not available to your race/class.'
             return 0, 'Spell learned.'
         return code, res
 
@@ -836,7 +836,6 @@ class CommandManager(object):
         except:
             return -1, 'please specify a valid weapon mode.'
 
-    # TODO, implement event/script forcing.
     @staticmethod
     def fevent(world_session, args):
         try:
@@ -853,8 +852,13 @@ class CommandManager(object):
             if event.creature_id != creature.entry:
                 return -1, 'invalid creature for provided event.'
 
-            # creature.get_map().set_random_ooc_event(creature, event, forced=True)
-            return -1, 'NYI.'
+            if not creature.object_ai or not creature.object_ai.ai_event_handler.has_lock_for_event(event_id):
+                return -1, 'event was not found on creature event queue.'
+
+            unlock = creature.object_ai.ai_event_handler.unlock_event(event_id)
+            if unlock:
+                return 0, 'Event unlocked successfully.'
+            return -1, 'Unable to remove event lock.'
         except:
             return -1, 'invalid event id.'
 
@@ -896,18 +900,19 @@ class CommandManager(object):
         creature = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
         if creature:
             return 0, f'[{creature.get_name()}]\n' \
+                      f'Entry: {creature.creature_template.entry}\n' \
                       f'Spawn ID: {creature.spawn_id}\n' \
                       f'Guid: {creature.get_low_guid()}\n' \
-                      f'Entry: {creature.creature_template.entry}\n' \
                       f'Display ID: {creature.current_display_id}\n' \
                       f'Faction: {creature.faction}\n' \
-                      f'Unit Flags: {hex(creature.unit_flags)}\n' \
-                      f'Static Flags: {hex(creature.static_flags)}\n' \
+                      f'AI: {creature.get_ai_name()}\n' \
+                      f'Movement: {creature.movement_manager.get_current_behavior_name()}\n' \
+                      f'Detection Range: {creature.get_detection_range(world_session.player_mgr)}\n' \
                       f'Alive: {creature.is_alive}\n' \
-                      f'X: {creature.location.x}, ' \
-                      f'Y: {creature.location.y}, ' \
-                      f'Z: {creature.location.z}, ' \
-                      f'O: {creature.location.o}\n' \
+                      f'X: {round(creature.location.x, 3)}, ' \
+                      f'Y: {round(creature.location.y, 3)}, ' \
+                      f'Z: {round(creature.location.z, 3)}, ' \
+                      f'O: {round(creature.location.o, 2)}\n' \
                       f'Map: {creature.map_id}'
         return -1, 'error retrieving creature info.'
 
@@ -1343,7 +1348,7 @@ DEV_COMMAND_DEFINITIONS = {
     'scriptwp': [CommandManager.activate_script_waypoints, 'tries to activate the selected unit script waypoints'],
     'flushbags': [CommandManager.flushbags, 'flush all items from bags'],
     'los': [CommandManager.los, 'check unit line of sight'],
-    'fevent': [CommandManager.fevent, 'force the given event to execute'],
+    'fevent': [CommandManager.fevent, 'force a queued event to execute'],
     'moveobject': [CommandManager.move_object, 'move last debug ai state mouse hovered object'],
     'rotobject': [CommandManager.rotate_object, 'rotate last debug ai state mouse hovered object'],
     'savewp': [CommandManager.save_waypoint, 'save your current location as creature_movement waypoint'],

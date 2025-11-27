@@ -1,3 +1,5 @@
+from typing import Optional
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import SpellItemEnchantment
 from utils.constants.ItemCodes import ItemEnchantmentType
@@ -8,7 +10,7 @@ class EnchantmentHolder(object):
         self.entry: int = entry
         self.duration: int = duration
         self.charges: int = charges
-        self.spell_item_enchantment_entry: [SpellItemEnchantment] = None
+        self.spell_item_enchantment_entry: Optional[SpellItemEnchantment] = None
         self.effect = ItemEnchantmentType.NONE
         self.effect_points = 0
         self.effect_spell = 0
@@ -36,14 +38,14 @@ class EnchantmentHolder(object):
         self.duration = 0
         self.charges = 0
 
-    def has_enchantment_effect(self, enchantment_type: [ItemEnchantmentType]):
+    def has_enchantment_effect(self, enchantment_type: ItemEnchantmentType):
         return enchantment_type == self.effect
 
     def is_expired(self) -> bool:
         return self.duration == 0 and self.charges == 0
 
-    def get_enchantment_effect_points_by_type(self, enchantment_type: [ItemEnchantmentType]):
+    def get_enchantment_effect_points_by_type(self, enchantment_type: ItemEnchantmentType):
         return self.effect_points if self.effect == enchantment_type else 0
 
-    def get_enchantment_effect_spell_by_type(self, enchantment_type: [ItemEnchantmentType]):
+    def get_enchantment_effect_spell_by_type(self, enchantment_type: ItemEnchantmentType):
         return self.effect_spell if self.effect == enchantment_type else 0

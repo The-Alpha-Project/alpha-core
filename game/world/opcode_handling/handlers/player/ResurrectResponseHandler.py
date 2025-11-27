@@ -1,6 +1,5 @@
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
-from utils.constants.MiscCodes import ObjectTypeIds
 
 
 class ResurrectResponseHandler(object):

@@ -1,7 +1,6 @@
 import time
 
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from utils.constants.MiscCodes import GameObjectTypes
 
 
 class TrapManager(GameObjectManager):

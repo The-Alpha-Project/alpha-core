@@ -39,7 +39,7 @@ class ButtonManager(GameObjectManager):
         self.switch_button_state(True)
         self.set_cooldown(time.time())
 
-        if not from_script:
+        if not from_script and self.has_script():
             self.trigger_script(unit)
 
         if self.linked_trap and unit:

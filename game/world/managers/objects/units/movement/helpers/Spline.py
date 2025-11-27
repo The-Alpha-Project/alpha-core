@@ -100,8 +100,8 @@ class Spline(object):
                                                                    pending_waypoint.location,
                                                                    map_id=self.unit.map_id)
 
-        # For creatures try to adjust the position in case the unit is part of a group.
-        if not self.is_player:
+        # For creatures, if Z calculation failed, try to adjust the position Z in case the unit is part of a group.
+        if not self.is_player and point_in_between.z_locked:
             point_in_between = self._get_leader_z(point_in_between)
 
         return point_in_between
@@ -139,9 +139,6 @@ class Spline(object):
     def is_complete(self):
         return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()
 
-    def is_type(self, spline_type):
-        return spline_type == self.spline_type
-
     def is_flight(self):
         return self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
 
@@ -157,45 +154,54 @@ class Spline(object):
             self.update(elapsed)
 
     def try_build_movement_packet(self):
-        # Sending no waypoints crashes the client.
-        if len(self.pending_waypoints) == 0:
-            return None
-
         # Initialize if needed.
         if not self.initialized:
             self.initialize()
 
+        # Sending no waypoints crashes the client.
+        if len(self.pending_waypoints) == 0:
+            return None
+
         # Fill header.
         data = bytearray(self._get_header_bytes())
 
-        if not self.is_type(SplineType.SPLINE_TYPE_STOP):
-            data.extend(self._get_payload_bytes())
+        # Use match for spline_type
+        match self.spline_type:
+            case SplineType.SPLINE_TYPE_STOP:
+                pass  # No payload if stopped.
+            case _:
+                data.extend(self._get_payload_bytes())
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
     def _get_header_bytes(self):
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
-        data = pack(
-            f'<Q{len(location_bytes)}sIB',
-            self.unit.guid,
-            location_bytes,
-            int(WorldManager.get_seconds_since_startup() * 1000),
-            int(self.spline_type)
-        )
-        if self.is_type(SplineType.SPLINE_TYPE_FACING_SPOT):
-            spot_bytes = self.spot.to_bytes(include_orientation=False)
-            data += pack(f'<{len(spot_bytes)}s', spot_bytes)
-        elif self.is_type(SplineType.SPLINE_TYPE_FACING_TARGET):
-            data += pack('<Q', self.guid)
-        elif self.is_type(SplineType.SPLINE_TYPE_FACING_ANGLE):
-            data += pack('<f', self.facing)
+        guid = self.unit.guid
+        timestamp = int(WorldManager.get_seconds_since_startup() * 1000)
+
+        # Common part first.
+        data = pack(f'<Q{len(location_bytes)}sIB', guid, location_bytes, timestamp, self.spline_type)
+
+        # Handle specific spline types.
+        match self.spline_type:
+            case SplineType.SPLINE_TYPE_FACING_SPOT:
+                spot_bytes = self.spot.to_bytes(include_orientation=False)
+                data += pack(f'<{len(spot_bytes)}s', spot_bytes)
+            case SplineType.SPLINE_TYPE_FACING_TARGET:
+                data += pack('<Q', self.guid)
+            case SplineType.SPLINE_TYPE_FACING_ANGLE:
+                data += pack('<f', self.facing)
+            case _:
+                pass  # No additional data for other types.
+
         return data
 
     def _get_payload_bytes(self):
+        total_time_remaining = max(int(self.total_time - self.elapsed), 0)
         return pack(
             f'<3I{len(self.waypoints_bytes)}s',
             self.spline_flags,
-            int(max(self.total_time - int(self.elapsed), 0)),
+            total_time_remaining,
             len(self.points),
             self.waypoints_bytes
         )

@@ -1,12 +1,6 @@
 from enum import IntEnum
 
 
-class PetReactState(IntEnum):
-	REACT_PASSIVE = 0
-	REACT_DEFENSIVE = 1
-	REACT_AGGRESSIVE = 2
-
-
 class PetCommandState(IntEnum):
 	COMMAND_STAY = 0
 	COMMAND_FOLLOW = 1

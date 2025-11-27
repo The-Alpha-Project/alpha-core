@@ -1,4 +1,4 @@
-from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE, CellUtils
+from game.world.managers.maps.helpers.CellUtils import  CellUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from threading import RLock
 

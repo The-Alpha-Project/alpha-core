@@ -4,6 +4,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
+from utils.ByteUtils import ByteUtils
 from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
@@ -45,7 +46,7 @@ class DynamicObjectManager(ObjectManager):
 
         # DynamicObject fields.
         self.set_uint64(DynamicObjectFields.DYNAMICOBJECT_CASTER, self.owner.guid)
-        self.set_uint32(DynamicObjectFields.DYNAMICOBJECT_BYTES, self.dynamic_type)
+        self.set_uint32(DynamicObjectFields.DYNAMICOBJECT_BYTES, self.get_dynamic_bytes())
         self.set_uint32(DynamicObjectFields.DYNAMICOBJECT_SPELLID, self.spell_id)
         self.set_float(DynamicObjectFields.DYNAMICOBJECT_RADIUS, self.radius)
         self.set_float(DynamicObjectFields.DYNAMICOBJECT_POS_X, self.location.x)
@@ -107,6 +108,15 @@ class DynamicObjectManager(ObjectManager):
     # override
     def is_active_object(self):
         return FarSightManager.object_is_camera_view_point(self)
+
+    # override
+    def get_dynamic_bytes(self):
+        return ByteUtils.bytes_to_int(
+            self.dynamic_type,
+            0,  # Dynamic type flags. (Unknown)
+            0,  # Padding.
+            0   # Padding.
+        )
 
     # override
     def get_name(self):

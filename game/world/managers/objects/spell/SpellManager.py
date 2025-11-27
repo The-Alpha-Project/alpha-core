@@ -24,8 +24,7 @@ from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags, ItemSpellTriggerType
-from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, \
-    ItemBondingTypes
+from utils.constants.MiscCodes import HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, ItemBondingTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
@@ -69,6 +68,10 @@ class SpellManager:
             return False
 
         character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        # Race / Class not allowed for skill line.
+        if not skill_line_ability:
+            return False
+
         # Character does not have the skill, but it is a valid skill, check if we can add that skill.
         if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID) and \
                 self.caster.skill_manager.has_reached_skills_limit():
@@ -680,7 +683,7 @@ class SpellManager:
         self.remove_cast(casting_spell, interrupted=True)
         self.set_on_cooldown(casting_spell, cooldown_penalty=cooldown_penalty)
 
-    def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR,
+    def remove_cast(self, casting_spell, cast_result: SpellCheckCastResult=SpellCheckCastResult.SPELL_NO_ERROR,
                     interrupted=False, cancel_auras=False) -> bool:
         if casting_spell not in self.casting_spells:
             return False

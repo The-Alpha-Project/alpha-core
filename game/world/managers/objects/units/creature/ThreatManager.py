@@ -6,8 +6,6 @@ from typing import Optional
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.ConfigManager import config
-from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates, UnitStates, UnitFlags
 
@@ -36,7 +34,7 @@ class ThreatManager:
         return target.guid in self.holders
 
     def has_aggro(self):
-        return self.get_targets_count() > 0
+        return bool(self.holders)
 
     def get_targets_count(self):
         return len(self.holders)
@@ -77,6 +75,8 @@ class ThreatManager:
         self.current_holder = None
 
     def remove_unit_threat(self, unit):
+        had_aggro = self.has_aggro()
+
         if unit.guid in self.holders:
             duel_arbiter = self.unit.get_duel_arbiter()
             from_duel = duel_arbiter and duel_arbiter.is_unit_involved(unit)
@@ -99,7 +99,7 @@ class ThreatManager:
             if unit.threat_manager.has_aggro_from(self.unit):
                 unit.threat_manager.remove_unit_threat(self.unit)
 
-        if not self.has_aggro():
+        if had_aggro and not self.has_aggro():
             self.unit.leave_combat()
 
     def add_threat(self, source, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
@@ -258,7 +258,7 @@ class ThreatManager:
 
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         if isinstance(self.unit, CreatureManager):
-            if self.unit.react_state == CreatureReactStates.REACT_PASSIVE:
+            if self.unit.get_react_state() == CreatureReactStates.REACT_PASSIVE:
                 return False
             elif not self.unit.can_assist_help_calls():
                 return False

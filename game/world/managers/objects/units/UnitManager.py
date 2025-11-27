@@ -7,7 +7,6 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.helpers.BoundingBox import BoundingBox
 from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -206,8 +205,8 @@ class UnitManager(ObjectManager):
         self.movement_info = MovementInfo(self)
         self.has_moved = False
         self.has_turned = False
+        # The QuadTreeNode in which this unit stands, if any.
         self.quadtree_node = None
-        self.visibility_bound = None
 
         self.invincibility_hp_level = 0
         self.melee_disabled = False
@@ -1103,6 +1102,12 @@ class UnitManager(ObjectManager):
             self.set_unit_state(UnitStates.SANCTUARY, active=False)
             self.sanctuary_timer = 0
 
+    def set_beast_master(self, active=True):
+        self.beast_master = active
+        controlled_pet = self.pet_manager.get_active_controlled_pet()
+        if controlled_pet:
+            controlled_pet.beast_master = active
+
     def update_sanctuary(self, elapsed):
         if self.sanctuary_timer > 0:
             self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
@@ -1393,6 +1398,10 @@ class UnitManager(ObjectManager):
 
     # Implemented by CreatureManager.
     def is_guardian(self):
+        return False
+
+    # Implemented by CreatureManager.
+    def is_critter(self):
         return False
 
     # Implemented by CreatureManager.
@@ -1896,7 +1905,16 @@ class UnitManager(ObjectManager):
         and not self.unit_state & UnitStates.STUNNED
         and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED)
 
+    def get_ai_name(self):
+        if not self.object_ai:
+            return 'None'
+        return type(self.object_ai).__name__
+
     def is_in_world(self):
+        pass
+
+    # Implemented by CreatureManager
+    def has_ooc_events(self):
         pass
 
     # Implemented by CreatureManager and PlayerManager
@@ -1908,6 +1926,10 @@ class UnitManager(ObjectManager):
         pass
 
     # Implemented by CreatureManager and PlayerManager
+    # char comboPoints;
+    # char padding;
+    # char padding;
+    # char padding;
     def get_bytes_2(self):
         pass
 
@@ -1923,19 +1945,19 @@ class UnitManager(ObjectManager):
     def get_detection_range(self, unit):
         return 0
 
-    def get_detection_range_box(self):
-        if not self.visibility_bound:
-            self.visibility_bound = BoundingBox(0, 0, VIEW_DISTANCE * 2, VIEW_DISTANCE * 2)
-        self.visibility_bound.x = self.location.x - VIEW_DISTANCE
-        self.visibility_bound.y = self.location.y - VIEW_DISTANCE
-        return self.visibility_bound
+    def update_visibility_bounds(self, visibility_bounds):
+        view_factor = VIEW_DISTANCE if not self.has_ooc_events() else 45  # Max detection range cap.
+        visibility_bounds.width = view_factor * 2
+        visibility_bounds.height = view_factor * 2
+        visibility_bounds.x = self.location.x - view_factor
+        visibility_bounds.y = self.location.y - view_factor
 
-    def has_moved_significantly(self):
+    def has_moved_significantly(self, visibility_bounds):
         if not self.quadtree_node:
             return True
-        unit_box = self.get_detection_range_box()
+        self.update_visibility_bounds(visibility_bounds)
         node_bounds = self.quadtree_node.bounds
-        return not node_bounds.contains_box(unit_box)
+        return not node_bounds.contains_box(visibility_bounds)
 
     def notify_move_in_line_of_sight(self, map_, unit, ooc_event=False, in_range=False):
         los_check = None

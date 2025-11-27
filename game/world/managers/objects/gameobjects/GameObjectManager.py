@@ -2,6 +2,7 @@ import math
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
@@ -245,6 +246,9 @@ class GameObjectManager(ObjectManager):
     def send_page_text(self, player_mgr):
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_PAGETEXT, pack('<Q', self.guid))
         player_mgr.enqueue_packet(packet)
+
+    def has_script(self):
+        return WorldDatabaseManager.GameobjectScriptHolder.has_script(self.spawn_id)
 
     def trigger_script(self, target):
         self.get_map().enqueue_script(self, target, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)

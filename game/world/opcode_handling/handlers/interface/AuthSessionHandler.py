@@ -1,3 +1,5 @@
+import hashlib
+
 from database.auth.AuthDatabaseManager import AuthDatabaseManager
 from database.realm.RealmDatabaseManager import *
 from game.world import WorldManager

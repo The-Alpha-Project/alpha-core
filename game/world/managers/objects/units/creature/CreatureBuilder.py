@@ -75,6 +75,9 @@ class CreatureBuilder:
         if creature_instance.is_temp_summon_or_pet_or_guardian():
             creature_instance.initialize_field_values()
 
+        if summoner and summoner.beast_master:
+            creature_instance.beast_master = True
+
         return creature_instance
 
     @staticmethod

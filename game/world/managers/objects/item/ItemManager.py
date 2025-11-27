@@ -1,6 +1,6 @@
 from functools import lru_cache
 from struct import pack
-from typing import List
+from typing import List, Union
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory, CharacterGifts
@@ -21,35 +21,6 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, 
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import ObjectFields, ItemFields, PlayerFields
 
-AVAILABLE_EQUIP_SLOTS = [
-    InventorySlots.SLOT_INBACKPACK,  # None equip
-    InventorySlots.SLOT_HEAD,
-    InventorySlots.SLOT_NECK,
-    InventorySlots.SLOT_SHOULDERS,
-    InventorySlots.SLOT_SHIRT,
-    InventorySlots.SLOT_CHEST,
-    InventorySlots.SLOT_WAIST,
-    InventorySlots.SLOT_LEGS,
-    InventorySlots.SLOT_FEET,
-    InventorySlots.SLOT_WRISTS,
-    InventorySlots.SLOT_HANDS,
-    InventorySlots.SLOT_FINGERL,
-    InventorySlots.SLOT_TRINKETL,
-    InventorySlots.SLOT_MAINHAND,  # 1H
-    InventorySlots.SLOT_OFFHAND,  # Shield
-    InventorySlots.SLOT_RANGED,
-    InventorySlots.SLOT_BACK,
-    InventorySlots.SLOT_MAINHAND,  # 2H
-    InventorySlots.SLOT_BAG1,
-    InventorySlots.SLOT_TABARD,
-    InventorySlots.SLOT_CHEST,  # Robe
-    InventorySlots.SLOT_MAINHAND,  # Main Hand
-    InventorySlots.SLOT_OFFHAND,  # Off Hand
-    InventorySlots.SLOT_OFFHAND,  # Held
-    InventorySlots.SLOT_INBACKPACK,  # Ammo
-    InventorySlots.SLOT_RANGED,  # Throw
-    InventorySlots.SLOT_RANGED  # Ranged right
-]
 
 GIFT_ENTRY_RELATIONSHIP = {
     5014: 5015,  # Wrapping Paper (PT) -> Wrapped Item (PT).
@@ -116,7 +87,7 @@ class ItemManager(ObjectManager):
                 self.initialized = False
                 self.initialize_field_values()
 
-    def is_container(self):
+    def is_container(self, by_mask=False):
         if self.item_template:
             return self.item_template.inventory_type == InventoryTypes.BAG
         return False
@@ -152,8 +123,10 @@ class ItemManager(ObjectManager):
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
 
     @staticmethod
-    def get_inv_slot_by_type(inventory_type):
-        return AVAILABLE_EQUIP_SLOTS[inventory_type if inventory_type <= 26 else 0].value
+    def get_inv_slot_by_type(inventory_type: Union[int, InventoryTypes]) -> InventorySlots:
+        if not isinstance(inventory_type, InventoryTypes):
+            inventory_type = InventoryTypes(inventory_type)
+        return inventory_type.get_inventory_slot_for_inventory_type()
 
     @staticmethod
     def item_can_go_in_paperdoll_slot(item_template, slot):

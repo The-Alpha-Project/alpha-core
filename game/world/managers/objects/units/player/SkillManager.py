@@ -173,29 +173,6 @@ class SkillLineType(IntEnum):
     SECONDARY = 4
 
 
-class LanguageDesc(NamedTuple):
-    lang_id: int
-    spell_id: int
-    skill_id: int
-
-
-LANG_DESCRIPTION = {
-    Languages.LANG_UNIVERSAL: LanguageDesc(Languages.LANG_UNIVERSAL, 0, SkillTypes.NONE),
-    Languages.LANG_ORCISH: LanguageDesc(Languages.LANG_ORCISH, 669, SkillTypes.LANGUAGE_ORCISH.value),
-    Languages.LANG_DARNASSIAN: LanguageDesc(Languages.LANG_DARNASSIAN, 671, SkillTypes.LANGUAGE_DARNASSIAN.value),
-    Languages.LANG_TAURAHE: LanguageDesc(Languages.LANG_TAURAHE, 670, SkillTypes.LANGUAGE_TAURAHE.value),
-    Languages.LANG_DWARVISH: LanguageDesc(Languages.LANG_DWARVISH, 672, SkillTypes.LANGUAGE_DWARVEN.value),
-    Languages.LANG_COMMON: LanguageDesc(Languages.LANG_COMMON, 668, SkillTypes.LANGUAGE_COMMON.value),
-    Languages.LANG_DEMONIC: LanguageDesc(Languages.LANG_DEMONIC, 815, SkillTypes.DEMONTONGUE.value),
-    Languages.LANG_TITAN: LanguageDesc(Languages.LANG_TITAN, 816, SkillTypes.TITAN.value),
-    Languages.LANG_THALASSIAN: LanguageDesc(Languages.LANG_THALASSIAN, 813, SkillTypes.THALASSIAN.value),
-    Languages.LANG_DRACONIC: LanguageDesc(Languages.LANG_DRACONIC, 814, SkillTypes.DRACONIC.value),
-    Languages.LANG_KALIMAG: LanguageDesc(Languages.LANG_KALIMAG, 817, SkillTypes.OLDTONGUE.value),
-    Languages.LANG_GNOMISH: LanguageDesc(Languages.LANG_GNOMISH, 7340, SkillTypes.LANGUAGE_GNOMISH.value),
-    Languages.LANG_TROLL: LanguageDesc(Languages.LANG_TROLL, 7341, SkillTypes.LANGUAGE_TROLL.value)
-}
-
-
 class ProficiencyAcquireMethod(IntEnum):
     ON_TRAINER_LEARN = 0
     ON_CHAR_CREATE = 1
@@ -313,6 +290,18 @@ class SkillManager(object):
         if not skill:
             return False
 
+        # Get skill lines abilities related to skill.
+        skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_skill_id(skill_id)
+        if not skill_line_abilities:
+            return False
+
+        # Validate the given skill can actually be used by requester given its race and class.
+        if not DbcDatabaseManager.SkillLineAbilityHolder.get_skill_line_ability_for_race_and_class(skill_line_abilities,
+                                                                                                   self.player_mgr.race,
+                                                                                                   self.player_mgr.class_):
+            return False
+
+
         start_rank_value = 1
         if skill.CategoryID == SkillCategories.MAX_SKILL and skill.ID != SkillTypes.LOCKPICKING_TEMP:
             start_rank_value = skill.MaxRank
@@ -392,12 +381,12 @@ class SkillManager(object):
     def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
         skill_id = self._get_skill_id_for_current_weapon(attack_type)
         if skill_id == -1:
-            return False
+            return
 
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         # Skip Professions.
         if skill.SkillType == SkillLineType.SECONDARY and skill.CategoryID == SkillCategories.CLASS_SKILL:
-            return False
+            return
 
         self.handle_offense_skill_gain_chance(skill_id)
 
@@ -527,11 +516,11 @@ class SkillManager(object):
 
         gather_skill_gain_factor = 1  # TODO: configurable.
         if lock_result.skill_type not in self.skills:
-            return False
+            return
 
         skill = self.skills[lock_result.skill_type]
         if skill.value >= skill.max:
-            return False
+            return
 
         chance = SkillManager._get_skill_gain_chance(skill.value,
                                                      lock_result.required_skill_value + 100,
@@ -585,11 +574,11 @@ class SkillManager(object):
 
     def _roll_profession_skill_gain_chance(self, skill_type, chance, step):
         if not skill_type or chance <= 0:
-            return False
+            return
 
         skill = self.skills.get(skill_type, None)
         if not skill:
-            return False
+            return
 
         roll = random.randint(1, 1000)
         if roll < chance:
@@ -742,16 +731,6 @@ class SkillManager(object):
             return -1
         prof = self.proficiencies[item_class]
         return prof.get_skill_id_for_subclass(item_template.subclass)
-
-    @staticmethod
-    def get_all_languages():
-        return LANG_DESCRIPTION.items()
-
-    @staticmethod
-    def get_skill_by_language(language_id):
-        if language_id in LANG_DESCRIPTION:
-            return LANG_DESCRIPTION[language_id].skill_id
-        return -1
 
     @staticmethod
     def get_cast_ui_spells_for_skill_id(skill_id) -> set[int]:

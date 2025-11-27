@@ -129,7 +129,7 @@ class CreatureManager(UnitManager):
         if self.creature_template.school_immune_mask:
             self.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.creature_template.school_immune_mask)
 
-        if self.is_totem() or self.is_critter() or not self.can_have_target():
+        if self.is_totem() or self.is_critter() or not self.can_have_target() or self.ignores_combat():
             self.react_state = CreatureReactStates.REACT_PASSIVE
         elif self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO:
             self.react_state = CreatureReactStates.REACT_DEFENSIVE
@@ -412,6 +412,9 @@ class CreatureManager(UnitManager):
     def can_have_target(self):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
 
+    def ignores_combat(self):
+        return self.creature_template.static_flags & CreatureStaticFlags.IGNORE_COMBAT
+
     def is_quest_giver(self):
         return self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER
 
@@ -427,10 +430,7 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.SESSILE
 
     def is_at_home(self):
-        dx = abs(self.location.x - self.spawn_position.x)
-        dy = abs(self.location.y - self.spawn_position.y)
-        # Tolerance of 1.0 since it might not be entirely equal.
-        return dx <= 1.0 and dy <= 1.0 and not self.is_moving()
+        return self.location.approximately_equals(self.spawn_position)
 
     def on_at_home(self):
         self.tmp_home_position = None
@@ -505,7 +505,7 @@ class CreatureManager(UnitManager):
         else:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
 
-        if self.creature_group and self.is_evading and self.is_alive:
+        if self.creature_group and self.is_evading and self.is_alive and was_in_combat:
             self.creature_group.on_leave_combat(self)
 
     def evade(self):
@@ -536,7 +536,6 @@ class CreatureManager(UnitManager):
 
         # If Namigator fails, swimming and heading to land, try to locate a near
         # land point in the direction of home position.
-        from game.world.managers.abstractions.Vector import Vector
         if failed and self.is_swimming() and self.get_map().is_land_location(vector=return_position):
             land = self.get_map().find_land_location_in_angle(self, return_position)
             if land:
@@ -612,7 +611,7 @@ class CreatureManager(UnitManager):
                 return
 
             if self.is_alive:
-                # Update relocate/call for help timer.
+                # Update call for help timer.
                 self.call_for_help_timer += elapsed
                 # Regeneration.
                 self.regenerate(elapsed)
@@ -696,6 +695,11 @@ class CreatureManager(UnitManager):
     # override
     def attack(self, victim: UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
+
+        # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
+            return
+
         can_attack = super().attack(victim)
 
         if not can_attack:
@@ -737,7 +741,10 @@ class CreatureManager(UnitManager):
         if not super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic):
             return False
 
-        self.object_ai.damage_taken(source, damage_info)
+        if self.object_ai:
+            self.object_ai.damage_taken(source, damage_info)
+            if not is_periodic:
+                self.object_ai.attacked_by(source)
 
         # Handle COMBAT_PING creature static flag.
         if self.has_combat_ping() and not self.in_combat:
@@ -914,10 +921,10 @@ class CreatureManager(UnitManager):
     # This update field is unused and private in 0.5.3.
     def get_bytes_2(self):
         return ByteUtils.bytes_to_int(
-            0,  # unknown
-            0,  # pet flags
-            0,  # misc flags
-            0,  # unknown
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Combo points.
         )
 
     # override
@@ -1038,8 +1045,17 @@ class CreatureManager(UnitManager):
     def get_creature_family(self):
         return self.creature_template.beast_family
 
+    def get_react_state(self):
+        if self.object_ai:
+            return self.object_ai.get_react_state()
+        return self.react_state
+
     def is_in_world(self):
         return self.is_spawned and self.get_map()
+
+    # Implemented by CreatureManager
+    def has_ooc_events(self):
+        return self.object_ai and self.object_ai.ai_event_handler.has_ooc_los_events()
 
     # override
     def get_query_details_packet(self):

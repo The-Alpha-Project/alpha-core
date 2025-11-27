@@ -1,13 +1,9 @@
 import os
 from struct import pack
 
-from game.world.managers.maps.helpers.Constants import RESOLUTION_LIQUIDS, ADT_SIZE
-from game.world.managers.maps.helpers.MapUtils import MapUtils
 from tools.extractors.definitions.chunks.MDDF import MDDF
 from tools.extractors.definitions.chunks.MHDR import MHDR
 from tools.extractors.definitions.chunks.MODF import MODF
-from tools.extractors.definitions.objects.Vector3 import Vector3
-from tools.extractors.definitions.objects.Wmo import Wmo
 from tools.extractors.helpers.WmoLiquidParser import WmoLiquidParser
 from tools.extractors.helpers.WmoLiquidWriter import WmoLiquidWriter
 from utils.Logger import Logger
@@ -157,8 +153,8 @@ class Adt:
                 stream_reader.set_position(adt.chunks_information[x][y].offset)
                 error, token, size = stream_reader.read_chunk_information('MCNK')
                 if error:
-                    Logger.warning(f'{error}')
-                    return
+                    Logger.error(f'{error}')
+                    exit()
                 adt_tile = TileInformation.from_reader(stream_reader)
                 if adt.is_flat and not adt_tile.mcvt.is_flat:
                     adt.is_flat = False

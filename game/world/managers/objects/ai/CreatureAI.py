@@ -19,7 +19,6 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, Sp
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates, CreatureReactStates
 
 if TYPE_CHECKING:
-    from game.world.managers.objects.units.UnitManager import UnitManager
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 
 
@@ -405,6 +404,7 @@ class CreatureAI:
     # Called for reaction on enter combat if not in combat yet (enemy can be None).
     def enter_combat(self, source=None):
         self.ai_event_handler.on_enter_combat(source)
+        self.ai_event_handler.update_target_range_events(source, 0)
 
     # Called when leaving combat.
     def on_combat_stop(self):
@@ -445,15 +445,17 @@ class CreatureAI:
         self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=180)
 
     def is_ready_for_new_attack(self):
-        return self.creature.is_alive and self.creature.is_active_object() \
-               and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
-               and not self.creature.is_evading \
-               and not self.creature.unit_state & UnitStates.STUNNED \
-               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
-               and not self.creature.combat_target
+        return (self.creature.is_alive and not self.creature.is_evading
+                and not self.creature.unit_state & UnitStates.STUNNED
+                and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
+                and not self.creature.combat_target
+                and not self.get_react_state() == CreatureReactStates.REACT_PASSIVE)
 
     def assist_unit(self, target):
         if not self.creature.is_alive:
             return
 
         self.creature.attack(target.combat_target)
+
+    def get_react_state(self):
+        return self.creature.react_state

@@ -33,7 +33,7 @@ class StreamReader:
 
         if (expected_token and token_name != expected_token) or (expected_tokens and token_name not in expected_tokens):
             self.move_backwards(4)
-            return f'Found token {token_name} expected {expected_token}', token_name, 0
+            return f'Found token {token_name if token_name else 'None'} expected {expected_token}', token_name, 0
 
         size = self.read_int32()
         return '', token_name, size
@@ -72,7 +72,7 @@ class StreamReader:
         if skip:
             self.move_forward(skip)
 
-        return unpack('<B', self.stream.read(1))[0]
+        return unpack('<b', self.stream.read(1))[0]
 
     def read_uint8(self, seek=0, skip=0):
         if seek:
@@ -80,7 +80,7 @@ class StreamReader:
         if skip:
             self.move_forward(skip)
 
-        return unpack('<b', self.stream.read(1))[0]
+        return unpack('<B', self.stream.read(1))[0]
 
     def read_uint16(self, seek=0, skip=0):
         if seek:
@@ -114,11 +114,22 @@ class StreamReader:
 
         return unpack('<f', self.stream.read(4))[0]
 
-    def read_string(self, terminator='\x00'):
-        tmp_string = ''
-        tmp_char = chr(unpack('<B', self.stream.read(1))[0])
-        while tmp_char != terminator:
-            tmp_string += tmp_char
-            tmp_char = chr(unpack('<B', self.stream.read(1))[0])
+    def read_string(self, terminator=b'\x00'):
+        buffer = BytesIO()
+        while True:
+            chunk = self.stream.read(64)
+            if not chunk:
+                # EOF reached without terminator.
+                break
+            try:
+                # Find the terminator within the chunk.
+                null_pos = chunk.index(terminator)
+                buffer.write(chunk[:null_pos])
+                # Move the underlying stream position to just after the terminator.
+                self.stream.seek(self.get_position() - len(chunk) + null_pos + len(terminator))
+                break
+            except ValueError:
+                # Terminator not found in this chunk, write the whole chunk and continue.
+                buffer.write(chunk)
 
-        return tmp_string
+        return buffer.getvalue().decode('utf8')

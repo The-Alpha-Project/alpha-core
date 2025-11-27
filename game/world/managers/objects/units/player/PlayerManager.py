@@ -1116,31 +1116,33 @@ class PlayerManager(UnitManager):
 
     def set_area_explored(self, area_information):
         self.explored_areas[area_information.explore_bit] = True
-        if area_information.level > 0:
-            if self.level < config.Unit.Player.Defaults.max_level:
-                # The following calculations are taken from VMaNGOS core.
-                xp_rate = int(config.Server.Settings.xp_rate)
-                diff = self.level - area_information.level
-                if diff < -5:
-                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(self.level + 5) * xp_rate
-                elif diff > 5:
-                    exploration_percent = (100 - ((diff - 5) * 5))
-                    if exploration_percent > 100:
-                        exploration_percent = 100
-                    elif exploration_percent < 0:
-                        exploration_percent = 0
-                    base_xp = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level)
-                    xp_gain = base_xp * exploration_percent / 100 * xp_rate
-                else:
-                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * xp_rate
-                self.give_xp([xp_gain], notify=False)
-            else:
-                xp_gain = 0
+        if area_information.level <= 0:
+            return
 
-            # Notify client new discovered zone + xp gain.
-            data = pack('<2I', area_information.zone_id, int(xp_gain * config.Server.Settings.xp_rate))
-            packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
-            self.enqueue_packet(packet)
+        if self.level < config.Unit.Player.Defaults.max_level:
+            # The following calculations are taken from VMaNGOS core.
+            xp_rate = int(config.Server.Settings.xp_rate)
+            diff = self.level - area_information.level
+            if diff < -5:
+                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(self.level + 5) * xp_rate
+            elif diff > 5:
+                exploration_percent = (100 - ((diff - 5) * 5))
+                if exploration_percent > 100:
+                    exploration_percent = 100
+                elif exploration_percent < 0:
+                    exploration_percent = 0
+                base_xp = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level)
+                xp_gain = base_xp * exploration_percent / 100 * xp_rate
+            else:
+                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * xp_rate
+            self.give_xp([xp_gain], notify=False)
+        else:
+            xp_gain = 0
+
+        # Notify client new discovered zone + xp gain.
+        data = pack('<2I', area_information.zone_id, int(xp_gain * config.Server.Settings.xp_rate))
+        packet = PacketWriter.get_packet(OpCode.SMSG_EXPLORATION_EXPERIENCE, data)
+        self.enqueue_packet(packet)
 
     def update_swimming_state(self, state):
         if state:
@@ -1431,11 +1433,12 @@ class PlayerManager(UnitManager):
             self.combo_points = min(combo_points + self.combo_points, 5)
 
         self.bytes_2 = self.get_bytes_2()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
-
         # Set combo target to a valid but non-existent guid if hiding.
         #  TODO: it's unclear if combo points should be hidden in 0.5.3 for warriors, and if so, how it was done.
-        self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target if not hide else 0xffffffffffffffff)
+        target_value = self.combo_target if not hide else 0xffffffffffffffff
+
+        self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, target_value)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2, force=True)
 
     # override
     def remove_combo_points(self):
@@ -1443,10 +1446,11 @@ class PlayerManager(UnitManager):
             return
         self.combo_points = 0
         self.bytes_2 = self.get_bytes_2()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
-
         self.combo_target = 0
+
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
+        # Force field change on player. https://github.com/The-Alpha-Project/alpha-core/issues/1477
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2, force=True)
 
     # override
     def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
@@ -1709,9 +1713,9 @@ class PlayerManager(UnitManager):
     # override
     def get_bytes_2(self):
         return ByteUtils.bytes_to_int(
-            0,  # Unknown.
-            0,  # Pet flags (0 for players).
-            0,  # Misc flags (0 for players?).
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Unused.
             self.combo_points  # Combo points.
         )
 

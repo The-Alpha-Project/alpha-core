@@ -1,5 +1,5 @@
 from struct import pack
-from typing import Optional
+from typing import Optional, Dict, List
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.spell.ExtendedSpellData import AuraTargetRestrictions, AuraSourceRestrictions
@@ -17,7 +17,7 @@ from utils.constants.UpdateFields import UnitFields
 
 class AuraManager:
     # All applied single-target auras (sleep) by player guid.
-    SINGLE_TARGET_AURAS: dict[int, [AppliedAura]] = {}
+    SINGLE_TARGET_AURAS: Dict[int, List[AppliedAura]] = {}
 
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr

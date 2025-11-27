@@ -1,7 +1,7 @@
 import math
 
 from dataclasses import dataclass
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -97,7 +97,7 @@ class EffectTargets:
             return [target]
         return target
 
-    def get_target_hostility_info(self, unit_target=None) -> (bool, bool):  # Can target friendly, can target hostile.
+    def get_target_hostility_info(self, unit_target=None) -> Tuple[bool, bool]:  # Can target friendly, can target hostile.
         implicit_targets = {self.target_effect.implicit_target_a}
 
         if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL:
@@ -402,7 +402,8 @@ class EffectTargets:
         if target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_WILD or \
                 target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON or \
                 target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD or \
-                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_GUARDIAN:
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_GUARDIAN or \
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_OBJECT:
             return [casting_spell.spell_caster.location]
 
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
