@@ -290,6 +290,18 @@ class SkillManager(object):
         if not skill:
             return False
 
+        # Get skill lines abilities related to skill.
+        skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_skill_id(skill_id)
+        if not skill_line_abilities:
+            return False
+
+        # Validate the given skill can actually be used by requester given its race and class.
+        if not DbcDatabaseManager.SkillLineAbilityHolder.get_skill_line_ability_for_race_and_class(skill_line_abilities,
+                                                                                                   self.player_mgr.race,
+                                                                                                   self.player_mgr.class_):
+            return False
+
+
         start_rank_value = 1
         if skill.CategoryID == SkillCategories.MAX_SKILL and skill.ID != SkillTypes.LOCKPICKING_TEMP:
             start_rank_value = skill.MaxRank

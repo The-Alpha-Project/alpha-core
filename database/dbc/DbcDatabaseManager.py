@@ -342,11 +342,9 @@ class DbcDatabaseManager:
             return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, list())
 
         @staticmethod
-        @lru_cache
-        def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_):
+        def get_skill_line_ability_for_race_and_class(skill_line_abilities, race, class_):
             race_mask = 1 << (race - 1)
             class_mask = 1 << (class_ - 1)
-            skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
 
             for skill_line_ability in skill_line_abilities:
                 req_race_mask = skill_line_ability.RaceMask
@@ -357,6 +355,7 @@ class DbcDatabaseManager:
                 if skill_line_ability.ExcludeClass:
                     req_class_mask = ~req_class_mask
 
+                # Skill line ability does not match race/class.
                 if (req_race_mask and req_race_mask & race_mask == 0) or \
                         (req_class_mask and req_class_mask & class_mask == 0):
                     continue
@@ -375,12 +374,24 @@ class DbcDatabaseManager:
                 if skill_line.ExcludeClass:
                     req_class_mask = ~req_class_mask
 
+                # Skill does not match race/class.
                 if (req_race_mask and req_race_mask & race_mask == 0) or \
                         (req_class_mask and req_class_mask & class_mask == 0):
                     continue
 
                 return skill_line_ability
+
             return None
+
+        @staticmethod
+        @lru_cache
+        def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_):
+            skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+            if not skill_line_abilities:
+                return None
+
+            return DbcDatabaseManager.SkillLineAbilityHolder.get_skill_line_ability_for_race_and_class(
+                skill_line_abilities, race, class_)
 
     @staticmethod
     def skill_line_ability_get_by_skill_lines(skill_lines):
