@@ -347,6 +347,7 @@ class DbcDatabaseManager:
             race_mask = 1 << (race - 1)
             class_mask = 1 << (class_ - 1)
             skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+
             for skill_line_ability in skill_line_abilities:
                 req_race_mask = skill_line_ability.RaceMask
                 req_class_mask = skill_line_ability.ClassMask
@@ -359,6 +360,21 @@ class DbcDatabaseManager:
                 if (req_race_mask and req_race_mask & race_mask == 0) or \
                         (req_class_mask and req_class_mask & class_mask == 0):
                     continue
+
+                # Validate Skill Line.
+                skill_line = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
+                req_race_mask = skill_line.RaceMask
+                req_class_mask = skill_line.ClassMask
+
+                if skill_line.ExcludeRace:  # Always 0
+                    req_race_mask = ~req_race_mask
+                if skill_line.ExcludeClass:
+                    req_class_mask = ~req_class_mask
+
+                if (req_race_mask and req_race_mask & race_mask == 0) or \
+                        (req_class_mask and req_class_mask & class_mask == 0):
+                    continue
+
                 return skill_line_ability
             return None
 

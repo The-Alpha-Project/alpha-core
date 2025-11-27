@@ -173,29 +173,6 @@ class SkillLineType(IntEnum):
     SECONDARY = 4
 
 
-class LanguageDesc(NamedTuple):
-    lang_id: int
-    spell_id: int
-    skill_id: int
-
-
-LANG_DESCRIPTION = {
-    Languages.LANG_UNIVERSAL: LanguageDesc(Languages.LANG_UNIVERSAL, 0, SkillTypes.NONE),
-    Languages.LANG_ORCISH: LanguageDesc(Languages.LANG_ORCISH, 669, SkillTypes.LANGUAGE_ORCISH.value),
-    Languages.LANG_DARNASSIAN: LanguageDesc(Languages.LANG_DARNASSIAN, 671, SkillTypes.LANGUAGE_DARNASSIAN.value),
-    Languages.LANG_TAURAHE: LanguageDesc(Languages.LANG_TAURAHE, 670, SkillTypes.LANGUAGE_TAURAHE.value),
-    Languages.LANG_DWARVISH: LanguageDesc(Languages.LANG_DWARVISH, 672, SkillTypes.LANGUAGE_DWARVEN.value),
-    Languages.LANG_COMMON: LanguageDesc(Languages.LANG_COMMON, 668, SkillTypes.LANGUAGE_COMMON.value),
-    Languages.LANG_DEMONIC: LanguageDesc(Languages.LANG_DEMONIC, 815, SkillTypes.DEMONTONGUE.value),
-    Languages.LANG_TITAN: LanguageDesc(Languages.LANG_TITAN, 816, SkillTypes.TITAN.value),
-    Languages.LANG_THALASSIAN: LanguageDesc(Languages.LANG_THALASSIAN, 813, SkillTypes.THALASSIAN.value),
-    Languages.LANG_DRACONIC: LanguageDesc(Languages.LANG_DRACONIC, 814, SkillTypes.DRACONIC.value),
-    Languages.LANG_KALIMAG: LanguageDesc(Languages.LANG_KALIMAG, 817, SkillTypes.OLDTONGUE.value),
-    Languages.LANG_GNOMISH: LanguageDesc(Languages.LANG_GNOMISH, 7340, SkillTypes.LANGUAGE_GNOMISH.value),
-    Languages.LANG_TROLL: LanguageDesc(Languages.LANG_TROLL, 7341, SkillTypes.LANGUAGE_TROLL.value)
-}
-
-
 class ProficiencyAcquireMethod(IntEnum):
     ON_TRAINER_LEARN = 0
     ON_CHAR_CREATE = 1
@@ -742,16 +719,6 @@ class SkillManager(object):
             return -1
         prof = self.proficiencies[item_class]
         return prof.get_skill_id_for_subclass(item_template.subclass)
-
-    @staticmethod
-    def get_all_languages():
-        return LANG_DESCRIPTION.items()
-
-    @staticmethod
-    def get_skill_by_language(language_id):
-        if language_id in LANG_DESCRIPTION:
-            return LANG_DESCRIPTION[language_id].skill_id
-        return -1
 
     @staticmethod
     def get_cast_ui_spells_for_skill_id(skill_id) -> set[int]:

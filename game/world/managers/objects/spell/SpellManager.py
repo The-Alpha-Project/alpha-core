@@ -68,6 +68,10 @@ class SpellManager:
             return False
 
         character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        # Race / Class not allowed for skill line.
+        if not skill_line_ability:
+            return False
+
         # Character does not have the skill, but it is a valid skill, check if we can add that skill.
         if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID) and \
                 self.caster.skill_manager.has_reached_skills_limit():
