@@ -94,6 +94,12 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1` = '515', `equipment_id` = '598' WHERE (`entry` = '1669');
         -- Fix Aedis Brom spawn, he should start besides Christoph Faral.
         UPDATE `spawns_creatures` SET `position_x` = '-8605.97', `position_y` = '388.41', `position_z` = '102.925', `orientation` = '5.41052' WHERE (`spawn_id` = '79752');
+        -- Fix Geoffrey Hartwell placement.
+        UPDATE `spawns_creatures` SET `position_x` = '1657.234', `position_y` = '305.609' WHERE (`spawn_id` = '41837');
+        -- Fix Benijah Fenner placement.
+        UPDATE `spawns_creatures` SET `position_x` = '1659.186', `position_y` = '303.587', `position_z` = '-42.692' WHERE (`spawn_id` = '38426');
+        -- Fix Francis Eliot placement.
+        UPDATE `spawns_creatures` SET `position_x` = '1661.217', `position_y` = '301.482', `position_z` = '-42.688' WHERE (`spawn_id` = '38109');
 
         insert into applied_updates values ('031120251');
     end if;
