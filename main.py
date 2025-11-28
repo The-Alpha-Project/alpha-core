@@ -33,6 +33,7 @@ parser.add_argument(
     action='store',
     default=None
 )
+
 parser.add_argument(
     '-e', '--extract',
     help='-e in order to extract .map files',
