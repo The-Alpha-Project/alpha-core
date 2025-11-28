@@ -72,12 +72,16 @@ class UpdateBuilder:
         if world_object.is_unit(by_mask=True):
             self._add_movement_update_from_unit(world_object)
 
-        # Handle special doors case in which the real state is sent after the create packet in order to remove
-        # collision.
+        # Handle special doors case in which the real state is sent after create packet in order to remove collision.
         if world_object.is_gameobject():
             door_deferred_state_update = world_object.get_door_state_update_bytes()
             if door_deferred_state_update:
                 self._add_packet(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
+
+        # Handle special Units bytes_1 field in which the real sheath state is sent after create.
+        if world_object.is_unit():
+            bytes_1_deferred_state_update = world_object.get_bytes_1_state_update_bytes()
+            self._add_packet(bytes_1_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 
         # Player <-> Objects linked as known.
         if obj_type in self._implements_known_players:
@@ -90,7 +94,7 @@ class UpdateBuilder:
         self._add_packet(bytes_, packet_type=PacketType.PARTIAL)
 
     def add_partial_update_from_object(self, world_object, update_data=None):
-        # If a create packet already exists for the object, defer to next tick.
+        # If create packet already exists for the object, defer to next tick.
         packet_type = PacketType.PARTIAL if world_object.guid not in self._create_guids else PacketType.PARTIAL_DEFERRED
         self._add_packet(world_object.get_partial_update_bytes(requester=self._player_mgr,
                                                                update_data=update_data), packet_type)

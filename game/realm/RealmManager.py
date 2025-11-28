@@ -1,6 +1,7 @@
 import os
 import socket
 import traceback
+from typing import Any
 
 from database.auth.AuthDatabaseManager import AuthDatabaseManager
 from game.world.WorldSessionStateHandler import RealmDatabaseManager
@@ -61,7 +62,7 @@ class RealmManager:
         sck.sendall(packet)
 
     @staticmethod
-    def start_realm(running, realm_server_ready):
+    def start_realm(shared_state: Any):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         with SocketBuilder.build_socket(local_realm.realm_address, local_realm.realm_port, timeout=2) as server_socket:
             server_socket.listen()
@@ -70,10 +71,10 @@ class RealmManager:
             RealmDatabaseManager.character_set_all_offline()
             AuthDatabaseManager.realm_clear_online_count()
             Logger.success(f'Realm server started, listening on {real_binding[0]}:{real_binding[1]}')
-            realm_server_ready.value = 1
+            shared_state.REALM_SERVER_READY = True
 
             try:
-                while running.value:
+                while shared_state.RUNNING:
                     try:
                         client_socket, client_address = server_socket.accept()
                         RealmManager.serve_realmlist(client_socket)
@@ -89,16 +90,16 @@ class RealmManager:
         Logger.info("Realm server turned off.")
 
     @staticmethod
-    def start_proxy(running, proxy_server_ready):
+    def start_proxy(shared_state: Any):
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         with SocketBuilder.build_socket(local_realm.proxy_address, local_realm.proxy_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
             Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}')
-            proxy_server_ready.value = 1
+            shared_state.PROXY_SERVER_READY = True
 
             try:
-                while running.value:
+                while shared_state.RUNNING:
                     try:
                         client_socket, client_address = server_socket.accept()
                         RealmManager.redirect_to_world(client_socket)

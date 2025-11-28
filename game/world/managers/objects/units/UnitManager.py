@@ -1925,6 +1925,13 @@ class UnitManager(ObjectManager):
     def get_bytes_1(self):
         pass
 
+    """
+        Client doesn't properly set sheath state for units after destroy/create,
+        so we send it bytes_1 zeroed, and then send the actual state.
+    """
+    def get_bytes_1_state_update_bytes(self):
+        return self.get_single_field_update_bytes(UnitFields.UNIT_FIELD_BYTES_1, self.get_bytes_1())
+
     # Implemented by CreatureManager and PlayerManager
     # char comboPoints;
     # char padding;

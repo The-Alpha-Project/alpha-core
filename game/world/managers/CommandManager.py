@@ -906,6 +906,7 @@ class CommandManager(object):
                       f'Display ID: {creature.current_display_id}\n' \
                       f'Faction: {creature.faction}\n' \
                       f'AI: {creature.get_ai_name()}\n' \
+                      f'Sheath: {WeaponMode(creature.sheath_state).name}\n' \
                       f'Movement: {creature.movement_manager.get_current_behavior_name()}\n' \
                       f'Detection Range: {creature.get_detection_range(world_session.player_mgr)}\n' \
                       f'Alive: {creature.is_alive}\n' \
@@ -1240,8 +1241,11 @@ class CommandManager(object):
             Path(CommandManager.DEV_LOG_PATH).mkdir(parents=True, exist_ok=True)
             f_name = path.join(CommandManager.DEV_LOG_PATH, f'{entry}_waypoints.log')
             l = world_session.player_mgr.location
+
             with open(f_name, 'a+') as f:
-                point_id = len(f.readlines())
+                f.seek(0)  # Move to the start of the file
+                lines = f.readlines()
+                point_id = len(lines)
                 f.write(f'({entry}, {point_id}, {round(l.x, 3)}, {round(l.y, 3)}, {round(l.z, 3)}, 0, 0, 0, 0),\n')
 
             return 0, f'Successfully created/updated waypoints in {f_name}'
