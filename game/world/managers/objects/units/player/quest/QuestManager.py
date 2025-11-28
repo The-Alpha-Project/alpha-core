@@ -52,7 +52,7 @@ class QuestManager(object):
                 self.send_quest_query_response(active_quest.quest)
             else:
                 Logger.error(
-                    f"Quest database (guid={quest_db_state.guid}, quest_id={quest_db_state.quest}) has state {quest_db_state.state}. No handling.")
+                    f'Quest database (guid={quest_db_state.guid}, quest_id={quest_db_state.quest}) has state {quest_db_state.state}. No handling.')
 
     def is_quest_log_full(self):
         return len(self.active_quests) >= MAX_QUEST_LOG
