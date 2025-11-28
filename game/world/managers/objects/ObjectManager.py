@@ -307,6 +307,11 @@ class ObjectManager:
             if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
                 mask[field_index] = 0
                 continue
+            # Defer bytes_1 update, this is similar to doors collision issue (But for sheath state)
+            # in which the client needs to see the doors as ready first, and then receive their actual state after create.
+            elif is_create and self.is_unit() and field_index == UnitFields.UNIT_FIELD_BYTES_1:
+                mask[field_index] = 0
+                continue
             # Append field value and turn on bit on mask.
             data.extend(values[field_index])
             mask[field_index] = 1

@@ -413,7 +413,7 @@ class SpellManager:
             self.caster.mana_regen_timer = 0
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
-            return  # Spell is in delayed state, do nothing for now
+            return  # Spell is in delayed state, do nothing for now.
 
         self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_NO_ERROR)
         self.send_spell_go(casting_spell)

@@ -159,36 +159,6 @@ class CharCreateHandler(object):
                 spell_to_set.spell = spell_to_load.ID
                 RealmDatabaseManager.character_add_spell(spell_to_set)
 
-        # TODO: Investigate the below behavior
-        """
-        # This doesn't seem to work well in 0.5.3, it bugs out the Common language. Maybe it was only possible 
-        # in 0.5.5+ as seen here: https://i.imgur.com/kJD11ve.png, or maybe a bad implementation.
-
-        # Insert remaining languages but with value 1
-        for lang_id, lang_desc in SkillManager.get_all_languages():
-            added_skills = set()
-            spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(lang_desc.spell_id)
-            if spell_to_load and lang_desc.spell_id not in added_spells:
-                # Handle learning skills required by initial spells.
-                skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(spell_to_load.ID, race, class_)
-                if skill and skill.ID not in added_skills:
-                    lang_spell = CharacterSpell()
-                    lang_spell.guid = guid
-                    lang_spell.spell = lang_desc.spell_id
-
-                    RealmDatabaseManager.character_add_spell(lang_spell)
-                    added_spells.add(lang_desc.spell_id)
-
-                    added_skills.add(skill.ID)
-                    skill_to_set = CharacterSkill()
-                    skill_to_set.guid = guid
-                    skill_to_set.skill = skill.ID
-                    skill_to_set.value = 1
-                    skill_to_set.max = 1
-
-                    RealmDatabaseManager.character_add_skill(skill_to_set)
-        """
-
     @staticmethod
     def generate_starting_spells_skills(guid, race, class_, _level):
         added_skills = set()
