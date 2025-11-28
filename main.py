@@ -255,10 +255,6 @@ if __name__ == '__main__':
     # Exit.
     Logger.info('Shutting down the core, please wait...')
 
-    if launch_world:
-        # Make sure we disconnect current players and save their characters.
-        CommandManager.worldoff(None, args='confirm')
-
     # Make sure all process finish gracefully (Exit their listening loops).
     [release_process(process) for process, wait_call in ACTIVE_PROCESSES]
 
