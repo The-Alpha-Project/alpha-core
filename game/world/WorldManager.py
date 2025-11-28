@@ -3,6 +3,7 @@ import socket
 import threading
 import traceback
 from time import time
+from typing import Any
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -264,7 +265,7 @@ class WorldServerSessionHandler:
         Logger.info('Background schedulers stopped.')
 
     @staticmethod
-    def start_world(running, world_server_ready):
+    def start_world(shared_state: Any):
         WorldLoader.load_data()
 
         # Start background tasks.
@@ -275,7 +276,7 @@ class WorldServerSessionHandler:
         WorldServerSessionHandler.start_chat_logger()
 
         # Set ready.
-        world_server_ready.value = 1
+        shared_state.WORLD_SERVER_READY = True
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             try:
@@ -291,7 +292,7 @@ class WorldServerSessionHandler:
             Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}')
 
             try:
-                while WORLD_ON and running.value:
+                while WORLD_ON and shared_state.RUNNING:
                     try:
                         client_socket, client_address = server_socket.accept()
                         server_handler = WorldServerSessionHandler(client_socket, client_address)

@@ -7,6 +7,8 @@ from time import sleep
 
 # Initialize path FIRST, before any other imports that might use PathManager
 from utils.PathManager import PathManager
+from utils.SysUtils import SysUtils
+
 if __name__ == '__main__':
     root_path = os.path.dirname(os.path.realpath(__file__))
     PathManager.set_root_path(root_path)
@@ -90,11 +92,11 @@ def handle_console_commands():
     except:
         pass
     Logger.info(f'Command listener released.')
-    RUNNING.value = 0
+    SHARED_STATE.RUNNING = False
 
 
 def handler_stop_signals(signum, frame):
-    RUNNING.value = 0
+    SHARED_STATE.RUNNING = False
     # Console mode, we need to kill stdin input() listener.
     if CONSOLE_LISTENING:
         raise KeyboardInterrupt
@@ -104,43 +106,35 @@ def wait_world_server():
     if not launch_world:
         return
     # Wait for world start before starting realm/proxy sockets if needed.
-    while not WORLD_SERVER_READY.value and RUNNING.value:
+    while not SHARED_STATE.WORLD_SERVER_READY and SHARED_STATE.RUNNING:
         sleep(0.1)
 
 
 def wait_realm_server():
     if not launch_realm:
         return
-    while not REALM_SERVER_READY.value and RUNNING.value:
+    while not SHARED_STATE.REALM_SERVER_READY and SHARED_STATE.RUNNING:
         sleep(0.1)
 
 
 def wait_proxy_server():
     if not launch_realm:
         return
-    while not PROXY_SERVER_READY.value and RUNNING.value:
+    while not SHARED_STATE.PROXY_SERVER_READY and SHARED_STATE.RUNNING:
         sleep(0.1)
 
 
 def wait_login_server():
-    while not LOGIN_SERVER_READY.value and RUNNING.value:
+    while not SHARED_STATE.LOGIN_SERVER_READY and SHARED_STATE.RUNNING:
         sleep(0.1)
 
 
 def wait_update_server():
-    while not UPDATE_SERVER_READY.value and RUNNING.value:
+    while not SHARED_STATE.UPDATE_SERVER_READY and SHARED_STATE.RUNNING:
         sleep(0.1)
 
-
-CONSOLE_LISTENING = False
-RUNNING = None
-WORLD_SERVER_READY = None
-REALM_SERVER_READY = None
-PROXY_SERVER_READY = None
-LOGIN_SERVER_READY = None
-UPDATE_SERVER_READY = None
+SHARED_STATE = None
 ACTIVE_PROCESSES = []
-
 
 if __name__ == '__main__':
     # Validate configuration file version.
@@ -153,6 +147,8 @@ if __name__ == '__main__':
     except AttributeError:
         print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
         exit()
+
+    SysUtils.try_uncap_soft_ulimit()
 
     if args.extract:
         adt_x = args.adt_x if args.adt_x else -1
@@ -175,12 +171,16 @@ if __name__ == '__main__':
     else:
         context = multiprocessing.get_context('spawn')
 
-    RUNNING = context.Value('i', 1)
-    WORLD_SERVER_READY = context.Value('i', 0)
-    REALM_SERVER_READY = context.Value('i', 0)
-    PROXY_SERVER_READY = context.Value('i', 0)
-    LOGIN_SERVER_READY = context.Value('i', 0)
-    UPDATE_SERVER_READY = context.Value('i', 0)
+    manager = context.Manager()
+    # Shared variables inside a namespace.
+    SHARED_STATE = manager.Namespace()
+    SHARED_STATE.RUNNING = True
+    SHARED_STATE.CONSOLE_LISTENING = False
+    SHARED_STATE.WORLD_SERVER_READY = False
+    SHARED_STATE.REALM_SERVER_READY = False
+    SHARED_STATE.PROXY_SERVER_READY = False
+    SHARED_STATE.LOGIN_SERVER_READY = False
+    SHARED_STATE.UPDATE_SERVER_READY = False
 
     launch_realm = not args.launch or args.launch == 'realm'
     launch_world = not args.launch or args.launch == 'world'
@@ -200,26 +200,35 @@ if __name__ == '__main__':
         ACTIVE_PROCESSES.append((context.Process(
             name='World process',
             target=WorldManager.WorldServerSessionHandler.start_world,
-            args=(RUNNING, WORLD_SERVER_READY)), wait_world_server))
+            args=(SHARED_STATE,)), wait_world_server))
     else:
-        WORLD_SERVER_READY.value = 1
+        SHARED_STATE.WORLD_SERVER_READY = True
 
     # Update server.
-    ACTIVE_PROCESSES.append((context.Process(name='Update process', target=UpdateManager.start_update,
-                                             args=(RUNNING, UPDATE_SERVER_READY)), wait_update_server))
+    ACTIVE_PROCESSES.append((context.Process(
+        name='Update process',
+        target=UpdateManager.start_update,
+        args=(SHARED_STATE,)), wait_update_server))
 
     # SRP login server.
-    ACTIVE_PROCESSES.append((context.Process(name='Login process', target=LoginManager.start_login,
-                                             args=(RUNNING, LOGIN_SERVER_READY)), wait_login_server))
+    ACTIVE_PROCESSES.append((context.Process(
+        name='Login process',
+        target=LoginManager.start_login,
+        args=(SHARED_STATE,)), wait_login_server))
 
     if launch_realm:
-        ACTIVE_PROCESSES.append((context.Process(name='Realm process', target=RealmManager.start_realm,
-                                                 args=(RUNNING, REALM_SERVER_READY)), wait_realm_server))
-        ACTIVE_PROCESSES.append((context.Process(name='Proxy process', target=RealmManager.start_proxy,
-                                                 args=(RUNNING, PROXY_SERVER_READY)), wait_proxy_server))
+        ACTIVE_PROCESSES.append((context.Process(
+            name='Realm process',
+            target=RealmManager.start_realm,
+            args=(SHARED_STATE,)), wait_realm_server))
+
+        ACTIVE_PROCESSES.append((context.Process(
+            name='Proxy process',
+            target=RealmManager.start_proxy,
+            args=(SHARED_STATE,)), wait_proxy_server))
     else:
-        REALM_SERVER_READY.value = 1
-        PROXY_SERVER_READY.value = 1
+        SHARED_STATE.REALM_SERVER_READY = True
+        SHARED_STATE.PROXY_SERVER_READY = True
 
     Logger.info('Booting Alpha Core, please wait...')
     # Start processes.
@@ -237,12 +246,12 @@ if __name__ == '__main__':
     Logger.info('Alpha Core is now running.\a')
 
     # Handle console mode.
-    if console_mode and RUNNING.value:
+    if console_mode and SHARED_STATE.RUNNING:
         CONSOLE_LISTENING = True
         handle_console_commands()
     else:
         # Wait on main thread for stop signal or 'exit' command.
-        while RUNNING.value:
+        while SHARED_STATE.RUNNING:
             sleep(2)
 
     # Exit.
@@ -256,5 +265,6 @@ if __name__ == '__main__':
     [release_process(process) for process, wait_call in ACTIVE_PROCESSES]
 
     ACTIVE_PROCESSES.clear()
+    manager.shutdown()
     Logger.success('Core gracefully shut down.')
     exit()
