@@ -39,6 +39,9 @@ class NavExtractor:
         if not os.path.exists(nav_path):
             os.mkdir(nav_path)
 
+        # Verify os file limit to avoid 'Errno 24: Too many open files' on nix/mac.
+        SysUtils.try_uncap_soft_ulimit()
+
         try:
             available_threads = multiprocessing.cpu_count()
             threads = 1

@@ -148,8 +148,6 @@ if __name__ == '__main__':
         print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
         exit()
 
-    SysUtils.try_uncap_soft_ulimit()
-
     if args.extract:
         adt_x = args.adt_x if args.adt_x else -1
         adt_y = args.adt_y if args.adt_y else -1
