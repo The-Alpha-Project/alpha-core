@@ -7,8 +7,6 @@ from time import sleep
 
 # Initialize path FIRST, before any other imports that might use PathManager
 from utils.PathManager import PathManager
-from utils.SysUtils import SysUtils
-
 if __name__ == '__main__':
     root_path = os.path.dirname(os.path.realpath(__file__))
     PathManager.set_root_path(root_path)
@@ -69,6 +67,7 @@ def release_process(active_process):
             active_process.join(timeout=2)
             if active_process.is_alive():
                 active_process.terminate()
+                active_process.join()
                 break
         except (ValueError, KeyboardInterrupt):
             sleep(0.1)

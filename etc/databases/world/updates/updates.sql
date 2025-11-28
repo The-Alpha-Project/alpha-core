@@ -315,6 +315,16 @@ begin not atomic
         insert into applied_updates values ('271120251');
     end if;
 
+    -- 28/11/2025 1
+    if (select count(*) from applied_updates where id='281120251') = 0 then
+        -- Quest 1038, Velinde's Effects, set Shandris Feathermoon as starter/finisher.
+        UPDATE `creature_quest_starter` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1038');
+        UPDATE `creature_quest_finisher` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1038');
+
+        -- Quest 1038, https://web.archive.org/web/20040711114345/http://wow.allakhazam.com/db/quest.html?wquest=1038
+        UPDATE `quest_template` SET `Details` = 'The Tome of Mel\'Thandris showed you this? I suppose there would be little harm in allowing you to examine her belongings. This key will allow you to open the chest where we stored her things in the Sentinels\' bunkhouse. She kept a journal of her duties, if there is anything to be learned, it will be from that.\n\nI should tell you, the Sentinels believe that she had her own reasons for leaving, and expect that she could return at any time. The priestess has done much in the past to earn our trust.', `Objectives` = 'Search through Velinde\'s chest for her journal, then return it along with the key to Shandris Feathermoon in Darnassus.' WHERE (`entry` = '1038');
+        insert into applied_updates values ('281120251');
+    end if;
 
 end $
 delimiter ;
