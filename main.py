@@ -98,7 +98,7 @@ def handle_console_commands():
 def handler_stop_signals(signum, frame):
     SHARED_STATE.RUNNING = False
     # Console mode, we need to kill stdin input() listener.
-    if CONSOLE_LISTENING:
+    if SHARED_STATE.CONSOLE_LISTENING:
         raise KeyboardInterrupt
 
 
@@ -245,7 +245,7 @@ if __name__ == '__main__':
 
     # Handle console mode.
     if console_mode and SHARED_STATE.RUNNING:
-        CONSOLE_LISTENING = True
+        SHARED_STATE.CONSOLE_LISTENING = True
         handle_console_commands()
     else:
         # Wait on main thread for stop signal or 'exit' command.
