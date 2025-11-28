@@ -33,7 +33,7 @@ class StreamReader:
 
         if (expected_token and token_name != expected_token) or (expected_tokens and token_name not in expected_tokens):
             self.move_backwards(4)
-            return f'Found token {token_name if token_name else 'None'} expected {expected_token}', token_name, 0
+            return f'Found token "{token_name}", expected "{expected_token}"', token_name, 0
 
         size = self.read_int32()
         return '', token_name, size

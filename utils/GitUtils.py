@@ -36,7 +36,7 @@ class GitUtils:
                     )
                 return True
 
-            py_runtime = f"{sys.version_info[0]}.{sys.version_info[1]}"
+            py_runtime = f'{sys.version_info[0]}.{sys.version_info[1]}'
             filename = f'namigator_{os_prefix}_{py_runtime}.zip'
             download_url = f'{GitUtils.BASE_NAMIGATOR_URL}{filename}'
 

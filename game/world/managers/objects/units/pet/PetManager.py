@@ -162,7 +162,7 @@ class PetManager:
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
         if not creature_manager:
-            Logger.warning(f"Attempted to summon nonexistent creature {creature_id} via spell {spell_id}.")
+            Logger.warning(f'Attempted to summon nonexistent creature {creature_id} via spell {spell_id}.')
             return
 
         # Match summoner level for creature summons. Otherwise, set to the level in PetData.

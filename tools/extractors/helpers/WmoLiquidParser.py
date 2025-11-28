@@ -59,7 +59,7 @@ class WmoLiquidParser:
 
             return
         except Exception as e:
-            Logger.error(f"Error processing WMO placement {wmo_placement.name_id}: {e}")
+            Logger.error(f'Error processing WMO placement {wmo_placement.name_id}: {e}')
             exit()
 
     @staticmethod
