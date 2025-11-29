@@ -26,7 +26,11 @@ class ScriptManager:
 
     @staticmethod
     def resolve_hostile(caster, target=None, param1=None, param2=None, spell_template=None):
-        return caster.combat_target if caster.combat_target else caster.threat_manager.get_hostile_target()
+        if caster.combat_target:
+            return caster.combat_target
+        if caster.threat_target:
+            return caster.threat_manager.get_hostile_target()
+        return None
 
     @staticmethod
     def resolve_hostile_second_aggro(caster, target=None, param1=None, param2=None, spell_template=None):
