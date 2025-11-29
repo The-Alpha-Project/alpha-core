@@ -372,6 +372,23 @@ begin not atomic
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (8002, 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Laborer - Flee at 15% HP');
 
+        -- Missing aggro text for Kobolds.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=25701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (25701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1868, 1864, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Worker - Say Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=8001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (8001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1868, 1864, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Laborer - Say Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=47501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (47501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1864, 1868, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Tunneler - Say Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (601, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1868, 1864, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Vermin - Say Text');
+
         insert into applied_updates values ('281120251');
     end if;
 
