@@ -327,10 +327,11 @@ begin not atomic
         -- Nimboya orientation.
         UPDATE `spawns_creatures` SET `orientation` = '3.51' WHERE (`spawn_id` = '630');
 
-        -- Kobold Worker/Vermin/Tunneler Flee.
+        -- Kobold Worker/Vermin/Laborer/Tunneler Flee.
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/20%20MARCH%2004%20%20%2011.jpg
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/20%20MARCH%2004%20%20%2006.jpg
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/27.jpg
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/20%20MARCH%2004%20%20%2013.jpg
         -- Events list for Kobold Worker
         DELETE FROM `creature_ai_events` WHERE `creature_id`=257;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
@@ -360,6 +361,16 @@ begin not atomic
         DELETE FROM `creature_ai_scripts` WHERE `id`=47502;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (47502, 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Tunneler - Flee at 15% HP');
+
+        -- Events list for Kobold Laborer
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=80;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (8001, 80, 0, 4, 0, 30, 0, 0, 0, 0, 0, 8001, 0, 0, 'Kobold Labourer - Random Say on Aggro'),
+        (8002, 80, 0, 2, 0, 100, 0, 15, 0, 0, 0, 8002, 0, 0, 'Kobold Laborer - Flee at 15% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=8002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (8002, 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Laborer - Flee at 15% HP');
 
         insert into applied_updates values ('281120251');
     end if;
