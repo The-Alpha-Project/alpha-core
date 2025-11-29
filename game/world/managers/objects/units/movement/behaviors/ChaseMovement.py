@@ -29,6 +29,7 @@ class ChaseMovement(BaseMovement):
         super().update(now, elapsed)
 
     def _perform_waypoint(self):
+        # Avoid units trying to turn and face the target as they run.
         if self.unit.current_target:
             self.unit.set_current_target(0)
 
@@ -150,7 +151,9 @@ class ChaseMovement(BaseMovement):
         self.waypoints.clear()
         self.spline.freeze = True  # Avoid updating unit position when stop() calls reset() on this movement behavior.
         self.unit.movement_manager.stop()
-        if self.unit.current_target is None:
+
+        # Restore current target.
+        if not self.unit.current_target:
             self.unit.set_current_target(combat_target.guid)
 
     # override
