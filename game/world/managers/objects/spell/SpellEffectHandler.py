@@ -372,7 +372,7 @@ class SpellEffectHandler:
                                                   summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM,
-                                                  summon_type=TempSummonType.TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN)
+                                                  summon_type=TempSummonType.TEMP_SUMMON_TIMED_OR_DEAD_DESPAWN)
         if not creature_manager:
             Logger.error(f'Creature with entry {totem_entry} not found for spell {casting_spell.spell_entry.ID}.')
             return
