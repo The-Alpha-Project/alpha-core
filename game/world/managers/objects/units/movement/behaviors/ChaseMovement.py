@@ -118,7 +118,7 @@ class ChaseMovement(BaseMovement):
             return False
         if self.speed_dirty or not self.waypoints:
             return True
-        # Last known path waypoint is out of combat distance? Regenerate.
+        # The last known waypoint is beyond combat distance, regenerate.
         return self.waypoints[-1].distance(combat_target.location) > UnitFormulas.combat_distance(self.unit, combat_target)
 
     def _can_chase(self):
