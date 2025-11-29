@@ -336,7 +336,7 @@ begin not atomic
         DELETE FROM `creature_ai_events` WHERE `creature_id`=257;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
         (25701, 257, 0, 4, 0, 30, 0, 0, 0, 0, 0, 25701, 0, 0, 'Kobold Worker - Random Say on Aggro'),
-        (25702, 257, 0, 2, 0, 100, 0, 15, 0, 0, 0, 25702, 0, 0, 'Kobold Worker - Flee at 15% HP');
+        (25702, 257, 0, 2, 0, 30, 0, 15, 0, 0, 0, 25702, 0, 0, 'Kobold Worker - Flee at 15% HP');
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=25702;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -346,7 +346,7 @@ begin not atomic
         DELETE FROM `creature_ai_events` WHERE `creature_id`=6;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
         (601, 6, 0, 4, 0, 30, 0, 0, 0, 0, 0, 601, 0, 0, 'Kobold Vermin - Random Say on Aggro'),
-        (602, 6, 0, 2, 0, 100, 0, 15, 0, 0, 0, 602, 0, 0, 'Kobold Vermin- Flee at 15% HP');
+        (602, 6, 0, 2, 0, 30, 0, 15, 0, 0, 0, 602, 0, 0, 'Kobold Vermin- Flee at 15% HP');
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=602;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -355,8 +355,8 @@ begin not atomic
         -- Events list for Kobold Tunneler
         DELETE FROM `creature_ai_events` WHERE `creature_id`=475;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
-        (47501, 475, 0, 4, 0, 25, 0, 0, 0, 0, 0, 47501, 0, 0, 'Kobold Tunneler - Chance Say on Aggro'),
-        (47502, 475, 0, 2, 0, 100, 0, 15, 0, 0, 0, 47502, 0, 0, 'Kobold Tunneler - Flee at 15% HP');
+        (47501, 475, 0, 4, 0, 30, 0, 0, 0, 0, 0, 47501, 0, 0, 'Kobold Tunneler - Chance Say on Aggro'),
+        (47502, 475, 0, 2, 0, 30, 0, 15, 0, 0, 0, 47502, 0, 0, 'Kobold Tunneler - Flee at 15% HP');
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=47502;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -366,7 +366,7 @@ begin not atomic
         DELETE FROM `creature_ai_events` WHERE `creature_id`=80;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
         (8001, 80, 0, 4, 0, 30, 0, 0, 0, 0, 0, 8001, 0, 0, 'Kobold Labourer - Random Say on Aggro'),
-        (8002, 80, 0, 2, 0, 100, 0, 15, 0, 0, 0, 8002, 0, 0, 'Kobold Laborer - Flee at 15% HP');
+        (8002, 80, 0, 2, 0, 30, 0, 15, 0, 0, 0, 8002, 0, 0, 'Kobold Laborer - Flee at 15% HP');
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=8002;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
