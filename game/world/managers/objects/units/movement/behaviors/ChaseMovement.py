@@ -11,14 +11,34 @@ class ChaseMovement(BaseMovement):
     def __init__(self, spline_callback):
         super().__init__(move_type=MoveType.CHASE, spline_callback=spline_callback)
         self.unit = None
+        self.waypoints = []
 
     # override
     def update(self, now, elapsed):
+        if self._should_regenerate_path():
+            self.waypoints = self._regenerate_path()
+
         if self._can_chase():
             self.speed_dirty = False
-            self._chase(self.unit)
+            self._perform_waypoint()
+        # Face the target if necessary.
+        elif (not self.spline and self.unit.combat_target
+              and not self.unit.location.has_in_arc(self.unit.combat_target.location, math.pi)):
+            self.unit.movement_manager.face_target(self.unit.combat_target)
 
         super().update(now, elapsed)
+
+    def _perform_waypoint(self):
+        if self.unit.current_target:
+            self.unit.set_current_target(0)
+
+        waypoint = self._get_waypoint()
+        swimming = self.unit.is_swimming()
+        speed = self.unit.running_speed if not swimming else self.unit.swim_speed
+        spline_flags = SplineFlags.SPLINEFLAG_RUNMODE if not swimming else SplineFlags.SPLINEFLAG_NONE
+        spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint], speed=speed,
+                                                   spline_flags=spline_flags)
+        self.spline_callback(spline, movement_behavior=self)
 
     # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
     #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
@@ -27,47 +47,46 @@ class ChaseMovement(BaseMovement):
     #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
     #   - Most humanoids NPCs have gained the ability to swim.
     #  This might only refer to creatures not having swimming animations.
-    def _chase(self, unit):
-        # Check if target is player and is online.
-        target_is_player = unit.combat_target.is_player()
-        if target_is_player and not unit.combat_target.online:
-            unit.threat_manager.remove_unit_threat(unit.combat_target)
-            return
+    def _regenerate_path(self):
+        combat_target = self.unit.combat_target
+        if not combat_target:
+            return None
 
-        target_is_moving = unit.combat_target.is_moving()
-        home_position = unit.get_home_position()  # Either spawn_position or tmp_home_position.
-        home_distance = unit.location.distance(home_position)
-        target_distance = unit.location.distance(unit.combat_target.location)
-        target_to_home_distance = unit.combat_target.location.distance(home_position)
-        combat_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
+        # Check if target is player and is online.
+        target_is_player = combat_target.is_player()
+        if target_is_player and not combat_target.online:
+            self.unit.threat_manager.remove_unit_threat(combat_target)
+            return None
+
+        target_is_moving = combat_target.is_moving()
+        home_position = self.unit.get_home_position()  # Either spawn_position or tmp_home_position.
+        home_distance = self.unit.location.distance(home_position)
+        target_distance = self.unit.location.distance(combat_target.location)
+        target_to_home_distance = combat_target.location.distance(home_position)
+        combat_distance = UnitFormulas.combat_distance(self.unit, combat_target)
         evade_distance = Distances.CREATURE_EVADE_DISTANCE
-        combat_target = unit.combat_target
 
         if not combat_target:
-            return
+            return None
 
-        self_swimming = unit.is_swimming()
-        target_swimming = unit.combat_target.is_swimming()
+        self_swimming = self.unit.is_swimming()
+        target_swimming = combat_target.is_swimming()
 
-        if not unit.is_pet():
+        if not self.unit.is_pet():
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
             if (home_distance > evade_distance or target_distance > evade_distance) \
                     and target_to_home_distance > evade_distance:
-                unit.threat_manager.remove_unit_threat(combat_target)
-                return
+                self.unit.threat_manager.remove_unit_threat(combat_target)
+                return None
 
-            if (self_swimming or target_swimming) and not unit.can_swim():
-                unit.threat_manager.remove_unit_threat(combat_target)
-                return
-            elif self_swimming and not target_swimming and not unit.can_exit_water():
-                unit.threat_manager.remove_unit_threat(combat_target)
-                return
-
-        # Face the target if necessary.
-        if not unit.location.has_in_arc(combat_target.location, math.pi):
-            unit.movement_manager.face_target(combat_target)
+            if (self_swimming or target_swimming) and not self.unit.can_swim():
+                self.unit.threat_manager.remove_unit_threat(combat_target)
+                return None
+            elif self_swimming and not target_swimming and not self.unit.can_exit_water():
+                self.unit.threat_manager.remove_unit_threat(combat_target)
+                return None
 
         # Use less distance if target is moving.
         combat_distance = combat_distance / 1.1 if target_is_moving else combat_distance
@@ -76,26 +95,67 @@ class ChaseMovement(BaseMovement):
         # Target is within combat distance, don't move.
         if is_within_distance:
             self.unit.movement_manager.stop()
-            return
+            return None
 
-        final_location = combat_target.location
+        final_path = [combat_target.location]
         # Use direct combat location if target is over water.
         if not target_swimming:
-            failed, in_place, path = self.unit.get_map().calculate_path(unit.location, final_location)
+            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, final_path[0])
             if not failed and not in_place:
-                final_location = path[0]
+                final_path = path
             elif in_place:
-                return
+                return None
 
-        speed = self.unit.running_speed if not self_swimming else unit.swim_speed
-        spline_flags = SplineFlags.SPLINEFLAG_RUNMODE if not self_swimming else SplineFlags.SPLINEFLAG_NONE
-        spline = SplineBuilder.build_normal_spline(unit, points=[final_location], speed=speed, spline_flags=spline_flags)
-        self.spline_callback(spline, movement_behavior=self)
+        return final_path
+
+    def _should_regenerate_path(self):
+        combat_target = self.unit.combat_target
+        if not combat_target:
+            return False
+        # Already in close combat.
+        if self.unit.location.distance(combat_target.location) < UnitFormulas.combat_distance(self.unit, combat_target):
+            return False
+        if self.speed_dirty or not self.waypoints:
+            return True
+        # Last known path waypoint is out of combat distance? Regenerate.
+        return self.waypoints[-1].distance(combat_target.location) > UnitFormulas.combat_distance(self.unit, combat_target)
 
     def _can_chase(self):
-        return self.speed_dirty or (not self.unit.is_casting() and self.unit.is_alive and self.unit.combat_target
-                and self.unit.combat_target.is_alive
-                and (True if not self.unit.object_ai else self.unit.object_ai.is_combat_movement_enabled()))
+        if not self.waypoints:
+            return False
+        if not self.unit.combat_target:
+            return False
+        if not self.unit.combat_target.is_alive:
+            return False
+        if self.speed_dirty:
+            return True
+        if self.spline:
+            return False
+        return True if not self.unit.object_ai else self.unit.object_ai.is_combat_movement_enabled()
+
+    def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
+        super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
+
+        combat_target = self.unit.combat_target
+        if not combat_target:
+            return
+
+        if combat_target.is_moving():
+            return
+
+        if new_position.distance(combat_target.location) > UnitFormulas.combat_distance(self.unit, combat_target) / 1.5:
+            return
+
+        # Already within combat distance, stop.
+        self.waypoints.clear()
+        self.spline.freeze = True  # Avoid updating unit position when stop() calls reset() on this movement behavior.
+        self.unit.movement_manager.stop()
+        if self.unit.current_target is None:
+            self.unit.set_current_target(combat_target.guid)
+
+    # override
+    def on_removed(self):
+        self.waypoints = None
 
     # override
     def can_remove(self):
@@ -104,7 +164,14 @@ class ChaseMovement(BaseMovement):
 
     # override
     def reset(self):
-        if self.spline:
-            # Make sure the last known position gets updated.
-            self.spline.update_to_now()
-            self.spline = None
+        if not self.spline:
+            return
+        # Make sure the last known position gets updated.
+        self.spline.update_to_now()
+        self.spline = None
+
+    def _get_waypoint(self):
+        if not self.waypoints:
+            return None
+        wp = self.waypoints.pop(0)
+        return wp
