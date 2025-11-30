@@ -27,7 +27,7 @@ class BaseMovement:
             self.last_change = now
 
         # Spline ended.
-        if self.spline.is_complete():
+        if self.is_complete():
             self.on_spline_finished()
             self.spline = None
 

@@ -784,7 +784,7 @@ class CreatureManager(UnitManager):
         if not self.is_alive:
             return False
 
-        was_oneshot = not self.threat_manager.has_aggro_from(killer)
+        was_oneshot = killer and not self.threat_manager.has_aggro_from(killer)
         if self.creature_group:
             if was_oneshot and killer:
                 # AI will not trigger since NPC was unable to start attacking, make the call for attack start event.

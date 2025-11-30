@@ -67,6 +67,17 @@ class WorldServerSessionHandler:
         finally:
             self.disconnect()
 
+    @staticmethod
+    def save_characters():
+        WorldSessionStateHandler.save_characters()
+
+    @staticmethod
+    def disconnect_sessions():
+        for session in WorldSessionStateHandler.get_world_sessions():
+            if session.player_mgr and session.player_mgr.online:
+                session.player_mgr.logout()
+            session.disconnect()
+
     def save_character(self):
         WorldSessionStateHandler.save_character(self.player_mgr)
 
@@ -308,4 +319,7 @@ class WorldServerSessionHandler:
 
         Logger.info("World server turned off.")
         ChatLogManager.exit()
+        # Since only this process is able to see current world sessions, save characters and disconnect all sessions.
+        WorldServerSessionHandler.save_characters()
+        WorldServerSessionHandler.disconnect_sessions()
         WorldServerSessionHandler.stop_schedulers(schedulers)

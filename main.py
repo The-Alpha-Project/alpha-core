@@ -7,8 +7,6 @@ from time import sleep
 
 # Initialize path FIRST, before any other imports that might use PathManager
 from utils.PathManager import PathManager
-from utils.SysUtils import SysUtils
-
 if __name__ == '__main__':
     root_path = os.path.dirname(os.path.realpath(__file__))
     PathManager.set_root_path(root_path)
@@ -35,6 +33,7 @@ parser.add_argument(
     action='store',
     default=None
 )
+
 parser.add_argument(
     '-e', '--extract',
     help='-e in order to extract .map files',
@@ -69,6 +68,7 @@ def release_process(active_process):
             active_process.join(timeout=2)
             if active_process.is_alive():
                 active_process.terminate()
+                active_process.join()
                 break
         except (ValueError, KeyboardInterrupt):
             sleep(0.1)
@@ -98,7 +98,7 @@ def handle_console_commands():
 def handler_stop_signals(signum, frame):
     SHARED_STATE.RUNNING = False
     # Console mode, we need to kill stdin input() listener.
-    if CONSOLE_LISTENING:
+    if SHARED_STATE.CONSOLE_LISTENING:
         raise KeyboardInterrupt
 
 
@@ -245,7 +245,7 @@ if __name__ == '__main__':
 
     # Handle console mode.
     if console_mode and SHARED_STATE.RUNNING:
-        CONSOLE_LISTENING = True
+        SHARED_STATE.CONSOLE_LISTENING = True
         handle_console_commands()
     else:
         # Wait on main thread for stop signal or 'exit' command.
@@ -254,10 +254,6 @@ if __name__ == '__main__':
 
     # Exit.
     Logger.info('Shutting down the core, please wait...')
-
-    if launch_world:
-        # Make sure we disconnect current players and save their characters.
-        CommandManager.worldoff(None, args='confirm')
 
     # Make sure all process finish gracefully (Exit their listening loops).
     [release_process(process) for process, wait_call in ACTIVE_PROCESSES]

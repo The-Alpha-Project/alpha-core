@@ -18,7 +18,7 @@ class UpdateManager:
             server_socket.listen()
             real_binding = server_socket.getsockname()
             Logger.success(f'Update server started, listening on {real_binding[0]}:{real_binding[1]}')
-            shared_state.UPDATE_SERVER_READY = 1
+            shared_state.UPDATE_SERVER_READY = True
 
             try:
                 while shared_state.RUNNING:

@@ -31,6 +31,7 @@ class Spline(object):
         self.waypoints_bytes = b''
         self.total_waypoint_timer = 0
         self.extra_time_seconds = extra_time_seconds  # After real time ends, wait n secs.
+        self.freeze = False
         self.initialized = False
 
     def initialize(self):
@@ -149,6 +150,8 @@ class Spline(object):
 
     # Update spline to current time when someone requests a movement update.
     def update_to_now(self):
+        if self.freeze:
+            return
         elapsed = time.time() - self.unit.last_tick
         if elapsed:
             self.update(elapsed)
@@ -176,11 +179,9 @@ class Spline(object):
 
     def _get_header_bytes(self):
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
-        guid = self.unit.guid
         timestamp = int(WorldManager.get_seconds_since_startup() * 1000)
-
         # Common part first.
-        data = pack(f'<Q{len(location_bytes)}sIB', guid, location_bytes, timestamp, self.spline_type)
+        data = pack(f'<Q{len(location_bytes)}sIB', self.unit.guid, location_bytes, timestamp, self.spline_type)
 
         # Handle specific spline types.
         match self.spline_type:

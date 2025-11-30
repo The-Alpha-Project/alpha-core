@@ -315,6 +315,87 @@ begin not atomic
         insert into applied_updates values ('271120251');
     end if;
 
+    -- 28/11/2025 1
+    if (select count(*) from applied_updates where id='281120251') = 0 then
+        -- Quest 1038, Velinde's Effects, set Shandris Feathermoon as starter/finisher.
+        UPDATE `creature_quest_starter` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1038');
+        UPDATE `creature_quest_finisher` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1038');
+
+        -- Quest 1038, https://web.archive.org/web/20040711114345/http://wow.allakhazam.com/db/quest.html?wquest=1038
+        UPDATE `quest_template` SET `Details` = 'The Tome of Mel\'Thandris showed you this? I suppose there would be little harm in allowing you to examine her belongings. This key will allow you to open the chest where we stored her things in the Sentinels\' bunkhouse. She kept a journal of her duties, if there is anything to be learned, it will be from that.\n\nI should tell you, the Sentinels believe that she had her own reasons for leaving, and expect that she could return at any time. The priestess has done much in the past to earn our trust.', `Objectives` = 'Search through Velinde\'s chest for her journal, then return it along with the key to Shandris Feathermoon in Darnassus.' WHERE (`entry` = '1038');
+
+        -- Nimboya orientation.
+        UPDATE `spawns_creatures` SET `orientation` = '3.51' WHERE (`spawn_id` = '630');
+
+        -- Kobold Worker/Vermin/Laborer/Tunneler Flee.
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/20%20MARCH%2004%20%20%2011.jpg
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/20%20MARCH%2004%20%20%2006.jpg
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/27.jpg
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/20%20MARCH%2004%20%20%2013.jpg
+        -- Events list for Kobold Worker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=257;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (25701, 257, 0, 4, 0, 30, 0, 0, 0, 0, 0, 25701, 0, 0, 'Kobold Worker - Random Say on Aggro'),
+        (25702, 257, 0, 2, 0, 30, 0, 15, 0, 0, 0, 25702, 0, 0, 'Kobold Worker - Flee at 15% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=25702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (25702, 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Worker - Flee at 15% HP');
+
+        -- Events list for Kobold Vermin
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=6;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (601, 6, 0, 4, 0, 30, 0, 0, 0, 0, 0, 601, 0, 0, 'Kobold Vermin - Random Say on Aggro'),
+        (602, 6, 0, 2, 0, 30, 0, 15, 0, 0, 0, 602, 0, 0, 'Kobold Vermin- Flee at 15% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (602, 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Vermin - Flee at 15% HP');
+
+        -- Events list for Kobold Tunneler
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=475;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (47501, 475, 0, 4, 0, 30, 0, 0, 0, 0, 0, 47501, 0, 0, 'Kobold Tunneler - Chance Say on Aggro'),
+        (47502, 475, 0, 2, 0, 30, 0, 15, 0, 0, 0, 47502, 0, 0, 'Kobold Tunneler - Flee at 15% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=47502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (47502, 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Tunneler - Flee at 15% HP');
+
+        -- Events list for Kobold Laborer
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=80;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (8001, 80, 0, 4, 0, 30, 0, 0, 0, 0, 0, 8001, 0, 0, 'Kobold Labourer - Random Say on Aggro'),
+        (8002, 80, 0, 2, 0, 30, 0, 15, 0, 0, 0, 8002, 0, 0, 'Kobold Laborer - Flee at 15% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=8002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (8002, 0, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Laborer - Flee at 15% HP');
+
+        -- Missing aggro text for Kobolds.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=25701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (25701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1868, 1864, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Worker - Say Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=8001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (8001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1868, 1864, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Laborer - Say Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=47501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (47501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1864, 1868, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Tunneler - Say Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (601, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1868, 1864, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Vermin - Say Text');
+
+        -- Riverpaw Gnoll - Missing aggro text.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=11701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (11701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1871, 1870, 1869, 0, 0, 0, 0, 0, 0, 'Riverpaw Gnoll - Say Text');
+
+        insert into applied_updates values ('281120251');
+    end if;
 
 end $
 delimiter ;
