@@ -389,6 +389,11 @@ begin not atomic
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (601, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1868, 1864, 1863, 0, 0, 0, 0, 0, 0, 'Kobold Vermin - Say Text');
 
+        -- Riverpaw Gnoll - Missing aggro text.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=11701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (11701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1871, 1870, 1869, 0, 0, 0, 0, 0, 0, 'Riverpaw Gnoll - Say Text');
+
         insert into applied_updates values ('281120251');
     end if;
 
