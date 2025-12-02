@@ -65,7 +65,7 @@ Server:
         # MapTiles:
         # Extract running main.py -e, files should be automatically placed over '/etc/maps/'
         # Enables terrain Z calculations, improving npc units movement.
-        # Enables liquids related features like fishing, underwater breathing, fatigue, slime/lava detection.
+        # Enables liquid related features like fishing, underwater breathing, fatigue, slime/lava detection.
         # Enables zone exploration feature.
         use_map_tiles: False
         # Float16:
