@@ -78,7 +78,7 @@ class MLIQ:
         if v4 == 15:
             raise Exception
 
-        # Determine and print the liquid type based on v4.
+        # Determine the liquid type based on v4.
         if v4 in (0, 4, 8):
             # Water: check if it's interior or exterior based on group_flags.
             if (group_flags & 0x48) == 0:
