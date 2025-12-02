@@ -76,7 +76,7 @@ class MLIQ:
 
         # If no liquid found, raise error
         if v4 == 15:
-            raise Exception
+            raise ValueError
 
         # Determine the liquid type based on v4.
         if v4 in (0, 4, 8):
