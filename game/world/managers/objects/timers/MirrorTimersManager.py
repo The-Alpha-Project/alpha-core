@@ -63,24 +63,24 @@ class MirrorTimersManager(object):
     def _check_fatigue(self, elapsed, is_swimming):
         if self.owner.is_alive:
             timer_active = is_swimming and self.owner.is_in_deep_water()
-            self._update_breath_fatigue_timer(elapsed, timer_active, MirrorTimerTypes.FATIGUE)
+            self._update_breath_fatigue_slime_magma_timer(elapsed, timer_active, MirrorTimerTypes.FATIGUE)
 
     def _check_slime(self, elapsed, is_swimming):
         if self.owner.is_alive:
             timer_active = is_swimming and self.owner.is_on_slime()
-            self._update_breath_fatigue_timer(elapsed, timer_active, MirrorTimerTypes.SLIME)
+            self._update_breath_fatigue_slime_magma_timer(elapsed, timer_active, MirrorTimerTypes.SLIME)
 
     def _check_magma(self, elapsed, is_swimming):
         if self.owner.is_alive:
             timer_active = is_swimming and self.owner.is_on_magma()
-            self._update_breath_fatigue_timer(elapsed, timer_active, MirrorTimerTypes.MAGMA)
+            self._update_breath_fatigue_slime_magma_timer(elapsed, timer_active, MirrorTimerTypes.MAGMA)
 
     def _check_breathing(self, elapsed, is_swimming):
         if self.owner.is_alive:
             timer_active = is_swimming and self.owner.is_under_water()
-            self._update_breath_fatigue_timer(elapsed, timer_active, MirrorTimerTypes.BREATH)
+            self._update_breath_fatigue_slime_magma_timer(elapsed, timer_active, MirrorTimerTypes.BREATH)
 
-    def _update_breath_fatigue_timer(self, elapsed, timer_active, timer_type):
+    def _update_breath_fatigue_slime_magma_timer(self, elapsed, timer_active, timer_type):
         timer_scale = -1 if timer_active else 10
         # Set scale depending on if timer is regenerating or depleting.
         self.timers[timer_type].set_scale(timer_scale)
