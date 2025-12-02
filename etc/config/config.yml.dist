@@ -1,5 +1,5 @@
 Version:
-    current: 23
+    current: 24
 
 Database:
     Auth:
@@ -65,7 +65,7 @@ Server:
         # MapTiles:
         # Extract running main.py -e, files should be automatically placed over '/etc/maps/'
         # Enables terrain Z calculations, improving npc units movement.
-        # Enables water related features like fishing, underwater breathing and fatigue.
+        # Enables liquids related features like fishing, underwater breathing, fatigue, slime/lava detection.
         # Enables zone exploration feature.
         use_map_tiles: False
         # Float16:
@@ -110,6 +110,8 @@ World:
     Gameplay:
         game_speed: 0.016666668
         enable_call_for_help: False  # Until 0.5.4, creatures didn't call for help when fleeing.
+        enable_slime_lava_damage: False
+        enable_slime_fishing: False  # Until 0.5.4, slime was not fishable.
 
     Chat:
         ChatRange:

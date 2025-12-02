@@ -158,7 +158,10 @@ class CommandManager(object):
         maps_z, z_locked = map_.calculate_z_for_object(player_mgr)
         maps_z_str = f'{maps_z:.3f}' if not z_locked else 'Invalid'
         liq = map_.get_liquid_information(player_x, player_y, player_z)
-        liq_str = f'{liq.get_height():.3f}' if liq else 'Not found'
+        liq_str = 'None'
+        if liq:
+            l_min, l_max = liq.get_bounds()
+            liq_str = f'Min {l_min:.3f} Max {l_max:3f} Type: {liq.get_type_str()}'
         adt_tile = map_.get_tile(player_x, player_y)
         return 0, f'Map: {world_session.player_mgr.map_id}\n' \
                   f'InstanceID: {world_session.player_mgr.instance_id}\n' \

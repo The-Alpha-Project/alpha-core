@@ -13,7 +13,7 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.74'
+    EXPECTED_VERSION = 'ACMAP_1.75'
 
     def __init__(self, map_, adt_x, adt_y):
         self.map_ = map_
@@ -153,7 +153,7 @@ class MapTile(object):
                         if l_max > l_min:
                             # noinspection PyTypeChecker
                             self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, l_min,
-                                                                                           l_max, use_f16)
+                                                                                           l_max, use_f16, is_wmo=False)
 
                 has_wmo_liquids = unpack('<b', map_tiles.read(1))[0]
                 if not has_wmo_liquids:
@@ -175,7 +175,7 @@ class MapTile(object):
                         if l_max > l_min:
                             # noinspection PyTypeChecker
                             self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, l_min,
-                                                                                           l_max, use_f16)
+                                                                                           l_max, use_f16, is_wmo=True)
 
         return True
 

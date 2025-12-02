@@ -1164,11 +1164,21 @@ class PlayerManager(UnitManager):
             return False
         return (self.location.z + self.model_height) < self.liquid_information.get_height()
 
+    def is_on_slime(self):
+        if not self.liquid_information or not self.is_swimming():
+            return False
+        return self.liquid_information.is_slime()
+
+    def is_on_magma(self):
+        if not self.liquid_information or not self.is_swimming():
+            return False
+        return self.liquid_information.is_magma()
+
     # override
     def is_in_deep_water(self):
         if self.liquid_information is None or not self.is_swimming():
             return False
-        return self.liquid_information.liquid_type == LiquidTypes.DEEP
+        return self.liquid_information.is_deep_water()
 
     def update_liquid_information(self):
         # Retrieve the latest liquid information, only if player is swimming.
@@ -1693,31 +1703,8 @@ class PlayerManager(UnitManager):
         )
 
     # override
-    def get_bytes_0(self):
-        return ByteUtils.bytes_to_int(
-            self.power_type,  # Power type.
-            self.gender,  # Gender.
-            self.class_,  # Player class.
-            self.race  # Player race.
-        )
-
-    # override
-    def get_bytes_1(self):
-        return ByteUtils.bytes_to_int(
-            self.sheath_state,  # Sheath state.
-            self.shapeshift_form,  # Shapeshift form.
-            0,  # NPC flags (0 for players).
-            self.stand_state  # Stand state.
-        )
-
-    # override
-    def get_bytes_2(self):
-        return ByteUtils.bytes_to_int(
-            0,  # Unused.
-            0,  # Unused.
-            0,  # Unused.
-            self.combo_points  # Combo points.
-        )
+    def get_combo_points(self):
+        return self.combo_points
 
     # override
     def get_damages(self):

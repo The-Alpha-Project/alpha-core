@@ -223,6 +223,9 @@ class CreatureManager(UnitManager):
         # Trigger respawned event.
         self.object_ai.just_respawned()
 
+        # Update Swimming State.
+        self._update_swimming_state()
+
     def finish_loading(self):
         if self.fully_loaded or self.loading:
             return
@@ -430,7 +433,7 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.SESSILE
 
     def is_at_home(self):
-        return self.location.approximately_equals(self.spawn_position)
+        return self.location.approximately_equals(self.get_home_position())
 
     def on_at_home(self):
         self.tmp_home_position = None
@@ -900,32 +903,12 @@ class CreatureManager(UnitManager):
         super().respawn()
 
     # override
-    def get_bytes_0(self):
-        return ByteUtils.bytes_to_int(
-            self.power_type,  # power type
-            self.gender,  # gender
-            self.creature_template.unit_class,  # class
-            self.race  # race (0 for creatures)
-        )
+    def get_npc_flags(self):
+        return self.npc_flags
 
     # override
-    def get_bytes_1(self):
-        return ByteUtils.bytes_to_int(
-            self.sheath_state,  # sheath state
-            self.shapeshift_form,  # shapeshift form
-            self.npc_flags,  # npc flags
-            self.stand_state  # stand state
-        )
-
-    # override
-    # This update field is unused and private in 0.5.3.
-    def get_bytes_2(self):
-        return ByteUtils.bytes_to_int(
-            0,  # Unused.
-            0,  # Unused.
-            0,  # Unused.
-            0,  # Combo points.
-        )
+    def get_unit_class(self):
+        return self.creature_template.unit_class
 
     # override
     def get_damages(self):

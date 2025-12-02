@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import random
 from struct import pack
+from time import sleep
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -1918,28 +1919,53 @@ class UnitManager(ObjectManager):
     def has_ooc_events(self):
         pass
 
-    # Implemented by CreatureManager and PlayerManager
-    def get_bytes_0(self):
-        pass
+    # Implemented by CreatureManager
+    def get_npc_flags(self):
+        return 0
+
+    # Implemented by CreatureManager
+    def get_unit_class(self):
+        return self.class_
+
+    # Implemented by PlayerManager
+    def get_combo_points(self):
+        return 0
 
     # Implemented by CreatureManager and PlayerManager
+    # override
+    def get_bytes_0(self):
+        return ByteUtils.bytes_to_int(
+            self.power_type,  # Power type.
+            self.gender,  # Gender.
+            self.get_unit_class(),  # Unit class.
+            self.race  # Unit race.
+        )
+
+    # Implemented by CorpseManager
     def get_bytes_1(self):
-        pass
+        return ByteUtils.bytes_to_int(
+            self.sheath_state,  # Sheath state.
+            self.shapeshift_form,  # Shapeshift form.
+            self.get_npc_flags(),  # NPC flags (0 for players).
+            self.stand_state  # Stand state.
+        )
+
+    # Implemented by CorpseManager.
+    def get_bytes_2(self):
+        return ByteUtils.bytes_to_int(
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Unused.
+            self.get_combo_points()  # Combo points.
+        )
 
     """
-        Client doesn't properly set sheath state for units after destroy/create,
-        so we send it bytes_1 zeroed, and then send the actual state.
+        The client does not correctly update the sheath state for units following destroy/create operations. 
+        As a workaround, we first send the bytes_1 field bytes with all values zeroed out, 
+        and then send the actual state data afterward.
     """
     def get_bytes_1_state_update_bytes(self):
         return self.get_single_field_update_bytes(UnitFields.UNIT_FIELD_BYTES_1, self.get_bytes_1())
-
-    # Implemented by CreatureManager and PlayerManager
-    # char comboPoints;
-    # char padding;
-    # char padding;
-    # char padding;
-    def get_bytes_2(self):
-        pass
 
     # Implemented by CreatureManager and PlayerManager
     def get_damages(self):

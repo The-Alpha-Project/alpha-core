@@ -2,6 +2,7 @@ from tools.extractors.definitions.chunks.MLIQ import MLIQ
 from tools.extractors.definitions.enums.LiquidFlags import MOGP_Flags
 from tools.extractors.definitions.objects.CAaBox import CAaBox
 from tools.extractors.definitions.reader.StreamReader import StreamReader
+from utils.Logger import Logger
 
 
 class WmoGroupFile:
@@ -156,9 +157,9 @@ class WmoGroupFile:
                 raise ValueError(f'{error}')
             final_position = reader.get_position() + size
             while reader.get_position() < final_position:
-                wmo_group_file.mliqs.append(MLIQ.from_reader(reader, wmo_group_file.bounding.min))
-        #elif group_liquid:
-        #    Logger.warning(f'TODO: Wmo group liquid with no MLIQ, height hint: {bounding.max.Z}')
+                wmo_group_file.mliqs.append(MLIQ.from_reader(reader, wmo_group_file.bounding.min, flags))
+        #elif wmo_group_file.group_liquid:
+        #    Logger.warning(f'TODO: Wmo group liquid with no MLIQ, height hint: {wmo_group_file.bounding.max.Z}')
 
         return wmo_group_file
 

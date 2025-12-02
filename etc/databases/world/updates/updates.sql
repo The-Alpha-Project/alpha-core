@@ -397,5 +397,19 @@ begin not atomic
         insert into applied_updates values ('281120251');
     end if;
 
+    -- 01/12/2025 1
+    if (select count(*) from applied_updates where id='011220251') = 0 then
+        -- Quest 1039, The Barrens Port, set Shandris Feathermoon as starter.
+        UPDATE `creature_quest_starter` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1039');
+        -- Argent Dawn invalid faction 814 to 35 (Friendly)
+        UPDATE `creature_template` SET `faction` = '35' WHERE `faction` = '814';
+        -- Kitari Farseeker <Cartography Trainer> - Friendly faction.
+        UPDATE `creature_template` SET `faction` = '35' WHERE (`entry` = '4157');
+        -- Wharfmaster Dizzywig, orientation.
+        UPDATE `spawns_creatures` SET `orientation` = '2.931' WHERE (`spawn_id` = '14419');
+
+        insert into applied_updates values ('011220251');
+    end if;
+
 end $
 delimiter ;
