@@ -81,7 +81,7 @@ class WmoLiquidParser:
 
             # Write wmo liquid height.
             # TODO: We can have different liquids at the same cell at different heights, handle that here.
-            # This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
+            #  This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
             #if wmo_liquids[adt_x][adt_y][cell_x][cell_y]:
             #    z0 = wmo_liquids[adt_x][adt_y][cell_x][cell_y][0]
             #    if abs(round(z0, 3) - round(v.Z, 3)) > 2.0:  # This is a different liquid layer.
