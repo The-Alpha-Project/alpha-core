@@ -10,8 +10,8 @@ class LiquidInformation(object):
     def __init__(self, liquid_type, l_min, l_max, float_16=False, is_wmo=False):
         self._is_wmo = is_wmo
         self._liquid_type = liquid_type
-        self._l_min = l_min if not float_16 else Float16.decompress(l_min)
-        self._lmax = l_max if not float_16 else Float16.decompress(l_max)
+        self.min = l_min if not float_16 else Float16.decompress(l_min)
+        self.max = l_max if not float_16 else Float16.decompress(l_max)
 
     def get_type_str(self):
         if self.is_deep_water():
@@ -38,10 +38,10 @@ class LiquidInformation(object):
         return self._liquid_type == WmoGroupLiquidType.SLIME
 
     def contains(self, z):
-        return self._l_min < z < self.get_height()
+        return self.min < z < self.get_height()
 
     def get_bounds(self):
-        return self._l_min, self._lmax
+        return self.min, self.max
 
     def get_height(self):
-        return self._lmax
+        return self.max
