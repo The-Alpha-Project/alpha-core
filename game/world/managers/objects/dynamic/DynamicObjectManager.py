@@ -66,9 +66,6 @@ class DynamicObjectManager(ObjectManager):
 
         self.last_tick = now
 
-    def spawn(self, owner=None):
-        self.owner.get_map().spawn_object(world_object_instance=self)
-
     @classmethod
     def spawn_from_spell_effect(cls, effect, dynamic_type, orientation=0, ttl=-1):
         target = effect.casting_spell.initial_target

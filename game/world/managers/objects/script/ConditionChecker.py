@@ -380,7 +380,7 @@ class ConditionChecker:
         # Condition_value1 = patch id.
         # Condition_value2 = 0 equal, 1 equal and higher, 2 equal and lower.
 
-        # Allow patch 0 (1.2 vMangos) equal or greater condition to evaluate true.
+        # Allow patch 0 (1.2 VMaNGOS) equal or greater condition to evaluate true.
         if condition.value1 == 0:
             return True
 
@@ -506,7 +506,7 @@ class ConditionChecker:
         # Condition_value1 = index.
         # Condition_value2 = data.
         # Condition_value3 = 0 equal, 1 equal or higher, 2 equal or lower.
-        # Seems to be only used by vMangos C++ scripting.
+        # Seems to be only used by VMaNGOS C++ scripting.
         Logger.warning('CONDITION_INSTANCE_DATA is not implemented.')
         return False
 

@@ -457,7 +457,7 @@ class ObjectManager:
 
     # override
     def spawn(self, owner=None):
-        pass
+        self.get_map().spawn_object(world_object_spawn=owner, world_object_instance=self)
 
     # override
     def despawn(self, ttl=0, respawn_delay=0):

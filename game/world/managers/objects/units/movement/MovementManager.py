@@ -187,7 +187,7 @@ class MovementManager:
     def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
         return self.movement_behaviors.get(move_type, None)
 
-    # TODO: Unused atm, lacking many specific move types from vMangos and some refactoring to our current move behaviors.
+    # TODO: Unused atm, lacking many specific move types from VMaNGOS and some refactoring to our current move behaviors.
     #  For now, attempt to resolve to the closest types in order to trigger some creature ai events.
     def _translate_to_vmangos_move_type(self):
         current_behavior = self.get_current_behavior()
