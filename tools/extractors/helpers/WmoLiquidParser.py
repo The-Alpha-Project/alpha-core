@@ -84,8 +84,7 @@ class WmoLiquidParser:
             # This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
             #if wmo_liquids[adt_x][adt_y][cell_x][cell_y]:
             #    z0 = wmo_liquids[adt_x][adt_y][cell_x][cell_y][0]
-            #    # This is a different liquid layer.
-            #    if abs(round(z0, 3) - round(v.Z, 3)) > 2.0:
+            #    if abs(round(z0, 3) - round(v.Z, 3)) > 2.0:  # This is a different liquid layer.
             #        print(f'Old {z0} New {v.Z}')
             #        print(f'.port {v.X} {v.Y} {v.Z} ')
             wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z, liq_type)
