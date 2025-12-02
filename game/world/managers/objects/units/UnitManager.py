@@ -1931,8 +1931,6 @@ class UnitManager(ObjectManager):
     def get_combo_points(self):
         return 0
 
-    # Implemented by CreatureManager and PlayerManager
-    # override
     def get_bytes_0(self):
         return ByteUtils.bytes_to_int(
             self.power_type,  # Power type.
