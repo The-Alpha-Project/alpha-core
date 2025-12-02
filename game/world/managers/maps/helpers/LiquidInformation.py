@@ -38,8 +38,7 @@ class LiquidInformation(object):
         return self._liquid_type == WmoGroupLiquidType.SLIME
 
     def contains(self, z):
-        l_max = self.get_height()
-        return self._l_min < z < l_max
+        return self._l_min < z < self.get_height()
 
     def get_bounds(self):
         return self._l_min, self._lmax
