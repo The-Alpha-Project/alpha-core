@@ -78,7 +78,16 @@ class WmoLiquidParser:
             adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
             # Initialize wmo liquids for adt if needed.
             WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
+
             # Write wmo liquid height.
+            # TODO: We can have different liquids at the same cell at different heights, handle that here.
+            # This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
+            #if wmo_liquids[adt_x][adt_y][cell_x][cell_y]:
+            #    z0 = wmo_liquids[adt_x][adt_y][cell_x][cell_y][0]
+            #    # This is a different liquid layer.
+            #    if abs(round(z0, 3) - round(v.Z, 3)) > 2.0:
+            #        print(f'Old {z0} New {v.Z}')
+            #        print(f'.port {v.X} {v.Y} {v.Z} ')
             wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z, liq_type)
             # f.write(f"v {v.X} {v.Y} {v.Z}\n")
 
