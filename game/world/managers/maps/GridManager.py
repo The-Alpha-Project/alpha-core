@@ -23,12 +23,12 @@ class GridManager:
         self.inactive_cell_callback = inactive_cell_callback
         self.detection_manager = DetectionManager(self)
 
-    def spawn_object(self, world_object_spawn=None, world_object_instance=None):
-        if world_object_instance:
-            self._add_world_object(world_object_instance)
-        if world_object_spawn:
-            self._add_world_object_spawn(world_object_spawn)
-        if not world_object_spawn and not world_object_instance:
+    def spawn_object(self, owner=None, instance=None):
+        if instance:
+            self._add_world_object(instance)
+        if owner:
+            self._add_world_object_spawn(owner)
+        if not owner and not instance:
             Logger.warning(f'Spawn object called with None arguments.')
 
     def update_object(self, world_object, has_changes=False, has_inventory_changes=False):

@@ -588,7 +588,7 @@ class ScriptHandler:
         if not creature_manager:
             return command.should_abort()
 
-        map_.spawn_object(world_object_instance=creature_manager)
+        map_.spawn_object(instance=creature_manager)
 
         # Generic script.
         if command.dataint2:
@@ -1746,7 +1746,7 @@ class ScriptHandler:
                                               command.source.instance_id, state=GameObjectStates.GO_STATE_READY,
                                               ttl=command.datalong2)
 
-        command.source.get_map().spawn_object(world_object_instance=new_object)
+        command.source.get_map().spawn_object(instance=new_object)
 
         return False
 

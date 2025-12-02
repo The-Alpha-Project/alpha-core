@@ -219,8 +219,8 @@ class Map:
 
     # GridManager helpers.
 
-    def spawn_object(self, world_object_spawn=None, world_object_instance=None):
-        self.grid_manager.spawn_object(world_object_spawn, world_object_instance)
+    def spawn_object(self, owner=None, instance=None):
+        self.grid_manager.spawn_object(owner, instance)
 
     def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
         self.grid_manager.update_object(world_object, has_changes, has_inventory_changes)

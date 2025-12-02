@@ -134,7 +134,7 @@ class Spline(object):
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=self.unit,
                                               ttl=1)
-        self.unit.get_map().spawn_object(world_object_instance=gameobject)
+        self.unit.get_map().spawn_object(instance=gameobject)
 
     def is_complete(self):
         return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()

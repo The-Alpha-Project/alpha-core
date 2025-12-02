@@ -227,7 +227,7 @@ class CommandManager(object):
         )
 
         game_map = world_session.player_mgr.get_map()
-        game_map.spawn_object(world_object_instance=new_object)
+        game_map.spawn_object(instance=new_object)
         game_object.get_map().remove_object(game_object)
 
         # Replace old selection.
@@ -1161,7 +1161,7 @@ class CommandManager(object):
             if not creature_instance:
                 return -1, f'creature entry {creature_entry} not found'
             else:
-                player_mgr.get_map().spawn_object(world_object_instance=creature_instance)
+                player_mgr.get_map().spawn_object(instance=creature_instance)
         except (IndexError, ValueError):
             return -1, 'please specify a valid creature entry.'
 
