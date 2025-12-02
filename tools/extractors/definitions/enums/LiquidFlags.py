@@ -66,10 +66,6 @@ class MOGP_Flags(IntEnum):
     HasThreeTextureCoordinateSets = 0x40000000
     Unknown_0x80000000 = 0x80000000
 
-    @staticmethod
-    def has_liquid_flag(flags):
-        return flags & MOGP_Flags.HasLiquids
-
 class WmoLiquidFlags(IntEnum):
     LiquidSurface = 0x1000
     IsNotWaterButOcean = 0x80000
