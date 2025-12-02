@@ -142,15 +142,6 @@ class WmoGroupFile:
                 raise ValueError(f'{error}')
             reader.move_forward(size)
 
-        # TODO.
-        # WMOs can have liquid in them even if MLIQ is not present!
-        # If MOGP.groupLiquid is set but no MLIQ is present or
-        # xtiles = 0 or ytiles = 0 then entire group is filled with liquid.
-        # In this case liquid height is equal to MOGP.boundingBox.max.z.
-        # This seems to only happen if MOHD.flags.use_liquid_type_dbc_id is set.
-        #
-        # In older WMOs without the MOHD root flag flag_use_liquid_type_dbc_id set : if MOGP.groupLiquid == 15 (green lava),
-        # the tile flags legacyLiquidType are used to set the liquid type.
         if MOGP_Flags.HasLiquids & flags:
             error, token, size = reader.read_chunk_information('MLIQ')
             if error:
@@ -158,8 +149,6 @@ class WmoGroupFile:
             final_position = reader.get_position() + size
             while reader.get_position() < final_position:
                 wmo_group_file.mliqs.append(MLIQ.from_reader(reader, wmo_group_file.bounding.min, flags))
-        #elif wmo_group_file.group_liquid:
-        #    Logger.warning(f'TODO: Wmo group liquid with no MLIQ, height hint: {wmo_group_file.bounding.max.Z}')
 
         return wmo_group_file
 
