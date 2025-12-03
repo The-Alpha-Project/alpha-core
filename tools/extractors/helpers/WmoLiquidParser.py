@@ -80,15 +80,19 @@ class WmoLiquidParser:
             WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
 
             # Write wmo liquid height.
-            # TODO: We can have different liquids at the same cell at different heights, handle that here.
-            #  This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
-            #if wmo_liquids[adt_x][adt_y][cell_x][cell_y]:
-            #    z0 = wmo_liquids[adt_x][adt_y][cell_x][cell_y][0]
-            #    if abs(round(z0, 3) - round(v.Z, 3)) > 2.0:  # This is a different liquid layer.
-            #        print(f'Old {z0} New {v.Z}')
-            #        print(f'.port {v.X} {v.Y} {v.Z} ')
-            wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z, liq_type)
-            # f.write(f"v {v.X} {v.Y} {v.Z}\n")
+            # We can have different liquids at the same cell at different heights, handle that here.
+            # This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
+            liq_list_for_cells = wmo_liquids[adt_x][adt_y][cell_x][cell_y]
+            if liq_list_for_cells:
+                # Allow two liquids per cell position.
+                if len(liq_list_for_cells) > 1:
+                    continue
+
+                z0 = liq_list_for_cells[0][0]
+                if abs(round(z0, 3) - round(v.Z, 3)) < 2.0:  # This is a different liquid layer.
+                    continue
+
+            wmo_liquids[adt_x][adt_y][cell_x][cell_y].append((v.Z, min_bound.Z, liq_type))
 
         vertices.clear()
         transformed_vertices.clear()
@@ -98,4 +102,4 @@ class WmoLiquidParser:
         if wmo_liquids[adt_x][adt_y]:
             return
         grid_size = Constants.GRID_SIZE + 1
-        wmo_liquids[adt_x][adt_y] = [[None for _ in range(grid_size)] for _ in range(grid_size)]
+        wmo_liquids[adt_x][adt_y] = [[[] for _ in range(grid_size)] for _ in range(grid_size)]

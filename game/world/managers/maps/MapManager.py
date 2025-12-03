@@ -568,10 +568,8 @@ class MapManager:
             if ignore_z:
                 return liq_info
 
-            if not liq_info.contains(z):
-                return None
-
-            return liq_info
+            # Retrieve liquid if its valid for current requester Z.
+            return liq_info.get_for_z(z)
         except:
             Logger.error(traceback.format_exc())
             return None
