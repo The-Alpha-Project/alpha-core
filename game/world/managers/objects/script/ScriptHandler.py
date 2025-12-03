@@ -194,12 +194,11 @@ class ScriptHandler:
 
         # Targeted emote.
         if command.dataint and command.target:
-            # Pause ooc if needed.
-            command.source.object_ai.player_interacted()
             emote_event = SplineTargetedEmoteEvent(command.source, command.target, start_seconds=2, emote=emote)
             reset_orientation_event = SplineRestoreOrientationEvent(command.source, start_seconds=6)
             command.source.movement_manager.add_spline_events([emote_event, reset_orientation_event])
         else:
+            command.source.object_ai.player_interacted(pause_seconds=6)
             command.source.play_emote(emote)
 
         return False
