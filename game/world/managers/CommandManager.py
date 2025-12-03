@@ -161,18 +161,15 @@ class CommandManager(object):
         liq_str = 'None'
         if liq:
             l_min, l_max = liq.get_bounds()
-            liq_str = f'Min {l_min:.3f} Max {l_max:3f} Type: {liq.get_type_str()}'
+            liq_str = f'{liq.get_type_str()} Min {l_min:.3f} Max {l_max:3f} '
         adt_tile = map_.get_tile(player_x, player_y)
         return 0, f'Map: {world_session.player_mgr.map_id}\n' \
                   f'InstanceID: {world_session.player_mgr.instance_id}\n' \
                   f'Zone: {world_session.player_mgr.zone}\n' \
-                  f'ADT: [{adt_tile[0]},{adt_tile[1]}]\n' \
-                  f'X: {player_x:.3f}, ' \
-                  f'Y: {player_y:.3f}, ' \
-                  f'Z: {player_z:.3f}, ' \
-                  f'MapZ: {maps_z_str}, ' \
-                  f'Liq: {liq_str}, ' \
-                  f'O: {player_o:.3f}'
+                  f'Adt X: {adt_tile[0]} Adt Y: {adt_tile[1]}\n' \
+                  f'X: {player_x:.3f} Y: {player_y:.3f} Z: {player_z:.3f} O: {player_o:.3f}\n' \
+                  f'MapZ: {maps_z_str}\n' \
+                  f'Liquid: {liq_str}'
 
     @staticmethod
     def activate_script_waypoints(world_session, args):
@@ -697,8 +694,7 @@ class CommandManager(object):
             return -1, 'please specify a creature name.'
 
         creature_name = args.strip()
-        creature = WorldDatabaseManager.\
-            CreatureTemplateHolder.creature_get_by_name(creature_name, remove_space=True)
+        creature = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_name(creature_name, remove_space=True)
 
         if not creature:
             return -1, f'"{creature_name}" not found.'

@@ -27,7 +27,7 @@ class AreaTable:
     has_exploration: bool
 
     def write_to_file(self, file_writer):
-        data = pack('<2i2BH', self.id, self.area_number, self.area_flags, self.area_level, self.explore_bit)
+        data = pack('<hi2BH', self.id, self.area_number, self.area_flags, self.area_level, self.explore_bit)
         file_writer.write(data)
 
     @staticmethod

@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine, func
@@ -148,7 +148,7 @@ class WorldDatabaseManager(object):
     # Worldport.
 
     @staticmethod
-    def worldport_get_by_name(name, return_all=False) -> Optional[list[Worldports]]:
+    def worldport_get_by_name(name, return_all=False) -> Union[Worldports, Optional[list[Worldports]]]:
         world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
@@ -664,7 +664,7 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
 
         @staticmethod
-        def creature_get_by_name(name, return_all=False, remove_space=False) -> list[Optional[CreatureTemplate]]:
+        def creature_get_by_name(name, return_all=False, remove_space=False) -> Union[CreatureTemplate, List[Optional[CreatureTemplate]]]:
             creatures = []
             for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
                 formatted_creature_name = creature.name.lower()

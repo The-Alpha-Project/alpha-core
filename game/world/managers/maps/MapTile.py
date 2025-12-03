@@ -127,7 +127,7 @@ class MapTile(object):
                 # ZoneID, AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit).
                 for x in range(RESOLUTION_AREA_INFO):
                     for y in range(RESOLUTION_AREA_INFO):
-                        zone_id = unpack('<i', map_tiles.read(4))[0]
+                        zone_id = unpack('<h', map_tiles.read(2))[0]
                         if zone_id == -1:  # No area information.
                             continue
                         # Area, flags, level, explore_bit.
