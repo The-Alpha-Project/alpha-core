@@ -88,10 +88,12 @@ class WmoLiquidParser:
                 if len(liq_list_for_cells) > 1:
                     continue
 
-                z0 = liq_list_for_cells[0][0]
-                if abs(round(z0, 3) - round(v.Z, 3)) < 2.0:  # This is a different liquid layer.
+                z0 = liq_list_for_cells[0][0]  # Known Z.
+                # Within the already known liquid for this cell.
+                if abs(round(z0, 3) - round(v.Z, 3)) < 2.0:
                     continue
 
+            # Append either first liquid or second liquid for this cell.
             wmo_liquids[adt_x][adt_y][cell_x][cell_y].append((v.Z, min_bound.Z, liq_type))
 
         vertices.clear()
