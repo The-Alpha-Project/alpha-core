@@ -260,6 +260,9 @@ class MovementManager:
         self.spline_events.append(spline_event)
 
     def add_spline_events(self, events):
+        # Prevent events aggregation if someone spam emote events.
+        if self.spline_events:
+            self.spline_events.clear()
         [self.add_spline_event(event) for event in events]
 
     def has_spline_events(self):
