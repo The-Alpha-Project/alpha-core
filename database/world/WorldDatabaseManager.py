@@ -52,14 +52,6 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    @staticmethod
-    @lru_cache
-    def player_create_item_get(race, class_) -> list[PlayercreateinfoItem]:
-        world_db_session = SessionHolder()
-        res = world_db_session.query(PlayercreateinfoItem).filter_by(race=race, _class=class_).all()
-        world_db_session.close()
-        return res
-
     class UnitClassLevelStatsHolder:
         CLASS_LEVEL_STATS: Dict[int, Dict[int, PlayerClasslevelstats]] = {}
 
