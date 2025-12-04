@@ -409,6 +409,78 @@ begin not atomic
         UPDATE `spawns_creatures` SET `orientation` = '2.931' WHERE (`spawn_id` = '14419');
         -- Remove unused table.
         DROP TABLE playercreateinfo_item;
+        
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1458
+        UPDATE `quest_template` SET `Details` = 'During the first years of Thredd\'s imprisonment, he never had any visitors. I figured that he was no longer of use to the Defias Brotherhood, so they abandoned him to die.\n\nAnyways, a few months ago, that all changed. He started to get regular visits... once or twice a week. It was a strange man, quiet type. I had my suspicions, but all his papers and clearances were clean and legitimate.\n\nHis name was Maelik, here\'s his description. It won\'t do me much good now that Thredd\'s no longer a problem.', `Objectives` = 'Perhaps Baros Alexston knows something about Bazil Thredd\'s strange visitor...' WHERE (`entry` = '392');
+        UPDATE `quest_template` SET `Objectives` = 'Speak with Master Mathias Shaw in Old Town.' WHERE (`entry` = '393');
+        UPDATE `quest_template` SET `NextQuestInChain` = '394' WHERE (`entry` = '350');
+        UPDATE `quest_template` SET `PrevQuestId` = '350', `Details` = 'I have had my suspicions about the activities of Lord Lescovar, but have never seen or heard any proof to that effect. That Marzon would be contacting a member of the Defias Brotherhood...\n\nHaving killed VanCleef and Thredd, it would be hard to see Lescovar to justice, as your proof is certainly less without their testimony. That is not even considering the fact that Lescovar is a noble, and well connected! They are above the law, my friend.\n\nAny justice would have to be swift, final, and silent.', `Objectives` = 'Kill Lord Gregor Lescovar and bring his head to Master Matthias Shaw in Old Town.', `ReqItemId1` = '3516', `ReqItemCount1` = '1' WHERE (`entry` = '394');
+
+        -- Events list for Lord Gregor Lescovar - Runs every 60 minutes.
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1754;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (175401, 1754, 0, 4, 0, 100, 0, 0, 0, 0, 0, 175401, 0, 0, 'Lord Gregor Lescovar - Say Text on Aggro'),
+        (175402, 1754, 0, 1, 0, 100, 0, 3600000, 3600000, 0, 0, 175402, 0, 0, 'Lord Gregor Lescovar - The Head of the Beast');
+
+        -- Waypoints Lord Gregor Lescovar
+        DELETE FROM creature_movement_template WHERE entry = 1754;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (1754, 0, -8333.05, 394.87, 122.274, 0, 0, 0, 0),
+        (1754, 1, -8346.96, 412.712, 122.274, 0, 0, 0, 0),
+        (1754, 2, -8351.2, 414.298, 122.274, 0, 0, 0, 0),
+        (1754, 3, -8355.27, 411.527, 122.274, 0, 0, 0, 0),
+        (1754, 4, -8360.12, 413.034, 122.274, 0, 0, 0, 0),
+        (1754, 5, -8363.47, 416.025, 122.274, 0, 0, 0, 0),
+        (1754, 6, -8387.32, 446.132, 122.274, 0, 0, 0, 0),
+        (1754, 7, -8389.33, 448.678, 124.274, 0, 0, 0, 0),
+        (1754, 8, -8392.253, 452.419, 123.76, 0, 10000, 0, 39401),
+        (1754, 9, -8401.39, 464.739, 123.76, 0, 318000, 0, 39403),
+        (1754, 10, -8401.39, 464.739, 123.76, 0, 0, 0, 39404);
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=175402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (175402, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Start Waypoints');
+
+        -- Waypoints Marzon the Silent Blade
+        DELETE FROM creature_movement_template WHERE entry = 1755;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (1755, 0, -8403.43, 485.926, 123.76, 0, 0, 0, 0),
+        (1755, 1, -8406.47, 482.415, 123.76, 0, 0, 0, 0),
+        (1755, 2, -8409.43, 475.775, 123.76, 0, 0, 0, 0),
+        (1755, 3, -8402.33, 466.068, 123.76, 0, 300000, 0, 39402),
+        (1755, 4, -8402.33, 466.068, 129.76, 0, 0, 0, 0);
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39401;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 322, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Text'),
+        (39401, 4, 0, 0, 0, 0, 0, 0, 10523, 0, 9, 2, 3690, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 1 - Text'),
+        (39401, 4, 0, 0, 0, 0, 0, 0, 10524, 0, 9, 2, 3690, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 2 - Text'),
+        (39401, 6, 0, 18, 0, 0, 0, 0, 10523, 0, 9, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 1 - Despawn'),
+        (39401, 6, 0, 18, 0, 0, 0, 0, 10524, 0, 9, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 2 - Despawn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39402;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39402, 0, 0, 0, 0, 0, 0, 0, 1754, 80, 8, 2, 323, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Text 1'),
+        (39402, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 324, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Text 1'),
+        (39402, 12, 0, 0, 0, 0, 0, 0, 1754, 80, 8, 2, 326, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Text 2'),
+        (39402, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 325, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Text 2'),
+        (39402, 20, 0, 22, 34, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Faction'),
+        (39402, 20, 0, 22, 27, 0, 0, 0, 1754, 0, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Faction'),
+        (39402, 20, 0, 78, 2, 0, 0, 0, 10502, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Join Group');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39403;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39403, 30, 0, 10, 1755, 300000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, -8403.655, 485.781, 123.76, 4.522, 0, 'The Head of the Beast - Summon Marzon the Silent Blade'),
+        (39403, 31, 0, 60, 0, 0, 0, 0, 1755, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Start Waypoints');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39404;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39404, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Despawn');
+
+        -- Link Lord Gregor Lescovar & Marzon the Silent Blade Aggro.
+        DELETE FROM `creature_groups` WHERE `leader_guid` = 10502;
+        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('10502', '10502', '0', '0', '2');
+
         insert into applied_updates values ('011220251');
     end if;
 
