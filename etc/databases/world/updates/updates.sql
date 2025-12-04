@@ -407,7 +407,8 @@ begin not atomic
         UPDATE `creature_template` SET `faction` = '35' WHERE (`entry` = '4157');
         -- Wharfmaster Dizzywig, orientation.
         UPDATE `spawns_creatures` SET `orientation` = '2.931' WHERE (`spawn_id` = '14419');
-
+        -- Remove unused table.
+        DROP TABLE playercreateinfo_item;
         insert into applied_updates values ('011220251');
     end if;
 
