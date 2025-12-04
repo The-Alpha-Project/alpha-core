@@ -411,7 +411,9 @@ begin not atomic
         DROP TABLE playercreateinfo_item;
         -- Unused model for Suzetta Gallina https://github.com/The-Alpha-Project/alpha-core/issues/1312
         UPDATE `creature_template` SET `display_id1` = '1474' WHERE (`entry` = '1431');
-  
+        -- Laird <Fish Vendor> - Holding Fish
+        UPDATE `creature_equip_template` SET `equipentry1` = '6225' WHERE (`entry` = '4200');
+
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1458
         UPDATE `quest_template` SET `Details` = 'During the first years of Thredd\'s imprisonment, he never had any visitors. I figured that he was no longer of use to the Defias Brotherhood, so they abandoned him to die.\n\nAnyways, a few months ago, that all changed. He started to get regular visits... once or twice a week. It was a strange man, quiet type. I had my suspicions, but all his papers and clearances were clean and legitimate.\n\nHis name was Maelik, here\'s his description. It won\'t do me much good now that Thredd\'s no longer a problem.', `Objectives` = 'Perhaps Baros Alexston knows something about Bazil Thredd\'s strange visitor...' WHERE (`entry` = '392');
         UPDATE `quest_template` SET `Objectives` = 'Speak with Master Mathias Shaw in Old Town.' WHERE (`entry` = '393');
