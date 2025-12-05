@@ -484,6 +484,20 @@ begin not atomic
         -- Link Lord Gregor Lescovar & Marzon the Silent Blade Aggro.
         DELETE FROM `creature_groups` WHERE `leader_guid` = 10502;
         INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('10502', '10502', '0', '0', '2');
+        
+        -- Darnassus Protector - Fix wps.
+        DELETE FROM creature_movement WHERE id = 46325;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (46325, 1, 10134.6, 2556.53, 1317.02, 0, 0, 0, 0),
+        (46325, 2, 10109.3, 2541.11, 1316.98, 0, 0, 0, 0),
+        (46325, 3, 10093.2, 2519.62, 1317.59, 0, 0, 0, 0),
+        (46325, 4, 10110.8, 2487.05, 1316.99, 0, 0, 0, 0),
+        (46325, 5, 10098, 2460.93, 1317.9, 0, 0, 0, 0),
+        (46325, 6, 10123.8, 2512.95, 1317.05, 0, 0, 0, 0),
+        (46325, 7, 10136.4, 2514.4, 1317.77, 0, 0, 0, 0),
+        (46325, 8, 10156.1, 2510.84, 1317.66, 0, 0, 0, 0),
+        (46325, 9, 10152.5, 2550.9, 1317.62, 0, 0, 0, 0),
+        (46325, 10, 10139.3, 2559.74, 1317.03, 0, 0, 0, 0);
 
         insert into applied_updates values ('011220251');
     end if;
