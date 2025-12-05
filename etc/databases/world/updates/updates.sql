@@ -504,6 +504,233 @@ begin not atomic
         -- Entry : 4242 | Name : Frostsaber | Subname :  | Type: 1 | Static Flags : 0 | Beast Family : 0
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES ('46807', '4242', '0', '0', '0', '1', '10127.701', '2526.786', '1318.587', '3.740');
 
+        -- Fix Hegnar Rumbleshot location.
+        UPDATE `spawns_creatures` SET `position_x` = '-5588.170', `position_y` = '-542.347', `position_z` = '403.541', `orientation` = '1.840' WHERE (`spawn_id` = '265');
+        -- Fix Cortello's Riddle loaction.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14976.9', `spawn_positionY` = '319.874', `spawn_positionZ` = '0.0310713' WHERE (`spawn_id` = '26043');
+        -- Fix Fleet Master Firallon location.
+        UPDATE `spawns_creatures` SET `position_x` = '-14976.6', `position_y` = '346.487', `position_z` = '19.5424', `orientation` = '4.803' WHERE (`spawn_id` = '846');
+        -- Fix Crab Z
+        UPDATE `spawns_creatures` SET `position_z` = '-12.83' WHERE (`spawn_id` = '902');
+        -- Kursen Commando Z
+        UPDATE `spawns_creatures` SET `position_z` = '34.581' WHERE (`spawn_id` = '1465');
+        -- Kursen Subchief placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-11370.9', `position_y` = '-682.661', `position_z` = '17.65', `orientation` = '1.025' WHERE (`spawn_id` = '1476');
+        -- Scale Belly placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-13029.5', `position_y` = ' -735.739', `position_z` = '55.64' WHERE (`spawn_id` = '1577');
+        -- Toldren Deppiron placement.
+        UPDATE `spawns_creatures` SET `position_z` = '519.289' WHERE (`spawn_id` = '1772');
+        -- Lepper Gnome placement.
+        UPDATE `spawns_creatures` SET `position_z` = '390.279' WHERE (`spawn_id` = '2461');
+        -- Frostmane placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5544.6', `position_y` = '590.261', `position_z` = '394.750' WHERE (`spawn_id` = '2926');
+        -- Frostmane Z.
+        UPDATE `spawns_creatures` SET `position_z` = '384.604' WHERE (`spawn_id` = '2929');
+        -- Frostmane placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5522', `position_y` = '617.439', `position_z` = '393.498' WHERE (`spawn_id` = '2939');
+        -- Rabbit Z.
+        UPDATE `spawns_creatures` SET `position_z` = '410.3' WHERE (`spawn_id` = '3611');
+        -- Rockjaw Bonesnapper.
+        UPDATE `spawns_creatures` SET `position_z` = '403.7' WHERE (`spawn_id` = '5104');
+        -- Rabid Crag Coyote.
+        UPDATE `spawns_creatures` SET `position_z` = '309.699' WHERE (`spawn_id` = '6895');
+        -- Ridge Huntress.
+        UPDATE `spawns_creatures` SET `position_x` = '-6635.67', `position_y` = '-3547.28', `position_z` = '256.897' WHERE (`spawn_id` = '6926');
+        -- Rock Elemental.
+        UPDATE `spawns_creatures` SET `position_z` = '310.600' WHERE (`spawn_id` = '7710');
+        -- Rock Elemental.
+        UPDATE `spawns_creatures` SET `position_z` = '296.200' WHERE (`spawn_id` = '7794');
+        -- Mountaineer Haggis.
+        UPDATE `spawns_creatures` SET `position_z` = '348.354' WHERE (`spawn_id` = '8241');
+        -- Mountaineer Haggil.
+        UPDATE `spawns_creatures` SET `position_z` = '348.600' WHERE (`spawn_id` = '8243');
+        -- Nillen Andemar
+        UPDATE `spawns_creatures` SET `position_z` = '348.400' WHERE (`spawn_id` = '8247');
+        -- Chest.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6027.23', `spawn_positionY` = '-2792.21', `spawn_positionZ` = '386.6' WHERE (`spawn_id` = '12998');
+        -- Stonesplinter Seer - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8336');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8307');
+        -- Stonesplinter Seer - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8943');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8944');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8942');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '9051');
+        -- Stonesplinter Scout - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '9141');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '9164');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_x` = '-6028.65', `position_y` = '-2787.15', `position_z` = '388.010', `orientation` = '4.85' WHERE (`spawn_id` = '9057');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_z` = '402' WHERE (`spawn_id` = '9118');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_x` = '-5956.1', `position_y` = '-2892.61', `position_z` = '373.920' WHERE (`spawn_id` = '9120');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '373.920' WHERE (`spawn_id` = '9123');
+        -- Stoneslpinter Scout.
+        UPDATE `spawns_creatures` SET `position_x` = '-5944.95', `position_y` = '-2893.86', `position_z` = '371.52' WHERE (`spawn_id` = '9132');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '374' WHERE (`spawn_id` = '9143');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '368' WHERE (`spawn_id` = '9171');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_z` = '367.779' WHERE (`spawn_id` = '9174');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_z` = '368.077' WHERE (`spawn_id` = '9175');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '369' WHERE (`spawn_id` = '9176');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_x` = '-5999.429', `position_y` = '-2974.491', `position_z` = '407.936', `orientation` = '3.276' WHERE (`spawn_id` = '9248');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_x` = '-5830.76', `position_y` = '-2964.22', `position_z` = '355.529', `orientation` = '2.655' WHERE (`spawn_id` = '9272');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_x` = '-5791.19', `position_y` = '-2874.691', `position_z` = '372.574' WHERE (`spawn_id` = '9273');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '366.300' WHERE (`spawn_id` = '9282');
+        -- Elder Razormaw
+        UPDATE `spawns_creatures` SET `position_x` = '-2987.808', `position_y` = '-3243.703', `position_z` = '73.611', `orientation` = '6.084' WHERE (`spawn_id` = '9617');
+        -- Maidens Virtue Crewman
+        UPDATE `spawns_creatures` SET `position_x` = '-3766.751', `position_y` = '-686.713', `position_z` = '10.317', `orientation` = '5.58' WHERE (`spawn_id` = '9828');
+        -- Reduce Maidens Virtue Crewman wandering, they are all walking towards walls or boat cliff..
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9467');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9529');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9531');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9534');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9538');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9572');
+        -- Redridge Rudger.
+        UPDATE `spawns_creatures` SET `position_x` = '-8920.453', `position_y` = '-1984.615', `position_z` = '133.280' WHERE (`spawn_id` = '10116');
+        -- Hammerfall Guardian.
+        UPDATE `spawns_creatures` SET `position_x` = '-871.106', `position_y` = '-3505.56', `position_z` = '73.364', `orientation` = '4.187' WHERE (`spawn_id` = '11238');
+        -- Dabyrie Laborer.
+        UPDATE `spawns_creatures` SET `position_z` = '42.051' WHERE (`spawn_id` = '11352');
+        -- Redridge Basher.
+        UPDATE `spawns_creatures` SET `position_x` = '-8931.591', `position_y` = '-2001.674', `position_z` = '134.528' WHERE (`spawn_id` = '11677');
+        -- Witherbark.
+        UPDATE `spawns_creatures` SET `position_z` = '42.572' WHERE (`spawn_id` = '11705');
+        -- Drywishker Digger.
+        UPDATE `spawns_creatures` SET `position_x` = '-989.711', `position_y` = '-3842.9', `position_z` = '144.527', `orientation` = '2.503' WHERE (`spawn_id` = '11945');
+        -- Drull.
+        UPDATE `spawns_creatures` SET `position_z` = '51.142' WHERE (`spawn_id` = '15597');
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.097' WHERE (`spawn_id` = '43642');
+        -- Syndicate Rogue.
+        UPDATE `spawns_creatures` SET `position_z` = '54.663' WHERE (`spawn_id` = '16026');
+        -- Syndicate Thief.
+        UPDATE `spawns_creatures` SET `position_z` = '152.978' WHERE (`spawn_id` = '17381');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '151.900' WHERE (`spawn_id` = '30093');
+        -- Syndicate Documents.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '152.620' WHERE (`spawn_id` = '31397');
+        -- Syndicate Thief.
+        UPDATE `spawns_creatures` SET `position_z` = '153.889' WHERE (`spawn_id` = '17570');
+        -- Nazen Mac'Nadir
+        UPDATE `spawns_creatures` SET `position_z` = '95.491' WHERE (`spawn_id` = '26836');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.174' WHERE (`spawn_id` = '45295');
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.174' WHERE (`spawn_id` = '45483');
+        -- Diseased Grizzly.
+        UPDATE `spawns_creatures` SET `position_x` = '1886.817', `position_y` = '-1929.956', `position_z` = '62.966', `orientation` = '5.380' WHERE (`spawn_id` = '47226');
+        -- Mist Lurker.
+        UPDATE `spawns_creatures` SET `position_z` = '60.545' WHERE (`spawn_id` = '48036');
+        -- Skeletal Executioner.
+        UPDATE `spawns_creatures` SET `position_x` = '1364.261', `position_y` = '-1416.66', `position_z` = '72' WHERE (`spawn_id` = '48601');
+        -- Skeletal Acolyte.
+        UPDATE `spawns_creatures` SET `position_x` = '1560.694', `position_y` = '-1420.220', `position_z` = '70.605', `orientation` = '6.10' WHERE (`spawn_id` = '51736');
+        -- Souless Ghoul.
+        UPDATE `spawns_creatures` SET `position_x` = '1574.467', `position_y` = '-1653.277', `position_z` = '72.097', `orientation` = '5.715' WHERE (`spawn_id` = '51738');
+        -- Murloc.
+        UPDATE `spawns_creatures` SET `position_z` = '58.650' WHERE (`spawn_id` = '79619');
+        -- Acolyte Dellis.
+        UPDATE `spawns_creatures` SET `position_z` = '101.871' WHERE (`spawn_id` = '90459');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '119.512' WHERE (`spawn_id` = '92970');
+        -- Silvermane Stalker.
+        UPDATE `spawns_creatures` SET `position_z` = '121.938' WHERE (`spawn_id` = '92985');
+        -- Villebranch Axe Thrower.
+        UPDATE `spawns_creatures` SET `position_z` = '141.803' WHERE (`spawn_id` = '93006');
+        -- Villebranch Wolf Pup.
+        UPDATE `spawns_creatures` SET `position_z` = '126.577' WHERE (`spawn_id` = '93021');
+        -- Green Sludge.
+        UPDATE `spawns_creatures` SET `position_x` = '331.625', `position_y` = '-3782.91', `position_z` = '100.885' WHERE (`spawn_id` = '93064');
+        -- Primitive Owlbeast.
+        UPDATE `spawns_creatures` SET `position_z` = '138.327' WHERE (`spawn_id` = '93148');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '120.087' WHERE (`spawn_id` = '46055');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '122.236' WHERE (`spawn_id` = '93239');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '122.938' WHERE (`spawn_id` = '93364');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '123.684' WHERE (`spawn_id` = '93494');
+        -- Villebranch Axe Thrower.
+        UPDATE `spawns_creatures` SET `position_z` = '127.424' WHERE (`spawn_id` = '93496');
+        -- Villebranch Scalper.
+        UPDATE `spawns_creatures` SET `position_z` = '121.377' WHERE (`spawn_id` = '93544');
+        -- Villebranch Soothsayer.
+        UPDATE `spawns_creatures` SET `position_z` = '120.509' WHERE (`spawn_id` = '93660');
+        -- Silvermane Stalker.
+        UPDATE `spawns_creatures` SET `position_z` = '121.401' WHERE (`spawn_id` = '93680');
+        UPDATE `spawns_creatures` SET `position_z` = '123.097' WHERE (`spawn_id` = '93707');
+        -- Villebranch Guard.
+        UPDATE `spawns_creatures` SET `position_z` = '235.649' WHERE (`spawn_id` = '93708');
+        -- Rabbit.
+        UPDATE `spawns_creatures` SET `position_z` = '478.485' WHERE (`spawn_id` = '190185');
+        UPDATE `spawns_creatures` SET `position_z` = '395.337' WHERE (`spawn_id` = '190187');
+        UPDATE `spawns_creatures` SET `position_z` = '407' WHERE (`spawn_id` = '190188');
+        -- Bear.
+        UPDATE `spawns_creatures` SET `position_z` = '399.106' WHERE (`spawn_id` = '190244');
+        UPDATE `spawns_creatures` SET `position_z` = '395.104' WHERE (`spawn_id` = '190245');
+        UPDATE `spawns_creatures` SET `position_z` = '395.063' WHERE (`spawn_id` = '190246');
+        -- Orgrimmar Grunt.
+        UPDATE `spawns_creatures` SET `position_x` = '1925.720', `position_y` = '-4377.779', `position_z` = '21.193', `orientation` = '3.160' WHERE (`spawn_id` = '6564');
+        -- Hyena.
+        UPDATE `spawns_creatures` SET `position_z` = '95.959' WHERE (`spawn_id` = '13433');
+        UPDATE `spawns_creatures` SET `position_z` = '100.528' WHERE (`spawn_id` = '13459');
+        UPDATE `spawns_creatures` SET `position_z` = '93.372' WHERE (`spawn_id` = '13467');
+        -- Southsea Cutthroat.
+        UPDATE `spawns_creatures` SET `position_z` = '93.693' WHERE (`spawn_id` = '13832');
+        UPDATE `spawns_creatures` SET `position_z` = '96.957' WHERE (`spawn_id` = '13856');
+        -- Praire Dog.
+        UPDATE `spawns_creatures` SET `position_z` = '93.950' WHERE (`spawn_id` = '13978');
+        -- Kolkar.
+        UPDATE `spawns_creatures` SET `position_z` = '94.659' WHERE (`spawn_id` = '14001');
+        -- Slime.
+        UPDATE `spawns_creatures` SET `position_z` = '94.012' WHERE (`spawn_id` = '14127');
+        -- Mud Thresh.
+        UPDATE `spawns_creatures` SET `position_x` = '-1215.639', `position_y` = '-3003.882', `position_z` = '87.152' WHERE (`spawn_id` = '14958');
+        UPDATE `spawns_creatures` SET `position_x` = '-1271.202', `position_y` = '-3038.331', `position_z` = '86.71' WHERE (`spawn_id` = '14967');
+        -- Darkfang Spider.
+        UPDATE `spawns_creatures` SET `position_x` = '-4110.380', `position_y` = '-3839.736', `position_z` = '56.603' WHERE (`spawn_id` = '18637');
+        -- Kolkar.
+        UPDATE `spawns_creatures` SET `position_z` = '95.321' WHERE (`spawn_id` = '20474');
+        UPDATE `spawns_creatures` SET `position_z` = '93.326' WHERE (`spawn_id` = '20483');
+        -- Venture Co Overseer.
+        UPDATE `spawns_creatures` SET `position_x` = '1263.020', `position_y` = '-3605.672', `position_z` = '114.233', `orientation` = '5.94' WHERE (`spawn_id` = '20834');
+        -- Toad.
+        UPDATE `spawns_creatures` SET `position_z` = '-271.313' WHERE (`spawn_id` = '24215');
+        UPDATE `spawns_creatures` SET `position_z` = '-270.313' WHERE (`spawn_id` = '24216');
+        UPDATE `spawns_creatures` SET `position_z` = '-269.313' WHERE (`spawn_id` = '24216');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.169' WHERE (`spawn_id` = '24222');
+        UPDATE `spawns_creatures` SET `position_z` = '-273.540' WHERE (`spawn_id` = '24223');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.833' WHERE (`spawn_id` = '24228');
+        UPDATE `spawns_creatures` SET `position_z` = '-268.500' WHERE (`spawn_id` = '24232');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.254' WHERE (`spawn_id` = '24234');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.107' WHERE (`spawn_id` = '24236');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.091' WHERE (`spawn_id` = '24238');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.228' WHERE (`spawn_id` = '24239');
+        UPDATE `spawns_creatures` SET `position_z` = '-270.953' WHERE (`spawn_id` = '24243');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.320' WHERE (`spawn_id` = '24244');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.129' WHERE (`spawn_id` = '24250');
+        -- Cenarion Caretaker.
+        UPDATE `spawns_creatures` SET `position_x` = '2395.635', `position_y` = '1801.048', `position_z` = '356.019', `orientation` = '2.507' WHERE (`spawn_id` = '32206');
+
         insert into applied_updates values ('011220251');
     end if;
 
