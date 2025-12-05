@@ -499,6 +499,11 @@ begin not atomic
         (46325, 9, 10152.5, 2550.9, 1317.62, 0, 0, 0, 0),
         (46325, 10, 10139.3, 2559.74, 1317.03, 0, 0, 0, 0);
 
+        -- Missing Frostsaber for Nightsaber Riding Instructor given wdb data.
+        -- Entry : 4753 | Name : Jartsam | Subname : Nightsaber Riding Instructor  | Type: 7 | Static Flags : 102 | Beast Family : 0
+        -- Entry : 4242 | Name : Frostsaber | Subname :  | Type: 1 | Static Flags : 0 | Beast Family : 0
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES ('46807', '4242', '0', '0', '0', '1', '10127.701', '2526.786', '1318.587', '3.740');
+
         insert into applied_updates values ('011220251');
     end if;
 
