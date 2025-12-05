@@ -729,7 +729,66 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_z` = '-271.320' WHERE (`spawn_id` = '24244');
         UPDATE `spawns_creatures` SET `position_z` = '-272.129' WHERE (`spawn_id` = '24250');
         -- Cenarion Caretaker.
-        UPDATE `spawns_creatures` SET `position_x` = '2395.635', `position_y` = '1801.048', `position_z` = '356.019', `orientation` = '2.507' WHERE (`spawn_id` = '32206');
+        UPDATE `spawns_creatures` SET `position_x` = '2406.894', `position_y` = '1801.729', `position_z` = '354.771', `orientation` = '3.52' WHERE (`spawn_id` = '32206');
+        -- Chylina.
+        UPDATE `spawns_creatures` SET `position_x` = '2653.058', `position_y` = '1463.526', `position_z` = '228.697' WHERE (`spawn_id` = '32313');
+        -- Illyanie.
+        UPDATE `spawns_creatures` SET `position_x` = '2671.126', `position_y` = '1459.249', `position_z` = '229.598', `orientation` = '3.938' WHERE (`spawn_id` = '29249');
+        -- Thistlefur Shaman.
+        UPDATE `spawns_creatures` SET `position_z` = '102.074' WHERE (`spawn_id` = '32486');
+        -- Deer.
+        UPDATE `spawns_creatures` SET `position_z` = '140.300' WHERE (`spawn_id` = '32673');
+        -- Burning Legionaire.
+        UPDATE `spawns_creatures` SET `position_x` = '2227.682', `position_y` = '192.042', `position_z` = '133.389' WHERE (`spawn_id` = '33262');
+        -- Moss Eater.
+        UPDATE `spawns_creatures` SET `position_z` = '198.256' WHERE (`spawn_id` = '33330');
+        -- Raincaller.
+        UPDATE `spawns_creatures` SET `position_z` = '99.250' WHERE (`spawn_id` = '33469');
+        -- Laughing Sister.
+        UPDATE `spawns_creatures` SET `position_z` = '131.240' WHERE (`spawn_id` = '34196');
+        -- Bear.
+        UPDATE `spawns_creatures` SET `position_x` = '2221.124', `position_y` = '-1834.689', `position_z` = '86.554' WHERE (`spawn_id` = '34360');
+        -- Wildhorn Satlker.
+        UPDATE `spawns_creatures` SET `position_x` = '2747.392', `position_y` = '0.238', `position_z` = '105.818' WHERE (`spawn_id` = '34801');
+        UPDATE `spawns_creatures` SET `position_z` = '94.4' WHERE (`spawn_id` = '34808');
+        UPDATE `spawns_creatures` SET `position_z` = '120.797' WHERE (`spawn_id` = '34812');
+        UPDATE `spawns_creatures` SET `position_z` = '130.436' WHERE (`spawn_id` = '34839');
+        -- Wildhorn Venomspitter.
+        UPDATE `spawns_creatures` SET `position_z` = '184.640' WHERE (`spawn_id` = '34893');
+        -- Ghostpaw Runner.
+        UPDATE `spawns_creatures` SET `position_z` = '96.707' WHERE (`spawn_id` = '34983');
+        -- Darkstrand Fanatic.
+        UPDATE `spawns_creatures` SET `position_z` = '38.086' WHERE (`spawn_id` = '36983');
+        -- Squirrel.
+        UPDATE `spawns_creatures` SET `position_z` = '466.500' WHERE (`spawn_id` = '42670');
+        UPDATE `spawns_creatures` SET `position_z` = '460.432' WHERE (`spawn_id` = '42532');
+        UPDATE `spawns_creatures` SET `position_z` = '462.1' WHERE (`spawn_id` = '42517');
+        UPDATE `spawns_creatures` SET `position_z` = '470.214' WHERE (`spawn_id` = '42343');
+        UPDATE `spawns_creatures` SET `position_z` = '476.1' WHERE (`spawn_id` = '42433');
+        UPDATE `spawns_creatures` SET `position_x` = '7617.558', `position_y` = '-2999.218', `position_z` = '462.870' WHERE (`spawn_id` = '42456');
+        -- Deer.
+        UPDATE `spawns_creatures` SET `position_x` = '7425.207', `position_y` = '-2465.648', `position_z` = '463.889' WHERE (`spawn_id` = '42581');
+        UPDATE `spawns_creatures` SET `position_z` = '464.2' WHERE (`spawn_id` = '42543');
+        UPDATE `spawns_creatures` SET `position_z` = '467.668' WHERE (`spawn_id` = '42399');
+        UPDATE `spawns_creatures` SET `position_z` = '467.686' WHERE (`spawn_id` = '42405');
+        UPDATE `spawns_creatures` SET `position_z` = '462' WHERE (`spawn_id` = '42428');
+        UPDATE `spawns_creatures` SET `position_x` = '7658.691', `position_y` = '-2980.364', `position_z` = '466.444' WHERE (`spawn_id` = '42495');
+        -- Rabbit.
+        UPDATE `spawns_creatures` SET `position_z` = '467.5' WHERE (`spawn_id` = '42470');
+        UPDATE `spawns_creatures` SET `position_z` = '465.187' WHERE (`spawn_id` = '42473');
+        -- Sea Elemental.
+        UPDATE `spawns_creatures` SET `position_z` = '-0.526' WHERE (`spawn_id` = '50107');
+        -- Woodpaw Trapper.
+        UPDATE `spawns_creatures` SET `position_z` = '52.40' WHERE (`spawn_id` = '50425');
+        -- Sprite Darter.
+        UPDATE `spawns_creatures` SET `position_z` = '64' WHERE (`spawn_id` = '50788');
+        -- Yeti.
+        UPDATE `spawns_creatures` SET `position_z` = '143.5' WHERE (`spawn_id` = '51038');
+        -- Frayfeather.
+        UPDATE `spawns_creatures` SET `position_z` = '82' WHERE (`spawn_id` = '51189');
+        UPDATE `spawns_creatures` SET `position_z` = '104' WHERE (`spawn_id` = '51215');
+        -- Screecher.
+        UPDATE `spawns_creatures` SET `position_z` = '96.266' WHERE (`spawn_id` = '51219');
 
         insert into applied_updates values ('011220251');
     end if;
