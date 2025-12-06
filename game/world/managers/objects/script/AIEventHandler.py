@@ -487,10 +487,12 @@ class AIEventHandler:
         return event_lock is not None and event_lock.is_locked()
 
     def unlock_event(self, event_id):
-        if self.event_locks.pop(event_id, None) is not None:
-            self.creature.get_map().unlock_scripted_event(event_id)
-            return True
-        return False
+        event_lock = self.event_locks.get(event_id, None)
+        if not event_lock:
+            return False
+        event_lock.repeat_secs = 0
+        self.creature.get_map().unlock_scripted_event(event_id)
+        return True
 
     def _has_event_type(self, event_type):
         return any(self._event_get_by_type(event_type))

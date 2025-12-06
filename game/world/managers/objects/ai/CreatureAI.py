@@ -440,9 +440,9 @@ class CreatureAI:
         self.ai_event_handler.on_ooc_los(source=unit)
 
     # Called when a player interacts with this creature.
-    def player_interacted(self):
+    def player_interacted(self, pause_seconds=180):
         # From VMaNGOS NPC_MOVEMENT_PAUSE_TIME (Blizzlike time taken from Classic).
-        self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=180)
+        self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=pause_seconds)
 
     def is_ready_for_new_attack(self):
         return (self.creature.is_alive and not self.creature.is_evading

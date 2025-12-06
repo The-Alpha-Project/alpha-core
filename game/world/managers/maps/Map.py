@@ -168,8 +168,8 @@ class Map:
 
     # Map helpers.
 
-    def get_liquid_or_create(self, liquid_type, l_min, l_max, use_float_16):
-        return self.map_manager.get_liquid_or_create(liquid_type, l_min, l_max, use_float_16)
+    def get_liquid_or_create(self, liquid_type, l_min, l_max, use_float_16, is_wmo):
+        return self.map_manager.get_liquid_or_create(liquid_type, l_min, l_max, use_float_16, is_wmo)
 
     def find_liquid_location_in_range(self, world_object, min_range, max_range):
         return self.map_manager.find_liquid_location_in_range(world_object, min_range, max_range)
@@ -219,8 +219,8 @@ class Map:
 
     # GridManager helpers.
 
-    def spawn_object(self, world_object_spawn=None, world_object_instance=None):
-        self.grid_manager.spawn_object(world_object_spawn, world_object_instance)
+    def spawn_object(self, owner=None, instance=None):
+        self.grid_manager.spawn_object(owner, instance)
 
     def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
         self.grid_manager.update_object(world_object, has_changes, has_inventory_changes)

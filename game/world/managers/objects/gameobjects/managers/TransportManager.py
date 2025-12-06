@@ -152,7 +152,7 @@ class TransportManager(GameObjectManager):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
         gameobject = GameObjectBuilder.create(176557, location, self.map_id, self.instance_id,
                                               GameObjectStates.GO_STATE_READY, summoner=self, ttl=1)
-        self.get_map().spawn_object(world_object_instance=gameobject)
+        self.get_map().spawn_object(instance=gameobject)
 
     # override
     def get_auto_close_time(self):

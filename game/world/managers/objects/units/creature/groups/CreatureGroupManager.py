@@ -119,7 +119,8 @@ class CreatureGroupManager:
             for guid, member in self.members.items():
                 if guid == creature_mgr.guid or not member.creature.is_alive or not member.creature.combat_target:
                     continue
-                member.creature.leave_combat()
+                if member.creature.in_combat:
+                    member.creature.leave_combat()
 
     def disband(self):
         Logger.debug(f'Disbanding creature group.')

@@ -120,7 +120,7 @@ class CreatureSpawn:
                                                         movement_type=self.creature_spawn.movement_type,
                                                         spawn_id=self.spawn_id)
 
-        self.creature_instance.spawn(self)
+        self.creature_instance.spawn(owner=self)
         return True
 
     def _update_respawn(self, elapsed):

@@ -52,8 +52,7 @@ class GameObjectSpawn:
             self.gameobject_instance.respawn(ttl=ttl)
             return True
 
-        self.gameobject_instance.get_map().spawn_object(world_object_spawn=self,
-                                                        world_object_instance=self.gameobject_instance)
+        self.gameobject_instance.spawn(owner=self)
         return True
 
     def set_respawn_time(self, respawn_secs=0):

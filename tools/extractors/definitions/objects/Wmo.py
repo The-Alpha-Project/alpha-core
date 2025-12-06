@@ -12,8 +12,7 @@ WMO_LIQ_FILES_HASH_MAP = {}
 class Wmo:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.liq_vertices = []
-        self.liq_min_bounds = []
+        self.liquids_data = None
         self.has_liquids = False
         self.hash_name = Wmo.get_hash_filename(self.file_path)
         self._read()
@@ -37,15 +36,15 @@ class Wmo:
         WMO_LIQ_FILES_HASH_MAP[self.hash_name] = file_name
 
         with open(file_name, 'wb') as f:
-            f.write(struct.pack('i', len(self.liq_min_bounds)))  # Liq bounds count.
+            f.write(struct.pack('<i', len(self.liquids_data)))  # How many rows.
             # Iterate over bounds and vertices together
-            for liq_min_bound, vertices in zip(self.liq_min_bounds, self.liq_vertices):
-                f.write(struct.pack('fff', liq_min_bound.X, liq_min_bound.Y, liq_min_bound.Z))
+            for liq_type, vertices, liq_min_bound in self.liquids_data:
+                f.write(struct.pack('<Bfff', liq_type, liq_min_bound.X, liq_min_bound.Y, liq_min_bound.Z))
                 # Write the count of vertices for this bound.
-                f.write(struct.pack('i', len(vertices)))
+                f.write(struct.pack('<i', len(vertices)))
                 # Write each vertex.
                 for vertex in vertices:
-                    f.write(struct.pack('fff', vertex.X, vertex.Y, vertex.Z))
+                    f.write(struct.pack('<fff', vertex.X, vertex.Y, vertex.Z))
 
     def _read(self):
         with MpqArchive(self.file_path) as archive:
@@ -158,7 +157,9 @@ class Wmo:
                     if not wmo_group_file.has_liquids():
                         continue
                     self.has_liquids = True
+                    # Initialize liquids data holder.
+                    if not self.liquids_data:
+                        self.liquids_data = []
                     # Iterate each available mliq and save vertices and min liq bounding box for each.
                     for mliq in wmo_group_file.mliqs:
-                        self.liq_vertices.append(mliq.get_vertices())
-                        self.liq_min_bounds.append(mliq.min_bound)
+                        self.liquids_data.append((mliq.liquid_type, mliq.get_vertices(), mliq.min_bound))

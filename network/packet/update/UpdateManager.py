@@ -29,8 +29,7 @@ class UpdateManager:
         # Retrieve surrounding active objects.
         objects = self.player_mgr.get_map().get_surrounding_objects(self.player_mgr, obj_types)
 
-        with self.update_builder.update_lock:
-            self.update_builder.clear_active_objects()
+        self.update_builder.clear_active_objects()
 
         # Update each object type.
         [self._update_objects_for_type(obj_type, objects[obj_types.index(obj_type)]) for obj_type in obj_types]

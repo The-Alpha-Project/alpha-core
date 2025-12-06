@@ -397,5 +397,557 @@ begin not atomic
         insert into applied_updates values ('281120251');
     end if;
 
+    -- 01/12/2025 1
+    if (select count(*) from applied_updates where id='011220251') = 0 then
+        -- Quest 1039, The Barrens Port, set Shandris Feathermoon as starter.
+        UPDATE `creature_quest_starter` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1039');
+        -- Argent Dawn invalid faction 814 to 35 (Friendly)
+        UPDATE `creature_template` SET `faction` = '35' WHERE `faction` = '814';
+        -- Kitari Farseeker <Cartography Trainer> - Friendly faction.
+        UPDATE `creature_template` SET `faction` = '35' WHERE (`entry` = '4157');
+        -- Wharfmaster Dizzywig, orientation.
+        UPDATE `spawns_creatures` SET `orientation` = '2.931' WHERE (`spawn_id` = '14419');
+        -- Remove unused table.
+        DROP TABLE playercreateinfo_item;
+        -- Unused model for Suzetta Gallina https://github.com/The-Alpha-Project/alpha-core/issues/1312
+        UPDATE `creature_template` SET `display_id1` = '1474' WHERE (`entry` = '1431');
+        -- Laird <Fish Vendor> - Holding Fish
+        UPDATE `creature_equip_template` SET `equipentry1` = '6225' WHERE (`entry` = '4200');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1458
+        UPDATE `quest_template` SET `Details` = 'During the first years of Thredd\'s imprisonment, he never had any visitors. I figured that he was no longer of use to the Defias Brotherhood, so they abandoned him to die.\n\nAnyways, a few months ago, that all changed. He started to get regular visits... once or twice a week. It was a strange man, quiet type. I had my suspicions, but all his papers and clearances were clean and legitimate.\n\nHis name was Maelik, here\'s his description. It won\'t do me much good now that Thredd\'s no longer a problem.', `Objectives` = 'Perhaps Baros Alexston knows something about Bazil Thredd\'s strange visitor...' WHERE (`entry` = '392');
+        UPDATE `quest_template` SET `Objectives` = 'Speak with Master Mathias Shaw in Old Town.' WHERE (`entry` = '393');
+        UPDATE `quest_template` SET `NextQuestInChain` = '394' WHERE (`entry` = '350');
+        UPDATE `quest_template` SET `PrevQuestId` = '350', `Details` = 'I have had my suspicions about the activities of Lord Lescovar, but have never seen or heard any proof to that effect. That Marzon would be contacting a member of the Defias Brotherhood...\n\nHaving killed VanCleef and Thredd, it would be hard to see Lescovar to justice, as your proof is certainly less without their testimony. That is not even considering the fact that Lescovar is a noble, and well connected! They are above the law, my friend.\n\nAny justice would have to be swift, final, and silent.', `Objectives` = 'Kill Lord Gregor Lescovar and bring his head to Master Matthias Shaw in Old Town.', `ReqItemId1` = '3516', `ReqItemCount1` = '1' WHERE (`entry` = '394');
+
+        -- Events list for Lord Gregor Lescovar - Runs every 60 minutes.
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1754;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+        (175401, 1754, 0, 4, 0, 100, 0, 0, 0, 0, 0, 175401, 0, 0, 'Lord Gregor Lescovar - Say Text on Aggro'),
+        (175402, 1754, 0, 1, 0, 100, 0, 3600000, 3600000, 0, 0, 175402, 0, 0, 'Lord Gregor Lescovar - The Head of the Beast');
+
+        -- Waypoints Lord Gregor Lescovar
+        DELETE FROM creature_movement_template WHERE entry = 1754;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (1754, 0, -8333.05, 394.87, 122.274, 0, 0, 0, 0),
+        (1754, 1, -8346.96, 412.712, 122.274, 0, 0, 0, 0),
+        (1754, 2, -8351.2, 414.298, 122.274, 0, 0, 0, 0),
+        (1754, 3, -8355.27, 411.527, 122.274, 0, 0, 0, 0),
+        (1754, 4, -8360.12, 413.034, 122.274, 0, 0, 0, 0),
+        (1754, 5, -8363.47, 416.025, 122.274, 0, 0, 0, 0),
+        (1754, 6, -8387.32, 446.132, 122.274, 0, 0, 0, 0),
+        (1754, 7, -8389.33, 448.678, 124.274, 0, 0, 0, 0),
+        (1754, 8, -8392.253, 452.419, 123.76, 0, 10000, 0, 39401),
+        (1754, 9, -8401.39, 464.739, 123.76, 0, 318000, 0, 39403),
+        (1754, 10, -8401.39, 464.739, 123.76, 0, 0, 0, 39404);
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=175402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (175402, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Start Waypoints');
+
+        -- Waypoints Marzon the Silent Blade
+        DELETE FROM creature_movement_template WHERE entry = 1755;
+        INSERT INTO creature_movement_template (entry, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (1755, 0, -8403.43, 485.926, 123.76, 0, 0, 0, 0),
+        (1755, 1, -8406.47, 482.415, 123.76, 0, 0, 0, 0),
+        (1755, 2, -8409.43, 475.775, 123.76, 0, 0, 0, 0),
+        (1755, 3, -8402.33, 466.068, 123.76, 0, 300000, 0, 39402),
+        (1755, 4, -8402.33, 466.068, 129.76, 0, 0, 0, 0);
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39401;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 322, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Text'),
+        (39401, 4, 0, 0, 0, 0, 0, 0, 10523, 0, 9, 2, 3690, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 1 - Text'),
+        (39401, 4, 0, 0, 0, 0, 0, 0, 10524, 0, 9, 2, 3690, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 2 - Text'),
+        (39401, 6, 0, 18, 0, 0, 0, 0, 10523, 0, 9, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 1 - Despawn'),
+        (39401, 6, 0, 18, 0, 0, 0, 0, 10524, 0, 9, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Guard 2 - Despawn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39402;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39402, 0, 0, 0, 0, 0, 0, 0, 1754, 80, 8, 2, 323, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Text 1'),
+        (39402, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 324, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Text 1'),
+        (39402, 12, 0, 0, 0, 0, 0, 0, 1754, 80, 8, 2, 326, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Text 2'),
+        (39402, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 325, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Text 2'),
+        (39402, 20, 0, 22, 34, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Faction'),
+        (39402, 20, 0, 22, 27, 0, 0, 0, 1754, 0, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Faction'),
+        (39402, 20, 0, 78, 2, 0, 0, 0, 10502, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Join Group');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39403;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39403, 30, 0, 10, 1755, 300000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, -8403.655, 485.781, 123.76, 4.522, 0, 'The Head of the Beast - Summon Marzon the Silent Blade'),
+        (39403, 31, 0, 60, 0, 0, 0, 0, 1755, 80, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Marzon the Silent Blade - Start Waypoints');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=39404;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39404, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Head of the Beast - Lord Gregor Lescovar - Despawn');
+
+        -- Link Lord Gregor Lescovar & Marzon the Silent Blade Aggro.
+        DELETE FROM `creature_groups` WHERE `leader_guid` = 10502;
+        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('10502', '10502', '0', '0', '2');
+        
+        -- Darnassus Protector - Fix wps.
+        DELETE FROM creature_movement WHERE id = 46325;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (46325, 1, 10134.6, 2556.53, 1317.02, 0, 0, 0, 0),
+        (46325, 2, 10109.3, 2541.11, 1316.98, 0, 0, 0, 0),
+        (46325, 3, 10093.2, 2519.62, 1317.59, 0, 0, 0, 0),
+        (46325, 4, 10110.8, 2487.05, 1316.99, 0, 0, 0, 0),
+        (46325, 5, 10098, 2460.93, 1317.9, 0, 0, 0, 0),
+        (46325, 6, 10123.8, 2512.95, 1317.05, 0, 0, 0, 0),
+        (46325, 7, 10136.4, 2514.4, 1317.77, 0, 0, 0, 0),
+        (46325, 8, 10156.1, 2510.84, 1317.66, 0, 0, 0, 0),
+        (46325, 9, 10152.5, 2550.9, 1317.62, 0, 0, 0, 0),
+        (46325, 10, 10139.3, 2559.74, 1317.03, 0, 0, 0, 0);
+
+        -- Missing Frostsaber for Nightsaber Riding Instructor given wdb data.
+        -- Entry : 4753 | Name : Jartsam | Subname : Nightsaber Riding Instructor  | Type: 7 | Static Flags : 102 | Beast Family : 0
+        -- Entry : 4242 | Name : Frostsaber | Subname :  | Type: 1 | Static Flags : 0 | Beast Family : 0
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES ('46807', '4242', '0', '0', '0', '1', '10127.701', '2526.786', '1318.587', '3.740');
+
+        -- Fix Hegnar Rumbleshot location.
+        UPDATE `spawns_creatures` SET `position_x` = '-5588.170', `position_y` = '-542.347', `position_z` = '403.541', `orientation` = '1.840' WHERE (`spawn_id` = '265');
+        -- Fix Cortello's Riddle loaction.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14976.9', `spawn_positionY` = '319.874', `spawn_positionZ` = '0.0310713' WHERE (`spawn_id` = '26043');
+        -- Fix Fleet Master Firallon location.
+        UPDATE `spawns_creatures` SET `position_x` = '-14976.6', `position_y` = '346.487', `position_z` = '19.5424', `orientation` = '4.803' WHERE (`spawn_id` = '846');
+        -- Fix Crab Z
+        UPDATE `spawns_creatures` SET `position_z` = '-12.83' WHERE (`spawn_id` = '902');
+        -- Kursen Commando Z
+        UPDATE `spawns_creatures` SET `position_z` = '34.581' WHERE (`spawn_id` = '1465');
+        -- Kursen Subchief placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-11370.9', `position_y` = '-682.661', `position_z` = '17.65', `orientation` = '1.025' WHERE (`spawn_id` = '1476');
+        -- Scale Belly placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-13029.5', `position_y` = ' -735.739', `position_z` = '55.64' WHERE (`spawn_id` = '1577');
+        -- Toldren Deppiron placement.
+        UPDATE `spawns_creatures` SET `position_z` = '519.289' WHERE (`spawn_id` = '1772');
+        -- Lepper Gnome placement.
+        UPDATE `spawns_creatures` SET `position_z` = '390.279' WHERE (`spawn_id` = '2461');
+        -- Frostmane placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5544.6', `position_y` = '590.261', `position_z` = '394.750' WHERE (`spawn_id` = '2926');
+        -- Frostmane Z.
+        UPDATE `spawns_creatures` SET `position_z` = '384.604' WHERE (`spawn_id` = '2929');
+        -- Frostmane placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5522', `position_y` = '617.439', `position_z` = '393.498' WHERE (`spawn_id` = '2939');
+        -- Rabbit Z.
+        UPDATE `spawns_creatures` SET `position_z` = '410.3' WHERE (`spawn_id` = '3611');
+        -- Rockjaw Bonesnapper.
+        UPDATE `spawns_creatures` SET `position_z` = '403.7' WHERE (`spawn_id` = '5104');
+        -- Rabid Crag Coyote.
+        UPDATE `spawns_creatures` SET `position_z` = '309.699' WHERE (`spawn_id` = '6895');
+        -- Ridge Huntress.
+        UPDATE `spawns_creatures` SET `position_x` = '-6635.67', `position_y` = '-3547.28', `position_z` = '256.897' WHERE (`spawn_id` = '6926');
+        -- Rock Elemental.
+        UPDATE `spawns_creatures` SET `position_z` = '310.600' WHERE (`spawn_id` = '7710');
+        -- Rock Elemental.
+        UPDATE `spawns_creatures` SET `position_z` = '296.200' WHERE (`spawn_id` = '7794');
+        -- Mountaineer Haggis.
+        UPDATE `spawns_creatures` SET `position_z` = '348.354' WHERE (`spawn_id` = '8241');
+        -- Mountaineer Haggil.
+        UPDATE `spawns_creatures` SET `position_z` = '348.600' WHERE (`spawn_id` = '8243');
+        -- Nillen Andemar
+        UPDATE `spawns_creatures` SET `position_z` = '348.400' WHERE (`spawn_id` = '8247');
+        -- Chest.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-6027.23', `spawn_positionY` = '-2792.21', `spawn_positionZ` = '386.6' WHERE (`spawn_id` = '12998');
+        -- Stonesplinter Seer - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8336');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8307');
+        -- Stonesplinter Seer - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8943');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8944');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '8942');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '9051');
+        -- Stonesplinter Scout - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '9141');
+        -- Stonesplinter Skullthumper - Ignore
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '9164');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_x` = '-6028.65', `position_y` = '-2787.15', `position_z` = '388.010', `orientation` = '4.85' WHERE (`spawn_id` = '9057');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_z` = '402' WHERE (`spawn_id` = '9118');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_x` = '-5956.1', `position_y` = '-2892.61', `position_z` = '373.920' WHERE (`spawn_id` = '9120');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '373.920' WHERE (`spawn_id` = '9123');
+        -- Stoneslpinter Scout.
+        UPDATE `spawns_creatures` SET `position_x` = '-5944.95', `position_y` = '-2893.86', `position_z` = '371.52' WHERE (`spawn_id` = '9132');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '374' WHERE (`spawn_id` = '9143');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '368' WHERE (`spawn_id` = '9171');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_z` = '367.779' WHERE (`spawn_id` = '9174');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_z` = '368.077' WHERE (`spawn_id` = '9175');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '369' WHERE (`spawn_id` = '9176');
+        -- Stonesplinter Seer.
+        UPDATE `spawns_creatures` SET `position_x` = '-5999.429', `position_y` = '-2974.491', `position_z` = '407.936', `orientation` = '3.276' WHERE (`spawn_id` = '9248');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_x` = '-5830.76', `position_y` = '-2964.22', `position_z` = '355.529', `orientation` = '2.655' WHERE (`spawn_id` = '9272');
+        -- Stonesplinter Scout.
+        UPDATE `spawns_creatures` SET `position_x` = '-5791.19', `position_y` = '-2874.691', `position_z` = '372.574' WHERE (`spawn_id` = '9273');
+        -- Stonesplinter Trogg.
+        UPDATE `spawns_creatures` SET `position_z` = '366.300' WHERE (`spawn_id` = '9282');
+        -- Elder Razormaw
+        UPDATE `spawns_creatures` SET `position_x` = '-2987.808', `position_y` = '-3243.703', `position_z` = '73.611', `orientation` = '6.084' WHERE (`spawn_id` = '9617');
+        -- Maidens Virtue Crewman
+        UPDATE `spawns_creatures` SET `position_x` = '-3766.751', `position_y` = '-686.713', `position_z` = '10.317', `orientation` = '5.58' WHERE (`spawn_id` = '9828');
+        -- Reduce Maidens Virtue Crewman wandering, they are all walking towards walls or boat cliff..
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9467');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9529');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9531');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9534');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9538');
+        UPDATE `spawns_creatures` SET `wander_distance` = '2' WHERE (`spawn_id` = '9572');
+        -- Redridge Rudger.
+        UPDATE `spawns_creatures` SET `position_x` = '-8920.453', `position_y` = '-1984.615', `position_z` = '133.280' WHERE (`spawn_id` = '10116');
+        -- Hammerfall Guardian.
+        UPDATE `spawns_creatures` SET `position_x` = '-871.106', `position_y` = '-3505.56', `position_z` = '73.364', `orientation` = '4.187' WHERE (`spawn_id` = '11238');
+        -- Dabyrie Laborer.
+        UPDATE `spawns_creatures` SET `position_z` = '42.051' WHERE (`spawn_id` = '11352');
+        -- Redridge Basher.
+        UPDATE `spawns_creatures` SET `position_x` = '-8931.591', `position_y` = '-2001.674', `position_z` = '134.528' WHERE (`spawn_id` = '11677');
+        -- Witherbark.
+        UPDATE `spawns_creatures` SET `position_z` = '42.572' WHERE (`spawn_id` = '11705');
+        -- Drywishker Digger.
+        UPDATE `spawns_creatures` SET `position_x` = '-989.711', `position_y` = '-3842.9', `position_z` = '144.527', `orientation` = '2.503' WHERE (`spawn_id` = '11945');
+        -- Drull.
+        UPDATE `spawns_creatures` SET `position_z` = '51.142' WHERE (`spawn_id` = '15597');
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '63.097' WHERE (`spawn_id` = '43642');
+        -- Syndicate Rogue.
+        UPDATE `spawns_creatures` SET `position_z` = '54.663' WHERE (`spawn_id` = '16026');
+        -- Syndicate Thief.
+        UPDATE `spawns_creatures` SET `position_z` = '152.978' WHERE (`spawn_id` = '17381');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '151.900' WHERE (`spawn_id` = '30093');
+        -- Syndicate Documents.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '152.620' WHERE (`spawn_id` = '31397');
+        -- Syndicate Thief.
+        UPDATE `spawns_creatures` SET `position_z` = '153.889' WHERE (`spawn_id` = '17570');
+        -- Nazen Mac'Nadir
+        UPDATE `spawns_creatures` SET `position_z` = '95.491' WHERE (`spawn_id` = '26836');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.174' WHERE (`spawn_id` = '45295');
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '89.174' WHERE (`spawn_id` = '45483');
+        -- Diseased Grizzly.
+        UPDATE `spawns_creatures` SET `position_x` = '1886.817', `position_y` = '-1929.956', `position_z` = '62.966', `orientation` = '5.380' WHERE (`spawn_id` = '47226');
+        -- Mist Lurker.
+        UPDATE `spawns_creatures` SET `position_z` = '60.545' WHERE (`spawn_id` = '48036');
+        -- Skeletal Executioner.
+        UPDATE `spawns_creatures` SET `position_x` = '1364.261', `position_y` = '-1416.66', `position_z` = '72' WHERE (`spawn_id` = '48601');
+        -- Skeletal Acolyte.
+        UPDATE `spawns_creatures` SET `position_x` = '1560.694', `position_y` = '-1420.220', `position_z` = '70.605', `orientation` = '6.10' WHERE (`spawn_id` = '51736');
+        -- Souless Ghoul.
+        UPDATE `spawns_creatures` SET `position_x` = '1574.467', `position_y` = '-1653.277', `position_z` = '72.097', `orientation` = '5.715' WHERE (`spawn_id` = '51738');
+        -- Murloc.
+        UPDATE `spawns_creatures` SET `position_z` = '58.650' WHERE (`spawn_id` = '79619');
+        -- Acolyte Dellis.
+        UPDATE `spawns_creatures` SET `position_z` = '101.871' WHERE (`spawn_id` = '90459');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '119.512' WHERE (`spawn_id` = '92970');
+        -- Silvermane Stalker.
+        UPDATE `spawns_creatures` SET `position_z` = '121.938' WHERE (`spawn_id` = '92985');
+        -- Villebranch Axe Thrower.
+        UPDATE `spawns_creatures` SET `position_z` = '141.803' WHERE (`spawn_id` = '93006');
+        -- Villebranch Wolf Pup.
+        UPDATE `spawns_creatures` SET `position_z` = '126.577' WHERE (`spawn_id` = '93021');
+        -- Green Sludge.
+        UPDATE `spawns_creatures` SET `position_x` = '331.625', `position_y` = '-3782.91', `position_z` = '100.885' WHERE (`spawn_id` = '93064');
+        -- Primitive Owlbeast.
+        UPDATE `spawns_creatures` SET `position_z` = '138.327' WHERE (`spawn_id` = '93148');
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '120.087' WHERE (`spawn_id` = '46055');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '122.236' WHERE (`spawn_id` = '93239');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '122.938' WHERE (`spawn_id` = '93364');
+        -- Silvermane Wolf.
+        UPDATE `spawns_creatures` SET `position_z` = '123.684' WHERE (`spawn_id` = '93494');
+        -- Villebranch Axe Thrower.
+        UPDATE `spawns_creatures` SET `position_z` = '127.424' WHERE (`spawn_id` = '93496');
+        -- Villebranch Scalper.
+        UPDATE `spawns_creatures` SET `position_z` = '121.377' WHERE (`spawn_id` = '93544');
+        -- Villebranch Soothsayer.
+        UPDATE `spawns_creatures` SET `position_z` = '120.509' WHERE (`spawn_id` = '93660');
+        -- Silvermane Stalker.
+        UPDATE `spawns_creatures` SET `position_z` = '121.401' WHERE (`spawn_id` = '93680');
+        UPDATE `spawns_creatures` SET `position_z` = '123.097' WHERE (`spawn_id` = '93707');
+        -- Villebranch Guard.
+        UPDATE `spawns_creatures` SET `position_z` = '235.649' WHERE (`spawn_id` = '93708');
+        -- Rabbit.
+        UPDATE `spawns_creatures` SET `position_z` = '478.485' WHERE (`spawn_id` = '190185');
+        UPDATE `spawns_creatures` SET `position_z` = '395.337' WHERE (`spawn_id` = '190187');
+        UPDATE `spawns_creatures` SET `position_z` = '407' WHERE (`spawn_id` = '190188');
+        -- Bear.
+        UPDATE `spawns_creatures` SET `position_z` = '399.106' WHERE (`spawn_id` = '190244');
+        UPDATE `spawns_creatures` SET `position_z` = '395.104' WHERE (`spawn_id` = '190245');
+        UPDATE `spawns_creatures` SET `position_z` = '395.063' WHERE (`spawn_id` = '190246');
+        -- Orgrimmar Grunt.
+        UPDATE `spawns_creatures` SET `position_x` = '1925.720', `position_y` = '-4377.779', `position_z` = '21.193', `orientation` = '3.160' WHERE (`spawn_id` = '6564');
+        -- Hyena.
+        UPDATE `spawns_creatures` SET `position_z` = '95.959' WHERE (`spawn_id` = '13433');
+        UPDATE `spawns_creatures` SET `position_z` = '100.528' WHERE (`spawn_id` = '13459');
+        UPDATE `spawns_creatures` SET `position_z` = '93.372' WHERE (`spawn_id` = '13467');
+        -- Southsea Cutthroat.
+        UPDATE `spawns_creatures` SET `position_z` = '93.693' WHERE (`spawn_id` = '13832');
+        UPDATE `spawns_creatures` SET `position_z` = '96.957' WHERE (`spawn_id` = '13856');
+        -- Praire Dog.
+        UPDATE `spawns_creatures` SET `position_z` = '93.950' WHERE (`spawn_id` = '13978');
+        -- Kolkar.
+        UPDATE `spawns_creatures` SET `position_z` = '94.659' WHERE (`spawn_id` = '14001');
+        -- Slime.
+        UPDATE `spawns_creatures` SET `position_z` = '94.012' WHERE (`spawn_id` = '14127');
+        -- Mud Thresh.
+        UPDATE `spawns_creatures` SET `position_x` = '-1215.639', `position_y` = '-3003.882', `position_z` = '87.152' WHERE (`spawn_id` = '14958');
+        UPDATE `spawns_creatures` SET `position_x` = '-1271.202', `position_y` = '-3038.331', `position_z` = '86.71' WHERE (`spawn_id` = '14967');
+        -- Darkfang Spider.
+        UPDATE `spawns_creatures` SET `position_x` = '-4110.380', `position_y` = '-3839.736', `position_z` = '56.603' WHERE (`spawn_id` = '18637');
+        -- Kolkar.
+        UPDATE `spawns_creatures` SET `position_z` = '95.321' WHERE (`spawn_id` = '20474');
+        UPDATE `spawns_creatures` SET `position_z` = '93.326' WHERE (`spawn_id` = '20483');
+        -- Venture Co Overseer.
+        UPDATE `spawns_creatures` SET `position_x` = '1263.020', `position_y` = '-3605.672', `position_z` = '114.233', `orientation` = '5.94' WHERE (`spawn_id` = '20834');
+        -- Toad.
+        UPDATE `spawns_creatures` SET `position_z` = '-271.313' WHERE (`spawn_id` = '24215');
+        UPDATE `spawns_creatures` SET `position_z` = '-270.313' WHERE (`spawn_id` = '24216');
+        UPDATE `spawns_creatures` SET `position_z` = '-269.313' WHERE (`spawn_id` = '24216');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.169' WHERE (`spawn_id` = '24222');
+        UPDATE `spawns_creatures` SET `position_z` = '-273.540' WHERE (`spawn_id` = '24223');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.833' WHERE (`spawn_id` = '24228');
+        UPDATE `spawns_creatures` SET `position_z` = '-268.500' WHERE (`spawn_id` = '24232');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.254' WHERE (`spawn_id` = '24234');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.107' WHERE (`spawn_id` = '24236');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.091' WHERE (`spawn_id` = '24238');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.228' WHERE (`spawn_id` = '24239');
+        UPDATE `spawns_creatures` SET `position_z` = '-270.953' WHERE (`spawn_id` = '24243');
+        UPDATE `spawns_creatures` SET `position_z` = '-271.320' WHERE (`spawn_id` = '24244');
+        UPDATE `spawns_creatures` SET `position_z` = '-272.129' WHERE (`spawn_id` = '24250');
+        -- Cenarion Caretaker.
+        UPDATE `spawns_creatures` SET `position_x` = '2406.894', `position_y` = '1801.729', `position_z` = '354.771', `orientation` = '3.52' WHERE (`spawn_id` = '32206');
+        -- Chylina.
+        UPDATE `spawns_creatures` SET `position_x` = '2653.058', `position_y` = '1463.526', `position_z` = '228.697' WHERE (`spawn_id` = '32313');
+        -- Illyanie.
+        UPDATE `spawns_creatures` SET `position_x` = '2671.126', `position_y` = '1459.249', `position_z` = '229.598', `orientation` = '3.938' WHERE (`spawn_id` = '29249');
+        -- Thistlefur Shaman.
+        UPDATE `spawns_creatures` SET `position_z` = '102.074' WHERE (`spawn_id` = '32486');
+        -- Deer.
+        UPDATE `spawns_creatures` SET `position_z` = '140.300' WHERE (`spawn_id` = '32673');
+        -- Burning Legionaire.
+        UPDATE `spawns_creatures` SET `position_x` = '2227.682', `position_y` = '192.042', `position_z` = '133.389' WHERE (`spawn_id` = '33262');
+        -- Moss Eater.
+        UPDATE `spawns_creatures` SET `position_z` = '198.256' WHERE (`spawn_id` = '33330');
+        -- Raincaller.
+        UPDATE `spawns_creatures` SET `position_z` = '99.250' WHERE (`spawn_id` = '33469');
+        -- Laughing Sister.
+        UPDATE `spawns_creatures` SET `position_z` = '131.240' WHERE (`spawn_id` = '34196');
+        -- Bear.
+        UPDATE `spawns_creatures` SET `position_x` = '2221.124', `position_y` = '-1834.689', `position_z` = '86.554' WHERE (`spawn_id` = '34360');
+        -- Wildhorn Satlker.
+        UPDATE `spawns_creatures` SET `position_x` = '2747.392', `position_y` = '0.238', `position_z` = '105.818' WHERE (`spawn_id` = '34801');
+        UPDATE `spawns_creatures` SET `position_z` = '94.4' WHERE (`spawn_id` = '34808');
+        UPDATE `spawns_creatures` SET `position_z` = '120.797' WHERE (`spawn_id` = '34812');
+        UPDATE `spawns_creatures` SET `position_z` = '130.436' WHERE (`spawn_id` = '34839');
+        -- Wildhorn Venomspitter.
+        UPDATE `spawns_creatures` SET `position_z` = '184.640' WHERE (`spawn_id` = '34893');
+        -- Ghostpaw Runner.
+        UPDATE `spawns_creatures` SET `position_z` = '96.707' WHERE (`spawn_id` = '34983');
+        -- Darkstrand Fanatic.
+        UPDATE `spawns_creatures` SET `position_z` = '38.086' WHERE (`spawn_id` = '36983');
+        -- Squirrel.
+        UPDATE `spawns_creatures` SET `position_z` = '466.500' WHERE (`spawn_id` = '42670');
+        UPDATE `spawns_creatures` SET `position_z` = '460.432' WHERE (`spawn_id` = '42532');
+        UPDATE `spawns_creatures` SET `position_z` = '462.1' WHERE (`spawn_id` = '42517');
+        UPDATE `spawns_creatures` SET `position_z` = '470.214' WHERE (`spawn_id` = '42343');
+        UPDATE `spawns_creatures` SET `position_z` = '476.1' WHERE (`spawn_id` = '42433');
+        UPDATE `spawns_creatures` SET `position_x` = '7617.558', `position_y` = '-2999.218', `position_z` = '462.870' WHERE (`spawn_id` = '42456');
+        -- Deer.
+        UPDATE `spawns_creatures` SET `position_x` = '7425.207', `position_y` = '-2465.648', `position_z` = '463.889' WHERE (`spawn_id` = '42581');
+        UPDATE `spawns_creatures` SET `position_z` = '464.2' WHERE (`spawn_id` = '42543');
+        UPDATE `spawns_creatures` SET `position_z` = '467.668' WHERE (`spawn_id` = '42399');
+        UPDATE `spawns_creatures` SET `position_z` = '467.686' WHERE (`spawn_id` = '42405');
+        UPDATE `spawns_creatures` SET `position_z` = '462' WHERE (`spawn_id` = '42428');
+        UPDATE `spawns_creatures` SET `position_x` = '7658.691', `position_y` = '-2980.364', `position_z` = '466.444' WHERE (`spawn_id` = '42495');
+        -- Rabbit.
+        UPDATE `spawns_creatures` SET `position_z` = '467.5' WHERE (`spawn_id` = '42470');
+        UPDATE `spawns_creatures` SET `position_z` = '465.187' WHERE (`spawn_id` = '42473');
+        -- Sea Elemental.
+        UPDATE `spawns_creatures` SET `position_z` = '-0.526' WHERE (`spawn_id` = '50107');
+        -- Woodpaw Trapper.
+        UPDATE `spawns_creatures` SET `position_z` = '52.40' WHERE (`spawn_id` = '50425');
+        -- Sprite Darter.
+        UPDATE `spawns_creatures` SET `position_z` = '64' WHERE (`spawn_id` = '50788');
+        -- Yeti.
+        UPDATE `spawns_creatures` SET `position_z` = '143.5' WHERE (`spawn_id` = '51038');
+        -- Frayfeather.
+        UPDATE `spawns_creatures` SET `position_z` = '82' WHERE (`spawn_id` = '51189');
+        UPDATE `spawns_creatures` SET `position_z` = '104' WHERE (`spawn_id` = '51215');
+        -- Screecher.
+        UPDATE `spawns_creatures` SET `position_z` = '96.266' WHERE (`spawn_id` = '51219');
+        -- Barrel.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4962.120', `spawn_positionY` = '-920.009' WHERE (`spawn_id` = '938');
+        -- Dwarven Fire.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1059');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1060');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1081');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1083');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1144');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1145');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12078');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12046');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12063');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12070');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12071');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12080');
+        -- Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2524');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4079');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3762');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3441');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10867');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10865');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10866');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12688');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '17966');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42895');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42894');
+        -- Leveler.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '32378');
+        -- Chests.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42897');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42914');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42915');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42916');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42917');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42918');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42919');
+        -- IF Signs.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4751.300', `spawn_positionY` = '-1161.560', `spawn_positionZ` = '497' WHERE (`spawn_id` = '5090');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4751.370', `spawn_positionY` = '-1160.840', `spawn_positionZ` = '497.000' WHERE (`spawn_id` = '5095');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4751.940', `spawn_positionY` = '-1161.370', `spawn_positionZ` = '497' WHERE (`spawn_id` = '5239');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4800.480', `spawn_positionY` = '-1041.220', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6887');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4800.770', `spawn_positionY` = '-1040.600', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6882');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4801.460', `spawn_positionY` = '-1040.930', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6889');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4860.020', `spawn_positionY` = '-1089.370', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6825');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4860.480', `spawn_positionY` = '-1090.010', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6819');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4859.870', `spawn_positionY` = '-1090.590', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6828');
+        -- Wood Box.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14295.380', `spawn_positionY` = '529.874', `spawn_positionZ` = '8.928' WHERE (`spawn_id` = '11014');
+        -- Chest.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-11372.392', `spawn_positionY` = '-683.598', `spawn_positionZ` = '17.080' WHERE (`spawn_id` = '11090');
+        -- Silver Vein.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-11488.242', `spawn_positionY` = '-721.752', `spawn_positionZ` = '34.315' WHERE (`spawn_id` = '11983');
+        -- Mythril Vein.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-11214.771', `spawn_positionY` = '-882.049', `spawn_positionZ` = '79.400' WHERE (`spawn_id` = '11990');
+        -- Barrel.
+        UPDATE `spawns_gameobjects` SET `spawn_positionY` = '-3390.197', `spawn_positionZ` = '271.787' WHERE (`spawn_id` = '12767');
+        -- Blasted Lands invalid gos. (Flying chairs, camp fires, etc)
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12827');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12810');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12809');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12802');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12786');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12777');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12772');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12688');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12875');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12876');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12830');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12869');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12870');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12866');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12867');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12831');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12869');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12868');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12843');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12874');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12865');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12844');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12855');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12861');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12858');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12851');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12841');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12776');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12777');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12779');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12786');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12788');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12798');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12799');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12802');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12809');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12810');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12827');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12830');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12831');
+        -- Alterac Granite.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-248.662', `spawn_positionY` = '-350.557', `spawn_positionZ` = '67.356' WHERE (`spawn_id` = '31335');
+        
+        -- IF Guard wps.
+        DELETE FROM creature_movement WHERE id = 1760;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (1760, 0, -4671.36, -908.789, 519.855, 0, 0, 0, 0),
+        (1760, 1, -4676.429, -914.916, 519.882, 0, 0, 0, 0),
+        (1760, 2, -4678.071, -916.901, 521.272, 0, 0, 0, 0),
+        (1760, 3, -4711.074, -954.825, 521.272, 0, 0, 0, 0),
+        (1760, 4, -4716.902, -951.049, 521.186, 0, 0, 0, 0),
+        (1760, 5, -4726.616, -944.15, 512.939, 0, 0, 0, 0),
+        (1760, 6, -4729.123, -939.268, 512.939, 0, 0, 0, 0),
+        (1760, 7, -4706.806, -901.078, 512.939, 0, 0, 0, 0),
+        (1760, 8, -4703.058, -903.82, 512.94, 0, 0, 0, 0),
+        (1760, 9, -4688.033, -913.839, 501.659, 0, 0, 0, 0),
+        (1760, 10, -4626.902, -988.39, 501.659, 0, 0, 0, 0),
+        (1760, 11, -4618.999, -1005.044, 512.94, 0, 0, 0, 0),
+        (1760, 12, -4618.37, -1009.836, 512.939, 0, 0, 0, 0),
+        (1760, 13, -4658.048, -1024.187, 512.939, 0, 0, 0, 0),
+        (1760, 14, -4663.137, -1020.555, 512.939, 0, 0, 0, 0),
+        (1760, 15, -4668.05, -1009.673, 521.272, 0, 0, 0, 0),
+        (1760, 16, -4668.954, -1002.675, 521.272, 0, 0, 0, 0),
+        (1760, 17, -4627.092, -978.93, 521.272, 0, 0, 0, 0),
+        (1760, 18, -4624.962, -977.476, 519.883, 0, 0, 0, 0),
+        (1760, 19, -4621.117, -970.261, 519.879, 0, 0, 0, 0),
+        (1760, 20, -4668.112, -914.681, 519.87, 0, 0, 0, 0);
+
+        -- Booty Bay Bruiser wps.
+        DELETE FROM creature_movement WHERE id = 598;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (598, 0, -14392.1, 420.434, 7.54, 0, 0, 0, 0),
+        (598, 1, -14380.348, 426.231, 7.37, 0, 0, 0, 0),
+        (598, 2, -14357.271, 435.996, 7.37, 0, 0, 0, 0),
+        (598, 3, -14341.761, 445.697, 7.499, 0, 0, 0, 0),
+        (598, 4, -14331.933, 458.173, 7.877, 0, 0, 0, 0),
+        (598, 5, -14321.324, 478.657, 8.568, 0, 0, 0, 0),
+        (598, 6, -14304.954, 514.336, 8.768, 0, 0, 0, 0),
+        (598, 7, -14303.029, 524.504, 8.82, 0, 0, 0, 0),
+        (598, 8, -14297.663, 530.791, 8.846, 0, 0, 0, 0),
+        (598, 9, -14302.79, 523.889, 8.816, 0, 0, 0, 0),
+        (598, 10, -14312.129, 499.823, 8.693, 0, 0, 0, 0),
+        (598, 11, -14331.256, 460.135, 7.942, 0, 0, 0, 0),
+        (598, 12, -14345.993, 443.564, 7.467, 0, 0, 0, 0),
+        (598, 13, -14356.036, 436.429, 7.371, 0, 0, 0, 0),
+        (598, 14, -14390.647, 423.148, 7.429, 0, 0, 0, 0),
+        (598, 15, -14401.684, 422.577, 8.224, 0, 0, 0, 0),
+        (598, 16, -14423.522, 430.238, 8.972, 0, 0, 0, 0),
+        (598, 17, -14434.101, 447.216, 3.71, 0, 0, 0, 0),
+        (598, 18, -14447.857, 439.249, 3.933, 0, 0, 0, 0),
+        (598, 19, -14431.171, 454.303, 3.694, 0, 0, 0, 0),
+        (598, 20, -14432.794, 446.862, 3.711, 0, 0, 0, 0),
+        (598, 21, -14424.431, 431.198, 8.681, 0, 0, 0, 0),
+        (598, 22, -14404.245, 419.882, 8.335, 0, 0, 0, 0),
+        (598, 23, -14391.788, 400.846, 6.432, 0, 0, 0, 0),
+        (598, 24, -14355.317, 415.074, 6.63, 0, 0, 0, 0),
+        (598, 25, -14361.736, 433.171, 7.365, 0, 0, 0, 0),
+        (598, 26, -14397.358, 421.517, 7.809, 0, 0, 0, 0);
+
+        insert into applied_updates values ('011220251');
+    end if;
+
 end $
 delimiter ;

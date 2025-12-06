@@ -95,7 +95,7 @@ class Adt:
                 area_table = DataHolders.get_area_table_by_area_number(self.map_id, self.tiles[cy][cx].area_number)
                 if self.map_id > 1 or not area_table or not area_table.has_exploration:
                     # Empty.
-                    file_writer.write(pack('<i', -1))
+                    file_writer.write(pack('<h', -1))
                 else:
                     area_table.write_to_file(file_writer)
 

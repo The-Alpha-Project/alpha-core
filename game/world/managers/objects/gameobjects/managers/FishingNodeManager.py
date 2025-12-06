@@ -41,7 +41,7 @@ class FishingNodeManager(GameObjectManager):
             return
         # Became active this tick, activate fishing node.
         self.became_active_time = time.time()
-        self.set_active(force=True)  # Since hook is time sensitive, force the update immediately.
+        self.set_active(force=True)  # Since hook is time-sensitive, force the update immediately.
         self.send_custom_animation(0)
 
     # override

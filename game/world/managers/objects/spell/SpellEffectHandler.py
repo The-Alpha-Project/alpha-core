@@ -158,7 +158,7 @@ class SpellEffectHandler:
                                                 spell_id=casting_spell.spell_entry.ID,
                                                 faction=caster.faction, ttl=3600)
 
-        caster.get_map().spawn_object(world_object_instance=duel_arbiter)
+        caster.get_map().spawn_object(instance=duel_arbiter)
         duel_arbiter.request_duel(caster, target)
 
     @staticmethod
@@ -381,7 +381,7 @@ class SpellEffectHandler:
         # Remove existing totem in this slot.
         caster.pet_manager.detach_totem(totem_slot)
         caster.pet_manager.add_totem_from_spell(creature_manager, casting_spell)
-        caster.get_map().spawn_object(world_object_instance=creature_manager)
+        caster.get_map().spawn_object(instance=creature_manager)
 
     @staticmethod
     def handle_summon_object_wild(casting_spell, effect, caster, target):
@@ -426,7 +426,7 @@ class SpellEffectHandler:
                                               summoner=caster,
                                               spell_id=casting_spell.spell_entry.ID,
                                               faction=faction, ttl=duration)
-        map_.spawn_object(world_object_instance=gameobject)
+        map_.spawn_object(instance=gameobject)
 
     @staticmethod
     def handle_summon_possessed(casting_spell, effect, caster, target):
@@ -445,7 +445,7 @@ class SpellEffectHandler:
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
                                                   summon_type=TempSummonType.TEMP_SUMMON_TIMED_DEATH_AND_DEAD_DESPAWN)
 
-        caster.get_map().spawn_object(world_object_instance=creature_manager)
+        caster.get_map().spawn_object(instance=creature_manager)
         FarSightManager.add_camera(creature_manager, caster)
 
     @staticmethod
@@ -632,7 +632,7 @@ class SpellEffectHandler:
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
                                                       is_guardian=True)
 
-            caster.get_map().spawn_object(world_object_instance=creature_manager)
+            caster.get_map().spawn_object(instance=creature_manager)
             caster.pet_manager.add_guardian_from_spell(creature_manager, casting_spell)
             if caster.object_ai:
                 caster.object_ai.just_summoned(creature_manager)
@@ -678,7 +678,7 @@ class SpellEffectHandler:
                                  f'caster entry {caster.get_entry()}')
                 return
 
-            caster.get_map().spawn_object(world_object_instance=creature_manager)
+            caster.get_map().spawn_object(instance=creature_manager)
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):

@@ -1,6 +1,5 @@
 import os.path
 import traceback
-import multiprocessing
 from time import sleep
 
 from utils.GitUtils import GitUtils
@@ -29,7 +28,7 @@ class NavExtractor:
     }
 
     @staticmethod
-    def run(data_path):
+    def run(data_path, context):
         if not GitUtils.check_download_namigator_bindings():
             Logger.error(f'Unable to locate/download namigator bindings.')
             return
@@ -43,6 +42,7 @@ class NavExtractor:
         SysUtils.try_uncap_soft_ulimit()
 
         try:
+            import multiprocessing
             available_threads = multiprocessing.cpu_count()
             threads = 1
             while True:
@@ -65,12 +65,12 @@ class NavExtractor:
                     os.mkdir(map_path)
 
                 # Extractor process.
-                process = multiprocessing.Process(target=NavExtractor._extract_map,
+                process = context.Process(target=NavExtractor._extract_map,
                                                   args=(data_path, map_name, threads))
                 process.start()
-
                 # Wait for process.
                 NavExtractor._show_progress(process, map_name)
+                process.join()
         except:
             Logger.warning(traceback.format_exc())
 

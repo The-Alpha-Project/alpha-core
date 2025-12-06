@@ -109,9 +109,6 @@ class MovementManager:
         if not current_behavior:
             return
 
-        if self.spline_events:
-            self.spline_events.clear()
-
         # Resuming or cascaded into a previous movement, reset.
         if is_resume or movements_removed:
             current_behavior.reset()
@@ -187,7 +184,7 @@ class MovementManager:
     def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
         return self.movement_behaviors.get(move_type, None)
 
-    # TODO: Unused atm, lacking many specific move types from vMangos and some refactoring to our current move behaviors.
+    # TODO: Unused atm, lacking many specific move types from VMaNGOS and some refactoring to our current move behaviors.
     #  For now, attempt to resolve to the closest types in order to trigger some creature ai events.
     def _translate_to_vmangos_move_type(self):
         current_behavior = self.get_current_behavior()
@@ -263,6 +260,9 @@ class MovementManager:
         self.spline_events.append(spline_event)
 
     def add_spline_events(self, events):
+        # Prevent events aggregation if someone spam emote events.
+        if self.spline_events:
+            self.spline_events.clear()
         [self.add_spline_event(event) for event in events]
 
     def has_spline_events(self):
@@ -271,10 +271,10 @@ class MovementManager:
     def _update_spline_events(self, elapsed):
         if not self.spline_events:
             return
-        for spline_event in list(self.spline_events):
-            spline_event.update(elapsed)
-            if spline_event.triggered:
-                self.spline_events.remove(spline_event)
+
+        for idx, spline_event in enumerate(list(self.spline_events)):
+            if spline_event.update(elapsed):
+                self.spline_events.pop(idx)
 
     def _handle_ooc_pause(self, elapsed):
         if self.pause_ooc_timer:

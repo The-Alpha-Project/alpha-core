@@ -28,7 +28,7 @@ class ScriptManager:
     def resolve_hostile(caster, target=None, param1=None, param2=None, spell_template=None):
         if caster.combat_target:
             return caster.combat_target
-        if caster.threat_target:
+        if caster.threat_manager:
             return caster.threat_manager.get_hostile_target()
         return None
 

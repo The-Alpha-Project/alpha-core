@@ -87,9 +87,6 @@ class CorpseManager(ObjectManager):
                 self.despawn()
         self.last_tick = now
 
-    def spawn(self, owner=None):
-        self.owner.get_map().update_object(self)
-
     # override
     def get_name(self):
         return self.name

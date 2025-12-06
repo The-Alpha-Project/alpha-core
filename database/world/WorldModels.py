@@ -665,19 +665,6 @@ class PlayercreateinfoAction(Base):
     type = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
 
 
-class PlayercreateinfoItem(Base):
-    __tablename__ = 'playercreateinfo_item'
-    __table_args__ = (
-        Index('playercreateinfo_race_class_index', 'race', 'class'),
-    )
-
-    id = Column(INTEGER(10), primary_key=True, index=True)
-    race = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-    _class = Column('class', TINYINT(3), nullable=False, server_default=text("'0'"))
-    itemid = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    amount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
-
-
 class PlayercreateinfoSpell(Base):
     __tablename__ = 'playercreateinfo_spell'
 

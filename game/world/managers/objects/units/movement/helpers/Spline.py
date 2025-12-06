@@ -31,7 +31,6 @@ class Spline(object):
         self.waypoints_bytes = b''
         self.total_waypoint_timer = 0
         self.extra_time_seconds = extra_time_seconds  # After real time ends, wait n secs.
-        self.freeze = False
         self.initialized = False
 
     def initialize(self):
@@ -103,11 +102,11 @@ class Spline(object):
 
         # For creatures, if Z calculation failed, try to adjust the position Z in case the unit is part of a group.
         if not self.is_player and point_in_between.z_locked:
-            point_in_between = self._get_leader_z(point_in_between)
+            point_in_between = self._apply_creature_group_leader_z(point_in_between)
 
         return point_in_between
 
-    def _get_leader_z(self, location):
+    def _apply_creature_group_leader_z(self, location):
         if not self.unit.creature_group:
             return location
         if not self.unit.movement_manager.get_current_behavior().move_type == MoveType.GROUP:
@@ -135,7 +134,7 @@ class Spline(object):
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=self.unit,
                                               ttl=1)
-        self.unit.get_map().spawn_object(world_object_instance=gameobject)
+        self.unit.get_map().spawn_object(instance=gameobject)
 
     def is_complete(self):
         return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()
@@ -150,8 +149,6 @@ class Spline(object):
 
     # Update spline to current time when someone requests a movement update.
     def update_to_now(self):
-        if self.freeze:
-            return
         elapsed = time.time() - self.unit.last_tick
         if elapsed:
             self.update(elapsed)

@@ -27,7 +27,7 @@ class Vector:
     def __eq__(self, other):
         return other and self.x == other.x and self.y == other.y and self.z == other.z
 
-    def approximately_equals(self, other, tolerance=1.0):
+    def approximately_equals(self, other, tolerance=0.5):
         return abs(self.x - other.x) <= tolerance and abs(self.y - other.y) <= tolerance
 
     @staticmethod

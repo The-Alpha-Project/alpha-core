@@ -259,7 +259,7 @@ class GameObjectManager(ObjectManager):
                                                state=GameObjectStates.GO_STATE_READY, summoner=self,
                                                faction=self.faction, ttl=self.time_to_live)
 
-        self.get_map().spawn_object(world_object_instance=trap_object)
+        self.get_map().spawn_object(instance=trap_object)
         return trap_object
 
     def trigger_linked_trap(self, trap_entry, unit, radius=2.5):
@@ -371,10 +371,6 @@ class GameObjectManager(ObjectManager):
         self.time_to_live_timer = 0
         self.time_to_live = ttl
         super().respawn()
-
-    # override
-    def spawn(self, owner=None):
-        self.get_map().spawn_object(world_object_spawn=owner, world_object_instance=self)
 
     # override
     def despawn(self, ttl=0, respawn_delay=0):
