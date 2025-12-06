@@ -1,16 +1,22 @@
-import multiprocessing
 import os
-import argparse
-import signal
+import multiprocessing
 from sys import platform
-from time import sleep
-
-# Initialize path FIRST, before any other imports that might use PathManager
 from utils.PathManager import PathManager
+
+# Set multiprocessing context and initialize path FIRST, before any other imports are called.
 if __name__ == '__main__':
+    # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
+    if platform == 'darwin':
+        multiprocessing.set_start_method('fork')
+    else:
+        multiprocessing.set_start_method('spawn')
+
     root_path = os.path.dirname(os.path.realpath(__file__))
     PathManager.set_root_path(root_path)
 
+import argparse
+import signal
+from time import sleep
 from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
 from game.update.UpdateManager import UpdateManager
