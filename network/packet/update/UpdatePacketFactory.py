@@ -96,11 +96,10 @@ class UpdatePacketFactory(object):
 
     # Makes sure every single player gets the same mask and values.
     def generate_update_data(self, flush_current=True):
-        with self.update_mask.lock:
-            update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes.copy())
-            if flush_current:
-                self.update_mask.clear()
-            return update_object
+        update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes.copy())
+        if flush_current:
+            self.update_mask.clear()
+        return update_object
 
     def reset(self):
         self.update_mask.clear()
@@ -109,17 +108,15 @@ class UpdatePacketFactory(object):
         return not self.update_mask.is_empty()
 
     def reset_older_than(self, timestamp_to_compare):
-        with self.update_mask.lock:
-            all_clear = True
-            for index, timestamp in enumerate(self.update_timestamps):
-                if not timestamp:
-                    continue
-                if timestamp <= timestamp_to_compare:
-                    self.update_mask.unset_bit(index)
-                else:
-                    all_clear = False
-
-            return all_clear
+        all_clear = True
+        for index, timestamp in enumerate(self.update_timestamps):
+            if not timestamp:
+                continue
+            if timestamp <= timestamp_to_compare:
+                self.update_mask.unset_bit(index)
+            else:
+                all_clear = False
+        return all_clear
 
     # Check if the new value is different from the field known value.
     def should_update(self, index, value, is_int64):

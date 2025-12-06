@@ -1,5 +1,4 @@
 from enum import IntEnum
-from multiprocessing import RLock
 from struct import pack
 
 from network.packet.PacketWriter import PacketWriter
@@ -21,7 +20,6 @@ class UpdateBuilder:
         self._destroy_known_items = set()  # Items from players no longer visible.
         self._active_objects = set()  # Objects which are active to the player (visible).
         self._packets = dict()
-        self.update_lock = RLock()
 
     def has_active_guid(self, guid):
         return guid in self._active_objects
@@ -36,22 +34,21 @@ class UpdateBuilder:
         self._active_objects.discard(world_object.guid)
 
     def process_update(self):
-        with self.update_lock:
-            # Query detail, destroy, movement and SMSG_UPDATE_OBJECT packets.
-            if self._has_pending_update_packets():
-                self._player_mgr.enqueue_packets(self._get_build_all_packets())
+        # Query detail, destroy, movement and SMSG_UPDATE_OBJECT packets.
+        if self._has_pending_update_packets():
+            self._player_mgr.enqueue_packets(self._get_build_all_packets())
 
-            # Relation between objects after creation.
-            if self._has_create_known_objects_updates():
-                self._process_known_objects_updates()
+        # Relation between objects after creation.
+        if self._has_create_known_objects_updates():
+            self._process_known_objects_updates()
 
-            # Relation between objects after destruction.
-            if self._has_destroy_known_objects_updates():
-                self._process_destroy_known_objects_updates()
+        # Relation between objects after destruction.
+        if self._has_destroy_known_objects_updates():
+            self._process_destroy_known_objects_updates()
 
-            # Player known items after owner destruction.
-            if self._has_destroy_known_items_updates():
-                self._process_destroy_known_items_updates()
+        # Player known items after owner destruction.
+        if self._has_destroy_known_items_updates():
+            self._process_destroy_known_items_updates()
 
     def add_create_update_from_object(self, world_object):
         self._create_guids.add(world_object.guid)
@@ -176,21 +173,17 @@ class UpdateBuilder:
         return packets
 
     def _get_build_all_packets(self):
-        with self.update_lock:
-            packets = self._get_query_detail_packets() + self._build_update_packets() + self._get_movement_packets() + self._get_destroy_packets()
-            self._enqueue_deferred_and_flush()
-            return packets
+        packets = self._get_query_detail_packets() + self._build_update_packets() + self._get_movement_packets() + self._get_destroy_packets()
+        self._enqueue_deferred_and_flush()
+        return packets
 
     def _process_destroy_known_items_updates(self):
-        with self.update_lock:
-            while self._destroy_known_items:
-                guid = self._destroy_known_items.pop()
-                if guid in self._player_mgr.known_items:
-                    del self._player_mgr.known_items[guid]
+        while self._destroy_known_items:
+            guid = self._destroy_known_items.pop()
+            if guid in self._player_mgr.known_items:
+                del self._player_mgr.known_items[guid]
 
     def _process_destroy_known_objects_updates(self):
-        with self.update_lock:
-
             while self._destroy_owner_known_objects_updates:
                 world_object = self._destroy_owner_known_objects_updates.pop()
                 self._player_mgr.known_objects.pop(world_object.guid, None)
@@ -210,26 +203,24 @@ class UpdateBuilder:
         self._player_mgr.threat_manager.remove_unit_threat(world_object)
 
     def _process_known_objects_updates(self):
-        with self.update_lock:
-            # Both objects know each other.
-            while self._create_linked_known_objects_updates:
-                world_object = self._create_linked_known_objects_updates.pop()
-                self._player_mgr.known_objects[world_object.guid] = world_object
-                world_object.known_players[self._player_mgr.guid] = self._player_mgr
-            # Player knows the object.
-            while self._create_owner_known_objects_updates:
-                world_object = self._create_owner_known_objects_updates.pop()
-                self._player_mgr.known_objects[world_object.guid] = world_object
+        # Both objects know each other.
+        while self._create_linked_known_objects_updates:
+            world_object = self._create_linked_known_objects_updates.pop()
+            self._player_mgr.known_objects[world_object.guid] = world_object
+            world_object.known_players[self._player_mgr.guid] = self._player_mgr
+        # Player knows the object.
+        while self._create_owner_known_objects_updates:
+            world_object = self._create_owner_known_objects_updates.pop()
+            self._player_mgr.known_objects[world_object.guid] = world_object
 
     def _add_packet(self, data, packet_type):
-        with self.update_lock:
-            if packet_type not in self._packets:
-                self._packets[packet_type] = list()
-            if isinstance(data, list):
-                for packet in data:
-                    self._packets[packet_type].append(packet)
-            else:
-                self._packets[packet_type].append(data)
+        if packet_type not in self._packets:
+            self._packets[packet_type] = list()
+        if isinstance(data, list):
+            for packet in data:
+                self._packets[packet_type].append(packet)
+        else:
+            self._packets[packet_type].append(data)
 
     def _get_query_detail_packets(self):
         query_packets = self._packets.get(PacketType.QUERY, [])
