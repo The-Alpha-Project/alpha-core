@@ -789,6 +789,106 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_z` = '104' WHERE (`spawn_id` = '51215');
         -- Screecher.
         UPDATE `spawns_creatures` SET `position_z` = '96.266' WHERE (`spawn_id` = '51219');
+        -- Barrel.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4962.120', `spawn_positionY` = '-920.009' WHERE (`spawn_id` = '938');
+        -- Dwarven Fire.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1059');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1060');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1081');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1083');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1144');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '1145');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12078');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12046');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12063');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12070');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12071');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12080');
+        -- Chair
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '2524');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4079');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3762');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '3441');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10867');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10865');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '10866');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12688');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '17966');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42895');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42894');
+        -- Leveler.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '32378');
+        -- Chests.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42897');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42914');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42915');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42916');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42917');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42918');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '42919');
+        -- IF Signs.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4751.300', `spawn_positionY` = '-1161.560', `spawn_positionZ` = '497' WHERE (`spawn_id` = '5090');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4751.370', `spawn_positionY` = '-1160.840', `spawn_positionZ` = '497.000' WHERE (`spawn_id` = '5095');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4751.940', `spawn_positionY` = '-1161.370', `spawn_positionZ` = '497' WHERE (`spawn_id` = '5239');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4800.480', `spawn_positionY` = '-1041.220', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6887');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4800.770', `spawn_positionY` = '-1040.600', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6882');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4801.460', `spawn_positionY` = '-1040.930', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6889');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4860.020', `spawn_positionY` = '-1089.370', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6825');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4860.480', `spawn_positionY` = '-1090.010', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6819');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4859.870', `spawn_positionY` = '-1090.590', `spawn_positionZ` = '487.300' WHERE (`spawn_id` = '6828');
+        -- Wood Box.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-14295.380', `spawn_positionY` = '529.874', `spawn_positionZ` = '8.928' WHERE (`spawn_id` = '11014');
+        -- Chest.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-11372.392', `spawn_positionY` = '-683.598', `spawn_positionZ` = '17.080' WHERE (`spawn_id` = '11090');
+        -- Silver Vein.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-11488.242', `spawn_positionY` = '-721.752', `spawn_positionZ` = '34.315' WHERE (`spawn_id` = '11983');
+        -- Mythril Vein.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-11214.771', `spawn_positionY` = '-882.049', `spawn_positionZ` = '79.400' WHERE (`spawn_id` = '11990');
+        -- Barrel.
+        UPDATE `spawns_gameobjects` SET `spawn_positionY` = '-3390.197', `spawn_positionZ` = '271.787' WHERE (`spawn_id` = '12767');
+        -- Blasted Lands invalid gos. (Flying chairs, camp fires, etc)
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12827');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12810');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12809');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12802');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12786');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12777');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12772');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12688');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12875');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12876');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12830');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12869');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12870');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12866');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12867');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12831');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12869');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12868');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12843');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12874');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12865');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12844');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12855');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12861');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12858');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12851');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12841');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12776');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12777');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12779');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12786');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12788');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12798');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12799');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12802');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12809');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12810');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12827');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12830');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12831');
+        -- Alterac Granite.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-248.662', `spawn_positionY` = '-350.557', `spawn_positionZ` = '67.356' WHERE (`spawn_id` = '31335');
 
         insert into applied_updates values ('011220251');
     end if;
