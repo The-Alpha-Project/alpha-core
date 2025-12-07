@@ -695,15 +695,15 @@ class CreatureManager(UnitManager):
 
         # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
         if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
-            return
+            return False
 
         can_attack = super().attack(victim)
 
         if not can_attack:
-            return
+            return False
 
         if had_target:
-            return
+            return False
 
         # Stand if necessary.
         if self.stand_state != StandState.UNIT_STANDING:
@@ -714,6 +714,7 @@ class CreatureManager(UnitManager):
             self.set_emote_unit_state(EmoteUnitState.NONE)
 
         self.object_ai.attack_start(victim)
+        return True
 
     # override
     def attack_stop(self):
