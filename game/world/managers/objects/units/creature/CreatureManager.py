@@ -638,7 +638,7 @@ class CreatureManager(UnitManager):
                     if self.has_moved and self.has_player_observers():
                         self.get_map().get_detection_manager().queue_update_unit_placement(self)
 
-                if self.call_for_help_timer >= 1:
+                if self.call_for_help_timer >= 0.33:
                     if self.combat_target:
                         self.threat_manager.call_for_help(self.combat_target)
                     self.call_for_help_timer = 0
