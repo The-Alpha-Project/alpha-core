@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from game.world.opcode_handling.handlers.inventory.ItemQueryMultipleHandler import ItemQueryMultipleHandler
 from game.world.opcode_handling.handlers.inventory.WrapItemHandler import WrapItemHandler
 from game.world.opcode_handling.handlers.pet.PetAbandonHandler import PetAbandonHandler
@@ -395,6 +397,7 @@ HANDLER_DEFINITIONS = {
 class Definitions:
 
     @staticmethod
+    @lru_cache
     def get_handler_from_packet(world_session, opcode):
         try:
             return HANDLER_DEFINITIONS[opcode], True
