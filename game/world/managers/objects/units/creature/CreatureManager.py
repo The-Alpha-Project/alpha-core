@@ -694,7 +694,11 @@ class CreatureManager(UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
 
         # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
-        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
+        #  Pets check react state logic before calling attack through PetAI.
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE and not self.is_pet():
+            return False
+
+        if not self.can_have_target() or self.ignores_combat():
             return False
 
         can_attack = super().attack(victim)

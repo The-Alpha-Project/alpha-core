@@ -153,9 +153,6 @@ class ChaseMovement(BaseMovement):
         if not combat_target:
             return
 
-        if combat_target.is_moving():
-            return
-
         if not self._is_within_combat_distance():
             return
 
