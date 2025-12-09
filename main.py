@@ -1,16 +1,22 @@
-import multiprocessing
 import os
-import argparse
-import signal
+import multiprocessing
 from sys import platform
-from time import sleep
-
-# Initialize path FIRST, before any other imports that might use PathManager
 from utils.PathManager import PathManager
+
+# Set multiprocessing context and initialize path FIRST, before any other imports are called.
 if __name__ == '__main__':
+    # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
+    if platform == 'darwin':
+        multiprocessing.set_start_method('fork')
+    else:
+        multiprocessing.set_start_method('spawn')
+
     root_path = os.path.dirname(os.path.realpath(__file__))
     PathManager.set_root_path(root_path)
 
+import argparse
+import signal
+from time import sleep
 from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
 from game.update.UpdateManager import UpdateManager
@@ -148,26 +154,26 @@ if __name__ == '__main__':
         print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
         exit()
 
+    # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
+    if platform == 'darwin':
+        context = multiprocessing.get_context('fork')
+    else:
+        context = multiprocessing.get_context('spawn')
+
+    if not MapManager.validate_namigator_bindings():
+        Logger.error(f'Invalid namigator bindings.')
+        exit()
+
     if args.extract:
         adt_x = args.adt_x if args.adt_x else -1
         adt_y = args.adt_y if args.adt_y else -1
-        Extractor.run(adt_x, adt_y)
+        Extractor.run(context, adt_x, adt_y)
         exit()
 
     # Validate if maps available and if version match.
     if not MapManager.validate_map_files():
         Logger.error(f'Invalid maps version or maps missing, expected version {MapTile.EXPECTED_VERSION}')
         exit()
-
-    if not MapManager.validate_namigator_bindings():
-        Logger.error(f'Invalid namigator bindings.')
-        exit()
-
-    # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
-    if platform == 'darwin':
-        context = multiprocessing.get_context('fork')
-    else:
-        context = multiprocessing.get_context('spawn')
 
     manager = context.Manager()
     # Shared variables inside a namespace.

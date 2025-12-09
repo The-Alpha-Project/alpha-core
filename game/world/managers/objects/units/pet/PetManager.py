@@ -175,7 +175,7 @@ class PetManager:
             spell_level = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id).SpellLevel
             active_pet.initialize_spells(level_override=spell_level)
 
-        self.owner.get_map().spawn_object(world_object_instance=creature_manager)
+        self.owner.get_map().spawn_object(instance=creature_manager)
 
     def detach_active_pets(self, is_logout=False):
         for index, pet in list(self.active_pets.items()):

@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine, func
@@ -49,14 +49,6 @@ class WorldDatabaseManager(object):
     def player_create_action_get(race, class_) -> list[PlayercreateinfoAction]:
         world_db_session = SessionHolder()
         res = world_db_session.query(PlayercreateinfoAction).filter_by(race=race, _class=class_).all()
-        world_db_session.close()
-        return res
-
-    @staticmethod
-    @lru_cache
-    def player_create_item_get(race, class_) -> list[PlayercreateinfoItem]:
-        world_db_session = SessionHolder()
-        res = world_db_session.query(PlayercreateinfoItem).filter_by(race=race, _class=class_).all()
         world_db_session.close()
         return res
 
@@ -148,7 +140,7 @@ class WorldDatabaseManager(object):
     # Worldport.
 
     @staticmethod
-    def worldport_get_by_name(name, return_all=False) -> Optional[list[Worldports]]:
+    def worldport_get_by_name(name, return_all=False) -> Union[Worldports, Optional[list[Worldports]]]:
         world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
@@ -228,6 +220,13 @@ class WorldDatabaseManager(object):
     def item_template_get_all() -> list[ItemTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(ItemTemplate).filter_by(ignored=0).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def item_template_get_by_entry(entry) -> Optional[ItemTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(ItemTemplate).filter_by(entry=entry).first()
         world_db_session.close()
         return res
 
@@ -664,7 +663,7 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
 
         @staticmethod
-        def creature_get_by_name(name, return_all=False, remove_space=False) -> list[Optional[CreatureTemplate]]:
+        def creature_get_by_name(name, return_all=False, remove_space=False) -> Union[CreatureTemplate, List[Optional[CreatureTemplate]]]:
             creatures = []
             for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
                 formatted_creature_name = creature.name.lower()
@@ -709,6 +708,13 @@ class WorldDatabaseManager(object):
     def creature_template_get_all() -> list[CreatureTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureTemplate).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_template_by_entry(entry) -> list[CreatureTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureTemplate).filter_by(entry=entry).first()
         world_db_session.close()
         return res
 
@@ -948,6 +954,14 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         res = world_db_session.query(QuestTemplate).filter(QuestTemplate.Title.like(f'%{title}%'),
                                                            QuestTemplate.ignored == 0).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    @lru_cache
+    def quest_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestTemplate).filter_by(entry=entry).first()
         world_db_session.close()
         return res
         

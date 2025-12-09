@@ -13,8 +13,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellImmunity
 from utils.constants.UnitCodes import UnitReaction
-from utils.constants.UpdateFields \
-    import ObjectFields, UnitFields
+from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 class ObjectManager:
@@ -458,7 +457,7 @@ class ObjectManager:
 
     # override
     def spawn(self, owner=None):
-        pass
+        self.get_map().spawn_object(owner=owner, instance=self)
 
     # override
     def despawn(self, ttl=0, respawn_delay=0):
@@ -494,7 +493,8 @@ class ObjectManager:
     # override
     def is_under_water(self):
         liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y, self.location.z)
-        return liquid_information and self.location.z + (self.current_scale * 1.8) < liquid_information.get_height()
+        model_height = self.model_height if self.model_height else 1.8
+        return liquid_information and self.location.z + (self.current_scale * model_height) < liquid_information.get_height()
 
     # override
     def is_in_deep_water(self):

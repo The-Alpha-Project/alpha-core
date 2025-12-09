@@ -5,6 +5,7 @@ from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.helpers.Constants import RESOLUTION_ZMAP, RESOLUTION_LIQUIDS, RESOLUTION_AREA_INFO
+from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from network.packet.PacketReader import PacketReader
 from utils.ConfigManager import config
 from utils.Float16 import Float16
@@ -13,7 +14,7 @@ from utils.PathManager import PathManager
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.74'
+    EXPECTED_VERSION = 'ACMAP_1.75'
 
     def __init__(self, map_, adt_x, adt_y):
         self.map_ = map_
@@ -127,7 +128,7 @@ class MapTile(object):
                 # ZoneID, AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit).
                 for x in range(RESOLUTION_AREA_INFO):
                     for y in range(RESOLUTION_AREA_INFO):
-                        zone_id = unpack('<i', map_tiles.read(4))[0]
+                        zone_id = unpack('<h', map_tiles.read(2))[0]
                         if zone_id == -1:  # No area information.
                             continue
                         # Area, flags, level, explore_bit.
@@ -140,8 +141,8 @@ class MapTile(object):
                 # Liquids
                 for x in range(RESOLUTION_LIQUIDS):
                     for y in range(RESOLUTION_LIQUIDS):
-                        liquid_type = unpack('<b', map_tiles.read(1))[0]
-                        if liquid_type == -1:  # No liquid information / not rendered.
+                        liq_type = unpack('<b', map_tiles.read(1))[0]
+                        if liq_type == -1:  # No liquid information / not rendered.
                             continue
                         if use_f16:
                             l_max = unpack('>h', map_tiles.read(2))[0]
@@ -152,8 +153,8 @@ class MapTile(object):
                         l_min = math.floor(self.z_height_map[xh][yh] - 3.0)
                         if l_max > l_min:
                             # noinspection PyTypeChecker
-                            self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, l_min,
-                                                                                           l_max, use_f16)
+                            self.liquid_information[x][y] = self.map_.get_liquid_or_create(liq_type, l_min,
+                                                                                           l_max, use_f16, is_wmo=False)
 
                 has_wmo_liquids = unpack('<b', map_tiles.read(1))[0]
                 if not has_wmo_liquids:
@@ -162,21 +163,30 @@ class MapTile(object):
                 # Wmo Liquids
                 for x in range(RESOLUTION_LIQUIDS):
                     for y in range(RESOLUTION_LIQUIDS):
-                        liquid_type = unpack('<b', map_tiles.read(1))[0]
-                        if liquid_type == -1:  # No liquid information / not rendered.
-                            continue
-                        if use_f16:
-                            l_max = unpack('>h', map_tiles.read(2))[0]
-                            l_min = unpack('>h', map_tiles.read(2))[0]
-                        else:
-                            l_max = unpack('<f', map_tiles.read(4))[0]
-                            l_min = math.floor(unpack('<f', map_tiles.read(4))[0])
+                        liq_count = unpack('<b', map_tiles.read(1))[0]
+                        liq_info = None
+                        for l in range(liq_count):
+                            liq_type = unpack('<b', map_tiles.read(1))[0]
+                            if liq_type == -1:  # No liquid information / not rendered.
+                                continue
+                            if use_f16:
+                                l_max = unpack('>h', map_tiles.read(2))[0]
+                                l_min = unpack('>h', map_tiles.read(2))[0]
+                            else:
+                                l_max = unpack('<f', map_tiles.read(4))[0]
+                                l_min = math.floor(unpack('<f', map_tiles.read(4))[0])
 
-                        if l_max > l_min:
-                            # noinspection PyTypeChecker
-                            self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, l_min,
-                                                                                           l_max, use_f16)
+                            if l_max < l_min:
+                                continue
 
+                            # First liquid.
+                            if not l:
+                                liq_info = self.map_.get_liquid_or_create(liq_type, l_min, l_max, use_f16, is_wmo=True)
+                                self.liquid_information[x][y] = liq_info
+                            # Nested liquid.
+                            elif isinstance(liq_info, LiquidInformation):
+                                n_liq_info = self.map_.get_liquid_or_create(liq_type, l_min, l_max, use_f16, is_wmo=True)
+                                liq_info.set_nested_liquid(n_liq_info)
         return True
 
     def _map_liquid_to_height(self, x_liquid, y_liquid):

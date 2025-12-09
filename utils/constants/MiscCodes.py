@@ -1006,6 +1006,8 @@ class MirrorTimerTypes(IntEnum):
     FATIGUE = 0
     BREATH = 1
     FEIGNDEATH = 2
+    SLIME = 3
+    MAGMA = 4
 
 
 class LogoutResponseCodes(IntEnum):

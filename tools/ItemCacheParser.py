@@ -47,7 +47,7 @@ class ItemCacheParser:
                             # Pointer.
                             index = 0
 
-                            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry_id)
+                            item_template = WorldDatabaseManager.item_template_get_by_entry(entry_id)
                             if not item_template:
                                 print(f'-- Unable to locate item_template for entry {entry_id}')
                                 continue

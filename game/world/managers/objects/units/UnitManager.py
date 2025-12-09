@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import random
 from struct import pack
+from time import sleep
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -19,6 +20,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -1087,6 +1089,9 @@ class UnitManager(ObjectManager):
     def is_sitting(self):
         return self.stand_state == StandState.UNIT_SITTING
 
+    def is_standing(self):
+        return self.stand_state == StandState.UNIT_STANDING
+
     def set_stand_state(self, stand_state):
         if stand_state == self.stand_state:
             return
@@ -1363,7 +1368,30 @@ class UnitManager(ObjectManager):
             return
         range_ = config.World.Chat.ChatRange.emote_range
         data = pack('<IQ', emote, self.guid)
-        self.get_map().send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data), self, range_)
+        packet = PacketWriter.get_packet(OpCode.SMSG_EMOTE, data)
+        self.get_map().send_surrounding_in_range(packet, self, range_)
+
+    def say_emote_text(self, emote_id, target=None):
+        emote = DbcDatabaseManager.emote_text_get_by_id(emote_id)
+        if not emote:
+            return
+
+        data = pack('<QI', self.guid, emote.ID)
+        if not target:
+            data += pack('<B', 0)
+        elif target.is_player():
+            player_name_bytes = PacketWriter.string_to_bytes(target.get_name())
+            data += pack(f'<{len(player_name_bytes)}s', player_name_bytes)
+        elif target.is_unit() and target.creature_template:
+            unit_name_bytes = PacketWriter.string_to_bytes(target.get_name())
+            data += pack(f'<{len(unit_name_bytes)}s', unit_name_bytes)
+            target.object_ai.receive_emote(self, emote.ID)  # Notify CreatureAI about emote sent to this creature.
+        else:
+            data += pack('<B', 0)
+
+        range_ = config.World.Chat.ChatRange.emote_range
+        packet = PacketWriter.get_packet(OpCode.SMSG_TEXT_EMOTE, data)
+        self.get_map().send_surrounding_in_range(packet, self, range_)
 
     def summon_mount(self, creature_entry):
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
@@ -1918,28 +1946,51 @@ class UnitManager(ObjectManager):
     def has_ooc_events(self):
         pass
 
-    # Implemented by CreatureManager and PlayerManager
-    def get_bytes_0(self):
-        pass
+    # Implemented by CreatureManager
+    def get_npc_flags(self):
+        return 0
 
-    # Implemented by CreatureManager and PlayerManager
+    # Implemented by CreatureManager
+    def get_unit_class(self):
+        return self.class_
+
+    # Implemented by PlayerManager
+    def get_combo_points(self):
+        return 0
+
+    def get_bytes_0(self):
+        return ByteUtils.bytes_to_int(
+            self.power_type,  # Power type.
+            self.gender,  # Gender.
+            self.get_unit_class(),  # Unit class.
+            self.race  # Unit race.
+        )
+
+    # Implemented by CorpseManager
     def get_bytes_1(self):
-        pass
+        return ByteUtils.bytes_to_int(
+            self.sheath_state,  # Sheath state.
+            self.shapeshift_form,  # Shapeshift form.
+            self.get_npc_flags(),  # NPC flags (0 for players).
+            self.stand_state  # Stand state.
+        )
+
+    # Implemented by CorpseManager.
+    def get_bytes_2(self):
+        return ByteUtils.bytes_to_int(
+            0,  # Unused.
+            0,  # Unused.
+            0,  # Unused.
+            self.get_combo_points()  # Combo points.
+        )
 
     """
-        Client doesn't properly set sheath state for units after destroy/create,
-        so we send it bytes_1 zeroed, and then send the actual state.
+        The client does not correctly update the sheath state for units following destroy/create operations. 
+        As a workaround, we first send the bytes_1 field bytes with all values zeroed out, 
+        and then send the actual state data afterward.
     """
     def get_bytes_1_state_update_bytes(self):
         return self.get_single_field_update_bytes(UnitFields.UNIT_FIELD_BYTES_1, self.get_bytes_1())
-
-    # Implemented by CreatureManager and PlayerManager
-    # char comboPoints;
-    # char padding;
-    # char padding;
-    # char padding;
-    def get_bytes_2(self):
-        pass
 
     # Implemented by CreatureManager and PlayerManager
     def get_damages(self):

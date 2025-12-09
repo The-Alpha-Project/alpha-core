@@ -37,7 +37,7 @@ class CreatureCacheParser:
                 # Pointer.
                 index = 0
 
-                creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry_id)
+                creature_template = WorldDatabaseManager.creature_template_by_entry(entry_id)
                 if not creature_template:
                     print(f'No template for entry {entry_id}')
                     continue

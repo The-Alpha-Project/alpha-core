@@ -881,6 +881,10 @@ class SpellManager:
         if casting_spell.initial_target_is_object():
             self.caster.set_channel_object(casting_spell.initial_target.guid)
 
+        # From 0.5.4 patch notes: 'You can now turn in place while fishing.'
+        if casting_spell.is_fishing_spell():
+            self.caster.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active=True)
+
         self.caster.set_channel_spell(casting_spell.spell_entry.ID)
 
         self.apply_spell_effects(casting_spell)
@@ -1584,14 +1588,17 @@ class SpellManager:
         return True
 
     def _handle_fishing_node_end(self):
+        # From 0.5.4 patch notes: 'You can now turn in place while fishing.'
+        self.caster.set_unit_flag(UnitFlags.UNIT_FLAG_DISABLE_ROTATE, active=False)
         if not self.caster.channel_object:
             return
         fishing_node = self.caster.get_map().get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
-        if isinstance(fishing_node, FishingNodeManager):
-            # If this was an interrupt or miss hook, remove the bobber.
-            # Else, it will be removed upon CMSG_LOOT_RELEASE.
-            if not fishing_node.hook_result:
-                self.caster.get_map().remove_object(fishing_node)
+        if not isinstance(fishing_node, FishingNodeManager):
+            return
+        # If this was an interrupt or miss hook, remove the bobber.
+        # Else, it will be removed upon CMSG_LOOT_RELEASE.
+        if not fishing_node.hook_result:
+            self.caster.get_map().remove_object(fishing_node)
 
     def _handle_summoning_channel_end(self):
         # Specific handling of ritual of summoning interrupting.

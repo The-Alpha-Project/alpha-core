@@ -23,6 +23,14 @@ class LiquidFlags(IntEnum):
             flags.append(flag)
         return flags
 
+
+class WmoGroupLiquidType(IntEnum):
+    INTERIOR_WATER = 0
+    EXTERIOR_WATER = 1
+    MAGMA = 2
+    SLIME = 3
+
+
 class MOGP_Flags(IntEnum):
     NONE = 0
     HasBSP = 0x1
@@ -57,10 +65,6 @@ class MOGP_Flags(IntEnum):
     ExteriorCull = 0x20000000
     HasThreeTextureCoordinateSets = 0x40000000
     Unknown_0x80000000 = 0x80000000
-
-    @staticmethod
-    def has_liquid_flag(flags):
-        return flags & MOGP_Flags.HasLiquids
 
 class WmoLiquidFlags(IntEnum):
     LiquidSurface = 0x1000

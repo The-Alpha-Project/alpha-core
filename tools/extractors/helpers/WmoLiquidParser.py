@@ -20,14 +20,18 @@ class WmoLiquidParser:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.adt = None
 
-    def load_liq_vertices_from(self, file_path):
+    def load_liquid_data_from(self, file_path):
         liq_vertices = []
         liq_min_bounds = []
+        liq_types = []
         with open(file_path, 'rb') as f:
-            # Read the number of liquid bounds.
-            liquid_bounds_count = struct.unpack('i', f.read(4))[0]
+            # Read the number of liquid chunks.
+            liquids_chunks_count = struct.unpack('i', f.read(4))[0]
 
-            for index in range(liquid_bounds_count):
+            for index in range(liquids_chunks_count):
+                liquid_type = struct.unpack('B', f.read(1))[0]
+                liq_types.append(liquid_type)
+
                 # Read min_bound vector (3 floats)
                 min_bound_vector = Vector3.from_bytes(f.read(12))
                 liq_min_bounds.append(min_bound_vector)
@@ -38,7 +42,7 @@ class WmoLiquidParser:
                 for _ in range(vertices_count):
                     liq_vertices[index].append(Vector3.from_bytes(f.read(12)))
 
-        return liq_min_bounds, liq_vertices
+        return liq_types, liq_min_bounds, liq_vertices
 
     def parse(self, wmo_liquids):
         if not self.adt.wmo_placements or not self.adt.wmo_filenames:
@@ -51,11 +55,11 @@ class WmoLiquidParser:
             if wmo_hash not in WMO_LIQ_FILES_HASH_MAP:
                 return
 
-            min_bounds, liq_vertices = self.load_liq_vertices_from(WMO_LIQ_FILES_HASH_MAP[wmo_hash])
+            liq_types, min_bounds, liq_vertices = self.load_liquid_data_from(WMO_LIQ_FILES_HASH_MAP[wmo_hash])
             t_matrix = wmo_placement.get_transform_matrix()
 
-            for min_bound, vertices in zip(min_bounds, liq_vertices):
-                WmoLiquidParser._transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, min_bound)
+            for min_bound, vertices, liq_type in zip(min_bounds, liq_vertices, liq_types):
+                WmoLiquidParser._transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, min_bound, liq_type)
 
             return
         except Exception as e:
@@ -63,7 +67,7 @@ class WmoLiquidParser:
             exit()
 
     @staticmethod
-    def _transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, liq_min_bound):
+    def _transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, liq_min_bound, liq_type):
         # Transform liquid min_bound.
         min_bound = Vector3.transform(liq_min_bound, t_matrix)
 
@@ -74,9 +78,23 @@ class WmoLiquidParser:
             adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
             # Initialize wmo liquids for adt if needed.
             WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
+
             # Write wmo liquid height.
-            wmo_liquids[adt_x][adt_y][cell_x][cell_y] = (v.Z, min_bound.Z)
-            # f.write(f"v {v.X} {v.Y} {v.Z}\n")
+            # We can have different liquids at the same cell at different heights, handle that here.
+            # This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
+            liq_list_for_cells = wmo_liquids[adt_x][adt_y][cell_x][cell_y]
+            if liq_list_for_cells:
+                # Allow two liquids per cell position.
+                if len(liq_list_for_cells) > 1:
+                    continue
+
+                z0 = liq_list_for_cells[0][0]  # Known Z.
+                # Within the already known liquid for this cell.
+                if abs(round(z0, 3) - round(v.Z, 3)) < 2.0:
+                    continue
+
+            # Append either first liquid or second liquid for this cell.
+            wmo_liquids[adt_x][adt_y][cell_x][cell_y].append((v.Z, min_bound.Z, liq_type))
 
         vertices.clear()
         transformed_vertices.clear()
@@ -86,4 +104,4 @@ class WmoLiquidParser:
         if wmo_liquids[adt_x][adt_y]:
             return
         grid_size = Constants.GRID_SIZE + 1
-        wmo_liquids[adt_x][adt_y] = [[None for _ in range(grid_size)] for _ in range(grid_size)]
+        wmo_liquids[adt_x][adt_y] = [[[] for _ in range(grid_size)] for _ in range(grid_size)]

@@ -203,10 +203,10 @@ class MapManager:
         return zone_id
 
     @staticmethod
-    def get_liquid_or_create(liquid_type, l_min, l_max, use_float_16):
-        key = f'{liquid_type}.{round(l_min, 4)}.{l_max}'
+    def get_liquid_or_create(liquid_type, l_min, l_max, use_float_16, is_wmo):
+        key = f'{liquid_type}.{round(l_min, 4)}.{round(l_max, 4)}'
         if key not in LIQUIDS_CACHE:
-            LIQUIDS_CACHE[key] = LiquidInformation(liquid_type, l_min, l_max, use_float_16)
+            LIQUIDS_CACHE[key] = LiquidInformation(liquid_type, l_min, l_max, use_float_16, is_wmo)
         return LIQUIDS_CACHE[key]
 
     @staticmethod
@@ -414,7 +414,7 @@ class MapManager:
             return False, False, [dst_loc]
 
         # At destination, return end vector.
-        if src_loc.approximately_equals(dst_loc, tolerance=0.5):
+        if src_loc.approximately_equals(dst_loc):
             return False, False, [dst_loc]
 
         # Too short of a path, return end vector.
@@ -568,10 +568,8 @@ class MapManager:
             if ignore_z:
                 return liq_info
 
-            if not liq_info.contains(z):
-                return None
-
-            return liq_info
+            # Retrieve liquid if its valid for current requester Z.
+            return liq_info.get_for_z(z)
         except:
             Logger.error(traceback.format_exc())
             return None
@@ -613,6 +611,9 @@ class MapManager:
             fz = start_location.z
             liquid_info = map_.get_liquid_information(fx, fy, fz, ignore_z=True)
             if liquid_info:
+                # From 0.5.4 patch notes: 'You can now fish in the undercity Slime.'
+                if liquid_info.is_slime() and not config.World.Gameplay.enable_slime_fishing:
+                    break
                 liquid_vector = Vector(fx, fy, liquid_info.get_height())
                 if map_.los_check(world_object.get_ray_position(), liquid_vector):
                     liquids_vectors.append(liquid_vector)

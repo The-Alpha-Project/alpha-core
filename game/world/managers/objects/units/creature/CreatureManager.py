@@ -223,6 +223,9 @@ class CreatureManager(UnitManager):
         # Trigger respawned event.
         self.object_ai.just_respawned()
 
+        # Update Swimming State.
+        self._update_swimming_state()
+
     def finish_loading(self):
         if self.fully_loaded or self.loading:
             return
@@ -430,7 +433,7 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.SESSILE
 
     def is_at_home(self):
-        return self.location.approximately_equals(self.spawn_position)
+        return self.location.approximately_equals(self.get_home_position())
 
     def on_at_home(self):
         self.tmp_home_position = None
@@ -635,7 +638,7 @@ class CreatureManager(UnitManager):
                     if self.has_moved and self.has_player_observers():
                         self.get_map().get_detection_manager().queue_update_unit_placement(self)
 
-                if self.call_for_help_timer >= 1:
+                if self.call_for_help_timer >= 0.33:
                     if self.combat_target:
                         self.threat_manager.call_for_help(self.combat_target)
                     self.call_for_help_timer = 0
@@ -650,12 +653,6 @@ class CreatureManager(UnitManager):
                 self.set_has_moved(False, False, flush=True)
 
         self.last_tick = now
-
-    # override
-    def spawn(self, owner=None):
-        if self.temp_faction_flags & TemporaryFactionFlags.TEMPFACTION_RESTORE_RESPAWN:
-            self.reset_faction()
-        self.get_map().spawn_object(world_object_spawn=owner, world_object_instance=self)
 
     # override
     def despawn(self, ttl=0, respawn_delay=0):
@@ -698,15 +695,15 @@ class CreatureManager(UnitManager):
 
         # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
         if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
-            return
+            return False
 
         can_attack = super().attack(victim)
 
         if not can_attack:
-            return
+            return False
 
         if had_target:
-            return
+            return False
 
         # Stand if necessary.
         if self.stand_state != StandState.UNIT_STANDING:
@@ -717,6 +714,7 @@ class CreatureManager(UnitManager):
             self.set_emote_unit_state(EmoteUnitState.NONE)
 
         self.object_ai.attack_start(victim)
+        return True
 
     # override
     def attack_stop(self):
@@ -900,32 +898,12 @@ class CreatureManager(UnitManager):
         super().respawn()
 
     # override
-    def get_bytes_0(self):
-        return ByteUtils.bytes_to_int(
-            self.power_type,  # power type
-            self.gender,  # gender
-            self.creature_template.unit_class,  # class
-            self.race  # race (0 for creatures)
-        )
+    def get_npc_flags(self):
+        return self.npc_flags
 
     # override
-    def get_bytes_1(self):
-        return ByteUtils.bytes_to_int(
-            self.sheath_state,  # sheath state
-            self.shapeshift_form,  # shapeshift form
-            self.npc_flags,  # npc flags
-            self.stand_state  # stand state
-        )
-
-    # override
-    # This update field is unused and private in 0.5.3.
-    def get_bytes_2(self):
-        return ByteUtils.bytes_to_int(
-            0,  # Unused.
-            0,  # Unused.
-            0,  # Unused.
-            0,  # Combo points.
-        )
+    def get_unit_class(self):
+        return self.creature_template.unit_class
 
     # override
     def get_damages(self):
