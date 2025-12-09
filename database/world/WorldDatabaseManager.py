@@ -224,6 +224,13 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
+    def item_template_get_by_entry(entry) -> Optional[ItemTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(ItemTemplate).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
     def item_template_get_by_name(name, return_all=False) -> list[Optional[ItemTemplate]]:
         world_db_session = SessionHolder()
         best_matching_item = None
@@ -705,6 +712,13 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
+    def creature_template_by_entry(entry) -> list[CreatureTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureTemplate).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
     def get_trainer_spell(spell_id):
         world_db_session = SessionHolder()
         res = world_db_session.query(TrainerTemplate).filter_by(spell=spell_id).first()
@@ -940,6 +954,14 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         res = world_db_session.query(QuestTemplate).filter(QuestTemplate.Title.like(f'%{title}%'),
                                                            QuestTemplate.ignored == 0).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    @lru_cache
+    def quest_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestTemplate).filter_by(entry=entry).first()
         world_db_session.close()
         return res
         
