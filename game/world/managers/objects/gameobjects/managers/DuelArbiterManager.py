@@ -1,14 +1,17 @@
 from struct import pack
 from typing import Optional
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.DuelCodes import *
+from utils.constants.MiscCodes import Emotes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 
 BOUNDARY_RADIUS = 50
+GROVEL_SPELL = 7267
 OUT_OF_BOUNDARY_GRACE_TIME = 10  # Seconds.
 
 
@@ -82,9 +85,14 @@ class DuelArbiterManager(GameObjectManager):
         # Set this first to prevent next tick to trigger.
         self.duel_state = DuelState.DUEL_STATE_FINISHED
 
-        # TODO: Should trigger EMOTE BEG on loser and root for 3 secs?
-        if duel_winner_flag == DuelWinner.DUEL_WINNER_KNOCKOUT:
-            pass
+        # Loser cast Grovel (Stun 3 secs).
+        if winner and duel_winner_flag == DuelWinner.DUEL_WINNER_KNOCKOUT:
+            loser = self.duel_info[winner.guid].target
+            # Say grovel emote text, animation handled by spell.
+            loser.say_emote_text(Emotes.GROVEL, target=winner)
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(GROVEL_SPELL)
+            spell_target_mask = spell_template.Targets
+            loser.spell_manager.handle_cast_attempt(GROVEL_SPELL, loser, spell_target_mask)
 
         # Send either the duel ended by natural means or if it was canceled/interrupted.
         self._notify_duel_complete(duel_complete_flag)

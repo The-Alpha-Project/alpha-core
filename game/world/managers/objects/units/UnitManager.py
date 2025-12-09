@@ -20,6 +20,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -1088,6 +1089,9 @@ class UnitManager(ObjectManager):
     def is_sitting(self):
         return self.stand_state == StandState.UNIT_SITTING
 
+    def is_standing(self):
+        return self.stand_state == StandState.UNIT_STANDING
+
     def set_stand_state(self, stand_state):
         if stand_state == self.stand_state:
             return
@@ -1364,7 +1368,30 @@ class UnitManager(ObjectManager):
             return
         range_ = config.World.Chat.ChatRange.emote_range
         data = pack('<IQ', emote, self.guid)
-        self.get_map().send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data), self, range_)
+        packet = PacketWriter.get_packet(OpCode.SMSG_EMOTE, data)
+        self.get_map().send_surrounding_in_range(packet, self, range_)
+
+    def say_emote_text(self, emote_id, target=None):
+        emote = DbcDatabaseManager.emote_text_get_by_id(emote_id)
+        if not emote:
+            return
+
+        data = pack('<QI', self.guid, emote.ID)
+        if not target:
+            data += pack('<B', 0)
+        elif target.is_player():
+            player_name_bytes = PacketWriter.string_to_bytes(target.get_name())
+            data += pack(f'<{len(player_name_bytes)}s', player_name_bytes)
+        elif target.is_unit() and target.creature_template:
+            unit_name_bytes = PacketWriter.string_to_bytes(target.get_name())
+            data += pack(f'<{len(unit_name_bytes)}s', unit_name_bytes)
+            target.object_ai.receive_emote(self, emote.ID)  # Notify CreatureAI about emote sent to this creature.
+        else:
+            data += pack('<B', 0)
+
+        range_ = config.World.Chat.ChatRange.emote_range
+        packet = PacketWriter.get_packet(OpCode.SMSG_TEXT_EMOTE, data)
+        self.get_map().send_surrounding_in_range(packet, self, range_)
 
     def summon_mount(self, creature_entry):
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
