@@ -87,14 +87,16 @@ class WanderingMovement(BaseMovement):
 
         # Check line of sight for the given point and surrounding points.
         # Sometimes Namigator returns TRUE for points walls edges, which keeps units loop walking towards a wall.
-        points = random_point.get_surrounding_points_in_distance()
-        for point in points:
-            if not map_.los_check(self.unit.get_ray_position(), point.get_ray_vector(is_terrain=True), doodads=True):
-                return False, start_point
+        if config.Server.Settings.use_nav_tiles:
+            points = random_point.get_surrounding_points_in_distance()
+            for point in points:
+                if not map_.los_check(self.unit.get_ray_position(), point.get_ray_vector(is_terrain=True), doodads=True):
+                    return False, start_point
 
         # Validate a path to the wandering point, just be length 1.
-        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
-        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
-            return False, start_point
+        if config.Server.Settings.use_nav_tiles:
+            failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
+            if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
+                return False, start_point
 
         return True, random_point
