@@ -87,7 +87,7 @@ class WanderingMovement(BaseMovement):
 
         # Check line of sight for the given point and surrounding points.
         # Sometimes Namigator returns TRUE for points walls edges, which keeps units loop walking towards a wall.
-        points = self._get_surrounding_points(random_point)
+        points = random_point.get_surrounding_points_in_distance()
         for point in points:
             if not map_.los_check(self.unit.get_ray_position(), point.get_ray_vector(is_terrain=True), doodads=True):
                 return False, start_point
@@ -98,14 +98,3 @@ class WanderingMovement(BaseMovement):
             return False, start_point
 
         return True, random_point
-
-    def _get_surrounding_points(self, vector, distance=1.0):
-        result = [vector]
-        from game.world.managers.abstractions.Vector import Vector
-        result.append(Vector(vector.x, vector.y + distance, vector.z))  # North.
-        result.append(Vector(vector.x, vector.y - distance, vector.z))  # South.
-        result.append(Vector(vector.x + distance, vector.y, vector.z))  # East.
-        result.append(Vector(vector.x - distance, vector.y, vector.z))  # West.
-        return result
-
-
