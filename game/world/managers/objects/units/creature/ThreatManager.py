@@ -111,6 +111,9 @@ class ThreatManager:
         if not self.unit.is_alive or not self.unit.is_spawned or not source.is_alive:
             return
 
+        if self.has_aggro_from(source) and threat == ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT:
+            return
+
         threat = self._calculate_threat_for_self(threat, attacker=source)
 
         # Notify pet that owner has been attacked.
@@ -141,7 +144,7 @@ class ThreatManager:
         charmer_or_summoner = source.get_charmer_or_summoner()
         if charmer_or_summoner and not self.has_aggro_from(charmer_or_summoner):
             # Set pet owner in combat as well.
-            self.add_threat(charmer_or_summoner, 0)
+            self.add_threat(charmer_or_summoner)
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         if not self.can_resolve_target():

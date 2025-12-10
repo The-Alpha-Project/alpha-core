@@ -280,7 +280,6 @@ class UnitManager(ObjectManager):
                 if self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
                     return False
                 if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
-                    print('FALSE!')
                     return False
 
         # Always short circuit on charmer/summoner relationship.
