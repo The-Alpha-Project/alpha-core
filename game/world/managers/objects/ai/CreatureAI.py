@@ -221,6 +221,9 @@ class CreatureAI:
         if not self.has_spell_list():
             return
 
+        if not self.creature.threat_manager.can_resolve_target():
+            return
+
         if self.casting_delay <= 0:
             self.casting_delay = CreatureAI.CREATURE_CASTING_DELAY
             self.do_spell_list_cast()

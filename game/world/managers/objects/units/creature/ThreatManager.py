@@ -220,6 +220,8 @@ class ThreatManager:
     def can_resolve_target(self):
         if not self.unit.is_alive:
             return False
+        if not self.unit.is_pet() and self.unit.is_evading:
+            return False
         if self.unit.unit_state & UnitStates.STUNNED:
             return False
         if self.unit.unit_state & UnitStates.CONFUSED:

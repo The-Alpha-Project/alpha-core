@@ -239,6 +239,7 @@ class MovementManager:
 
         if movement_behavior.initialize(self.unit):
             self.stop()  # Stop the current behavior if needed.
+            self.unit.spell_manager.remove_casts()  # Remove any cast when switching behaviors.
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
             if movement_behavior.is_default:

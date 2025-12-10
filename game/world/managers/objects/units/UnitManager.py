@@ -1933,9 +1933,7 @@ class UnitManager(ObjectManager):
         self.set_stand_state(StandState.UNIT_STANDING)
 
     def can_be_targeted_for_surrounding_aggro(self):
-        return (not self.is_evading and self.is_alive and not self.beast_master
-        and not self.unit_state & UnitStates.STUNNED
-        and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED)
+        return not self.beast_master and self.threat_manager.can_resolve_target()
 
     def get_ai_name(self):
         if not self.object_ai:
