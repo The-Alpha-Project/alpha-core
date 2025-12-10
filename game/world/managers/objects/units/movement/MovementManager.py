@@ -97,7 +97,7 @@ class MovementManager:
 
         self._update_spline_events(elapsed)
 
-        if not self._can_move():
+        if not self._can_move() and self._get_current_spline():
             self.stop()
             return
 
@@ -152,7 +152,6 @@ class MovementManager:
         # Do not allow shorter fear to override a current fear.
         if current_fear_behavior and current_fear_behavior.fear_duration > duration_seconds:
             return
-        self.reset(clean_behaviors=True)
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback,
                                        target=target, seek_assist=seek_assist))
 
