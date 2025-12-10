@@ -34,6 +34,10 @@ class FearMovement(BaseMovement):
 
     # override
     def update(self, now, elapsed):
+        # Avoid units trying to turn and face the target as they run.
+        if self.unit.current_target:
+            self.unit.set_current_target(0)
+
         if self._can_trigger_fear():
             self.speed_dirty = False
             self._trigger_fear()

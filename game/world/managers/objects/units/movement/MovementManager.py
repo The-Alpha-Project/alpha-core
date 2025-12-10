@@ -97,8 +97,9 @@ class MovementManager:
 
         self._update_spline_events(elapsed)
 
-        if not self._can_move() and self._get_current_spline():
-            self.stop()
+        if not self._can_move():
+            if self._get_current_spline():
+                self.stop()
             return
 
         # Check if we need to remove any movement.

@@ -276,8 +276,12 @@ class UnitManager(ObjectManager):
                 return False
             if target.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
                 return False
-            if self.is_unit() and self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
-                return False
+            if self.is_unit():
+                if self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
+                    return False
+                if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+                    print('FALSE!')
+                    return False
 
         # Always short circuit on charmer/summoner relationship.
         charmer = self.get_charmer_or_summoner()
@@ -1245,7 +1249,7 @@ class UnitManager(ObjectManager):
 
         if not was_stunned and is_stunned:
             # Force move behavior stop.
-            self.movement_manager.stop()
+            self.movement_manager.stop(force=True)
             self.spell_manager.remove_casts(remove_active=False)
             self.set_current_target(0)
         elif was_stunned and not is_stunned:

@@ -754,13 +754,6 @@ class CreatureManager(UnitManager):
             if summoner and summoner.is_player():
                 summoner.send_minimap_ping(self.guid, self.location)
 
-        # If creature's being attacked by another unit, automatically set combat target.
-        not_attacked_by_gameobject = source and not source.is_gameobject()
-        if not_attacked_by_gameobject:
-            if not self.combat_target:
-                # Make sure to first stop any movement right away.
-                self.movement_manager.stop()
-
         return True
 
     # override
