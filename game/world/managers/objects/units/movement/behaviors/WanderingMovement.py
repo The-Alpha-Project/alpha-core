@@ -68,9 +68,10 @@ class WanderingMovement(BaseMovement):
         map_ = self.unit.get_map()
 
         # Ignore point if 'slope' above 2.5.
-        diff = math.fabs(random_point.z - self.unit.location.z)
-        if diff > 2.5:
-            return False, start_point
+        if not config.Server.Settings.use_nav_tiles:
+            diff = math.fabs(random_point.z - self.unit.location.z)
+            if diff > 2.5:
+                return False, start_point
 
         # Client can crash with short movements.
         if self.unit.location.distance(random_point) < 0.1:
