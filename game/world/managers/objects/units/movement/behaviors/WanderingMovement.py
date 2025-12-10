@@ -85,9 +85,12 @@ class WanderingMovement(BaseMovement):
         if z_locked:
             return False, start_point
 
-        # Check line of sight.
-        if not map_.los_check(self.unit.get_ray_position(), random_point.get_ray_vector(is_terrain=True), doodads=True):
-            return False, start_point
+        # Check line of sight for the given point and surrounding points.
+        # Sometimes Namigator returns TRUE for points walls edges, which keeps units loop walking towards a wall.
+        points = self._get_surrounding_points(random_point)
+        for point in points:
+            if not map_.los_check(self.unit.get_ray_position(), point.get_ray_vector(is_terrain=True), doodads=True):
+                return False, start_point
 
         # Validate a path to the wandering point, just be length 1.
         failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
@@ -95,3 +98,14 @@ class WanderingMovement(BaseMovement):
             return False, start_point
 
         return True, random_point
+
+    def _get_surrounding_points(self, vector, distance=1.0):
+        result = [vector]
+        from game.world.managers.abstractions.Vector import Vector
+        result.append(Vector(vector.x, vector.y + distance, vector.z))  # North.
+        result.append(Vector(vector.x, vector.y - distance, vector.z))  # South.
+        result.append(Vector(vector.x + distance, vector.y, vector.z))  # East.
+        result.append(Vector(vector.x - distance, vector.y, vector.z))  # West.
+        return result
+
+
