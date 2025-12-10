@@ -103,7 +103,7 @@ class Vector:
             vector = Vector(x=x, y=y)
         return math.atan2(vector.x - self.x, vector.y - self.y)
 
-    def has_in_arc(self, vector, arc):
+    def has_in_arc(self, vector, arc=math.pi):
         vector_angle = self.angle(vector) % (2 * math.pi)
 
         # Orientation is offset by 90°

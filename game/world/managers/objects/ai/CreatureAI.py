@@ -354,7 +354,7 @@ class CreatureAI:
                 return SpellCheckCastResult.SPELL_FAILED_NOPATH
 
             # If the spell requires specific unit placement.
-            target_is_facing_caster = target.location.has_in_arc(self.creature.location, math.pi)
+            target_is_facing_caster = target.location.has_in_arc(self.creature.location)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
                 if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):

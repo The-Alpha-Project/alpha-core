@@ -1265,7 +1265,7 @@ class SpellManager:
                 return False
 
             # Orientation checks.
-            target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
+            target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
                 if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):

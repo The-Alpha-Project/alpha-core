@@ -378,13 +378,12 @@ class UnitManager(ObjectManager):
             return False
 
         swing_error = AttackSwingError.NONE
-        combat_angle = math.pi
 
         # Out of reach.
         if not self.is_within_interactable_distance(self.combat_target):
             swing_error = AttackSwingError.NOTINRANGE
         # Not proper angle.
-        elif not self.location.has_in_arc(self.combat_target.location, combat_angle):
+        elif not self.location.has_in_arc(self.combat_target.location):
             swing_error = AttackSwingError.BADFACING
         # Moving.
         elif self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
@@ -479,7 +478,7 @@ class UnitManager(ObjectManager):
             return
 
         # Not attack from behind, ignore.
-        if self.location.has_in_arc(attacker.location, math.pi):
+        if self.location.has_in_arc(attacker.location):
             return
 
         # Check if already dazed.
@@ -1213,7 +1212,7 @@ class UnitManager(ObjectManager):
             visible_distance = 0.0
 
         # Sneaking unit is behind, reduce visible distance.
-        if not self.location.has_in_arc(target.location, math.pi):
+        if not self.location.has_in_arc(target.location):
             visible_distance = max(0.0, visible_distance - 9.0)
 
         alert = False

@@ -1377,7 +1377,7 @@ class PlayerManager(UnitManager):
         if not super().can_block(attacker_location, in_combat=in_combat):
             return False
 
-        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+        if attacker_location and not self.location.has_in_arc(attacker_location):
             return False  # players can't block from behind.
 
         return self.inventory.has_offhand() and \
@@ -1388,7 +1388,7 @@ class PlayerManager(UnitManager):
         if not super().can_parry(attacker_location, in_combat=in_combat):
             return False
 
-        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+        if attacker_location and not self.location.has_in_arc(attacker_location):
             return False  # players can't parry from behind.
 
         return True
@@ -1398,7 +1398,7 @@ class PlayerManager(UnitManager):
         if not super().can_dodge(attacker_location, in_combat=in_combat):
             return False
 
-        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+        if attacker_location and not self.location.has_in_arc(attacker_location):
             return False  # players can't dodge from behind.
 
         return True
