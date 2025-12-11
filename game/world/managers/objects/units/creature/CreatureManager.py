@@ -313,35 +313,37 @@ class CreatureManager(UnitManager):
     def set_virtual_equipment(self, slot, item_id):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
 
-    def get_virtual_equipment_entries(self):
-        equipment_id = self._get_equipment_id()
-        if not equipment_id:
-            return []
-        equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
-        if not equip_template:
-            return []
+    def get_virtual_equipment_entries(self, filtered=False):
+        equipment_entries = [0, 0, 0]
 
-        equipment_entries = [
-            getattr(equip_template, f'equipentry{i + 1}', None)
-            for i in range(3)
-        ]
+        # If addon is set, it should only replace values > 0.
+        for equipment_id in self._get_equipment_ids():
+            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
+            if not equip_template:
+                continue
 
-        filtered_entries = [entry for entry in equipment_entries if entry not in (None, 0)]
-        return filtered_entries
+            for i in range(3):
+                entry = getattr(equip_template, f'equipentry{i + 1}', 0)
+                if entry > 0:
+                    equipment_entries[i] = entry
+
+        if filtered:
+            equipment_entries = [entry for entry in equipment_entries if entry > 0]
+
+        return equipment_entries
 
     def reset_virtual_equipment(self):
-        equipment_id = self._get_equipment_id()
-        if equipment_id:
-            equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
-            if equip_template:
-                [VirtualItemsUtils.set_virtual_item(self, x, getattr(equip_template, f'equipentry{x + 1}')) for x in range(3)]
-                return
-        # Make sure its cleared if creature was morphed.
-        [VirtualItemsUtils.set_virtual_item(self, x, 0) for x in range(3)]
+        equipment_entries = self.get_virtual_equipment_entries()
+        for i in range(3):
+            VirtualItemsUtils.set_virtual_item(self, i, equipment_entries[i])
 
-    def _get_equipment_id(self):
-        return self.addon.equipment_id if self.addon and self.addon.equipment_id \
-            else self.creature_template.equipment_id
+    def _get_equipment_ids(self):
+        ids = []
+        if self.creature_template and self.creature_template.equipment_id:
+            ids.append(self.creature_template.equipment_id)
+        if self.addon and self.addon.equipment_id:
+            ids.append(self.addon.equipment_id)
+        return ids
 
     def set_faction(self, faction_id, temp_faction_flags=TemporaryFactionFlags.TEMPFACTION_NONE):
         self.temp_faction_flags |= temp_faction_flags
