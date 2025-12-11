@@ -313,6 +313,22 @@ class CreatureManager(UnitManager):
     def set_virtual_equipment(self, slot, item_id):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
 
+    def get_virtual_equipment_entries(self):
+        equipment_id = self._get_equipment_id()
+        if not equipment_id:
+            return []
+        equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
+        if not equip_template:
+            return []
+
+        equipment_entries = [
+            getattr(equip_template, f'equipentry{i + 1}', None)
+            for i in range(3)
+        ]
+
+        filtered_entries = [entry for entry in equipment_entries if entry not in (None, 0)]
+        return filtered_entries
+
     def reset_virtual_equipment(self):
         equipment_id = self._get_equipment_id()
         if equipment_id:
