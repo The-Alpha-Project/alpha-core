@@ -1068,7 +1068,6 @@ class UnitManager(ObjectManager):
 
         # Remove casts.
         self.spell_manager.remove_casts()
-        self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
 
         # Reset threat table.
         self.threat_manager.reset()

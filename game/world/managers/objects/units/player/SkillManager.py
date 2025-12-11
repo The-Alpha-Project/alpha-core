@@ -1,7 +1,7 @@
 import random
 from enum import IntEnum
 from struct import pack
-from typing import NamedTuple, Optional
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -15,7 +15,7 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockTypes
+from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects
 from utils.constants.UpdateFields import PlayerFields
@@ -587,7 +587,7 @@ class SkillManager:
 
     def handle_fishing_attempt_chance(self):
         skill = self.skills.get(SkillTypes.FISHING, None)
-        if not skill:
+        if not isinstance(skill, CharacterSkill):
             return False
 
         # Search the skill zone by parent zone id.
@@ -774,16 +774,9 @@ class SkillManager:
         return SkillTypes.DUALWIELD in self.skills
 
     def build_update(self):
-        count = 0
-        for skill_id, skill in self.skills.items():
-            total_value = self.get_total_skill_value(skill_id)
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3),
-                                       # skill value, skill id
-                                       ByteUtils.shorts_to_int(skill.value, skill_id))
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3) + 1,
-                                       # skill mod, max rank
-                                       ByteUtils.shorts_to_int(total_value - skill.value, skill.max))
-            self.player_mgr.set_uint32(PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3) + 2,
-                                       # padding, skill step
-                                       ByteUtils.shorts_to_int(0, 0))
-            count += 1
+        for count, (skill_id, skill) in enumerate(self.skills.items()):
+            base_field = PlayerFields.PLAYER_SKILL_INFO_1_1 + (count * 3)
+            # skill value, skill id | skill mod, max rank | padding, skill step
+            values = [(skill.value, skill_id), (self.get_total_skill_value(skill_id) - skill.value, skill.max), (0, 0)]
+            for offset, (val1, val2) in enumerate(values):
+                self.player_mgr.set_uint32(base_field + offset, ByteUtils.shorts_to_int(val1, val2))

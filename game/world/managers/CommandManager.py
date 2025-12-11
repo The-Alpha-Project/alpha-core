@@ -906,6 +906,7 @@ class CommandManager:
                       f'Faction: {creature.faction}\n' \
                       f'AI: {creature.get_ai_name()}\n' \
                       f'Sheath: {WeaponMode(creature.sheath_state).name}\n' \
+                      f'Equipment: {", ".join(str(item) for item in creature.get_virtual_equipment_entries())}\n' \
                       f'Movement: {creature.movement_manager.get_current_behavior_name()}\n' \
                       f'Detection Range: {creature.get_detection_range(world_session.player_mgr)}\n' \
                       f'Alive: {creature.is_alive}\n' \

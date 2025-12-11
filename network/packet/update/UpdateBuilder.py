@@ -61,7 +61,7 @@ class UpdateBuilder:
             self._add_world_object_detail_query_from_object(world_object)
             # Send units virtual items detail queries.
             if obj_type == ObjectTypeIds.ID_UNIT:
-                item_entries = world_object.get_virtual_equipment_entries()
+                item_entries = world_object.get_virtual_equipment_entries(filtered=True)
                 for entry in item_entries:
                     self._add_virtual_item_detail_query_from_entry(world_object, entry)
 

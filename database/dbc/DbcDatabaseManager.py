@@ -339,7 +339,7 @@ class DbcDatabaseManager:
 
         @staticmethod
         def skill_line_abilities_get_by_spell(spell_id) -> list:
-            return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, list())
+            return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, [])
 
         @staticmethod
         def get_skill_line_ability_for_race_and_class(skill_line_abilities, race, class_):

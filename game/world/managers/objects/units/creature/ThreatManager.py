@@ -298,9 +298,10 @@ class ThreatManager:
     def _can_resolve_holder(self, holder):
         if not holder.unit.is_alive:
             return False
-        if not self.unit.can_attack_target(holder.unit):
+        can_attack_target = self.unit.can_attack_target(holder.unit)
+        if not can_attack_target:
             return False
-        if not self.unit.is_hostile_to(holder.unit):
+        if not self.unit.is_hostile_to(holder.unit) and not can_attack_target:
             return False
         return True
 
