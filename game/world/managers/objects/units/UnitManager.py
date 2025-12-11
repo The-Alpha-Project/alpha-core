@@ -263,7 +263,8 @@ class UnitManager(ObjectManager):
             return False
 
         # Beastmaster.
-        if target.beast_master:
+        has_aggro_from_target = self.threat_manager.has_aggro_from(target)
+        if not has_aggro_from_target and target.beast_master:
             return False
 
         # Flight.
@@ -302,7 +303,7 @@ class UnitManager(ObjectManager):
             return True
 
         # Might be neutral, but was attacked by target.
-        return target and self.threat_manager.has_aggro_from(target)
+        return target and has_aggro_from_target
 
     def attack(self, victim: UnitManager):
         if not victim or victim == self:
