@@ -262,6 +262,10 @@ class UnitManager(ObjectManager):
         if target.unit_state & UnitStates.SANCTUARY:
             return False
 
+        # Beastmaster.
+        if target.beast_master:
+            return False
+
         # Flight.
         if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             return False
@@ -1058,11 +1062,15 @@ class UnitManager(ObjectManager):
         self.swing_error = 0
         self.extra_attacks = 0
 
-        # Reset threat table.
-        self.threat_manager.reset()
-
         # Reset aura states.
         self.aura_manager.reset_aura_states()
+
+        # Remove casts.
+        self.spell_manager.remove_casts()
+        self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
+
+        # Reset threat table.
+        self.threat_manager.reset()
 
         self.combat_target = None
         self.in_combat = False
@@ -1116,10 +1124,11 @@ class UnitManager(ObjectManager):
             controlled_pet.beast_master = active
 
     def update_sanctuary(self, elapsed):
-        if self.sanctuary_timer > 0:
-            self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
-            if self.sanctuary_timer == 0:
-                self.set_sanctuary(False)
+        if not self.sanctuary_timer:
+            return
+        self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
+        if not self.sanctuary_timer:
+            self.set_sanctuary(False)
 
     # Implemented by CreatureManager.
     def is_tameable(self):
@@ -1931,9 +1940,6 @@ class UnitManager(ObjectManager):
         self.remove_all_dynamic_flags()
         self.set_stand_state(StandState.UNIT_STANDING)
 
-    def can_be_targeted_for_surrounding_aggro(self):
-        return not self.beast_master and self.threat_manager.can_resolve_target()
-
     def get_ai_name(self):
         if not self.object_ai:
             return 'None'
@@ -2026,6 +2032,9 @@ class UnitManager(ObjectManager):
             los_check = map_.los_check(self.get_ray_position(), unit.get_ray_position())
             if los_check:
                 self.object_ai.move_in_line_of_sight(unit, ai_event=True)
+
+        if not self.threat_manager.can_resolve_target():
+            return
 
         if not in_range or not self.is_hostile_to(unit) or not self.can_attack_target(unit):
             return
