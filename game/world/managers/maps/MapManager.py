@@ -483,20 +483,14 @@ class MapManager:
         # Calculate path.
         navigation_path = namigator.find_path(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
 
-        if len(navigation_path) == 0:
+        if len(navigation_path) <= 1:
             if not los:
-                Logger.warning(f'[Namigator] 0 Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
+                Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
             return True, False, [dst_loc]
 
         # Pop starting location, we already have that and WoW client seems to crash when sending
         # movements with too short of a diff.
         del navigation_path[0]
-
-        # Validate length again.
-        if len(navigation_path) == 0:
-            if not los:
-                Logger.warning(f'[Namigator] 1 Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
-            return True, False, [dst_loc]
 
         from game.world.managers.abstractions.Vector import Vector
         vectors = [Vector(waypoint[0], waypoint[1], waypoint[2]) for waypoint in navigation_path]
