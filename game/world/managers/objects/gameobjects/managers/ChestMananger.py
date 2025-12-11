@@ -3,14 +3,13 @@ import random
 
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.units.player import SkillManager
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.UnitCodes import UnitFlags
 
 
 # TODO: Chests that have a hostile faction toward the player should make a surrounding call for help upon use.
 class ChestManager(GameObjectManager):
-    MINING_SKILL = 186
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -115,7 +114,7 @@ class ChestManager(GameObjectManager):
         if self.unlock_result:
             required_value = self.unlock_result.required_skill_value
 
-        skill_total = player.skill_manager.get_total_skill_value(ChestManager.MINING_SKILL) / (required_value + 25)
+        skill_total = player.skill_manager.get_total_skill_value(SkillManager.SkillTypes.MINING) / (required_value + 25)
         chance = math.pow(0.8 * chance_rate, 4 * (1 / self.max_restock) * self.attempts)
         succeed_roll = 100.0 * chance + skill_total > random.uniform(0.0, 99.9999999)
 

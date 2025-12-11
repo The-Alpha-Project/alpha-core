@@ -509,8 +509,8 @@ class SkillManager:
                                                 bonus_points=bonus_points)
 
         if target.is_gameobject():
-            # Handle unique skill gain per herb node.
-            if lock_result.skill_type == SkillTypes.HERBALISM and self.player_mgr.guid in target.unlocked_by:
+            # Prevent gaining more than 1 point per player per gather attempt. Only relevant for Mining Nodes.
+            if self.player_mgr.guid in target.unlocked_by:
                 return
             target.unlocked_by.add(self.player_mgr.guid)
 
