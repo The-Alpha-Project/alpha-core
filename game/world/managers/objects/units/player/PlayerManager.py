@@ -795,8 +795,6 @@ class PlayerManager(UnitManager):
         super().set_sanctuary(active, time_secs)
         if not active:
             return
-        self.spell_manager.remove_casts()
-        self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
         # Remove self from combat and attackers.
         self.leave_combat()
 
