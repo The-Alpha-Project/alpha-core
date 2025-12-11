@@ -229,7 +229,7 @@ class PetData:
         for spell_id in self.spells:
             line_entry = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)[0]
             if line_entry.SupercededBySpell in self.spells:
-                continue  # Only place highest ranks on action bar.
+                continue  # Only place the highest ranks on action bar.
 
             template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
