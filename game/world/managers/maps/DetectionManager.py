@@ -31,7 +31,7 @@ class DetectionManager:
 
         all_units = list(self.units.values())
         for unit_a in all_units:
-            if not self.can_target_unit_for_aggro(unit_a):
+            if not self.is_in_valid_cell(unit_a):
                 continue
             # Query potential targets within visibility range using spatial partitioning.
             unit_a.update_visibility_bounds(self.unit_visibility_bounds)
@@ -42,7 +42,7 @@ class DetectionManager:
                 unit_b = self.units.get(unit_b_guid, None)
                 if not unit_b or unit_b.guid == unit_a.guid:
                     continue
-                if not self.can_target_unit_for_aggro(unit_b):
+                if not self.is_in_valid_cell(unit_b):
                     continue
                 # Perform the precise distance check using unit_a's potentially dynamic
                 # detection range against unit_b.
@@ -52,10 +52,9 @@ class DetectionManager:
                 if in_range or ooc_events:
                      unit_a.notify_move_in_line_of_sight(self.grid_manager.map_, unit_b, ooc_events, in_range)
 
-    def can_target_unit_for_aggro(self, unit):
-        # Check if unit's cell_key is valid and in active_cells and alive.
-        return (unit.current_cell and unit.current_cell in self.grid_manager.active_cell_keys
-                and unit.can_be_targeted_for_surrounding_aggro())
+    def is_in_valid_cell(self, unit):
+        # Check if unit's cell_key is valid and in active_cells.
+        return unit.current_cell and unit.current_cell in self.grid_manager.active_cell_keys
 
     def queue_update_unit_placement(self, unit):
         self.pending_placement_updates[unit.guid] = unit
