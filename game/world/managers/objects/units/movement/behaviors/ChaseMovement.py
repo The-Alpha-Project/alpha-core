@@ -33,7 +33,7 @@ class ChaseMovement(BaseMovement):
             if self.spline:
                 self.stop()
             # Face the target if necessary.
-            elif self.combat_target and not self.unit.location.has_in_arc(self.combat_target.location, math.pi):
+            elif not self.unit.location.has_in_arc(self.combat_target.location):
                 self.unit.movement_manager.face_target(self.combat_target)
             return
 
