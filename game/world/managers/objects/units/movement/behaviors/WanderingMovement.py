@@ -29,9 +29,9 @@ class WanderingMovement(BaseMovement):
         if self._can_wander(now):
             self.last_wandering_movement = now
             if self._wander():
-                self.wait_time_seconds = max(self.get_total_time_secs() + 1.0, randint(1, 12))
+                self.wait_time_seconds = randint(1, 12) + self.get_total_time_secs()
             else:
-                self.wait_time_seconds = randint(1, 4)
+                self.wait_time_seconds = randint(1, 3)
 
         super().update(now, elapsed)
 
