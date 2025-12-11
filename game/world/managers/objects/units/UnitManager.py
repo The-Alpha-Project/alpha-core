@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import math
 import random
 from struct import pack
-from time import sleep
-from typing import Optional
+from typing import Optional, Any
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -20,7 +18,6 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
-from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -281,11 +278,12 @@ class UnitManager(ObjectManager):
                 return False
             if target.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
                 return False
-            if self.is_unit():
-                if self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
-                    return False
-                if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
-                    return False
+
+        if self.is_unit():
+            if self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
+                return False
+            if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+                return False
 
         # Always short circuit on charmer/summoner relationship.
         charmer = self.get_charmer_or_summoner()
@@ -295,7 +293,8 @@ class UnitManager(ObjectManager):
         # Charmed unit whose charmer is dueling the target.
         if charmer and charmer.is_player():
             duel_arbiter = charmer.get_duel_arbiter()
-            if duel_arbiter and duel_arbiter.is_unit_involved(target):
+            from game.world.managers.objects.gameobjects.managers.DuelArbiterManager import DuelArbiterManager
+            if isinstance(DuelArbiterManager, duel_arbiter) and duel_arbiter.is_unit_involved(target):
                 return duel_arbiter.duel_state == DuelState.DUEL_STATE_STARTED
 
         is_enemy = super().can_attack_target(target)
@@ -1449,7 +1448,7 @@ class UnitManager(ObjectManager):
         return False
 
     # Implemented by PlayerManager.
-    def get_duel_arbiter(self):
+    def get_duel_arbiter(self) -> Any:
         return None
 
     # Implemented by CreatureManager.
