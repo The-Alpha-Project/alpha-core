@@ -380,8 +380,6 @@ class GameObjectTypes(IntEnum):
     TYPE_FISHINGNODE = 0x11
     TYPE_RITUAL = 0x12
     NUM_GAMEOBJECT_TYPE = 0x13
-    # Custom, mining nodes are chests, but we handle them separately.
-    TYPE_MININGNODE = 0x14
 
 
 class GameObjectStates(IntEnum):

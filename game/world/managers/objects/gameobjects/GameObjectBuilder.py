@@ -25,10 +25,7 @@ class GameObjectBuilder:
             GameObjectBuilder.MAX_SPAWN_ID += 1
             spawn_id = GameObjectBuilder.MAX_SPAWN_ID
 
-        go_type = gobject_template.type
-        if go_type == GameObjectTypes.TYPE_CHEST and gobject_template.data4 != 0 and gobject_template.data5 > gobject_template.data4:
-            go_type = GameObjectTypes.TYPE_MININGNODE
-        ctor = GO_CONSTRUCTORS.get(go_type, GameObjectBuilder.get_go_ctor)()
+        ctor = GO_CONSTRUCTORS.get(gobject_template.type, GameObjectBuilder.get_go_ctor)()
 
         go_instance = ctor(
             entry=gobject_template.entry,
@@ -122,11 +119,6 @@ class GameObjectBuilder:
         return SpellFocusManager
 
     @staticmethod
-    def get_mining_node_ctor():
-        from game.world.managers.objects.gameobjects.managers.MiningNodeManager import MiningNodeManager
-        return MiningNodeManager
-
-    @staticmethod
     def get_quest_giver_ctor():
         from game.world.managers.objects.gameobjects.managers.QuestGiverManager import QuestGiverManager
         return QuestGiverManager
@@ -156,5 +148,4 @@ GO_CONSTRUCTORS: Dict[int, callable] = {
     GameObjectTypes.TYPE_CHAIR : GameObjectBuilder.get_chair_ctor,
     GameObjectTypes.TYPE_DUEL_ARBITER : GameObjectBuilder.get_duel_arbiter_ctor,
     GameObjectTypes.TYPE_SPELL_FOCUS : GameObjectBuilder.get_spell_focus_ctor,
-    GameObjectTypes.TYPE_MININGNODE : GameObjectBuilder.get_mining_node_ctor,
 }
