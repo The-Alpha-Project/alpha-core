@@ -259,6 +259,10 @@ class UnitManager(ObjectManager):
         if target.unit_state & UnitStates.SANCTUARY:
             return False
 
+        # Fleeing.
+        if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+            return False
+
         # Beastmaster.
         has_aggro_from_target = self.threat_manager.has_aggro_from(target)
         if not has_aggro_from_target and target.beast_master:
@@ -278,12 +282,9 @@ class UnitManager(ObjectManager):
                 return False
             if target.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
                 return False
-
-        if self.is_unit():
-            if self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
-                return False
-            if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
-                return False
+            if self.is_unit():
+                if self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
+                    return False
 
         # Always short circuit on charmer/summoner relationship.
         charmer = self.get_charmer_or_summoner()
