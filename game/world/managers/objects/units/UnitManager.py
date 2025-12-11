@@ -295,7 +295,7 @@ class UnitManager(ObjectManager):
         if charmer and charmer.is_player():
             duel_arbiter = charmer.get_duel_arbiter()
             from game.world.managers.objects.gameobjects.managers.DuelArbiterManager import DuelArbiterManager
-            if isinstance(DuelArbiterManager, duel_arbiter) and duel_arbiter.is_unit_involved(target):
+            if isinstance(duel_arbiter, DuelArbiterManager) and duel_arbiter.is_unit_involved(target):
                 return duel_arbiter.duel_state == DuelState.DUEL_STATE_STARTED
 
         is_enemy = super().can_attack_target(target)
