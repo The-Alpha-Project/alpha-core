@@ -87,9 +87,7 @@ class ChestManager(GameObjectManager):
         # If chest: nothing special.
         # If mining node: mining node depletion logic.
         if not self.is_mining_node:
-            # Chest: simply reset.
-            self.set_ready()
-            self.set_flag(GameObjectFlags.IN_USE, False)
+            super().handle_loot_release(self)
             return
 
         # --- Mining node logic starts here. ---
