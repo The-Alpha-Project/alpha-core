@@ -5,7 +5,7 @@ from game.world.managers.objects.units.player.GroupManager import GroupManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
-class GroupLootMethodHandler(object):
+class GroupLootMethodHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -6,7 +6,7 @@ from utils.constants.MiscCodes import GuildEmblemResult, GuildRank
 EMBLEM_COST = 100000
 
 
-class GuildSaveEmblemHandler(object):
+class GuildSaveEmblemHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class LootReleaseHandler(object):
+class LootReleaseHandler:
 
     @staticmethod
     def handle(world_session, reader):

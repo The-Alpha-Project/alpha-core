@@ -373,6 +373,45 @@ class MapManager:
         return namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z, doodads)
 
     @staticmethod
+    def find_random_point_around_circle(map_id, vector, radius):
+        # If nav tiles disabled or unable to load Namigator, return normal random point.
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return vector.get_random_point_in_radius(radius)
+
+        # We don't have navs loaded for a given map.
+        namigator = MAPS_NAMIGATOR.get(map_id, None)
+        if not namigator:
+            return vector.get_random_point_in_radius(radius)
+
+        from game.world.managers.abstractions.Vector import Vector
+
+        # Detour's FindRandomPointAroundCircle does not constrain the point within the given radius.
+        # Instead, it returns a random point from any polygon within the circle, where the polygon's area
+        # can always exceed the radius.
+        # Try to find a valid random point close to the given radius.
+        for i in range (0, 10):
+            p = namigator.find_random_point_around_circle(vector.x, vector.y, vector.z, radius)
+            if not p:
+                continue
+            v = Vector(p[0], p[1], p[2])
+            if v.distance(vector) <= radius * 1.3:
+                return v
+
+        return vector.get_random_point_in_radius(radius)
+
+    @staticmethod
+    def can_reach_location(map_id, src_vector, dst_vector):
+        # If nav tiles disabled or unable to load Namigator, return as True.
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return True
+
+        if map_id not in MAPS_NAMIGATOR:
+            return True
+
+        failed, in_place, path_ = MapManager.calculate_path(map_id, src_vector, dst_vector, True)
+        return failed, path_
+
+    @staticmethod
     def can_reach_object(src_object, dst_object):
         if src_object.map_id != dst_object.map_id:
             return False
@@ -382,7 +421,7 @@ class MapManager:
             return True
 
         # We don't have navs loaded for a given map, return True.
-        if src_object.map_id not in MAPS_NAMIGATOR:
+        if src_object.map_id not in MAPS_NAMIGATOR or not dst_object.map_id in MAPS_NAMIGATOR:
             return True
 
         failed, in_place, _ = MapManager.calculate_path(src_object.map_id, src_object.location, dst_object.location)
@@ -444,7 +483,7 @@ class MapManager:
         # Calculate path.
         navigation_path = namigator.find_path(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
 
-        if len(navigation_path) == 0:
+        if len(navigation_path) <= 1:
             if not los:
                 Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
             return True, False, [dst_loc]
@@ -452,12 +491,6 @@ class MapManager:
         # Pop starting location, we already have that and WoW client seems to crash when sending
         # movements with too short of a diff.
         del navigation_path[0]
-
-        # Validate length again.
-        if len(navigation_path) == 0:
-            if not los:
-                Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
-            return True, False, [dst_loc]
 
         from game.world.managers.abstractions.Vector import Vector
         vectors = [Vector(waypoint[0], waypoint[1], waypoint[2]) for waypoint in navigation_path]

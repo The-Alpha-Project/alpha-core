@@ -17,7 +17,7 @@ HIPPOGRYPH_MASTERS = (3838, 3841, 4267, 4319, 4407, 6706, 8019, 10897, 11138, 12
 BAT_HANDLERS = (2226, 2389, 3575, 4551, 12636)
 
 
-class TaxiManager(object):
+class TaxiManager:
     def __init__(self, player_mgr):
         self.owner = player_mgr
         self.available_taxi_nodes = bitarray(player_mgr.player.taximask, 'little')

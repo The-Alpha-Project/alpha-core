@@ -11,7 +11,7 @@ from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatM
 from utils.constants.OpCodes import OpCode
 
 
-class ChatManager(object):
+class ChatManager:
 
     @staticmethod
     def send_system_message(world_session, message):

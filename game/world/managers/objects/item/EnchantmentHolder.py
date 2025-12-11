@@ -5,7 +5,7 @@ from database.dbc.DbcModels import SpellItemEnchantment
 from utils.constants.ItemCodes import ItemEnchantmentType
 
 
-class EnchantmentHolder(object):
+class EnchantmentHolder:
     def __init__(self, entry=0, duration=0, charges=0):
         self.entry: int = entry
         self.duration: int = duration

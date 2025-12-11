@@ -762,7 +762,7 @@ class SpellManager:
                 if effect.area_aura_holder:
                     effect.area_aura_holder.remove_target(target_guid)
 
-            # Interrupt handling
+            # Interrupt handling.
             if not casting_spell.initial_target_is_unit_or_player() or \
                     (casting_spell.spell_target_mask == SpellTargetMask.SELF and not
                      casting_spell.requires_implicit_initial_unit_target()) or \
@@ -1265,7 +1265,7 @@ class SpellManager:
                 return False
 
             # Orientation checks.
-            target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
+            target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
                 if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):

@@ -3,7 +3,7 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
 
 
-class TaxiQueryNodesHandler(object):
+class TaxiQueryNodesHandler:
 
     @staticmethod
     def handle(world_session, reader):

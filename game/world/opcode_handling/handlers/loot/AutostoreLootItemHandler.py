@@ -4,7 +4,7 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 
 
-class AutostoreLootItemHandler(object):
+class AutostoreLootItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

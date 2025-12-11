@@ -2,7 +2,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from network.packet.PacketReader import *
 
 
-class GuildCreateHandler(object):
+class GuildCreateHandler:
 
     @staticmethod
     def handle(world_session, reader):

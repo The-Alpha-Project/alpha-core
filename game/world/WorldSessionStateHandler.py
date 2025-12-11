@@ -15,7 +15,7 @@ SESSION_BY_GUID = {}
 SESSION_BY_NAME = {}
 
 
-class WorldSessionStateHandler(object):
+class WorldSessionStateHandler:
 
     @staticmethod
     def add(session):

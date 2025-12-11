@@ -4,7 +4,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
 
-class TabardVendorActivateHandler(object):
+class TabardVendorActivateHandler:
 
     @staticmethod
     def handle(world_session, reader):

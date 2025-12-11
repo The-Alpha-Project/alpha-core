@@ -313,6 +313,22 @@ class CreatureManager(UnitManager):
     def set_virtual_equipment(self, slot, item_id):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
 
+    def get_virtual_equipment_entries(self):
+        equipment_id = self._get_equipment_id()
+        if not equipment_id:
+            return []
+        equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(equipment_id)
+        if not equip_template:
+            return []
+
+        equipment_entries = [
+            getattr(equip_template, f'equipentry{i + 1}', None)
+            for i in range(3)
+        ]
+
+        filtered_entries = [entry for entry in equipment_entries if entry not in (None, 0)]
+        return filtered_entries
+
     def reset_virtual_equipment(self):
         equipment_id = self._get_equipment_id()
         if equipment_id:
@@ -694,7 +710,11 @@ class CreatureManager(UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
 
         # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
-        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.can_have_target() or self.ignores_combat():
+        #  Pets check react state logic before calling attack through PetAI.
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE and not self.is_pet():
+            return False
+
+        if not self.can_have_target() or self.ignores_combat():
             return False
 
         can_attack = super().attack(victim)
@@ -749,13 +769,6 @@ class CreatureManager(UnitManager):
             summoner = self.get_charmer_or_summoner()
             if summoner and summoner.is_player():
                 summoner.send_minimap_ping(self.guid, self.location)
-
-        # If creature's being attacked by another unit, automatically set combat target.
-        not_attacked_by_gameobject = source and not source.is_gameobject()
-        if not_attacked_by_gameobject:
-            if not self.combat_target:
-                # Make sure to first stop any movement right away.
-                self.movement_manager.stop()
 
         return True
 

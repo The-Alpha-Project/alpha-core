@@ -18,11 +18,24 @@ class ChaseMovement(BaseMovement):
     def __init__(self, spline_callback):
         super().__init__(move_type=MoveType.CHASE, spline_callback=spline_callback)
         self.unit = None
+        self.combat_target = None
         self.waypoints = []
 
     # override
     def update(self, now, elapsed):
         super().update(now, elapsed)
+        self.combat_target = self.unit.combat_target
+
+        if not self.combat_target or not self.combat_target.is_alive:
+            return
+
+        if self._is_within_combat_distance():
+            if self.spline:
+                self.stop()
+            # Face the target if necessary.
+            elif not self.unit.location.has_in_arc(self.combat_target.location):
+                self.unit.movement_manager.face_target(self.combat_target)
+            return
 
         if self._should_regenerate_path():
             self.waypoints = self._regenerate_path()
@@ -30,10 +43,6 @@ class ChaseMovement(BaseMovement):
         if self._can_chase():
             self.speed_dirty = False
             self._perform_waypoint()
-        # Face the target if necessary.
-        elif (not self.spline and self.unit.combat_target
-              and not self.unit.location.has_in_arc(self.unit.combat_target.location, math.pi)):
-            self.unit.movement_manager.face_target(self.unit.combat_target)
 
     def _perform_waypoint(self):
         # Avoid units trying to turn and face the target as they run.
@@ -48,27 +57,22 @@ class ChaseMovement(BaseMovement):
         self.spline_callback(spline, movement_behavior=self)
 
     def _regenerate_path(self):
-        combat_target = self.unit.combat_target
-        if not combat_target:
+        if not self.combat_target:
             return None
 
         # Check if target is player and is online.
-        target_is_player = combat_target.is_player()
-        if target_is_player and not combat_target.online:
-            self.unit.threat_manager.remove_unit_threat(combat_target)
+        target_is_player = self.combat_target.is_player()
+        if target_is_player and not self.combat_target.online:
+            self.unit.threat_manager.remove_unit_threat(self.combat_target)
             return None
 
         home_position = self.unit.get_home_position()  # Either spawn_position or tmp_home_position.
         home_distance = self.unit.location.distance(home_position)
-        target_distance = self.unit.location.distance(combat_target.location)
-        target_to_home_distance = combat_target.location.distance(home_position)
+        target_distance = self.unit.location.distance(self.combat_target.location)
+        target_to_home_distance = self.combat_target.location.distance(home_position)
         evade_distance = Distances.CREATURE_EVADE_DISTANCE
-
-        if not combat_target:
-            return None
-
         self_swimming = self.unit.is_swimming()
-        target_swimming = combat_target.is_swimming()
+        target_swimming = self.combat_target.is_swimming()
 
         if not self.unit.is_pet():
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
@@ -76,21 +80,21 @@ class ChaseMovement(BaseMovement):
             #     "Creature pursuit is now timer based rather than distance based."
             if (home_distance > evade_distance or target_distance > evade_distance) \
                     and target_to_home_distance > evade_distance:
-                self.unit.threat_manager.remove_unit_threat(combat_target)
+                self.unit.threat_manager.remove_unit_threat(self.combat_target)
                 return None
 
             if (self_swimming or target_swimming) and not self.unit.can_swim():
-                self.unit.threat_manager.remove_unit_threat(combat_target)
+                self.unit.threat_manager.remove_unit_threat(self.combat_target)
                 return None
             elif self_swimming and not target_swimming and not self.unit.can_exit_water():
-                self.unit.threat_manager.remove_unit_threat(combat_target)
+                self.unit.threat_manager.remove_unit_threat(self.combat_target)
                 return None
 
         # Target is within combat distance.
         if self._is_within_combat_distance():
             return None
 
-        final_path = [combat_target.location]
+        final_path = [self.combat_target.location]
         # Use direct combat location if target is over water.
         if not target_swimming:
             failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, final_path[0])
@@ -102,33 +106,31 @@ class ChaseMovement(BaseMovement):
         return final_path
 
     def _is_within_combat_distance(self, source_vector=None):
-        combat_target = self.unit.combat_target
-        if not combat_target:
+        if not self.combat_target:
             return False
 
-        combat_distance = UnitFormulas.combat_distance(self.unit, combat_target)
-        if combat_target.is_moving():
+        combat_distance = UnitFormulas.combat_distance(self.unit, self.combat_target)
+        if self.combat_target.is_moving():
             # Use less distance if target is moving.
             combat_distance = combat_distance / 1.1
 
         # From a given point.
         if source_vector:
-            return source_vector.distance(combat_target.location) < combat_distance
+            return source_vector.distance(self.combat_target.location) < combat_distance
 
         #  From self unit to combat target.
-        return self.unit.location.distance(combat_target.location) < combat_distance
+        return self.unit.location.distance(self.combat_target.location) < combat_distance
 
 
     def _should_regenerate_path(self):
-        combat_target = self.unit.combat_target
-        if not combat_target:
+        if not self.combat_target:
             return False
         # Already in close combat.
         if self._is_within_combat_distance():
             return False
         if self.speed_dirty or not self.waypoints:
             return True
-        if combat_target.is_moving():
+        if self.combat_target.is_moving():
             return True
         # The last known waypoint is beyond combat distance, regenerate.
         return not self._is_within_combat_distance(source_vector=self.waypoints[-1])
@@ -136,9 +138,9 @@ class ChaseMovement(BaseMovement):
     def _can_chase(self):
         if not self.waypoints:
             return False
-        if not self.unit.combat_target:
+        if not self.combat_target:
             return False
-        if not self.unit.combat_target.is_alive:
+        if not self.combat_target.is_alive:
             return False
         if self.speed_dirty:
             return True
@@ -149,23 +151,21 @@ class ChaseMovement(BaseMovement):
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
 
-        combat_target = self.unit.combat_target
-        if not combat_target:
-            return
-
-        if combat_target.is_moving():
+        if not self.combat_target:
             return
 
         if not self._is_within_combat_distance():
             return
 
         # Already within combat distance, stop.
+        self.stop()
+
+    def stop(self):
         self.waypoints.clear()
         self.unit.movement_manager.stop()
-
         # Restore current target.
-        if not self.unit.current_target:
-            self.unit.set_current_target(combat_target.guid)
+        if self.combat_target and not self.unit.current_target:
+            self.unit.set_current_target(self.combat_target.guid)
 
     # override
     def on_removed(self):

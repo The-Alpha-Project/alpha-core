@@ -3,7 +3,7 @@ from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
 
-class GuildInviteDeclineHandler(object):
+class GuildInviteDeclineHandler:
 
     @staticmethod
     def handle(world_session, reader):

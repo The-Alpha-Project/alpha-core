@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class SetTargetHandler(object):
+class SetTargetHandler:
 
     @staticmethod
     def handle(world_session, reader):

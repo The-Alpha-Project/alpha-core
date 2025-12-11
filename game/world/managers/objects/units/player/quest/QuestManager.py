@@ -28,7 +28,7 @@ from utils.constants.UpdateFields import PlayerFields
 MAX_QUEST_LOG = 16
 
 
-class QuestManager(object):
+class QuestManager:
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.last_timer_update = 0

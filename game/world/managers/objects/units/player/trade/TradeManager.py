@@ -6,7 +6,7 @@ from utils.constants.MiscCodes import TradeStatus
 from utils.constants.OpCodes import OpCode
 
 
-class TradeManager(object):
+class TradeManager:
     TRADE_SLOT_COUNT = 6
 
     @staticmethod

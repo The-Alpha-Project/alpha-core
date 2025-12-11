@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class AreaInformation(object):
+class AreaInformation:
     zone_id: int
     area_number: int
     flags: int

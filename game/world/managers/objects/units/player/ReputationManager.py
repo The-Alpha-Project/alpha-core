@@ -15,7 +15,7 @@ MIN_REPUTATION = -4200
 MAX_REPUTATION = 3300
 
 
-class ReputationManager(object):
+class ReputationManager:
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.reputations = {}

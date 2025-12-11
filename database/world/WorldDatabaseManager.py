@@ -25,7 +25,7 @@ SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autoflush=True
 
 
 # noinspection PyUnresolvedReferences
-class WorldDatabaseManager(object):
+class WorldDatabaseManager:
     # Player.
 
     @staticmethod

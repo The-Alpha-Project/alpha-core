@@ -4,7 +4,7 @@ from network.packet.PacketReader import *
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
-class GroupSetLeaderHandler(object):
+class GroupSetLeaderHandler:
 
     @staticmethod
     def handle(world_session, reader):

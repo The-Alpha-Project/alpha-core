@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import math
 import random
 from struct import pack
-from time import sleep
-from typing import Optional
+from typing import Optional, Any
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -20,7 +18,6 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
-from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -262,6 +259,15 @@ class UnitManager(ObjectManager):
         if target.unit_state & UnitStates.SANCTUARY:
             return False
 
+        # Fleeing.
+        if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+            return False
+
+        # Beastmaster.
+        has_aggro_from_target = self.threat_manager.has_aggro_from(target)
+        if not has_aggro_from_target and target.beast_master:
+            return False
+
         # Flight.
         if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             return False
@@ -276,8 +282,9 @@ class UnitManager(ObjectManager):
                 return False
             if target.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
                 return False
-            if self.is_unit() and self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
-                return False
+            if self.is_unit():
+                if self.unit_flags & UnitFlags.UNIT_FLAG_IMMUNE_TO_NPC:
+                    return False
 
         # Always short circuit on charmer/summoner relationship.
         charmer = self.get_charmer_or_summoner()
@@ -287,7 +294,8 @@ class UnitManager(ObjectManager):
         # Charmed unit whose charmer is dueling the target.
         if charmer and charmer.is_player():
             duel_arbiter = charmer.get_duel_arbiter()
-            if duel_arbiter and duel_arbiter.is_unit_involved(target):
+            from game.world.managers.objects.gameobjects.managers.DuelArbiterManager import DuelArbiterManager
+            if isinstance(DuelArbiterManager, duel_arbiter) and duel_arbiter.is_unit_involved(target):
                 return duel_arbiter.duel_state == DuelState.DUEL_STATE_STARTED
 
         is_enemy = super().can_attack_target(target)
@@ -295,7 +303,7 @@ class UnitManager(ObjectManager):
             return True
 
         # Might be neutral, but was attacked by target.
-        return target and self.threat_manager.has_aggro_from(target)
+        return target and has_aggro_from_target
 
     def attack(self, victim: UnitManager):
         if not victim or victim == self:
@@ -375,13 +383,12 @@ class UnitManager(ObjectManager):
             return False
 
         swing_error = AttackSwingError.NONE
-        combat_angle = math.pi
 
         # Out of reach.
         if not self.is_within_interactable_distance(self.combat_target):
             swing_error = AttackSwingError.NOTINRANGE
         # Not proper angle.
-        elif not self.location.has_in_arc(self.combat_target.location, combat_angle):
+        elif not self.location.has_in_arc(self.combat_target.location):
             swing_error = AttackSwingError.BADFACING
         # Moving.
         elif self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
@@ -476,7 +483,7 @@ class UnitManager(ObjectManager):
             return
 
         # Not attack from behind, ignore.
-        if self.location.has_in_arc(attacker.location, math.pi):
+        if self.location.has_in_arc(attacker.location):
             return
 
         # Check if already dazed.
@@ -1056,11 +1063,15 @@ class UnitManager(ObjectManager):
         self.swing_error = 0
         self.extra_attacks = 0
 
-        # Reset threat table.
-        self.threat_manager.reset()
-
         # Reset aura states.
         self.aura_manager.reset_aura_states()
+
+        # Remove casts.
+        self.spell_manager.remove_casts()
+        self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
+
+        # Reset threat table.
+        self.threat_manager.reset()
 
         self.combat_target = None
         self.in_combat = False
@@ -1114,10 +1125,11 @@ class UnitManager(ObjectManager):
             controlled_pet.beast_master = active
 
     def update_sanctuary(self, elapsed):
-        if self.sanctuary_timer > 0:
-            self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
-            if self.sanctuary_timer == 0:
-                self.set_sanctuary(False)
+        if not self.sanctuary_timer:
+            return
+        self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
+        if not self.sanctuary_timer:
+            self.set_sanctuary(False)
 
     # Implemented by CreatureManager.
     def is_tameable(self):
@@ -1210,7 +1222,7 @@ class UnitManager(ObjectManager):
             visible_distance = 0.0
 
         # Sneaking unit is behind, reduce visible distance.
-        if not self.location.has_in_arc(target.location, math.pi):
+        if not self.location.has_in_arc(target.location):
             visible_distance = max(0.0, visible_distance - 9.0)
 
         alert = False
@@ -1245,7 +1257,7 @@ class UnitManager(ObjectManager):
 
         if not was_stunned and is_stunned:
             # Force move behavior stop.
-            self.movement_manager.stop()
+            self.movement_manager.stop(force=True)
             self.spell_manager.remove_casts(remove_active=False)
             self.set_current_target(0)
         elif was_stunned and not is_stunned:
@@ -1437,7 +1449,7 @@ class UnitManager(ObjectManager):
         return False
 
     # Implemented by PlayerManager.
-    def get_duel_arbiter(self):
+    def get_duel_arbiter(self) -> Any:
         return None
 
     # Implemented by CreatureManager.
@@ -1929,11 +1941,6 @@ class UnitManager(ObjectManager):
         self.remove_all_dynamic_flags()
         self.set_stand_state(StandState.UNIT_STANDING)
 
-    def can_be_targeted_for_surrounding_aggro(self):
-        return (not self.is_evading and self.is_alive and not self.beast_master
-        and not self.unit_state & UnitStates.STUNNED
-        and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED)
-
     def get_ai_name(self):
         if not self.object_ai:
             return 'None'
@@ -2026,6 +2033,9 @@ class UnitManager(ObjectManager):
             los_check = map_.los_check(self.get_ray_position(), unit.get_ray_position())
             if los_check:
                 self.object_ai.move_in_line_of_sight(unit, ai_event=True)
+
+        if not self.threat_manager.can_resolve_target():
+            return
 
         if not in_range or not self.is_hostile_to(unit) or not self.can_attack_target(unit):
             return

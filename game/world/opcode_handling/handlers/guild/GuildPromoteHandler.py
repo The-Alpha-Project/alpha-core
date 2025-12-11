@@ -4,7 +4,7 @@ from network.packet.PacketReader import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, GuildRank
 
 
-class GuildPromoteHandler(object):
+class GuildPromoteHandler:
 
     @staticmethod
     def handle(world_session, reader):

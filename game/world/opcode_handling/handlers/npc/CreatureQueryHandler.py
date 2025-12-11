@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.ObjectQueryUtils import ObjectQueryUtils
 
 
-class CreatureQueryHandler(object):
+class CreatureQueryHandler:
 
     @staticmethod
     def handle(world_session, reader):

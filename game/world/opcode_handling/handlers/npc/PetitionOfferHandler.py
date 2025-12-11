@@ -7,7 +7,7 @@ from utils.constants.ItemCodes import PetitionError
 from utils.constants.MiscCodes import GuildTypeCommand, GuildCommandResults
 
 
-class PetitionOfferHandler(object):
+class PetitionOfferHandler:
 
     @staticmethod
     def handle(world_session, reader):

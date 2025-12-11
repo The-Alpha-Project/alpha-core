@@ -9,7 +9,7 @@ from utils.constants.ItemCodes import EnchantmentSlots
 from utils.constants.MiscCodes import BuyResults, GuildTypeCommand, GuildCommandResults
 
 
-class PetitionBuyHandler(object):
+class PetitionBuyHandler:
 
     @staticmethod
     def handle(world_session, reader):

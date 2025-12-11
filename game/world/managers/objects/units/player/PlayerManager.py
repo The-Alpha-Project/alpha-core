@@ -1,5 +1,6 @@
 import math
 import time
+from typing import Any
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -714,7 +715,7 @@ class PlayerManager(UnitManager):
     def is_dueling(self):
         return self.get_uint64(PlayerFields.PLAYER_DUEL_ARBITER) != 0
 
-    def get_duel_arbiter(self):
+    def get_duel_arbiter(self) -> Any:
         arbiter_guid = self.get_uint64(PlayerFields.PLAYER_DUEL_ARBITER)
         if not arbiter_guid:
             return None
@@ -795,8 +796,6 @@ class PlayerManager(UnitManager):
         super().set_sanctuary(active, time_secs)
         if not active:
             return
-        self.spell_manager.remove_casts()
-        self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
         # Remove self from combat and attackers.
         self.leave_combat()
 
@@ -1377,7 +1376,7 @@ class PlayerManager(UnitManager):
         if not super().can_block(attacker_location, in_combat=in_combat):
             return False
 
-        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+        if attacker_location and not self.location.has_in_arc(attacker_location):
             return False  # players can't block from behind.
 
         return self.inventory.has_offhand() and \
@@ -1388,7 +1387,7 @@ class PlayerManager(UnitManager):
         if not super().can_parry(attacker_location, in_combat=in_combat):
             return False
 
-        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+        if attacker_location and not self.location.has_in_arc(attacker_location):
             return False  # players can't parry from behind.
 
         return True
@@ -1398,7 +1397,7 @@ class PlayerManager(UnitManager):
         if not super().can_dodge(attacker_location, in_combat=in_combat):
             return False
 
-        if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
+        if attacker_location and not self.location.has_in_arc(attacker_location):
             return False  # players can't dodge from behind.
 
         return True

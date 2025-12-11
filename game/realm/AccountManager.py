@@ -8,7 +8,7 @@ from utils.constants import CustomCodes
 from utils.constants.AuthCodes import Srp6ResponseType, AuthCode
 
 
-class AccountManager(object):
+class AccountManager:
 
     def __init__(self, account):
         self.account = account

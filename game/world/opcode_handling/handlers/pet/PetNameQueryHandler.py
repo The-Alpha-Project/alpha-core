@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from network.packet.PacketWriter import PacketWriter
 
 
-class PetNameQueryHandler(object):
+class PetNameQueryHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

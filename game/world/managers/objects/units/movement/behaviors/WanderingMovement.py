@@ -31,7 +31,7 @@ class WanderingMovement(BaseMovement):
             if self._wander():
                 self.wait_time_seconds = randint(1, 12) + self.get_total_time_secs()
             else:
-                self.wait_time_seconds = randint(1, 4)
+                self.wait_time_seconds = randint(1, 3)
 
         super().update(now, elapsed)
 
@@ -53,7 +53,6 @@ class WanderingMovement(BaseMovement):
 
         speed = config.Unit.Defaults.walk_speed
         spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
-        position.face_angle(self.unit.location.o)
         self.spline_callback(spline, movement_behavior=self)
 
         return True
@@ -68,9 +67,10 @@ class WanderingMovement(BaseMovement):
         map_ = self.unit.get_map()
 
         # Ignore point if 'slope' above 2.5.
-        diff = math.fabs(random_point.z - self.unit.location.z)
-        if diff > 2.5:
-            return False, start_point
+        if not config.Server.Settings.use_nav_tiles:
+            diff = math.fabs(random_point.z - self.unit.location.z)
+            if diff > 2.5:
+                return False, start_point
 
         # Client can crash with short movements.
         if self.unit.location.distance(random_point) < 0.1:
@@ -85,13 +85,18 @@ class WanderingMovement(BaseMovement):
         if z_locked:
             return False, start_point
 
-        # Check line of sight.
-        if not map_.los_check(self.unit.get_ray_position(), random_point.get_ray_vector(is_terrain=True), doodads=True):
-            return False, start_point
+        # Check line of sight for the given point and surrounding points.
+        # Sometimes Namigator returns TRUE for points walls edges, which keeps units loop walking towards a wall.
+        if config.Server.Settings.use_nav_tiles:
+            points = random_point.get_surrounding_points_in_distance()
+            for point in points:
+                if not map_.los_check(self.unit.get_ray_position(), point.get_ray_vector(is_terrain=True), doodads=True):
+                    return False, start_point
 
         # Validate a path to the wandering point, just be length 1.
-        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
-        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
-            return False, start_point
+        if config.Server.Settings.use_nav_tiles:
+            failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
+            if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
+                return False, start_point
 
         return True, random_point

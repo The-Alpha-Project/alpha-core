@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class CancelAuraHandler(object):
+class CancelAuraHandler:
     @staticmethod
     def handle(world_session, reader):
         if len(reader.data) >= 4:  # Avoid handling empty cancel aura packet.

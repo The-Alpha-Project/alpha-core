@@ -31,7 +31,7 @@ import platform
 
 
 # noinspection SpellCheckingInspection,PyUnusedLocal
-class CommandManager(object):
+class CommandManager:
 
     DEV_LOG_PATH = config.Server.Logging.log_dev_path
     DEV_LOC_LOG_FILE_NAME = 'locations.log'

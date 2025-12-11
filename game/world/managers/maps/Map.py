@@ -186,6 +186,9 @@ class Map:
     def can_reach_object(self, source_object, target_object):
         return self.map_manager.can_reach_object(source_object, target_object)
 
+    def can_reach_location(self, src_vector, dst_vector):
+        return self.map_manager.can_reach_location(self.map_id, src_vector, dst_vector)
+
     def get_liquid_information(self, x, y, z, ignore_z=False):
         return self.map_manager.get_liquid_information(self.map_id, x, y, z, ignore_z=ignore_z)
 
@@ -198,6 +201,9 @@ class Map:
 
     def calculate_path(self, start_vector, end_vector, los=False) -> tuple:  # bool failed, in_place, path list.
         return self.map_manager.calculate_path(self.map_id, start_vector, end_vector, los=los)
+
+    def find_random_point_around_circle(self, vector, radius):
+        return self.map_manager.find_random_point_around_circle(self.map_id, vector, radius)
 
     def find_point_in_between_vectors(self, offset, start_location, end_location):
         return self.map_manager.find_point_in_between_vectors(self.map_id, offset, start_location, end_location)

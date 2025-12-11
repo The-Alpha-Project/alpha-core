@@ -1,8 +1,10 @@
 from enum import IntEnum
 from struct import pack
 
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
+from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 
@@ -57,6 +59,11 @@ class UpdateBuilder:
         # Specific query details given the object type.
         if obj_type in self._implements_query_details:
             self._add_world_object_detail_query_from_object(world_object)
+            # Send units virtual items detail queries.
+            if obj_type == ObjectTypeIds.ID_UNIT:
+                item_entries = world_object.get_virtual_equipment_entries()
+                for entry in item_entries:
+                    self._add_virtual_item_detail_query_from_entry(world_object, entry)
 
         # Player inventory updates.
         if obj_type == ObjectTypeIds.ID_PLAYER:
@@ -120,6 +127,15 @@ class UpdateBuilder:
         if (is_player and self._player_mgr.group_manager
                 and self._player_mgr.group_manager.is_party_member(world_object.guid)):
             self._player_mgr.group_manager.send_update()
+
+    def _add_virtual_item_detail_query_from_entry(self, unit, entry):
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
+        if not item_template:
+            Logger.warning(f'Invalid virtual item {entry}, Unit: {unit.get_name()}, Spawn: {unit.spawn_id}')
+            return
+        query_data = ObjectQueryUtils.get_query_details_data(template=item_template)
+        query_packet = PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data)
+        self._add_packet(query_packet, PacketType.QUERY)
 
     def _add_world_object_detail_query_from_object(self, world_object):
         self._add_packet(world_object.get_query_details_packet(), PacketType.QUERY)

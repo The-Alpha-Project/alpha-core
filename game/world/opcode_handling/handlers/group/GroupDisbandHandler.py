@@ -2,7 +2,7 @@ from game.world.managers.objects.units.player.GroupManager import GroupManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
-class GroupDisbandHandler(object):
+class GroupDisbandHandler:
 
     @staticmethod
     def handle(world_session, reader):

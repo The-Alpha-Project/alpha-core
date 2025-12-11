@@ -9,7 +9,7 @@ from utils.constants.UpdateFields import ItemFields
 MAX_ENCHANTMENTS = 5
 
 
-class EnchantmentManager(object):
+class EnchantmentManager:
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
         self.duration_timer_seconds = 0

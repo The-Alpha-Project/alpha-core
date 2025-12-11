@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import ActivateTaxiReplies
 from utils.constants.OpCodes import OpCode
 
 
-class ActivateTaxiHandler(object):
+class ActivateTaxiHandler:
 
     @staticmethod
     def handle(world_session, reader):

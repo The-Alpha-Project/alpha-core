@@ -8,7 +8,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import Teams
 
 
-class Channel(object):
+class Channel:
     def __init__(self, name, members, password, is_default, owner, announce, moderators=None, banned=None, muted=None):
         self.name: str = name
         self.members: list = members
@@ -129,7 +129,7 @@ class Channel(object):
         self.owner = None
 
 
-class ChannelManager(object):
+class ChannelManager:
     # General and Trade channels weren't zone specific until Patch 0.5.5.
     DEFAULT_GENERAL = 'General'
     DEFAULT_TRADE = 'Trade'

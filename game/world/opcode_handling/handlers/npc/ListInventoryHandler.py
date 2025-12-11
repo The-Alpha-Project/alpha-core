@@ -6,7 +6,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils import Formulas
 
 
-class ListInventoryHandler(object):
+class ListInventoryHandler:
 
     @staticmethod
     def handle(world_session, reader):

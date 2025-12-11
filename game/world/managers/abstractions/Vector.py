@@ -8,7 +8,7 @@ class Vector:
     """Class to represent points in a 3D space and utilities to work with them within the game."""
     __slots__ = ('x', 'y', 'z', 'o', 'z_locked')
 
-    def __init__(self, x=0, y=0, z=0, o=0, z_locked=False):
+    def __init__(self, x=0.0, y=0.0, z=0.0, o=0.0, z_locked=False):
         self.x = x
         self.y = y
         self.z = z
@@ -103,7 +103,7 @@ class Vector:
             vector = Vector(x=x, y=y)
         return math.atan2(vector.x - self.x, vector.y - self.y)
 
-    def has_in_arc(self, vector, arc):
+    def has_in_arc(self, vector, arc=math.pi):
         vector_angle = self.angle(vector) % (2 * math.pi)
 
         # Orientation is offset by 90°
@@ -157,6 +157,14 @@ class Vector:
         orientation = self.o if self.o != 0 else self.get_angle_towards_vector(result)
         result.set_orientation(orientation)
 
+        return result
+
+    def get_surrounding_points_in_distance(self, distance=1.0):
+        result = [self,
+            Vector(self.x, self.y + distance, self.z),  # North.
+            Vector(self.x, self.y - distance, self.z),  # South.
+            Vector(self.x + distance, self.y, self.z),  # East.
+            Vector(self.x - distance, self.y, self.z)]  # West.
         return result
 
     def get_point_in_middle(self, vector, map_id=-1):
