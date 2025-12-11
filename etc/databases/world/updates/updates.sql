@@ -949,5 +949,54 @@ begin not atomic
         insert into applied_updates values ('011220251');
     end if;
 
+    -- 11/12/2025 1
+    if (select count(*) from applied_updates where id='111220251') = 0 then
+
+        -- Fix some virtual monster items.
+
+        -- Defias Smuggler
+        -- Blue Dragonspawn
+        -- Mazen Mac'Nadir - (Texture Set)
+        -- Shaethis Darkoak
+        -- Dalaran Watcher
+        -- Dalaran Shield Guard
+        -- Muckrake
+        -- Novice Thaivand
+        -- Forsaken Courier
+        -- Shadowforge Warrior
+        -- Gabrielle Chase
+        -- Olthran Craghelm
+        -- Myizz Luckycatch
+
+        -- Monster - Throwing Knife.
+        UPDATE `item_template` SET `display_id` = '4678', `ignored` = '0' WHERE (`entry` = '6886');
+        -- Monster - Orb.
+        UPDATE `item_template` SET `display_id` = '5566', `ignored` = '0' WHERE (`entry` = '6618');
+        -- Monster - Spear, Sharp Thin.
+        UPDATE `item_template` SET `display_id` = '7978', `ignored` = '0' WHERE (`entry` = '6680');
+        -- Monster - Tankards.
+        UPDATE `item_template` SET `display_id` = '6586', `ignored` = '0' WHERE (`entry` = '13861');
+        UPDATE `item_template` SET `display_id` = '6586', `ignored` = '0' WHERE (`entry` = '13862');
+        UPDATE `item_template` SET `display_id` = '6588', `ignored` = '0' WHERE (`entry` = '13859');
+        UPDATE `item_template` SET `display_id` = '6587', `ignored` = '0' WHERE (`entry` = '13855');
+        UPDATE `item_template` SET `display_id` = '4861', `ignored` = '0' WHERE (`entry` = '13854');
+        -- Myizz Luckycatch - Holds fish.
+        UPDATE `creature_equip_template` SET `equipentry1` = '6225' WHERE (`entry` = '2834');
+        -- Monster - Shield, Kite Metal Gold. Olthran Craghelm 
+        UPDATE `item_template` SET `display_id` = '1705', `ignored` = '0' WHERE (`entry` = '11041');
+        -- Hammerfall Grunts.
+        UPDATE `creature_equip_template` SET `equipentry1` = '5289' WHERE (`entry` = '2619');
+        -- Monster - Staff, Basic Red.
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '12937');
+        -- Monster - Staff, 3 Piece Taped Staff Green.
+        UPDATE `item_template` SET `display_id` = '1201', `ignored` = '0' WHERE (`entry` = '12328');
+
+        -- Close 1587
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5891.505', `spawn_positionY` = '-2854.249', `spawn_positionZ` = '372.107' WHERE (`spawn_id` = '112667');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '371.836' WHERE (`spawn_id` = '12819');
+
+        insert into applied_updates values ('111220251');
+    end if;
+
 end $
 delimiter ;
