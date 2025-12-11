@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Dict
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.GuidManager import GuidManager
@@ -25,7 +25,11 @@ class GameObjectBuilder:
             GameObjectBuilder.MAX_SPAWN_ID += 1
             spawn_id = GameObjectBuilder.MAX_SPAWN_ID
 
-        ctor = GameObjectBuilder.get_object_type_ctor(gobject_template)
+        go_type = gobject_template.type
+        if go_type == GameObjectTypes.TYPE_CHEST and gobject_template.data4 != 0 and gobject_template.data5 > gobject_template.data4:
+            go_type = GameObjectTypes.TYPE_MININGNODE
+        ctor = GO_CONSTRUCTORS.get(go_type, GameObjectBuilder.get_go_ctor)()
+
         go_instance = ctor(
             entry=gobject_template.entry,
             location=location,
@@ -63,50 +67,94 @@ class GameObjectBuilder:
         return go_instance
 
     @staticmethod
-    def get_object_type_ctor(template) -> Callable:
+    def get_door_ctor():
         from game.world.managers.objects.gameobjects.managers.DoorManager import DoorManager
-        from game.world.managers.objects.gameobjects.managers.TrapManager import TrapManager
-        from game.world.managers.objects.gameobjects.managers.ChairManager import ChairManager
-        from game.world.managers.objects.gameobjects.managers.ChestMananger import ChestManager
-        from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-        from game.world.managers.objects.gameobjects.managers.CameraManager import CameraManager
-        from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
-        from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
-        from game.world.managers.objects.gameobjects.managers.RitualManager import RitualManager
-        from game.world.managers.objects.gameobjects.managers.TransportManager import TransportManager
-        from game.world.managers.objects.gameobjects.managers.SpellFocusManager import SpellFocusManager
-        from game.world.managers.objects.gameobjects.managers.MiningNodeManager import MiningNodeManager
-        from game.world.managers.objects.gameobjects.managers.QuestGiverManager import QuestGiverManager
-        from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
-        from game.world.managers.objects.gameobjects.managers.DuelArbiterManager import DuelArbiterManager
+        return DoorManager
 
-        if template.type == GameObjectTypes.TYPE_DOOR:
-            return DoorManager
-        elif template.type == GameObjectTypes.TYPE_BUTTON:
-            return ButtonManager
-        elif template.type == GameObjectTypes.TYPE_CHEST and template.data4 != 0 and template.data5 > template.data4:
-            return MiningNodeManager
-        elif template.type == GameObjectTypes.TYPE_CHEST:
-            return ChestManager
-        elif template.type == GameObjectTypes.TYPE_QUESTGIVER:
-            return QuestGiverManager
-        elif template.type == GameObjectTypes.TYPE_TRAP:
-            return TrapManager
-        elif template.type == GameObjectTypes.TYPE_FISHINGNODE:
-            return FishingNodeManager
-        elif template.type == GameObjectTypes.TYPE_GOOBER:
-            return GooberManager
-        elif template.type == GameObjectTypes.TYPE_CHAIR:
-            return ChairManager
-        elif template.type == GameObjectTypes.TYPE_CAMERA:
-            return CameraManager
-        elif template.type == GameObjectTypes.TYPE_TRANSPORT:
-            return TransportManager
-        elif template.type == GameObjectTypes.TYPE_RITUAL:
-            return RitualManager
-        elif template.type == GameObjectTypes.TYPE_SPELL_FOCUS:
-            return SpellFocusManager
-        elif template.type == GameObjectTypes.TYPE_DUEL_ARBITER:
-            return DuelArbiterManager
-        else:
-            return GameObjectManager
+    @staticmethod
+    def get_trap_ctor():
+        from game.world.managers.objects.gameobjects.managers.TrapManager import TrapManager
+        return TrapManager
+
+    @staticmethod
+    def get_chair_ctor():
+        from game.world.managers.objects.gameobjects.managers.ChairManager import ChairManager
+        return ChairManager
+
+    @staticmethod
+    def get_chest_ctor():
+        from game.world.managers.objects.gameobjects.managers.ChestMananger import ChestManager
+        return ChestManager
+
+    @staticmethod
+    def get_go_ctor():
+        from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+        return GameObjectManager
+
+    @staticmethod
+    def get_camera_ctor():
+        from game.world.managers.objects.gameobjects.managers.CameraManager import CameraManager
+        return CameraManager
+
+    @staticmethod
+    def get_goober_ctor():
+        from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
+        return GooberManager
+
+    @staticmethod
+    def get_button_ctor():
+        from game.world.managers.objects.gameobjects.managers.ButtonManager import ButtonManager
+        return ButtonManager
+
+    @staticmethod
+    def get_ritual_ctor():
+        from game.world.managers.objects.gameobjects.managers.RitualManager import RitualManager
+        return RitualManager
+
+    @staticmethod
+    def get_transport_ctor():
+        from game.world.managers.objects.gameobjects.managers.TransportManager import TransportManager
+        return TransportManager
+
+    @staticmethod
+    def get_spell_focus_ctor():
+        from game.world.managers.objects.gameobjects.managers.SpellFocusManager import SpellFocusManager
+        return SpellFocusManager
+
+    @staticmethod
+    def get_mining_node_ctor():
+        from game.world.managers.objects.gameobjects.managers.MiningNodeManager import MiningNodeManager
+        return MiningNodeManager
+
+    @staticmethod
+    def get_quest_giver_ctor():
+        from game.world.managers.objects.gameobjects.managers.QuestGiverManager import QuestGiverManager
+        return QuestGiverManager
+
+    @staticmethod
+    def get_fishing_node_ctor():
+        from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
+        return FishingNodeManager
+
+    @staticmethod
+    def get_duel_arbiter_ctor():
+        from game.world.managers.objects.gameobjects.managers.DuelArbiterManager import DuelArbiterManager
+        return DuelArbiterManager
+
+
+GO_CONSTRUCTORS: Dict[int, callable] = {
+    GameObjectTypes.TYPE_DOOR : GameObjectBuilder.get_door_ctor,
+    GameObjectTypes.TYPE_BUTTON : GameObjectBuilder.get_button_ctor,
+    GameObjectTypes.TYPE_CHEST : GameObjectBuilder.get_chest_ctor,
+    GameObjectTypes.TYPE_QUESTGIVER : GameObjectBuilder.get_quest_giver_ctor,
+    GameObjectTypes.TYPE_TRAP : GameObjectBuilder.get_trap_ctor,
+    GameObjectTypes.TYPE_FISHINGNODE : GameObjectBuilder.get_fishing_node_ctor,
+    GameObjectTypes.TYPE_GOOBER : GameObjectBuilder.get_goober_ctor,
+    GameObjectTypes.TYPE_CAMERA : GameObjectBuilder.get_camera_ctor,
+    GameObjectTypes.TYPE_TRANSPORT : GameObjectBuilder.get_transport_ctor,
+    GameObjectTypes.TYPE_RITUAL : GameObjectBuilder.get_ritual_ctor,
+    GameObjectTypes.TYPE_CHAIR : GameObjectBuilder.get_chair_ctor,
+    GameObjectTypes.TYPE_DUEL_ARBITER : GameObjectBuilder.get_duel_arbiter_ctor,
+    GameObjectTypes.TYPE_SPELL_FOCUS : GameObjectBuilder.get_spell_focus_ctor,
+    GameObjectTypes.TYPE_MININGNODE : GameObjectBuilder.get_mining_node_ctor,
+}
