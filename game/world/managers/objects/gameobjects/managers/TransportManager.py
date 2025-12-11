@@ -138,6 +138,9 @@ class TransportManager(GameObjectManager):
                 self.new_passengers.discard(unit.guid)
                 unit.movement_info.send_surrounding_update()
 
+    def is_new_passenger(self, guid):
+        return guid in self.new_passengers
+
     def add_passenger(self, unit):
         self.passengers[unit.guid] = unit
         self.new_passengers.add(unit.guid)
