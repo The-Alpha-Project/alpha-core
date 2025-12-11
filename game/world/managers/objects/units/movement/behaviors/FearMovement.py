@@ -5,6 +5,7 @@ import time
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import UnitFlags
@@ -56,7 +57,6 @@ class FearMovement(BaseMovement):
         self.can_move = self.fear_duration > 0
 
     def _trigger_fear(self):
-        # Attack stop if needed, else unit will keep trying to turn towards target.
         if self.unit.combat_target:
             target_guid = self.unit.combat_target.guid
             self.unit.combat_target = None
@@ -66,6 +66,7 @@ class FearMovement(BaseMovement):
             self.waypoints = self._get_path(self._get_fear_point())
         self.can_move = False
         waypoint = self._get_waypoint()
+
         # If this is the end of a path, wait extra 0.5.
         extra_wait = 0.5 if not self.waypoints else 0.0
         spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint], speed=speed,
@@ -94,15 +95,34 @@ class FearMovement(BaseMovement):
     def _get_path(self, fear_point):
         if not config.Server.Settings.use_nav_tiles:
             return [fear_point]
+
+        _map = self.unit.get_map()
+
+        # See if we can reach the first calculated random fear point.
+        failed, path = _map.can_reach_location(src_vector=self.unit.location, dst_vector=fear_point)
+        if not failed:
+            return path
+
+        # Above failed, search for random points using fear point as source.
         for search_range in range(0, int(SEARCH_RANDOM_RADIUS)):
             destination = fear_point.get_random_point_in_radius(search_range, self.unit.map_id)
+
             # Avoid slopes above 2.5 (Units running off cliffs).
             diff = math.fabs(destination.z - self.unit.location.z)
             if diff > 2.5:
                 continue
-            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, destination)
+
+            failed, path = _map.can_reach_location(src_vector=self.unit.location, dst_vector=fear_point)
             if not failed:
                 return path
+
+        # Everything failed, search for a random point using namigator.
+        random_point = _map.find_random_point_around_circle(self.unit.location, radius=10.0)
+        failed, path = _map.can_reach_location(src_vector=self.unit.location, dst_vector=random_point)
+        if not failed:
+            return path
+
+        Logger.warning('Unable to calculate valid fear point vector.')
         return [fear_point]
 
     def _get_fear_point(self):
