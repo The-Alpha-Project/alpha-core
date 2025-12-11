@@ -762,7 +762,7 @@ class SpellManager:
                 if effect.area_aura_holder:
                     effect.area_aura_holder.remove_target(target_guid)
 
-            # Interrupt handling
+            # Interrupt handling.
             if not casting_spell.initial_target_is_unit_or_player() or \
                     (casting_spell.spell_target_mask == SpellTargetMask.SELF and not
                      casting_spell.requires_implicit_initial_unit_target()) or \
