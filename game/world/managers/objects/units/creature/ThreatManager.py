@@ -150,15 +150,14 @@ class ThreatManager:
         if not self.can_resolve_target():
             return None
 
-        max_threat_holder = self._get_max_threat_holder()
-        if not max_threat_holder:
+        threat_holder = self._get_max_threat_holder()
+        if not threat_holder:
             return None
 
         # Threat target switching.
-        if max_threat_holder != self.current_holder:
-            if not self.current_holder or self.unit.can_attack_target(self.current_holder.unit) or \
-                    self._is_exceeded_current_threat_melee_range(max_threat_holder.get_total_threat()):
-                self.current_holder = max_threat_holder
+        if threat_holder != self.current_holder:
+            if not self.current_holder or self._is_exceeded_current_threat_melee_range(threat_holder.get_total_threat()):
+                self.current_holder = threat_holder
 
         return None if not self.current_holder else self.current_holder.unit
 
@@ -281,7 +280,9 @@ class ThreatManager:
 
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
         relevant_threat_holders = self._get_sorted_threat_collection()
-        return None if not relevant_threat_holders else relevant_threat_holders[0]
+        if not relevant_threat_holders:
+            return None
+        return relevant_threat_holders[0]
 
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
@@ -295,11 +296,15 @@ class ThreatManager:
         return [holder for holder in list(self.holders.values()) if self._can_resolve_holder(holder)]
 
     def _can_resolve_holder(self, holder):
-        return holder.unit.is_alive and (self.unit.can_attack_target(holder.unit)
-                                         or (holder.unit.is_hostile_to(self.unit)
-                                             and not holder.unit.unit_state & UnitStates.SANCTUARY))
+        if not holder.unit.is_alive:
+            return False
+        if not self.unit.can_attack_target(holder.unit):
+            return False
+        if not self.unit.is_hostile_to(holder.unit):
+            return False
+        return True
 
-    # TODO Melee/outside of melee range reach
+    # TODO Melee/outside of melee range reach. What does this mean?
     def _is_exceeded_current_threat_melee_range(self, threat: float):
         current_threat = 0.0 if not self.current_holder else self.current_holder.get_total_threat()
         return threat >= current_threat * 1.1
