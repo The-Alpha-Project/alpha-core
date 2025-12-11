@@ -1,5 +1,6 @@
 import math
 import time
+from typing import Any
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -714,7 +715,7 @@ class PlayerManager(UnitManager):
     def is_dueling(self):
         return self.get_uint64(PlayerFields.PLAYER_DUEL_ARBITER) != 0
 
-    def get_duel_arbiter(self):
+    def get_duel_arbiter(self) -> Any:
         arbiter_guid = self.get_uint64(PlayerFields.PLAYER_DUEL_ARBITER)
         if not arbiter_guid:
             return None
