@@ -15,7 +15,7 @@ GROUPS = {}
 
 
 # TODO: 0.5.3 has no SMSG_LOOT_MASTER_LIST nor CMSG_LOOT_MASTER_GIVE, how exactly they handled ML?
-class GroupManager(object):
+class GroupManager:
     def __init__(self, group):
         self.group = group
         self.members: dict[int, GroupMember] = {}

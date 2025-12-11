@@ -8,7 +8,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
 
-class LootManager(object):
+class LootManager:
     def __init__(self, world_object):
         self.world_object = world_object
         self.current_money = 0

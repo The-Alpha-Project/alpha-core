@@ -7,7 +7,7 @@ from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 
 
-class QuestGiverAcceptQuestHandler(object):
+class QuestGiverAcceptQuestHandler:
 
     @staticmethod
     def handle(world_session, reader):

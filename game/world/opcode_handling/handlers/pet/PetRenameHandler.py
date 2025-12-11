@@ -3,7 +3,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils import TextUtils
 
 
-class PetRenameHandler(object):
+class PetRenameHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

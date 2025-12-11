@@ -4,7 +4,7 @@ from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from utils.constants.ItemCodes import ItemClasses, ItemFlags
 
 
-class LootHolder(object):
+class LootHolder:
     def __init__(self, item: ItemManager, quantity: int, requester: PlayerManager):
         self.item = item
         self.quantity = quantity

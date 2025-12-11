@@ -9,7 +9,7 @@ from utils.constants.MiscCodes import FriendResults, FriendStatus
 from utils.constants.OpCodes import OpCode
 
 
-class FriendsManager(object):
+class FriendsManager:
 
     # struct __cppobj FriendList
     # FriendList::Friend m_friends[50];

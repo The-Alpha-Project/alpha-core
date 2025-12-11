@@ -4,7 +4,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 
 
-class PetitionSignHandler(object):
+class PetitionSignHandler:
 
     @staticmethod
     def handle(world_session, reader):

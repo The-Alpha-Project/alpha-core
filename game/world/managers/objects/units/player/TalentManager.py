@@ -12,7 +12,7 @@ from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 
 
-class TalentManager(object):
+class TalentManager:
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
 

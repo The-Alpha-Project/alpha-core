@@ -1,4 +1,4 @@
-class NullHandler(object):
+class NullHandler:
 
     @staticmethod
     def handle(world_session, reader):

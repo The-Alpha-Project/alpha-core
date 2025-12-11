@@ -10,7 +10,7 @@ from utils.constants.MiscCodes import HighGuid
 from utils.constants.OpCodes import OpCode
 
 
-class PetitionManager(object):
+class PetitionManager:
     CHARTER_ENTRY = 5863
     CHARTER_DISPLAY_ID = 9199
     CHARTER_COST = 1000

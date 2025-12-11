@@ -5,7 +5,7 @@ from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
 
-class PetitionShowlistHandler(object):
+class PetitionShowlistHandler:
 
     @staticmethod
     def handle(world_session, reader):

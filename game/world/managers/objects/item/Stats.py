@@ -1,4 +1,4 @@
-class Stat(object):
+class Stat:
     def __init__(self, stat_type, value):
         self.stat_type = stat_type
         self.value = value
@@ -19,7 +19,7 @@ class Stat(object):
         ]
 
 
-class DamageStat(object):
+class DamageStat:
     def __init__(self, minimum, maximum, stat_type):
         self.minimum = minimum
         self.maximum = maximum
@@ -36,7 +36,7 @@ class DamageStat(object):
         ]
 
 
-class SpellStat(object):
+class SpellStat:
     def __init__(self, spell_id, trigger, charges, cooldown, category, category_cooldown):
         self.spell_id = spell_id
         self.trigger = trigger

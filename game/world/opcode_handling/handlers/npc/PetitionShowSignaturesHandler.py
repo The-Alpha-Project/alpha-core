@@ -3,7 +3,7 @@ from struct import unpack
 from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 
 
-class PetitionShowSignaturesHandler(object):
+class PetitionShowSignaturesHandler:
 
     @staticmethod
     def handle(world_session, reader):

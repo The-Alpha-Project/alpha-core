@@ -4,7 +4,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
 
-class BankerActivateHandler(object):
+class BankerActivateHandler:
 
     @staticmethod
     def handle(world_session, reader):

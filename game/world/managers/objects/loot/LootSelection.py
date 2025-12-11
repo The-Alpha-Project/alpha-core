@@ -2,7 +2,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from utils.constants.MiscCodes import LootTypes
 
 
-class LootSelection(object):
+class LootSelection:
     def __init__(self, world_object: ObjectManager, loot_type: LootTypes):
         self.object_guid = world_object.guid
         self.loot_type = loot_type

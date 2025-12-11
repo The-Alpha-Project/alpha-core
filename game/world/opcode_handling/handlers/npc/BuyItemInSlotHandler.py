@@ -2,7 +2,7 @@ from struct import unpack
 from game.world.managers.objects.units.creature.utils.VendorUtils import VendorUtils
 
 
-class BuyItemInSlotHandler(object):
+class BuyItemInSlotHandler:
 
     @staticmethod
     def handle(world_session, reader):

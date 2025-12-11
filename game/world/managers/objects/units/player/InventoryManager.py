@@ -13,7 +13,7 @@ from utils.constants.OpCodes import OpCode
 MAX_3368_ITEM_DISPLAY_ID = 11802
 
 
-class InventoryManager(object):
+class InventoryManager:
     def __init__(self, owner):
         self.owner = owner
         # Containers are lazy initialized, since we need the player session active (in-world).

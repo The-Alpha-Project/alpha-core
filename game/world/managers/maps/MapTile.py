@@ -13,7 +13,7 @@ from utils.Logger import Logger
 from utils.PathManager import PathManager
 
 
-class MapTile(object):
+class MapTile:
     EXPECTED_VERSION = 'ACMAP_1.75'
 
     def __init__(self, map_, adt_x, adt_y):

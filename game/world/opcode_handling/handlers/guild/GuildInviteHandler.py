@@ -5,7 +5,7 @@ from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, GuildRank
 
 
-class GuildInviteHandler(object):
+class GuildInviteHandler:
 
     @staticmethod
     def handle(world_session, reader):

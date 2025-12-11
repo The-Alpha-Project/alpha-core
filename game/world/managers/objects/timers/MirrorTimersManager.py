@@ -4,7 +4,7 @@ from utils.constants.MiscCodes import MirrorTimerTypes
 from utils.constants.SpellCodes import AuraTypes
 
 
-class MirrorTimersManager(object):
+class MirrorTimersManager:
     UPDATE_RATE = 1  # In seconds, how often we check timers' status.
 
     def __init__(self, owner):

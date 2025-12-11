@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import HighGuid
 from utils.constants.OpCodes import OpCode
 
 
-class LootMoneyHandler(object):
+class LootMoneyHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -200,7 +200,7 @@ class Proficiency:
         return self.related_skill_ids.get(1 << item_subclass, -1)
 
 
-class SkillManager(object):
+class SkillManager:
     MAX_PROFESSION_SKILL = 225
     MAX_SKILLS = 64
 

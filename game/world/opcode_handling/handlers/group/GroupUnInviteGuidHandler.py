@@ -4,7 +4,7 @@ from network.packet.PacketReader import *
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
 
-class GroupUnInviteGuidHandler(object):
+class GroupUnInviteGuidHandler:
 
     @staticmethod
     def handle(world_session, reader):

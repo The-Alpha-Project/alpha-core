@@ -5,7 +5,7 @@ from game.world.managers.objects.units.creature.utils.TrainerUtils import Traine
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
-class TrainerListHandler(object):
+class TrainerListHandler:
 
     @staticmethod
     def handle(world_session, reader):

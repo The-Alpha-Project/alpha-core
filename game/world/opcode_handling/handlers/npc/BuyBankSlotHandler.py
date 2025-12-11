@@ -4,7 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
-class BuyBankSlotHandler(object):
+class BuyBankSlotHandler:
 
     @staticmethod
     def handle(world_session, reader):

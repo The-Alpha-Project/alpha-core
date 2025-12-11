@@ -13,7 +13,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 
 
-class GuildManager(object):
+class GuildManager:
     GUILDS = {}  # Check for name duplicity upon creation.
     PENDING_INVITES = {}
 

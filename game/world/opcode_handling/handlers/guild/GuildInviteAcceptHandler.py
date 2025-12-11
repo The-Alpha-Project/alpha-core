@@ -2,7 +2,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
 
 
-class GuildInviteAcceptHandler(object):
+class GuildInviteAcceptHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -5,7 +5,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
 
-class QuestConfirmAcceptHandler(object):
+class QuestConfirmAcceptHandler:
 
     @staticmethod
     def handle(world_session, reader):

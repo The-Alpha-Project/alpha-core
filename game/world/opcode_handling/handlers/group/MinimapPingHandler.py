@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class MinimapPingHandler(object):
+class MinimapPingHandler:
 
     @staticmethod
     def handle(world_session, reader):

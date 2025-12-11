@@ -8,7 +8,7 @@ from utils.constants.SpellCodes import SpellTargetMask
 BIND_SPELL = 3286
 
 
-class BinderActivateHandler(object):
+class BinderActivateHandler:
 
     @staticmethod
     def handle(world_session, reader):

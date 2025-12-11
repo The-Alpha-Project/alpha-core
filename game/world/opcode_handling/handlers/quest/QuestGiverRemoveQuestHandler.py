@@ -3,7 +3,7 @@ from struct import unpack
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
-class QuestGiverRemoveQuestHandler(object):
+class QuestGiverRemoveQuestHandler:
 
     @staticmethod
     def handle(world_session, reader):

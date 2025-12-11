@@ -1,4 +1,4 @@
-class GroupInviteDeclineHandler(object):
+class GroupInviteDeclineHandler:
 
     @staticmethod
     def handle(world_session, reader):

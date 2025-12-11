@@ -5,7 +5,7 @@ from game.world.managers.objects.units.player.trade.TradeManager import TradeMan
 from utils.constants.MiscCodes import TradeStatus
 
 
-class TradeData(object):
+class TradeData:
     TRADE_SLOT_COUNT = 6
 
     def __init__(self,

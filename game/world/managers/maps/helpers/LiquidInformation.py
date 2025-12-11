@@ -7,7 +7,7 @@ from utils.constants.MiscCodes import LiquidTypes
 
 
 @dataclass
-class LiquidInformation(object):
+class LiquidInformation:
     def __init__(self, liquid_type, l_min, l_max, float_16=False, is_wmo=False):
         self._is_wmo = is_wmo
         self._liquid_type = liquid_type

@@ -12,7 +12,7 @@ from struct import unpack
 from network.packet.PacketWriter import *
 
 
-class TrainerBuySpellHandler(object):
+class TrainerBuySpellHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

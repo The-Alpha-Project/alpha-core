@@ -5,7 +5,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellSchools
 
 
-class MirrorTimer(object):
+class MirrorTimer:
     # Player, timer type, server side interval, timer duration (seconds), scale (change per elapsed second), spell_id)
     def __init__(self, owner, timer_type, interval, duration, scale=-1, spell_id=0):
         self.owner = owner

@@ -4,7 +4,7 @@ from game.world.managers.objects.units.player.guild.PetitionManager import Petit
 from utils.Logger import Logger
 
 
-class PetitionTurnInHandler(object):
+class PetitionTurnInHandler:
 
     @staticmethod
     def handle(world_session, reader):

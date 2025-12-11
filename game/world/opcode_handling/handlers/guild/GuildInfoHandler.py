@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
 from utils.constants.OpCodes import OpCode
 
 
-class GuildInfoHandler(object):
+class GuildInfoHandler:
 
     @staticmethod
     def handle(world_session, reader):

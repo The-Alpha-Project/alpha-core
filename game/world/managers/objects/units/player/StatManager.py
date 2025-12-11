@@ -95,7 +95,7 @@ class UnitStats(IntFlag):
     ALL_RESISTANCES = RESISTANCE_HOLY | RESISTANCE_FIRE | RESISTANCE_NATURE | RESISTANCE_FROST | RESISTANCE_SHADOW
 
 
-class StatManager(object):
+class StatManager:
 
     # Player base stats and stats scaling off base attributes (block value, weapon damage bonus from attributes etc.)
     base_stats: Dict[UnitStats, float]  # Floats for defensive chances

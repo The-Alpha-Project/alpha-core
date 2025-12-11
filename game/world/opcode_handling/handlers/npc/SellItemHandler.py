@@ -5,7 +5,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.MiscCodes import SellResults
 
 
-class SellItemHandler(object):
+class SellItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

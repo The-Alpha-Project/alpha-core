@@ -3,7 +3,7 @@ from struct import unpack
 from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 
 
-class PetitionQueryHandler(object):
+class PetitionQueryHandler:
 
     @staticmethod
     def handle(world_session, reader):

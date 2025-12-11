@@ -12,7 +12,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
-class Spline(object):
+class Spline:
     def __init__(self, unit, spline_type=0, spline_flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0,
                  total_time=0, points=None, extra_time_seconds=0):
         self.unit = unit

@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, GuildRank
 
 
-class GuildMOTDHandler(object):
+class GuildMOTDHandler:
 
     @staticmethod
     def handle(world_session, reader):

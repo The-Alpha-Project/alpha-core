@@ -2,7 +2,7 @@ from struct import unpack
 from utils.constants.UnitCodes import UnitFlags
 
 
-class LootRequestHandler(object):
+class LootRequestHandler:
 
     @staticmethod
     def handle(world_session, reader):

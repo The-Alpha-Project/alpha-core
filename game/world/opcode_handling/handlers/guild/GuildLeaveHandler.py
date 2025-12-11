@@ -2,7 +2,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, GuildRank
 
 
-class GuildLeaveHandler(object):
+class GuildLeaveHandler:
 
     @staticmethod
     def handle(world_session, reader):

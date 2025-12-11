@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import HighGuid
 from utils.Logger import Logger
 
 
-class QuestGiverChooseRewardHandler(object):
+class QuestGiverChooseRewardHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -1,7 +1,7 @@
 from network.packet.PacketReader import *
 
 
-class PetAbandonHandler(object):
+class PetAbandonHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:
