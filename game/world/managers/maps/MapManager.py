@@ -374,7 +374,7 @@ class MapManager:
 
     @staticmethod
     def find_random_point_around_circle(map_id, vector, radius):
-        # If nav tiles disabled or unable to load Namigator, return as True.
+        # If nav tiles disabled or unable to load Namigator, return normal random point.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return vector.get_random_point_in_radius(radius)
 
