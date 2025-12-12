@@ -1013,7 +1013,6 @@ begin not atomic
         -- Monster - Gun.
         UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE `equipentry3` = '12523' or `equipentry3` = '14642';
 
-
         insert into applied_updates values ('111220251');
     end if;
 
