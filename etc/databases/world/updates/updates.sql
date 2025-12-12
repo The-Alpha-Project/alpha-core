@@ -967,6 +967,7 @@ begin not atomic
         -- Gabrielle Chase
         -- Olthran Craghelm
         -- Myizz Luckycatch
+        -- Horde Guard
 
         -- Monster - Throwing Knife.
         UPDATE `item_template` SET `display_id` = '4678', `ignored` = '0' WHERE (`entry` = '6886');
@@ -990,6 +991,9 @@ begin not atomic
         UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '12937');
         -- Monster - Staff, 3 Piece Taped Staff Green.
         UPDATE `item_template` SET `display_id` = '1201', `ignored` = '0' WHERE (`entry` = '12328');
+        -- Horde Guard.
+        UPDATE `creature_equip_template` SET `equipentry1` = '1905' WHERE (`entry` = '3501');
+
 
         -- Close 1587
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5891.505', `spawn_positionY` = '-2854.249', `spawn_positionZ` = '372.107' WHERE (`spawn_id` = '112667');
