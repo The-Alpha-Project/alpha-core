@@ -1015,6 +1015,9 @@ begin not atomic
         
         -- Zizzek, placement.
         UPDATE `spawns_creatures` SET `position_x` = '-1020.966', `position_y` = '-3661.982', `position_z` = '22.367', `orientation` = '5.666' WHERE (`spawn_id` = '20948');
+        
+        -- Dun Garok Mountaneers. https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Hillsbrad%20Foothills/WoWScrnShot_052004_204918.jpg
+        UPDATE `creature_equip_template` SET `equipentry1` = '2695' WHERE (`entry` = '2344');
 
         insert into applied_updates values ('111220251');
     end if;
