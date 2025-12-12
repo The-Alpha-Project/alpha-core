@@ -1012,6 +1012,9 @@ begin not atomic
         
         -- Monster - Gun.
         UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE `equipentry3` = '12523' or `equipentry3` = '14642';
+        
+        -- Zizzek, placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-1020.966', `position_y` = '-3661.982', `position_z` = '22.367', `orientation` = '5.666' WHERE (`spawn_id` = '20948');
 
         insert into applied_updates values ('111220251');
     end if;
