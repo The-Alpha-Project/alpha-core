@@ -96,7 +96,7 @@ class FollowMovement(BaseMovement):
 
         move_location = follow_target.location.get_point_in_radius_and_angle(self.follow_dist, self.follow_angle)
 
-        # Near teleport if lagging above view distance, this can probably be less or half cell.
+        # Near teleport if lagging above one third of view distance.
         if current_distance > CellUtils.VIEW_DISTANCE / 3.0:
             self.unit.near_teleport(move_location)
             return False, None
