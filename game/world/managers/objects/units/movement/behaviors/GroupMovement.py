@@ -119,7 +119,7 @@ class GroupMovement(BaseMovement):
 
         # Check if unit is lagging.
         if creature_distance > group_member.distance_leader:
-            if creature_distance > CellUtils.VIEW_DISTANCE:
+            if creature_distance > CellUtils.VIEW_DISTANCE / 3.0:
                 self.unit.near_teleport(location)
                 return None, 0
             if not self._is_lagging:
