@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
 
-class MountSpecialAnimHandler(object):
+class MountSpecialAnimHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

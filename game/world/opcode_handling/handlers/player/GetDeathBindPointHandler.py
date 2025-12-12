@@ -4,7 +4,7 @@ from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
 
-class GetDeathBindPointHandler(object):
+class GetDeathBindPointHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

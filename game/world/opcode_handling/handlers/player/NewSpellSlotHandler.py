@@ -4,7 +4,7 @@ from database.realm.RealmModels import CharacterSpellButton
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
-class NewSpellSlotHandler(object):
+class NewSpellSlotHandler:
 
     @staticmethod
     def handle(world_session, reader):

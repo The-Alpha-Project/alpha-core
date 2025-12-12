@@ -3,7 +3,7 @@ from struct import unpack
 from utils.constants.ItemCodes import InventoryError, InventorySlots
 
 
-class AutostoreBagItemHandler(object):
+class AutostoreBagItemHandler:
     @staticmethod
     def handle(world_session, reader):
         if len(reader.data) >= 3:  # Avoid handling empty autostore bag item packet.

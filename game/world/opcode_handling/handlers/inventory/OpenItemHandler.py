@@ -7,7 +7,7 @@ from utils.constants.MiscCodes import HighGuid
 from utils.constants.UnitCodes import UnitFlags
 
 
-class OpenItemHandler(object):
+class OpenItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

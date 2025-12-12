@@ -4,7 +4,7 @@ from utils.Logger import Logger
 from struct import unpack
 
 
-class PetLevelCheatHandler(object):
+class PetLevelCheatHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

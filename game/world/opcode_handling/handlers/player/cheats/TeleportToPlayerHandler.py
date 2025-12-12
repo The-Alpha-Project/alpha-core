@@ -4,7 +4,7 @@ from network.packet.PacketReader import *
 from utils.Logger import Logger
 
 
-class TeleportToPlayerHandler(object):
+class TeleportToPlayerHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

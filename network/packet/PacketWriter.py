@@ -5,7 +5,7 @@ from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 
 
-class PacketWriter(object):
+class PacketWriter:
     MAX_PACKET_SIZE = 0x8000
     HEADER_SIZE = 6
 

@@ -1,7 +1,7 @@
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 
 
-class CancelTradeHandler(object):
+class CancelTradeHandler:
 
     @staticmethod
     def handle(world_session, reader):

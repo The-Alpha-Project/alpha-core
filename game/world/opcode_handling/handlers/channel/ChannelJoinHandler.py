@@ -2,7 +2,7 @@ from game.world.managers.objects.units.player.ChannelManager import ChannelManag
 from network.packet.PacketReader import *
 
 
-class ChannelJoinHandler(object):
+class ChannelJoinHandler:
 
     @staticmethod
     def handle(world_session, reader):

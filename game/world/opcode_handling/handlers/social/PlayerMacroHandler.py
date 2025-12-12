@@ -3,7 +3,7 @@ from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
 
-class PlayerMacroHandler(object):
+class PlayerMacroHandler:
 
     @staticmethod
     def handle(world_session, reader):

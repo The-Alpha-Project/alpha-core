@@ -6,7 +6,7 @@ from network.packet.PacketReader import PacketReader
 from utils.Logger import Logger
 
 
-class CheatBeastMasterHandler(object):
+class CheatBeastMasterHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

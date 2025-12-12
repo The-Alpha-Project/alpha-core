@@ -3,7 +3,7 @@ from struct import unpack
 from utils.constants.ItemCodes import InventorySlots
 
 
-class SwapInvItemHandler(object):
+class SwapInvItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

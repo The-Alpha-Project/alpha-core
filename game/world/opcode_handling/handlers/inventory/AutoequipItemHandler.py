@@ -3,7 +3,7 @@ from struct import unpack
 from utils.constants.ItemCodes import InventorySlots, InventoryError, InventoryTypes
 
 
-class AutoequipItemHandler(object):
+class AutoequipItemHandler:
     @staticmethod
     def handle(world_session, reader):
         if len(reader.data) >= 2:  # Avoid handling empty autoequip item packet.

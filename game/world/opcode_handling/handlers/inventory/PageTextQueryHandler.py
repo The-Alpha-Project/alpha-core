@@ -6,7 +6,7 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants.OpCodes import OpCode
 
 
-class PageTextQueryHandler(object):
+class PageTextQueryHandler:
 
     @staticmethod
     def handle(world_session, reader):

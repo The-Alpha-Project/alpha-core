@@ -1,4 +1,4 @@
-class FriendsListHandler(object):
+class FriendsListHandler:
 
     @staticmethod
     def handle(world_session, reader):

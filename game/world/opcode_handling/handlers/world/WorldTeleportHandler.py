@@ -6,7 +6,7 @@ from utils.Logger import Logger
 from utils.constants.UnitCodes import UnitFlags
 
 
-class WorldTeleportHandler(object):
+class WorldTeleportHandler:
 
     @staticmethod
     def handle(world_session, reader):

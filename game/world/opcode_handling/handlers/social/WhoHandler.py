@@ -4,7 +4,7 @@ from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
 
-class WhoHandler(object):
+class WhoHandler:
 
     @staticmethod
     def handle(world_session, reader):

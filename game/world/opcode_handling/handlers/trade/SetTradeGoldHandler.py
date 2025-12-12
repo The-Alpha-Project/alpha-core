@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class SetTradeGoldHandler(object):
+class SetTradeGoldHandler:
 
     @staticmethod
     def handle(world_session, reader):
