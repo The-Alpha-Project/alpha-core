@@ -1007,6 +1007,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '24727');
         UPDATE `creature_template` SET `display_id1` = '2128' WHERE (`entry` = '5940');
 
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-6.370' WHERE (`spawn_id` = '43007');
+
         insert into applied_updates values ('111220251');
     end if;
 
