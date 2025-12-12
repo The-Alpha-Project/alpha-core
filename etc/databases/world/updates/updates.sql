@@ -1018,6 +1018,9 @@ begin not atomic
         
         -- Dun Garok Mountaneers. https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Hillsbrad%20Foothills/WoWScrnShot_052004_204918.jpg
         UPDATE `creature_equip_template` SET `equipentry1` = '2695' WHERE (`entry` = '2344');
+        
+        -- Kazon - Monster - Mace2H, Kazon's Maul
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10685');
 
         insert into applied_updates values ('111220251');
     end if;
