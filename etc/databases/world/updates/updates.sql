@@ -1009,6 +1009,26 @@ begin not atomic
 
         -- Barrel of Milk.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-6.370' WHERE (`spawn_id` = '43007');
+        
+        -- Monster - Gun.
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3061');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3084');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3210');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3211');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3212');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3213');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3214');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3215');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3217');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3218');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3219');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3220');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3221');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3222');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3223');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '3224');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '7975');
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE (`entry` = '11877');
 
         insert into applied_updates values ('111220251');
     end if;
