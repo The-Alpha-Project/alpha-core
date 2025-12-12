@@ -1021,6 +1021,11 @@ begin not atomic
         
         -- Kazon - Monster - Mace2H, Kazon's Maul
         UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10685');
+        -- Kazon, faction.
+        UPDATE `creature_template` SET `faction` = '40' WHERE (`entry` = '584');
+
+        -- Campfire Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '155.916' WHERE (`spawn_id` = '34846');
 
         insert into applied_updates values ('111220251');
     end if;
