@@ -1001,7 +1001,7 @@ begin not atomic
 
         -- Missing riding wolves at Crossroads. https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Barrens/images_6626.jpg
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400472', '5197', '0', '0', '0', '1', '-433.731', '-2644.658', '96.539', '0.187', '270', '270', '0', '100', '0', '0', '0', '0', '0');
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400473', '5197', '0', '0', '0', '1', '-432.375', '-2650.784', '96.511', '0.139', '270', '270', '0', '100', '0', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400473', '5196', '0', '0', '0', '1', '-432.375', '-2650.784', '96.511', '0.139', '270', '270', '0', '100', '0', '0', '0', '0', '0');
 
         insert into applied_updates values ('111220251');
     end if;
