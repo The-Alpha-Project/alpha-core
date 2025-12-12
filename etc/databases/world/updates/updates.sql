@@ -1027,6 +1027,14 @@ begin not atomic
         -- Campfire Z.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '155.916' WHERE (`spawn_id` = '34846');
 
+        -- Monster - Mace, Tauren Spiked.
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '9659');
+
+        -- Monster - Dagger, Tanto Blade
+        -- Monster - Sword, Horde Jagged Green
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10618');
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10878');
+
         insert into applied_updates values ('111220251');
     end if;
 
