@@ -1042,7 +1042,7 @@ begin not atomic
         -- Empty vendor template.
         INSERT INTO `npc_vendor_template` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `condition_id`, `slot`) VALUES ('4000000', '0', '0', '0', '0', '0', '0');
         
-        -- Boat Vendor and Pirate Supplies did open vendor frame, just empty.
+        -- Boat Vendor and Pirate Supplies did open vendor frame, just empty. (This probably applies to Cartography vendors and others)
         UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2662');
         UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2663');
 
