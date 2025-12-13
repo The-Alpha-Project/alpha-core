@@ -42,7 +42,6 @@ class PetAI(CreatureAI):
             if not self.creature.combat_target and self.creature.in_combat:
                 self.creature.leave_combat()
 
-            # TODO: Why this return always happening for other pet controlled pets? @Flug
             if not self.creature.is_guardian():
                 return
 
