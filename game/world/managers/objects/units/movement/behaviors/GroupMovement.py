@@ -45,15 +45,25 @@ class GroupMovement(BaseMovement):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update tmp home position.
         self.unit.tmp_home_position = new_position.copy()
-        if not waypoint_completed or not self.unit.creature_group or not self.unit.creature_group.is_leader(self.unit):
+        if not waypoint_completed:
             return
-        current_wp = self._get_waypoint()
-        self._waypoint_push_back()
-        if not current_wp.script_id:
-            return
-        self.unit.get_map().enqueue_script(source=self.unit, target=self.unit,
-                                           script_type=ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
-                                           script_id=current_wp.script_id)
+        self.handle_waypoint_complete()
+
+    def handle_waypoint_complete(self):
+        # Leader.
+        if self.unit.creature_group and self.unit.creature_group.is_leader(self.unit):
+            current_wp = self._get_waypoint()
+            self._waypoint_push_back()
+            if current_wp.script_id:
+                self.unit.get_map().enqueue_script(source=self.unit, target=self.unit,
+                                                   script_type=ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
+                                                   script_id=current_wp.script_id)
+        # Follower.
+        else:
+            leader = self.unit.creature_group.leader
+            # Face in the same angle as the leader if needed.
+            if not self.unit.location.has_in_arc(leader.location):
+                self.unit.movement_manager.face_angle(leader.location.o)
 
     # override
     def reset(self):
