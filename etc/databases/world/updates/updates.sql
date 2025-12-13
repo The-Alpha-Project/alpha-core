@@ -1137,6 +1137,12 @@ begin not atomic
         (13867, 44, -2059.42, -3688.809, 49.28, 0, 0, 0, 0),
         (13867, 45, -2058.688, -3683.031, 50.603, 0, 0, 0, 0);
 
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '91.667' WHERE (`spawn_id` = '46921');
+
+        -- Fuel Control Valve, better rotation.
+        UPDATE `spawns_gameobjects` SET `spawn_rotation0` = '0.3', `spawn_rotation1` = '0.1' WHERE (`spawn_id` = '15731');
+
         insert into applied_updates values ('111220251');
     end if;
 
