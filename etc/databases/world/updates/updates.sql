@@ -1039,6 +1039,13 @@ begin not atomic
         UPDATE `quest_template` SET `Objectives` = 'Return to Shandris Feathermoon in Darnassus.' WHERE (`entry` = '1044');
         UPDATE `creature_quest_finisher` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1044');
 
+        -- Empty vendor template.
+        INSERT INTO `npc_vendor_template` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `condition_id`, `slot`) VALUES ('4000000', '0', '0', '0', '0', '0', '0');
+        
+        -- Boat Vendor and Pirate Supplies did open vendor frame, just empty.
+        UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2662');
+        UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2663');
+
         insert into applied_updates values ('111220251');
     end if;
 
