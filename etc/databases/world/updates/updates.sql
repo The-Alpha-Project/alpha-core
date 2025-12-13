@@ -1149,6 +1149,12 @@ begin not atomic
         -- Bubbling Cauldron fire dmg.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '331.229', `spawn_positionY` = '-4707.58', `spawn_positionZ` = '13.714' WHERE (`spawn_id` = '1672');
 
+        -- Monster - Axe, Metal Basic.
+        UPDATE alpha_world.creature_equip_template SET 
+        equipentry1 = REPLACE(equipentry1, '10611', '1905'),
+        equipentry2 = REPLACE(equipentry2, '10611', '1905'),
+        equipentry3 = REPLACE(equipentry3, '10611', '1905');
+
         insert into applied_updates values ('111220251');
     end if;
 
