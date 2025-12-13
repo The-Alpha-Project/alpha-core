@@ -86,7 +86,8 @@ class PetMovement(BaseMovement):
     # External call.
     def stay(self, state):
         self.reset()
-        self.unit.object_ai.set_combat_movement(enabled=not state)
+        if self.unit.object_ai:
+            self.unit.object_ai.set_combat_movement(enabled=not state)
         self.stay_position = None if not state else self.unit.location.copy()
 
     def get_move_state_for_position(self, new_position):
