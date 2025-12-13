@@ -1142,6 +1142,9 @@ begin not atomic
 
         -- Fuel Control Valve, better rotation.
         UPDATE `spawns_gameobjects` SET `spawn_rotation0` = '0.3', `spawn_rotation1` = '0.1' WHERE (`spawn_id` = '15731');
+    
+        -- Heated Forge.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '371.867', `spawn_positionY` = '-4709.689', `spawn_positionZ` = '15.470' WHERE (`spawn_id` = '12079');
 
         insert into applied_updates values ('111220251');
     end if;
