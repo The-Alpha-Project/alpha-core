@@ -1180,6 +1180,13 @@ begin not atomic
         equipentry2 = REPLACE(equipentry2, '12298', '5283'),
         equipentry3 = REPLACE(equipentry3, '12298', '5283');
 
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '15.309' WHERE (`spawn_id` = '44017');
+
+        -- Water Barrel.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '319.268', `spawn_positionY` = '-4698.650', `spawn_positionZ` = '15.792' WHERE (`spawn_id` = '44047');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '295.741', `spawn_positionY` = '-4785.289', `spawn_positionZ` = '10.610' WHERE (`spawn_id` = '44046');
+
         insert into applied_updates values ('111220251');
     end if;
 
