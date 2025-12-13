@@ -1048,6 +1048,7 @@ begin not atomic
 
         -- Yance Kelsey <Cook>, use default model.
         UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2664');
+
         -- Haren Kanmae <Superior Bower>, use default model.
         UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2839');
 
@@ -1065,6 +1066,22 @@ begin not atomic
 
         -- Food Crate.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1014.084', `spawn_positionY` = '-3659.752', `spawn_positionZ` = '21.976' WHERE (`spawn_id` = '46847');
+        
+        -- Theramore Marine.
+        UPDATE `spawns_creatures` SET `position_x` = '-2058.161', `position_y` = '-3675.024', `position_z` = '23.843', `orientation` = '2.853' WHERE (`spawn_id` = '13906');
+
+        -- Theramore Preserver.
+        UPDATE `spawns_creatures` SET `position_x` = '-2059.504', `position_y` = '-3671.873', `position_z` = '23.830', `orientation` = '3.045' WHERE (`spawn_id` = '13939');
+
+        -- Palomino.
+        UPDATE `spawns_creatures` SET `position_x` = '-2088.872', `position_y` = '-3684.154', `position_z` = '34.631', `orientation` = '1.341' WHERE (`spawn_id` = '13182');
+
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2074.703', `spawn_positionY` = '-3665.133', `spawn_positionZ` = '33.137' WHERE (`spawn_id` = '46915');
+
+        -- Tin Vein.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2117.118', `spawn_positionY` = '-3654.103', `spawn_positionZ` = '45.404' WHERE (`spawn_id` = '34617');
+
 
         insert into applied_updates values ('111220251');
     end if;
