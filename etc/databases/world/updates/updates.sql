@@ -1055,10 +1055,16 @@ begin not atomic
         UPDATE `item_template` SET `name` = 'Swashbuckler\'s Shirt', `display_id` = '7847' WHERE (`entry` = '4336');
         
         -- Ratchet burried go's.
-        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` IN ('13050', 13058, 13151, 13035, 13076);
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` IN ('13050', 13058, 13151, 13035, 13076, 13063);
 
         -- Book - Mount Hyjal and Illidan's Gift - Placement.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1003.186', `spawn_positionY` = '-3652.592', `spawn_positionZ` = '25.560' WHERE (`spawn_id` = '13461');
+
+        -- Brewmaster Drohn - Faction.
+        UPDATE `creature_template` SET `faction` = '121' WHERE (`entry` = '3292');
+
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1014.084', `spawn_positionY` = '-3659.752', `spawn_positionZ` = '21.976' WHERE (`spawn_id` = '46847');
 
         insert into applied_updates values ('111220251');
     end if;
