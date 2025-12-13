@@ -1146,6 +1146,9 @@ begin not atomic
         -- Heated Forge.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '371.867', `spawn_positionY` = '-4709.689', `spawn_positionZ` = '15.470' WHERE (`spawn_id` = '12079');
 
+        -- Bubbling Cauldron fire dmg.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '331.229', `spawn_positionY` = '-4707.58', `spawn_positionZ` = '13.714' WHERE (`spawn_id` = '1672');
+
         insert into applied_updates values ('111220251');
     end if;
 
