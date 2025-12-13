@@ -1035,6 +1035,10 @@ begin not atomic
         UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10618');
         UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10878');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1590
+        UPDATE `quest_template` SET `Objectives` = 'Return to Shandris Feathermoon in Darnassus.' WHERE (`entry` = '1044');
+        UPDATE `creature_quest_finisher` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1044');
+
         insert into applied_updates values ('111220251');
     end if;
 
