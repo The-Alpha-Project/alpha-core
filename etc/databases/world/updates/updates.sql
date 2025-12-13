@@ -1046,6 +1046,9 @@ begin not atomic
         UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2662');
         UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2663');
 
+        -- Yance Kelsey <Cook>, use default model.
+        UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2664');
+
         insert into applied_updates values ('111220251');
     end if;
 
