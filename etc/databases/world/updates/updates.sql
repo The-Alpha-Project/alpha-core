@@ -1150,29 +1150,35 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '331.229', `spawn_positionY` = '-4707.58', `spawn_positionZ` = '13.714' WHERE (`spawn_id` = '1672');
 
         -- Monster - Axe, Horde Badass 01 -> Monster - Axe, Metal Basic.
-        UPDATE alpha_world.creature_equip_template SET 
+        UPDATE creature_equip_template SET 
         equipentry1 = REPLACE(equipentry1, '10611', '1905'),
         equipentry2 = REPLACE(equipentry2, '10611', '1905'),
         equipentry3 = REPLACE(equipentry3, '10611', '1905');
 
         -- Monster - Axe, Horde Badass 02 -> Monster - Axe, Metal Basic.
-        UPDATE alpha_world.creature_equip_template SET 
+        UPDATE creature_equip_template SET 
         equipentry1 = REPLACE(equipentry1, '10612', '1905'),
         equipentry2 = REPLACE(equipentry2, '10612', '1905'),
         equipentry3 = REPLACE(equipentry3, '10612', '1905');
 
         -- Monster - Axe, Horde Badass 02 -> Monster - Axe, Metal Basic.
-        UPDATE alpha_world.creature_equip_template SET 
+        UPDATE creature_equip_template SET 
         equipentry1 = REPLACE(equipentry1, '10612', '1905'),
         equipentry2 = REPLACE(equipentry2, '10612', '1905'),
         equipentry3 = REPLACE(equipentry3, '10612', '1905');
 
-        -- Monster - Shield, Horde A02 Silver -> Monster - Shield, Small Wooden
+        -- Monster - Shield, Horde A02 Silver -> Monster - Shield, Small Wooden.
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Durotar/worldofwarcraft__041604_009-806500.jpg
-        UPDATE alpha_world.creature_equip_template SET 
+        UPDATE creature_equip_template SET 
         equipentry1 = REPLACE(equipentry1, '12452', '1957'),
         equipentry2 = REPLACE(equipentry2, '12452', '1957'),
         equipentry3 = REPLACE(equipentry3, '12452', '1957');
+
+        -- Monster - Dagger, Dark Pronged -> Monster - Dagger, Ornate Spikey Base.
+        UPDATE creature_equip_template SET 
+        equipentry1 = REPLACE(equipentry1, '12298', '5283'),
+        equipentry2 = REPLACE(equipentry2, '12298', '5283'),
+        equipentry3 = REPLACE(equipentry3, '12298', '5283');
 
         insert into applied_updates values ('111220251');
     end if;
