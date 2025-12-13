@@ -1049,6 +1049,9 @@ begin not atomic
         -- Yance Kelsey <Cook>, use default model.
         UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2664');
 
+        -- Black Swashbuckler's Shirt -> Swashbuckler's Shirt from spell 3873.
+        UPDATE `item_template` SET `name` = 'Swashbuckler\'s Shirt', `display_id` = '7847' WHERE (`entry` = '4336');
+
         insert into applied_updates values ('111220251');
     end if;
 
