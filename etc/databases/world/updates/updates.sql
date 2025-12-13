@@ -1048,9 +1048,17 @@ begin not atomic
 
         -- Yance Kelsey <Cook>, use default model.
         UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2664');
+        -- Haren Kanmae <Superior Bower>, use default model.
+        UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2839');
 
         -- Black Swashbuckler's Shirt -> Swashbuckler's Shirt from spell 3873.
         UPDATE `item_template` SET `name` = 'Swashbuckler\'s Shirt', `display_id` = '7847' WHERE (`entry` = '4336');
+        
+        -- Ratchet burried go's.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` IN ('13050', 13058, 13151, 13035, 13076);
+
+        -- Book - Mount Hyjal and Illidan's Gift - Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1003.186', `spawn_positionY` = '-3652.592', `spawn_positionZ` = '25.560' WHERE (`spawn_id` = '13461');
 
         insert into applied_updates values ('111220251');
     end if;
