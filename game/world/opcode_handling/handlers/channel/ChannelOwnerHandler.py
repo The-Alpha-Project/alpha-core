@@ -5,7 +5,7 @@ from network.packet.PacketReader import *
 from utils.constants.MiscCodes import ChannelNotifications
 
 
-class ChannelOwnerHandler(object):
+class ChannelOwnerHandler:
 
     @staticmethod
     def handle(world_session, reader):

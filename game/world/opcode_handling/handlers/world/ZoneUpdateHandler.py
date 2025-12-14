@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class ZoneUpdateHandler(object):
+class ZoneUpdateHandler:
 
     @staticmethod
     def handle(world_session, reader):

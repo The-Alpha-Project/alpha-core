@@ -5,7 +5,7 @@ from utils.Logger import Logger
 from struct import pack
 
 
-class CooldownCheatHandler(object):
+class CooldownCheatHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -6,7 +6,9 @@ class SplineBuilder:
 
     @staticmethod
     def build_normal_spline(unit, points, speed, spline_flags=SplineFlags.SPLINEFLAG_RUNMODE, extra_time_seconds=0):
-        unit.location.face_point(points[0])
+        if not unit.location.approximately_equals(points[0], 0.1):
+            unit.location.face_point(points[0])
+
         return Spline(
             unit=unit,
             spline_type=SplineType.SPLINE_TYPE_NORMAL,

@@ -6,7 +6,7 @@ from utils.ConfigManager import config
 from utils.constants.MiscCodes import ChatMsgs, Languages
 
 
-class ChatHandler(object):
+class ChatHandler:
 
     @staticmethod
     def handle(world_session, reader):

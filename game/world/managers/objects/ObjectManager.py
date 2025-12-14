@@ -294,24 +294,29 @@ class ObjectManager:
         return data
 
     def _get_fields_update(self, is_create, requester, update_data=None):
-        data = bytearray()
-        mask = self.update_packet_factory.update_mask.copy() if not update_data else update_data.update_bit_mask
-        values = self.update_packet_factory.update_values_bytes if not update_data else update_data.update_field_values
+        # Make sure we work on a copy of the current mask and values.
+        if not update_data:
+            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
 
+        mask = update_data.update_bit_mask
+        values = update_data.update_field_values
+
+        data = bytearray()
         for field_index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[field_index] == 0:
                 continue
-            # Check for encapsulation, turn off the bit if requester has no read access.
+            # Check for encapsulation, turn off the bit if the requester has no read access.
             if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
                 mask[field_index] = 0
                 continue
-            # Defer bytes_1 update, this is similar to doors collision issue (But for sheath state)
-            # in which the client needs to see the doors as ready first, and then receive their actual state after create.
+            # Defer bytes_1 sheath update, this is similar to the doors collision issue (But for sheath state)
+            # in which the client needs to see the doors as ready first and then receive their actual state after creation.
             elif is_create and self.is_unit() and field_index == UnitFields.UNIT_FIELD_BYTES_1:
-                mask[field_index] = 0
+                data.extend(pack('<I', self.get_bytes_1(is_create=True)))
+                mask[field_index] = 1
                 continue
-            # Append field value and turn on bit on mask.
+            # Append field value and turn on the bit on mask.
             data.extend(values[field_index])
             mask[field_index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data

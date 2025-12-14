@@ -4,7 +4,7 @@ from utils.Logger import Logger
 from struct import unpack
 
 
-class CheatSetMoneyHandler(object):
+class CheatSetMoneyHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

@@ -10,7 +10,7 @@ from utils.Srp6 import Srp6
 from utils.constants.AuthCodes import *
 
 
-class AuthSessionHandler(object):
+class AuthSessionHandler:
 
     @staticmethod
     def handle_srp6_begin(auth_session, reader):

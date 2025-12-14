@@ -5,7 +5,7 @@ from struct import unpack
 from utils.constants.UnitCodes import StandState
 
 
-class StandStateChangeHandler(object):
+class StandStateChangeHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

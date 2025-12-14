@@ -86,6 +86,8 @@ class PetMovement(BaseMovement):
     # External call.
     def stay(self, state):
         self.reset()
+        if self.unit.object_ai:
+            self.unit.object_ai.set_combat_movement(enabled=not state)
         self.stay_position = None if not state else self.unit.location.copy()
 
     def get_move_state_for_position(self, new_position):
@@ -159,8 +161,8 @@ class PetMovement(BaseMovement):
                                                                            self.follow_angle,
                                                                            final_orientation=orientation)
 
-        # Near teleport if lagging above view distance, this can probably be less or half cell.
-        if current_distance > CellUtils.VIEW_DISTANCE:
+        # Near teleport if lagging above one third of view distance.
+        if current_distance > CellUtils.VIEW_DISTANCE / 3.0:
             self.unit.near_teleport(self.home_position)
             return False, None
 

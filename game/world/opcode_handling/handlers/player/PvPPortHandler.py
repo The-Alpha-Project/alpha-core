@@ -6,7 +6,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 
 
-class PvPPortHandler(object):
+class PvPPortHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

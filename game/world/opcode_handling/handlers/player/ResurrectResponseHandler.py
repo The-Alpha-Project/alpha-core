@@ -2,7 +2,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 
 
-class ResurrectResponseHandler(object):
+class ResurrectResponseHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

@@ -4,7 +4,7 @@ from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
 
-class PingHandler(object):
+class PingHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

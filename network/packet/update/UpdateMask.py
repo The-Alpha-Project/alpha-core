@@ -4,7 +4,7 @@ from bitarray import bitarray
 BLOCK_SIZE = 32
 
 
-class UpdateMask(object):
+class UpdateMask:
     def __init__(self):
         self.update_mask: Optional[bitarray] = None
         self.block_count = 0

@@ -16,7 +16,7 @@ from utils.constants.CharCodes import CharLogin
 from utils.constants.OpCodes import OpCode
 
 
-class PlayerLoginHandler(object):
+class PlayerLoginHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

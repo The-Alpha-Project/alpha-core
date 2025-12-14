@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 
 
-class PlayedTimeHandler(object):
+class PlayedTimeHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

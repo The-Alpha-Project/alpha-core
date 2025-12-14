@@ -550,6 +550,7 @@ class CreatureManager(UnitManager):
 
         # We are at home position already.
         if in_place or self.is_at_home():
+            self.movement_manager.face_angle(return_position.o)
             self.is_evading = False
             self.tmp_home_position = None
             self.swim_checks_enabled = False

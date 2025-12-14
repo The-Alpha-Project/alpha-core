@@ -5,7 +5,7 @@ from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants.OpCodes import OpCode
 
 
-class ItemQuerySingleHandler(object):
+class ItemQuerySingleHandler:
 
     @staticmethod
     def handle(world_session, reader):

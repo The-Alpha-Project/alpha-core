@@ -42,7 +42,6 @@ class PetAI(CreatureAI):
             if not self.creature.combat_target and self.creature.in_combat:
                 self.creature.leave_combat()
 
-            # TODO: Why this return always happening for other pet controlled pets? @Flug
             if not self.creature.is_guardian():
                 return
 
@@ -268,13 +267,13 @@ class PetAI(CreatureAI):
         self.creature.movement_manager.reset(clean_behaviors=True)
         pet_movement = self._get_pet_movement_behavior()
 
-        # TODO Stay shouldn't cause pet to stop attacking, only stop chasing.
-        self.creature.attack_stop()
-
         if pet_movement and self._get_command_state() == PetCommandState.COMMAND_STAY:
             pet_movement.stay(state=True)
 
         if pet_movement and self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
+            # If no aggro, stop attacking.
+            if not self.creature.threat_manager.has_aggro():
+                self.creature.attack_stop()
             pet_movement.stay(state=False)
 
     def react_state_update(self):

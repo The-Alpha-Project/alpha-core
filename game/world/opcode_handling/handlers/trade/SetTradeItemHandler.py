@@ -5,7 +5,7 @@ from utils.constants.ItemCodes import InventorySlots
 from utils.constants.MiscCodes import TradeStatus
 
 
-class SetTradeItemHandler(object):
+class SetTradeItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

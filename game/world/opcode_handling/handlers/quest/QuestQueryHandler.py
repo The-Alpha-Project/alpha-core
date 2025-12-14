@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
-class QuestQueryHandler(object):
+class QuestQueryHandler:
 
     @staticmethod
     def handle(world_session, reader):

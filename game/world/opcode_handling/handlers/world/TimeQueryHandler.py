@@ -4,7 +4,7 @@ from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
 
-class TimeQueryHandler(object):
+class TimeQueryHandler:
 
     @staticmethod
     def handle(world_session, reader):

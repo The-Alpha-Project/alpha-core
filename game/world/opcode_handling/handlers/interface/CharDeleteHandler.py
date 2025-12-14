@@ -8,7 +8,7 @@ from utils.constants.CharCodes import *
 from utils.constants.OpCodes import OpCode
 
 
-class CharDeleteHandler(object):
+class CharDeleteHandler:
 
     @staticmethod
     def handle(world_session, reader):

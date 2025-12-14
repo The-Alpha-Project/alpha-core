@@ -5,7 +5,7 @@ from network.packet.PacketReader import *
 from utils.constants.MiscCodes import ChannelNotifications
 
 
-class ChannelMuteHandler(object):
+class ChannelMuteHandler:
 
     @staticmethod
     def handle_mute(world_session, reader):

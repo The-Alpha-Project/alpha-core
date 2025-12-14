@@ -1,7 +1,7 @@
 from network.packet.PacketReader import *
 
 
-class FriendDeleteIgnoreHandler(object):
+class FriendDeleteIgnoreHandler:
 
     @staticmethod
     def handle(world_session, reader):

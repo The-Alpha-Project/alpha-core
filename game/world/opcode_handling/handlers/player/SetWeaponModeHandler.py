@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from struct import unpack
 
 
-class SetWeaponModeHandler(object):
+class SetWeaponModeHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

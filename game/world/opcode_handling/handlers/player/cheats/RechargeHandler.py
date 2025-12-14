@@ -3,7 +3,7 @@ from network.packet.PacketReader import PacketReader
 from utils.Logger import Logger
 
 
-class RechargeHandler(object):
+class RechargeHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

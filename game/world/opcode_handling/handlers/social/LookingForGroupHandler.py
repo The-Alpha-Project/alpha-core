@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import WhoPartyStatus
 from utils.constants.OpCodes import OpCode
 
 
-class LookingForGroupHandler(object):
+class LookingForGroupHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -3,7 +3,7 @@ from network.packet.PacketReader import PacketReader
 from utils.Logger import Logger
 
 
-class DuelCanceledHandler(object):
+class DuelCanceledHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

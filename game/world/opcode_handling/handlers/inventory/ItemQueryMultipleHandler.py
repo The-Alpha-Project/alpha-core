@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 
 
-class ItemQueryMultipleHandler(object):
+class ItemQueryMultipleHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -79,8 +79,8 @@ class Spline:
             self.elapsed_since_last_location = 0
             if config.Server.Settings.debug_movement:
                 self._debug_position(new_position)
-            # While in movement (guessed position) always face target destination.
-            # End orientation upon waypoint finish is handled by movement behaviors.
+            # While in movement (guessed position) always face the target destination.
+            # Movement behaviors handle end orientation upon waypoint finish.
             if not is_complete:
                 new_position.face_point(current_waypoint.location)
 
@@ -88,7 +88,7 @@ class Spline:
         return new_position is not None, new_position, is_complete
 
     def _get_position(self, pending_waypoint, elapsed, is_complete=False):
-        # Handle players collision due wrong pathing.
+        # Handle players collision due to wrong pathing.
         if self.unit.movement_flags & MoveFlags.MOVEFLAG_REDIRECTED:
             return self.unit.location
         if is_complete:
@@ -147,7 +147,7 @@ class Spline:
             return self.unit.location
         return self.pending_waypoints[0].location
 
-    # Update spline to current time when someone requests a movement update.
+    # Update spline to the current time when someone requests a movement update.
     def update_to_now(self):
         elapsed = time.time() - self.unit.last_tick
         if elapsed:

@@ -3,7 +3,7 @@ from utils.Logger import Logger
 from struct import unpack
 
 
-class LearnSpellCheatHandler(object):
+class LearnSpellCheatHandler:
 
     @staticmethod
     def handle(world_session, reader):

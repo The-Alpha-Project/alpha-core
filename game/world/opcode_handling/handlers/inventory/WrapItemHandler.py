@@ -3,7 +3,7 @@ from struct import unpack
 from utils.constants.ItemCodes import InventoryError, InventorySlots, ItemDynFlags
 
 
-class WrapItemHandler(object):
+class WrapItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

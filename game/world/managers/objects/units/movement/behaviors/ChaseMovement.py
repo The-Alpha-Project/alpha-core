@@ -118,7 +118,7 @@ class ChaseMovement(BaseMovement):
         if source_vector:
             return source_vector.distance(self.combat_target.location) < combat_distance
 
-        #  From self unit to combat target.
+        #  From self-unit to combat target.
         return self.unit.location.distance(self.combat_target.location) < combat_distance
 
 
@@ -127,6 +127,8 @@ class ChaseMovement(BaseMovement):
             return False
         # Already in close combat.
         if self._is_within_combat_distance():
+            return False
+        if self.unit.object_ai and not self.unit.object_ai.is_combat_movement_enabled():
             return False
         if self.speed_dirty or not self.waypoints:
             return True
@@ -142,11 +144,13 @@ class ChaseMovement(BaseMovement):
             return False
         if not self.combat_target.is_alive:
             return False
+        if self.unit.object_ai and not self.unit.object_ai.is_combat_movement_enabled():
+            return False
         if self.speed_dirty:
             return True
         if self.spline:
             return False
-        return True if not self.unit.object_ai else self.unit.object_ai.is_combat_movement_enabled()
+        return True
 
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)

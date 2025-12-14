@@ -6,7 +6,7 @@ from utils.constants.MiscCodes import ChannelNotifications
 
 
 # Client does not route /kick properly for channels, need to use /script ChannelKick(channel "name" or index, "player")
-class ChannelKickHandler(object):
+class ChannelKickHandler:
 
     @staticmethod
     def handle(world_session, reader):

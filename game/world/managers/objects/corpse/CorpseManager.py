@@ -61,7 +61,7 @@ class CorpseManager(ObjectManager):
         self.initialized = True
 
     # override
-    def get_bytes_1(self):
+    def get_bytes_1(self, is_create=False):
         return ByteUtils.bytes_to_int(
             self.owner.player.skin,
             self.owner.player.gender,

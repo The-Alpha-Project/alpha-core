@@ -2,7 +2,7 @@ from struct import unpack
 from utils.constants.ItemCodes import InventorySlots
 
 
-class SwapItemHandler(object):
+class SwapItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

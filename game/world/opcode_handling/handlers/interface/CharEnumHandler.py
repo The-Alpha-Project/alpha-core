@@ -4,7 +4,7 @@ from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
 
-class CharEnumHandler(object):
+class CharEnumHandler:
 
     @staticmethod
     def handle(world_session, reader):

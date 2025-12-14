@@ -5,7 +5,7 @@ from utils.Logger import Logger
 from network.packet.PacketReader import *
 
 
-class CreateMonsterHandler(object):
+class CreateMonsterHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from utils.Logger import Logger
 
 
-class SpeedCheatHandler(object):
+class SpeedCheatHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

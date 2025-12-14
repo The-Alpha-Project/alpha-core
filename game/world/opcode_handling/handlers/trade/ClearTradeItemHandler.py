@@ -3,7 +3,7 @@ from struct import unpack
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 
 
-class ClearTradeItemHandler(object):
+class ClearTradeItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

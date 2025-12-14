@@ -7,7 +7,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
 
-class NameQueryHandler(object):
+class NameQueryHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

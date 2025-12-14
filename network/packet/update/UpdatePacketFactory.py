@@ -9,7 +9,7 @@ FIELDS_ENCAPSULATION = {}  # { field_type : { index : encapsulation} }
 DEBUG_INFORMATION = {}  # Debug.
 
 
-class UpdatePacketFactory(object):
+class UpdatePacketFactory:
     def __init__(self):
         self.owner_guid = 0
         self.fields_size = 0

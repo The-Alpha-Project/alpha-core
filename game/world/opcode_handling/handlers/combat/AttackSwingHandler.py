@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class AttackSwingHandler(object):
+class AttackSwingHandler:
 
     @staticmethod
     def handle(world_session, reader):

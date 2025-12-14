@@ -7,7 +7,7 @@ from utils.constants.MiscCodes import Emotes, EmoteUnitState
 from utils.constants.UnitCodes import StandState
 
 
-class TextEmoteHandler(object):
+class TextEmoteHandler:
 
     @staticmethod
     def handle(world_session, reader):

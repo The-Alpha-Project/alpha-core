@@ -10,6 +10,7 @@ from game.world.managers.maps.MapEventManager import MapEventManager
 from game.world.managers.maps.helpers.Constants import MapType
 from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from utils.constants.MiscCodes import PoolType
+from utils.constants.UnitCodes import ObjectSpawnFlags
 
 
 class Map:
@@ -92,6 +93,8 @@ class Map:
         count = 0
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
+            if gobject_spawn.spawn_flags & ObjectSpawnFlags.SPAWN_FLAG_DISABLED:
+                continue
             go_spawn_instance = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
             if config.Server.Settings.load_pools and config.Server.Settings.load_gameobjects:
                 go_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)

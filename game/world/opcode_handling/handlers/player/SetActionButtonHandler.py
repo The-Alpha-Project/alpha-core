@@ -4,7 +4,7 @@ from database.realm.RealmModels import CharacterButton
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
-class SetActionButtonHandler(object):
+class SetActionButtonHandler:
 
     @staticmethod
     def handle(world_session, reader):

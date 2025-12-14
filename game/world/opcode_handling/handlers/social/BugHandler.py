@@ -2,7 +2,7 @@ from database.realm.RealmDatabaseManager import *
 from network.packet.PacketReader import *
 
 
-class BugHandler(object):
+class BugHandler:
 
     @staticmethod
     def handle(world_session, reader):

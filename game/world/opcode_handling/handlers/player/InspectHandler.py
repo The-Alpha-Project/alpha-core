@@ -7,7 +7,7 @@ from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
 
-class InspectHandler(object):
+class InspectHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

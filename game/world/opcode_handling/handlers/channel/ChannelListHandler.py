@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from utils.constants.MiscCodes import ChannelNotifications
 
 
-class ChannelListHandler(object):
+class ChannelListHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -4,7 +4,7 @@ from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import TradeStatus
 
 
-class AcceptTradeHandler(object):
+class AcceptTradeHandler:
 
     @staticmethod
     def handle(world_session, reader):

@@ -8,7 +8,7 @@ from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 
 
-class TriggerCinematicCheatHandler(object):
+class TriggerCinematicCheatHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

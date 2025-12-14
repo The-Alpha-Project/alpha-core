@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.ObjectQueryUtils import ObjectQueryUtils
 
 
-class GameObjectQueryHandler(object):
+class GameObjectQueryHandler:
 
     @staticmethod
     def handle(world_session, reader):
