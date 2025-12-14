@@ -1003,10 +1003,6 @@ begin not atomic
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400472', '5197', '0', '0', '0', '1', '-433.731', '-2644.658', '96.539', '0.187', '270', '270', '0', '100', '0', '0', '0', '0', '0');
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400473', '5196', '0', '0', '0', '1', '-432.375', '-2650.784', '96.511', '0.139', '270', '270', '0', '100', '0', '0', '0', '0', '0');
 
-        -- Harn Longcast
-        UPDATE `spawns_creatures` SET `ignored` = '0' WHERE (`spawn_id` = '24727');
-        UPDATE `creature_template` SET `display_id1` = '2128' WHERE (`entry` = '5940');
-
         -- Barrel of Milk.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-6.370' WHERE (`spawn_id` = '43007');
         
@@ -1195,6 +1191,9 @@ begin not atomic
         -- Another Guard with torch.
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/elwynn_forest_009.jpg
         INSERT INTO `creature_addon` (`guid`, `display_id`, `mount_display_id`, `equipment_id`, `stand_state`, `sheath_state`, `emote_state`, `auras`) VALUES ('80456', '0', '0', '400464', '0', '1', '0', '0');
+        
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1591
+        UPDATE `spawns_creatures` SET `position_x` = '10892.097', `position_y` = '924.519', `position_z` = '1318.714', `orientation` = '0.738' WHERE (`spawn_id` = '47350');
 
         insert into applied_updates values ('111220251');
     end if;
