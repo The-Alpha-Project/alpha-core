@@ -46,9 +46,12 @@ class FollowMovement(BaseMovement):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update tmp home position.
         follow_target = self._get_follow_target()
-        if follow_target:
-            tmp_home = follow_target.location.get_point_in_radius_and_angle(self.follow_dist, self.follow_angle)
-            self.unit.tmp_home_position = tmp_home
+        if not follow_target:
+            return
+        tmp_home = follow_target.location.get_point_in_radius_and_angle(self.follow_dist, self.follow_angle)
+        self.unit.tmp_home_position = tmp_home
+        if waypoint_completed and not follow_target.is_moving():
+            self.unit.movement_manager.face_angle(follow_target.location.o)
 
     # override
     def can_remove(self):
