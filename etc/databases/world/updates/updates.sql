@@ -1195,6 +1195,9 @@ begin not atomic
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1591
         UPDATE `spawns_creatures` SET `position_x` = '10892.097', `position_y` = '924.519', `position_z` = '1318.714', `orientation` = '0.738' WHERE (`spawn_id` = '47350');
 
+        -- Chest.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10917.351', `spawn_positionY` = '958.497', `spawn_positionZ` = '1321.215' WHERE (`spawn_id` = '60010');
+
         insert into applied_updates values ('111220251');
     end if;
 
