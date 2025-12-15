@@ -1079,7 +1079,7 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2117.118', `spawn_positionY` = '-3654.103', `spawn_positionZ` = '45.404' WHERE (`spawn_id` = '34617');
 
         -- Campfire.
-        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` = '13479'
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` = '13479';
 
         -- Theramore Marine, placement, wps.
         UPDATE `spawns_creatures` SET `position_x` = '-2060.183', `position_y` = '-3682.365', `position_z` = '50.602', `orientation` = '2.871' WHERE (`spawn_id` = '13867');
