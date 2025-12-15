@@ -1186,5 +1186,15 @@ begin not atomic
         insert into applied_updates values ('111220251');
     end if;
 
+    -- 15/12/2025 1
+    if (select count(*) from applied_updates where id='151220251') = 0 then
+        -- Set empty vendor inventory for Cartography Supplier NPCs.
+        UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '372');
+        UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '4224');
+        UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '5135');
+
+        insert into applied_updates values ('151220251');
+    end if;
+
 end $
 delimiter ;
