@@ -1182,16 +1182,7 @@ begin not atomic
         -- Water Barrel.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '319.268', `spawn_positionY` = '-4698.650', `spawn_positionZ` = '15.792' WHERE (`spawn_id` = '44047');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '295.741', `spawn_positionY` = '-4785.289', `spawn_positionZ` = '10.610' WHERE (`spawn_id` = '44046');
-        
-        -- Guard on the road from SW to GS had torch.
-        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/wowbeta_0082.jpg
-        -- Also, maybe that guard had wps, feet looks like walking.
-        INSERT INTO `creature_addon` (`guid`, `display_id`, `mount_display_id`, `equipment_id`, `stand_state`, `sheath_state`, `emote_state`, `auras`) VALUES ('79875', '0', '0', '400464', '0', '0', '1', '0');
-        
-        -- Another Guard with torch.
-        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/elwynn_forest_009.jpg
-        INSERT INTO `creature_addon` (`guid`, `display_id`, `mount_display_id`, `equipment_id`, `stand_state`, `sheath_state`, `emote_state`, `auras`) VALUES ('80456', '0', '0', '400464', '0', '1', '0', '0');
-        
+               
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1591
         UPDATE `spawns_creatures` SET `position_x` = '10892.097', `position_y` = '924.519', `position_z` = '1318.714', `orientation` = '0.738' WHERE (`spawn_id` = '47350');
 
