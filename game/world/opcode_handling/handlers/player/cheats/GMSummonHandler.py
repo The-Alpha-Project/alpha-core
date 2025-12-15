@@ -4,7 +4,7 @@ from network.packet.PacketReader import *
 from utils.Logger import Logger
 
 
-class GMSummonHandler(object):
+class GMSummonHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

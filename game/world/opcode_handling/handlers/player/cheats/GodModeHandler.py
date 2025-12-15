@@ -5,7 +5,7 @@ from network.packet.PacketWriter import *
 from utils.Logger import Logger
 
 
-class GodModeHandler(object):
+class GodModeHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

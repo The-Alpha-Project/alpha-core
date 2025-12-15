@@ -949,5 +949,242 @@ begin not atomic
         insert into applied_updates values ('011220251');
     end if;
 
+    -- 11/12/2025 1
+    if (select count(*) from applied_updates where id='111220251') = 0 then
+
+        -- Fix some virtual monster items.
+
+        -- Defias Smuggler
+        -- Blue Dragonspawn
+        -- Mazen Mac'Nadir - (Texture Set)
+        -- Shaethis Darkoak
+        -- Dalaran Watcher
+        -- Dalaran Shield Guard
+        -- Muckrake
+        -- Novice Thaivand
+        -- Forsaken Courier
+        -- Shadowforge Warrior
+        -- Gabrielle Chase
+        -- Olthran Craghelm
+        -- Myizz Luckycatch
+        -- Horde Guard
+
+        -- Monster - Throwing Knife.
+        UPDATE `item_template` SET `display_id` = '4678', `ignored` = '0' WHERE (`entry` = '6886');
+        -- Monster - Orb.
+        UPDATE `item_template` SET `display_id` = '5566', `ignored` = '0' WHERE (`entry` = '6618');
+        -- Monster - Spear, Sharp Thin.
+        UPDATE `item_template` SET `display_id` = '7978', `ignored` = '0' WHERE (`entry` = '6680');
+        -- Monster - Tankards.
+        UPDATE `item_template` SET `display_id` = '6586', `ignored` = '0' WHERE (`entry` = '13861');
+        UPDATE `item_template` SET `display_id` = '6586', `ignored` = '0' WHERE (`entry` = '13862');
+        UPDATE `item_template` SET `display_id` = '6588', `ignored` = '0' WHERE (`entry` = '13859');
+        UPDATE `item_template` SET `display_id` = '6587', `ignored` = '0' WHERE (`entry` = '13855');
+        UPDATE `item_template` SET `display_id` = '4861', `ignored` = '0' WHERE (`entry` = '13854');
+        -- Myizz Luckycatch - Holds fish.
+        UPDATE `creature_equip_template` SET `equipentry1` = '6225' WHERE (`entry` = '2834');
+        -- Monster - Shield, Kite Metal Gold. Olthran Craghelm 
+        UPDATE `item_template` SET `display_id` = '1705', `ignored` = '0' WHERE (`entry` = '11041');
+        -- Hammerfall Grunts.
+        UPDATE `creature_equip_template` SET `equipentry1` = '5289' WHERE (`entry` = '2619');
+        -- Monster - Staff, Basic Red.
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '12937');
+        -- Monster - Staff, 3 Piece Taped Staff Green.
+        UPDATE `item_template` SET `display_id` = '1201', `ignored` = '0' WHERE (`entry` = '12328');
+        -- Horde Guard.
+        UPDATE `creature_equip_template` SET `equipentry1` = '1905' WHERE (`entry` = '3501');
+
+
+        -- Close 1587
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5891.505', `spawn_positionY` = '-2854.249', `spawn_positionZ` = '372.107' WHERE (`spawn_id` = '112667');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '371.836' WHERE (`spawn_id` = '12819');
+
+        -- Missing riding wolves at Crossroads. https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Barrens/images_6626.jpg
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400472', '5197', '0', '0', '0', '1', '-433.731', '-2644.658', '96.539', '0.187', '270', '270', '0', '100', '0', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400473', '5196', '0', '0', '0', '1', '-432.375', '-2650.784', '96.511', '0.139', '270', '270', '0', '100', '0', '0', '0', '0', '0');
+
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-6.370' WHERE (`spawn_id` = '43007');
+        
+        -- Monster - Gun.
+        UPDATE `creature_equip_template` SET `equipentry3` = '2552' WHERE `equipentry3` = '12523' or `equipentry3` = '14642';
+        
+        -- Zizzek, placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-1020.966', `position_y` = '-3661.982', `position_z` = '22.367', `orientation` = '5.666' WHERE (`spawn_id` = '20948');
+        
+        -- Dun Garok Mountaneers. https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Hillsbrad%20Foothills/WoWScrnShot_052004_204918.jpg
+        UPDATE `creature_equip_template` SET `equipentry1` = '2695' WHERE (`entry` = '2344');
+        
+        -- Kazon - Monster - Mace2H, Kazon's Maul
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10685');
+        -- Kazon, faction.
+        UPDATE `creature_template` SET `faction` = '40' WHERE (`entry` = '584');
+
+        -- Campfire Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '155.916' WHERE (`spawn_id` = '34846');
+
+        -- Monster - Mace, Tauren Spiked.
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '9659');
+
+        -- Monster - Dagger, Tanto Blade
+        -- Monster - Sword, Horde Jagged Green
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10618');
+        UPDATE `item_template` SET `ignored` = '0' WHERE (`entry` = '10878');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1590
+        UPDATE `quest_template` SET `Objectives` = 'Return to Shandris Feathermoon in Darnassus.' WHERE (`entry` = '1044');
+        UPDATE `creature_quest_finisher` SET `entry` = '3936' WHERE (`entry` = '8026') and (`quest` = '1044');
+
+        -- Empty vendor template.
+        INSERT INTO `npc_vendor_template` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `condition_id`, `slot`) VALUES ('4000000', '0', '0', '0', '0', '0', '0');
+        
+        -- Boat Vendor and Pirate Supplies did open vendor frame, just empty. (This probably applies to Cartography vendors and others)
+        UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2662');
+        UPDATE `creature_template` SET `npc_flags` = '1', `vendor_id` = '4000000' WHERE (`entry` = '2663');
+
+        -- Yance Kelsey <Cook>, use default model.
+        UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2664');
+
+        -- Haren Kanmae <Superior Bower>, use default model.
+        UPDATE `creature_template` SET `display_id1` = '1140' WHERE (`entry` = '2839');
+
+        -- Black Swashbuckler's Shirt -> Swashbuckler's Shirt from spell 3873.
+        UPDATE `item_template` SET `name` = 'Swashbuckler\'s Shirt', `display_id` = '7847' WHERE (`entry` = '4336');
+        
+        -- Ratchet burried go's.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` IN ('13050', 13058, 13151, 13035, 13076, 13063);
+
+        -- Book - Mount Hyjal and Illidan's Gift - Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1003.186', `spawn_positionY` = '-3652.592', `spawn_positionZ` = '25.560' WHERE (`spawn_id` = '13461');
+
+        -- Brewmaster Drohn - Faction.
+        UPDATE `creature_template` SET `faction` = '121' WHERE (`entry` = '3292');
+
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1014.084', `spawn_positionY` = '-3659.752', `spawn_positionZ` = '21.976' WHERE (`spawn_id` = '46847');
+        
+        -- Theramore Marine.
+        UPDATE `spawns_creatures` SET `position_x` = '-2058.161', `position_y` = '-3675.024', `position_z` = '23.843', `orientation` = '2.853' WHERE (`spawn_id` = '13906');
+
+        -- Theramore Preserver.
+        UPDATE `spawns_creatures` SET `position_x` = '-2059.504', `position_y` = '-3671.873', `position_z` = '23.830', `orientation` = '3.045' WHERE (`spawn_id` = '13939');
+
+        -- Palomino.
+        UPDATE `spawns_creatures` SET `position_x` = '-2088.872', `position_y` = '-3684.154', `position_z` = '34.631', `orientation` = '1.341' WHERE (`spawn_id` = '13182');
+
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2074.703', `spawn_positionY` = '-3665.133', `spawn_positionZ` = '33.137' WHERE (`spawn_id` = '46915');
+
+        -- Tin Vein.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-2117.118', `spawn_positionY` = '-3654.103', `spawn_positionZ` = '45.404' WHERE (`spawn_id` = '34617');
+
+        -- Campfire.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE `spawn_id` = '13479'
+
+        -- Theramore Marine, placement, wps.
+        UPDATE `spawns_creatures` SET `position_x` = '-2060.183', `position_y` = '-3682.365', `position_z` = '50.602', `orientation` = '2.871' WHERE (`spawn_id` = '13867');
+
+        DELETE FROM creature_movement WHERE id = 13867;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (13867, 0, -2060.183, -3682.365, 50.602, 0, 0, 0, 0),
+        (13867, 1, -2099.041, -3670.462, 50.236, 0, 0, 0, 0),
+        (13867, 2, -2098.516, -3666.592, 49.916, 0, 0, 0, 0),
+        (13867, 3, -2095.103, -3656.417, 45.472, 0, 0, 0, 0),
+        (13867, 4, -2086.33, -3630.918, 41.872, 0, 0, 0, 0),
+        (13867, 5, -2087.715, -3625.833, 41.873, 0, 0, 0, 0),
+        (13867, 6, -2082.895, -3626.759, 41.873, 0, 0, 0, 0),
+        (13867, 7, -2077.09, -3633.4, 41.346, 0, 0, 0, 0),
+        (13867, 8, -2053.668, -3640.878, 37.119, 0, 0, 0, 0),
+        (13867, 9, -2049.473, -3638.781, 37.093, 0, 0, 0, 0),
+        (13867, 10, -2042.792, -3640.042, 37.085, 0, 0, 0, 0),
+        (13867, 11, -2042.234, -3642.57, 37.085, 0, 0, 0, 0),
+        (13867, 12, -2043.829, -3646.621, 37.087, 0, 0, 0, 0),
+        (13867, 13, -2049.074, -3650.867, 37.113, 0, 0, 0, 0),
+        (13867, 14, -2056.613, -3675.836, 37.116, 0, 0, 0, 0),
+        (13867, 15, -2060.093, -3686.559, 37.124, 0, 0, 0, 0),
+        (13867, 16, -2058.655, -3691.364, 34.208, 0, 0, 0, 0),
+        (13867, 17, -2052.444, -3692.934, 30.325, 0, 0, 0, 0),
+        (13867, 18, -2049.412, -3686.353, 26.57, 0, 0, 0, 0),
+        (13867, 19, -2056.609, -3681.23, 23.765, 0, 0, 0, 0),
+        (13867, 20, -2067.878, -3669.678, 25.819, 0, 0, 0, 0),
+        (13867, 21, -2063.224, -3648.426, 25.142, 0, 0, 0, 0),
+        (13867, 22, -2072.886, -3642.437, 27.649, 0, 0, 0, 0),
+        (13867, 23, -2082.779, -3644.606, 30.558, 0, 0, 0, 0),
+        (13867, 24, -2088.738, -3657.479, 33.455, 0, 0, 0, 0),
+        (13867, 25, -2080.013, -3670.799, 33.826, 0, 0, 0, 0),
+        (13867, 26, -2078.601, -3664.799, 33.449, 0, 0, 0, 0),
+        (13867, 27, -2084.94, -3660.143, 33.56, 0, 0, 0, 0),
+        (13867, 28, -2082.185, -3648.152, 31.131, 0, 0, 0, 0),
+        (13867, 29, -2071.48, -3642.746, 27.279, 0, 0, 0, 0),
+        (13867, 30, -2063.861, -3646.44, 25.386, 0, 0, 0, 0),
+        (13867, 31, -2066.813, -3673.672, 25.459, 0, 0, 0, 0),
+        (13867, 32, -2054.032, -3682.396, 23.914, 0, 0, 0, 0),
+        (13867, 33, -2050.184, -3685.967, 26.123, 0, 0, 0, 0),
+        (13867, 34, -2050.265, -3690.838, 28.903, 0, 0, 0, 0),
+        (13867, 35, -2054.181, -3693.444, 31.414, 0, 0, 0, 0),
+        (13867, 36, -2057.698, -3692.621, 33.134, 0, 0, 0, 0),
+        (13867, 37, -2059.927, -3688.18, 36.03, 0, 0, 0, 0),
+        (13867, 38, -2059.082, -3685.584, 37.116, 0, 0, 0, 0),
+        (13867, 39, -2052.125, -3683.075, 37.56, 0, 0, 0, 0),
+        (13867, 40, -2049.944, -3686.467, 39.855, 0, 0, 0, 0),
+        (13867, 41, -2051.048, -3690.65, 42.294, 0, 0, 0, 0),
+        (13867, 42, -2054.592, -3693.056, 45.098, 0, 0, 0, 0),
+        (13867, 43, -2058.164, -3691.819, 47.478, 0, 0, 0, 0),
+        (13867, 44, -2059.42, -3688.809, 49.28, 0, 0, 0, 0),
+        (13867, 45, -2058.688, -3683.031, 50.603, 0, 0, 0, 0);
+
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '91.667' WHERE (`spawn_id` = '46921');
+
+        -- Fuel Control Valve, better rotation.
+        UPDATE `spawns_gameobjects` SET `spawn_rotation0` = '0.3', `spawn_rotation1` = '0.1' WHERE (`spawn_id` = '15731');
+    
+        -- Heated Forge.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '371.867', `spawn_positionY` = '-4709.689', `spawn_positionZ` = '15.470' WHERE (`spawn_id` = '12079');
+
+        -- Bubbling Cauldron fire dmg.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '331.229', `spawn_positionY` = '-4707.58', `spawn_positionZ` = '13.714' WHERE (`spawn_id` = '1672');
+
+        -- Monster - Axe, Horde Badass 01 -> Monster - Axe, Metal Basic.
+        UPDATE creature_equip_template SET 
+        equipentry1 = REPLACE(equipentry1, '10611', '1905'),
+        equipentry2 = REPLACE(equipentry2, '10611', '1905'),
+        equipentry3 = REPLACE(equipentry3, '10611', '1905');
+
+        -- Monster - Axe, Horde Badass 02 -> Monster - Axe, Metal Basic.
+        UPDATE creature_equip_template SET 
+        equipentry1 = REPLACE(equipentry1, '10612', '1905'),
+        equipentry2 = REPLACE(equipentry2, '10612', '1905'),
+        equipentry3 = REPLACE(equipentry3, '10612', '1905');
+
+        -- Monster - Shield, Horde A02 Silver -> Monster - Shield, Small Wooden.
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Durotar/worldofwarcraft__041604_009-806500.jpg
+        UPDATE creature_equip_template SET 
+        equipentry1 = REPLACE(equipentry1, '12452', '1957'),
+        equipentry2 = REPLACE(equipentry2, '12452', '1957'),
+        equipentry3 = REPLACE(equipentry3, '12452', '1957');
+
+        -- Monster - Dagger, Dark Pronged -> Monster - Dagger, Ornate Spikey Base.
+        UPDATE creature_equip_template SET 
+        equipentry1 = REPLACE(equipentry1, '12298', '5283'),
+        equipentry2 = REPLACE(equipentry2, '12298', '5283'),
+        equipentry3 = REPLACE(equipentry3, '12298', '5283');
+
+        -- Barrel of Milk.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '15.309' WHERE (`spawn_id` = '44017');
+
+        -- Water Barrel.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '319.268', `spawn_positionY` = '-4698.650', `spawn_positionZ` = '15.792' WHERE (`spawn_id` = '44047');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '295.741', `spawn_positionY` = '-4785.289', `spawn_positionZ` = '10.610' WHERE (`spawn_id` = '44046');
+               
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1591
+        UPDATE `spawns_creatures` SET `position_x` = '10892.097', `position_y` = '924.519', `position_z` = '1318.714', `orientation` = '0.738' WHERE (`spawn_id` = '47350');
+
+        -- Chest.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10917.351', `spawn_positionY` = '958.497', `spawn_positionZ` = '1321.215' WHERE (`spawn_id` = '60010');
+
+        insert into applied_updates values ('111220251');
+    end if;
+
 end $
 delimiter ;

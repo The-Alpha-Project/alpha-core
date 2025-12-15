@@ -1973,9 +1973,10 @@ class UnitManager(ObjectManager):
         )
 
     # Implemented by CorpseManager
-    def get_bytes_1(self):
+    def get_bytes_1(self, is_create=False):
+        sheath_state = self.sheath_state if not is_create else WeaponMode.SHEATHEDMODE
         return ByteUtils.bytes_to_int(
-            self.sheath_state,  # Sheath state.
+            sheath_state,  # Sheath state.
             self.shapeshift_form,  # Shapeshift form.
             self.get_npc_flags(),  # NPC flags (0 for players).
             self.stand_state  # Stand state.

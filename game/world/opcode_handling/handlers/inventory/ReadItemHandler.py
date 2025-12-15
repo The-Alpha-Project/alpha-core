@@ -5,7 +5,7 @@ from utils.constants.ItemCodes import InventoryError, InventorySlots
 from utils.constants.OpCodes import OpCode
 
 
-class ReadItemHandler(object):
+class ReadItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

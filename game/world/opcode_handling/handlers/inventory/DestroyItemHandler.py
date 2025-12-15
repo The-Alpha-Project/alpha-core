@@ -4,7 +4,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.ItemCodes import InventoryError, InventorySlots
 
 
-class DestroyItemHandler(object):
+class DestroyItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

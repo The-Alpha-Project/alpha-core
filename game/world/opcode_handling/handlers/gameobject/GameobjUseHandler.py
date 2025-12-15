@@ -2,7 +2,7 @@ from struct import unpack
 from utils.constants.MiscCodes import GameObjectTypes
 
 
-class GameobjUseHandler(object):
+class GameobjUseHandler:
 
     @staticmethod
     def handle(world_session, reader):

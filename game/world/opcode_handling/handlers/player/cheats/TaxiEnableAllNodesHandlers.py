@@ -3,7 +3,7 @@ from network.packet.PacketReader import *
 from utils.Logger import Logger
 
 
-class TaxiEnableAllNodesHandler(object):
+class TaxiEnableAllNodesHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

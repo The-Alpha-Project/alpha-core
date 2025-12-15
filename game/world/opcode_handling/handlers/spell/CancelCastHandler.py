@@ -1,7 +1,7 @@
 from struct import unpack
 
 
-class CancelCastHandler(object):
+class CancelCastHandler:
 
     @staticmethod
     def handle(world_session, reader):

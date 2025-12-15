@@ -183,7 +183,7 @@ class CommandManager:
             return -1, 'invalid unit selection.'
 
     @staticmethod
-    def _adjust_object_property(world_session, prop: str, op_symbol: str, step: float, label: str):
+    def _adjust_object_property(world_session, prop: str, op_symbol: str, step: float, label: str, rot=False):
         game_object = world_session.player_mgr.last_debug_ai_state_object
         if not game_object:
             return -1, 'invalid object selection.'
@@ -202,23 +202,30 @@ class CommandManager:
         if op_symbol not in ops:
             return -1, f'invalid operator: {op_symbol}. expected one of {list(ops.keys())}.'
 
-        current_loc = game_object.location.copy()
+        mod_property = game_object.location.copy()
+        if rot:
+            prop = f'rot{prop}'
+            mod_property = game_object
 
         # Validate that the property exists on the location object.
-        if not hasattr(current_loc, prop):
+        if not hasattr(mod_property, prop):
             return -1, f'invalid property: {prop}.'
 
-        old_value = getattr(current_loc, prop)
+        old_value = getattr(mod_property, prop)
         new_value = ops[op_symbol](old_value, step)
-        setattr(current_loc, prop, new_value)
+        setattr(mod_property, prop, new_value)
 
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
         player_mgr = world_session.player_mgr
         new_object = GameObjectBuilder.create(
-            game_object.entry,
-            current_loc,
-            player_mgr.map_id,
-            player_mgr.instance_id,
+            entry_id=game_object.entry,
+            location=mod_property if not rot else game_object.location,
+            map_id=player_mgr.map_id,
+            instance_id=player_mgr.instance_id,
+            rot0=mod_property.rot0 if rot else game_object.rot0,
+            rot1=mod_property.rot1 if rot else game_object.rot1,
+            rot2=mod_property.rot2 if rot else game_object.rot2,
+            rot3=mod_property.rot3 if rot else game_object.rot3,
             state=1,
             ttl=0
         )
@@ -237,8 +244,8 @@ class CommandManager:
         try:
             op_symbol, prop, step = args.split()
             step = float(step)
-            # restrict to x, y, z for movement.
-            if prop not in {'x', 'y', 'z'}:
+            # restrict to x, y, z, o for movement.
+            if prop not in {'x', 'y', 'z', 'o'}:
                 return -1, f'invalid property: {prop}. expected one of x, y, z.'
             return CommandManager._adjust_object_property(world_session, prop, op_symbol, step, 'moved to')
         except ValueError:
@@ -247,11 +254,14 @@ class CommandManager:
     @staticmethod
     def rotate_object(world_session, args):
         try:
-            op_symbol, step = args.split()
+            op_symbol, prop, step = args.split()
             step = float(step)
-            return CommandManager._adjust_object_property(world_session, 'o', op_symbol, step, 'rotated to')
+            # restrict to 0, 1, 2, 3 for rotation.
+            if prop not in {'0', '1', '2', '3'}:
+                return -1, f'invalid property: {prop}. expected one of 0, 1, 2, 3'
+            return CommandManager._adjust_object_property(world_session, prop, op_symbol, step, 'rotated to', rot=True)
         except ValueError:
-            return -1, 'invalid arguments, e.g. .rotobject + .1.'
+            return -1, 'invalid arguments, e.g. .rotobject + 0 .1. (Available rotations 0,1,2,3)'
 
     @staticmethod
     def distance_unit(world_session, args):

@@ -18,7 +18,7 @@ auth_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOS
 SessionHolder = scoped_session(sessionmaker(bind=auth_db_engine, autoflush=False))
 
 
-class AuthDatabaseManager(object):
+class AuthDatabaseManager:
     # Realm.
 
     @staticmethod

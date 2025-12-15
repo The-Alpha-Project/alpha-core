@@ -25,7 +25,7 @@ class VendorUtils:
     def send_inventory_list(creature_mgr, player_mgr):
         # Initialize this vendor data if needed.
         if creature_mgr.guid not in VendorUtils.VENDOR_DATA:
-            # Prioritize inventory list specific for this creature.
+            # Prioritize an inventory list specific for this creature.
             if creature_mgr.creature_template.vendor_id == 0:
                 vendor_db_data = WorldDatabaseManager.creature_get_vendor_data(creature_mgr.entry)
             # Otherwise, try to load vendor template data.

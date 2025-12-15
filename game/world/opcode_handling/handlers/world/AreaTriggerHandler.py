@@ -9,7 +9,7 @@ from utils.constants.MiscCodes import ScriptTypes
 from utils.constants.UnitCodes import UnitFlags
 
 
-class AreaTriggerHandler(object):
+class AreaTriggerHandler:
 
     @staticmethod
     def handle(world_session, reader):

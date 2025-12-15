@@ -1,7 +1,7 @@
 from network.packet.PacketReader import *
 
 
-class FriendAddHandler(object):
+class FriendAddHandler:
 
     @staticmethod
     def handle(world_session, reader):

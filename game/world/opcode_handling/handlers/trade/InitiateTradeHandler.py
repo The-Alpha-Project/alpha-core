@@ -4,7 +4,7 @@ from game.world.managers.objects.units.player.trade.TradeManager import TradeMan
 from utils.constants.MiscCodes import TradeStatus
 
 
-class InitiateTradeHandler(object):
+class InitiateTradeHandler:
 
     @staticmethod
     def handle(world_session, reader):

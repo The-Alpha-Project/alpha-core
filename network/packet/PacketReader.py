@@ -3,7 +3,7 @@ from struct import unpack
 from utils.constants.OpCodes import OpCode
 
 
-class PacketReader(object):
+class PacketReader:
     def __init__(self, data):
         if len(data) > 5:
             self.size = unpack('>H', data[:2])[0] - 4  # Big Endian

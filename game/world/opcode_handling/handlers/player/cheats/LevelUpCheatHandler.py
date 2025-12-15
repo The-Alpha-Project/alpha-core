@@ -3,7 +3,7 @@ from network.packet.PacketReader import PacketReader
 from utils.Logger import Logger
 
 
-class LevelUpCheatHandler(object):
+class LevelUpCheatHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:

@@ -329,15 +329,19 @@ class GameObjectManager(ObjectManager):
 
     # override
     def _get_fields_update(self, is_create, requester, update_data=None):
-        data = bytearray()
-        mask = self.update_packet_factory.update_mask.copy() if not update_data else update_data.update_bit_mask
-        values = self.update_packet_factory.update_values_bytes if not update_data else update_data.update_field_values
+        # Make sure we work on a copy of the current mask and values.
+        if not update_data:
+            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
 
+        mask = update_data.update_bit_mask
+        values = update_data.update_field_values
+
+        data = bytearray()
         for index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[index] == 0 and not self.update_packet_factory.is_dynamic_field(index):
                 continue
-            # Check for encapsulation, turn off the bit if requester has no read access.
+            # Check for encapsulation, turn off the bit if the requester has no read access.
             if not self.update_packet_factory.has_read_rights_for_field(index, requester):
                 mask[index] = 0
                 continue

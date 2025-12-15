@@ -1,4 +1,4 @@
-class UnacceptTradeHandler(object):
+class UnacceptTradeHandler:
 
     @staticmethod
     def handle(world_session, reader):

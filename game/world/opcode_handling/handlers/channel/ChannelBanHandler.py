@@ -5,7 +5,7 @@ from network.packet.PacketReader import *
 from utils.constants.MiscCodes import ChannelNotifications
 
 
-class ChannelBanHandler(object):
+class ChannelBanHandler:
 
     @staticmethod
     def handle_ban(world_session, reader):

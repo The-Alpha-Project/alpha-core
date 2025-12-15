@@ -3,7 +3,7 @@ from struct import unpack
 from utils.constants.ItemCodes import InventoryError, InventorySlots
 
 
-class SplitItemHandler(object):
+class SplitItemHandler:
 
     @staticmethod
     def handle(world_session, reader):

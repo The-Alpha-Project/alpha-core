@@ -55,7 +55,7 @@ class CreatureFormulas:
         return base_xp * multiplier
 
 
-class UnitFormulas(object):
+class UnitFormulas:
 
     @staticmethod
     def get_reach_for_weapon(item_template):

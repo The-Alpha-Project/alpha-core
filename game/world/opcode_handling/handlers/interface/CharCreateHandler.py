@@ -17,7 +17,7 @@ from utils.constants.SpellCodes import SpellAttributes
 from utils.constants.UnitCodes import Classes
 
 
-class CharCreateHandler(object):
+class CharCreateHandler:
     LOCK = RLock()
 
     @staticmethod

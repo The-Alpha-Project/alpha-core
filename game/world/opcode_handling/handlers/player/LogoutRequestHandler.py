@@ -6,7 +6,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
 
 
-class LogoutRequestHandler(object):
+class LogoutRequestHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:
