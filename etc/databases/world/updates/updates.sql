@@ -1157,12 +1157,6 @@ begin not atomic
         equipentry2 = REPLACE(equipentry2, '10612', '1905'),
         equipentry3 = REPLACE(equipentry3, '10612', '1905');
 
-        -- Monster - Axe, Horde Badass 02 -> Monster - Axe, Metal Basic.
-        UPDATE creature_equip_template SET 
-        equipentry1 = REPLACE(equipentry1, '10612', '1905'),
-        equipentry2 = REPLACE(equipentry2, '10612', '1905'),
-        equipentry3 = REPLACE(equipentry3, '10612', '1905');
-
         -- Monster - Shield, Horde A02 Silver -> Monster - Shield, Small Wooden.
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Kalimdor/Durotar/worldofwarcraft__041604_009-806500.jpg
         UPDATE creature_equip_template SET 
