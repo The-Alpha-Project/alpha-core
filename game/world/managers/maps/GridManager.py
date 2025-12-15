@@ -198,7 +198,6 @@ class GridManager:
         return affected_cells
 
     def _get_surrounding_cells_by_cell(self, cell=None, cell_x=0, cell_y=0, map_id=0, instance_id=0):
-
         if cell:
             cell_x = cell.cell_x
             cell_y = cell.cell_y
@@ -213,7 +212,7 @@ class GridManager:
             for dy in range(-max_cells_radius, max_cells_radius + 1):
                 nx = cell_x + dx
                 ny = cell_y + dy
-                # Clamp to valid range
+                # Clamp to valid range.
                 nx_clamped = max(0, min(NUM_CELLS - 1, nx))
                 ny_clamped = max(0, min(NUM_CELLS - 1, ny))
                 cell_key = CellUtils.get_cell_key_by_cell(nx_clamped, ny_clamped, map_id, instance_id)

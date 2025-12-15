@@ -161,8 +161,8 @@ class PetMovement(BaseMovement):
                                                                            self.follow_angle,
                                                                            final_orientation=orientation)
 
-        # Near teleport if lagging above one third of view distance.
-        if current_distance > CellUtils.VIEW_DISTANCE / 3.0:
+        # Near teleport if lagging above defined lag correction distance.
+        if current_distance > CellUtils.FOLLOW_LAG_CORRECTION_DISTANCE:
             self.unit.near_teleport(self.home_position)
             return False, None
 

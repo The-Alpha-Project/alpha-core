@@ -9,6 +9,7 @@ CELL_SIZE = ADT_SIZE / ADT_CHUNK_SIZE  # 33.33333 yards.
 NUM_CELLS = int(TOTAL_SIZE / CELL_SIZE)  # ~1024.
 ORIGIN = TOTAL_SIZE / 2  # 17066.666 yards.
 VIEW_DISTANCE = config.Server.Settings.view_distance
+FOLLOW_LAG_CORRECTION_DISTANCE = VIEW_DISTANCE / 3.0
 
 
 class CellUtils:
