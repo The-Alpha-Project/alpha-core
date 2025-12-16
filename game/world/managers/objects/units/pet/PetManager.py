@@ -249,12 +249,6 @@ class PetManager:
                 return PetSlot(slot)
         return None
 
-    def get_active_controlled_pet_or_guardian(self):
-        active_pet = self.get_active_controlled_pet()
-        if active_pet:
-            return active_pet
-        return self.get_active_guardian_pet()
-
     def get_active_controlled_pet(self) -> Optional[ActivePet]:
         permanent_pet = self.active_pets.get(PetSlot.PET_SLOT_PERMANENT)
         charm = self.active_pets.get(PetSlot.PET_SLOT_CHARM)

@@ -324,9 +324,9 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
-        pet_or_guardian = self.pet_manager.get_active_controlled_pet_or_guardian()
-        if pet_or_guardian:
-            pet_or_guardian.creature.object_ai.owner_attacked(victim)
+        active_pet = self.pet_manager.get_active_controlled_pet()
+        if active_pet:
+            active_pet.creature.object_ai.owner_attacked(victim)
 
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
@@ -1044,9 +1044,9 @@ class UnitManager(ObjectManager):
             return False
 
         # Make sure pet enters combat as well.
-        pet_or_guardian = self.pet_manager.get_active_controlled_pet_or_guardian()
-        if pet_or_guardian and not pet_or_guardian.creature.in_combat:
-            pet_or_guardian.creature.enter_combat()
+        pet = self.pet_manager.get_active_controlled_pet()
+        if pet and not pet.creature.in_combat:
+            pet.creature.enter_combat()
 
         self.in_combat = True
         self.set_unit_flag(UnitFlags.UNIT_FLAG_IN_COMBAT, active=True)
@@ -1075,13 +1075,12 @@ class UnitManager(ObjectManager):
         self.combat_target = None
         self.in_combat = False
 
-        # Make sure pet leaves combat if it has no aggro or no longer able to attack the current target.
-        pet_or_guardian = self.pet_manager.get_active_controlled_pet_or_guardian()
-        if pet_or_guardian and (not pet_or_guardian.creature.threat_manager.has_aggro()
-                    or (pet_or_guardian.creature.combat_target
-                        and not pet_or_guardian.creature.can_attack_target(pet_or_guardian.creature.combat_target))):
-            pet_or_guardian.creature.spell_manager.remove_casts()
-            pet_or_guardian.creature.leave_combat()
+        # Make sure pet leaves combat if it has no aggro or no longer able to attack current target.
+        pet = self.pet_manager.get_active_controlled_pet()
+        if pet and (not pet.creature.threat_manager.has_aggro()
+                    or (pet.creature.combat_target and not pet.creature.can_attack_target(pet.creature.combat_target))):
+            pet.creature.spell_manager.remove_casts()
+            pet.creature.leave_combat()
 
         self.set_unit_flag(UnitFlags.UNIT_FLAG_IN_COMBAT, active=False)
         return True
@@ -1120,7 +1119,7 @@ class UnitManager(ObjectManager):
 
     def set_beast_master(self, active=True):
         self.beast_master = active
-        controlled_pet = self.pet_manager.get_active_controlled_pet_or_guardian()
+        controlled_pet = self.pet_manager.get_active_controlled_pet()
         if controlled_pet:
             controlled_pet.beast_master = active
 
