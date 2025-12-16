@@ -414,9 +414,9 @@ class EffectTargets:
 
         caster_is_player = caster.is_player()
         caster_is_unit = caster.is_unit(by_mask=True)
-        caster_pet = caster.pet_manager.get_active_controlled_pet() if caster_is_unit else None
-        if caster_pet:
-            caster_pet = caster_pet.creature
+        caster_pet_guardian = caster.pet_manager.get_active_controlled_pet_or_guardian() if caster_is_unit else None
+        if caster_pet_guardian:
+            caster_pet_guardian = caster_pet_guardian.creature
 
         charmer_or_summoner = caster.get_charmer_or_summoner() if caster_is_unit else None
         party_group = None
@@ -440,22 +440,22 @@ class EffectTargets:
             units_in_range.append(charmer_or_summoner)
 
         # Has a pet and is within radius.
-        if caster_pet and caster.location.distance_sqrd(caster_pet.location) < distance_sqrd:
-            units_in_range.append(caster_pet)
+        if caster_pet_guardian and caster.location.distance_sqrd(caster_pet_guardian.location) < distance_sqrd:
+            units_in_range.append(caster_pet_guardian)
 
         if not party_group:
             return units_in_range
 
         units = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=caster)
         for unit in units:
-            if caster in [unit, charmer_or_summoner, caster_pet] or \
+            if caster in [unit, charmer_or_summoner, caster_pet_guardian] or \
                     not party_group.is_party_member(unit.guid) or \
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
             # Unit pets.
-            unit_pet = unit.pet_manager.get_active_controlled_pet()
-            if unit_pet and caster.location.distance_sqrd(unit_pet.creature.location) < distance_sqrd:
-                units_in_range.append(unit_pet.creature)
+            unit_pet_guardian = unit.pet_manager.get_active_controlled_pet_or_guardian()
+            if unit_pet_guardian and caster.location.distance_sqrd(unit_pet_guardian.creature.location) < distance_sqrd:
+                units_in_range.append(unit_pet_guardian.creature)
             # Unit.
             if caster.location.distance_sqrd(unit.location) <= distance_sqrd:
                 units_in_range.append(unit)

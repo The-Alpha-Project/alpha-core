@@ -271,9 +271,7 @@ class PetAI(CreatureAI):
             pet_movement.stay(state=True)
 
         if pet_movement and self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
-            # If no aggro, stop attacking.
-            if not self.creature.threat_manager.has_aggro():
-                self.creature.attack_stop()
+            self.creature.attack_stop()
             pet_movement.stay(state=False)
 
     def react_state_update(self):
