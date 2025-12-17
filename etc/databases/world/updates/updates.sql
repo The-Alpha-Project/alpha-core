@@ -1635,6 +1635,10 @@ begin not atomic
         UPDATE `spawns_creatures` SET `spawn_entry1` = '4824', `position_x` = '-442.424', `position_y` = '211.822', `position_z` = '-52.6367' WHERE (`spawn_id` = '26109');
         INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES ('26109', '10002', '0', 'Blackfathom Akumai Fisher');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1598
+        -- Disable second spawn.
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '400410');
+
         insert into applied_updates values ('161220252');
     end if;
 
