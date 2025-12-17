@@ -518,7 +518,6 @@ class PlayerManager(UnitManager):
 
         # Leave combat.
         self.leave_combat()
-        self.threat_manager.reset()
 
         # Remove from transport.
         if self.movement_info.remove_from_transport():
