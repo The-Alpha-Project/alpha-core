@@ -1198,7 +1198,7 @@ begin not atomic
 
     -- 16/12/2025 1
     if (select count(*) from applied_updates where id='161220251') = 0 then
-        -- [PH] Cat Figurine (Junk) (According to screenshots).
+        -- '[PH] Cat Figurine' (According to screenshots).
         UPDATE `item_template` SET `name` = '[PH] Cat Figurine' WHERE (`entry` = '5329');
 
         -- Ghost Saber Display ID.
