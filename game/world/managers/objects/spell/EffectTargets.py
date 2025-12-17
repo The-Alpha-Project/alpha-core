@@ -447,7 +447,7 @@ class EffectTargets:
 
         units = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=caster)
         for unit in units:
-            if caster in [unit, charmer_or_summoner] or caster in caster_pets or \
+            if caster in [unit, charmer_or_summoner] + caster_pets or \
                     not party_group.is_party_member(unit.guid) or \
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
