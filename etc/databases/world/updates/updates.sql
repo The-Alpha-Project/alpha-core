@@ -1630,10 +1630,10 @@ begin not atomic
 
         -- Pools.
         INSERT INTO `pool_template` (`pool_entry`, `max_limit`, `description`, `flags`, `instance`) VALUES ('10002', '1', 'Spawn Elite Blackfathom : Ghamoo-Ra', '0', '0');
-        INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`, `flags`) VALUES ('25732', '10002', '15', 'Ghamoo-Ra', '0');
+        INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`, `flags`) VALUES ('25732', '10002', '15', 'Blackfathom Ghamoo-Ra', '0');
         -- Aku'mai Fisher.
         UPDATE `spawns_creatures` SET `spawn_entry1` = '4824', `position_x` = '-442.424', `position_y` = '211.822', `position_z` = '-52.6367' WHERE (`spawn_id` = '26109');
-        INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES ('26109', '10002', '0', 'Blackfathom Myrmidon');
+        INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES ('26109', '10002', '0', 'Blackfathom Akumai Fisher');
 
         insert into applied_updates values ('161220252');
     end if;
