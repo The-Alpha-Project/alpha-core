@@ -342,7 +342,7 @@ class DbcDatabaseManager:
             return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, [])
 
         @staticmethod
-        def get_skill_line_ability_for_race_and_class(skill_line_abilities, race, class_):
+        def get_skill_line_ability_for_race_and_class(skill_line_abilities, race, class_, gm=False):
             race_mask = 1 << (race - 1)
             class_mask = 1 << (class_ - 1)
 
@@ -381,17 +381,20 @@ class DbcDatabaseManager:
 
                 return skill_line_ability
 
+            # Nothing was found but requester is GM, return the first available.
+            if gm and skill_line_abilities:
+                return skill_line_abilities[0]
+
             return None
 
         @staticmethod
-        @lru_cache
-        def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_):
+        def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_, gm=False):
             skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
             if not skill_line_abilities:
                 return None
 
             return DbcDatabaseManager.SkillLineAbilityHolder.get_skill_line_ability_for_race_and_class(
-                skill_line_abilities, race, class_)
+                skill_line_abilities, race, class_, gm=gm)
 
     @staticmethod
     def skill_line_ability_get_by_skill_lines(skill_lines):

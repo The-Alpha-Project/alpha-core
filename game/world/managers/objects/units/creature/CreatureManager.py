@@ -399,9 +399,6 @@ class CreatureManager(UnitManager):
         return any([self.is_temp_summon(), self.is_pet(), self.is_guardian()])
 
     def is_guardian(self):
-        owner = self.get_charmer_or_summoner()
-        if not owner:
-            return False
         return self._is_guardian
 
     def is_controlled(self):
@@ -1170,10 +1167,9 @@ class CreatureManager(UnitManager):
 
     @staticmethod
     def handle_summon_timed_combat_or_corpse(unit, elapsed):
-        if unit.update_time_to_live(elapsed):
-            if not unit.in_combat:
-                unit.despawn()
-                return True
+        if not unit.is_alive or unit.update_time_to_live(elapsed):
+            unit.despawn()
+            return True
 
         return False
 

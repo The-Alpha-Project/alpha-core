@@ -1543,5 +1543,111 @@ begin not atomic
         insert into applied_updates values ('161220251');
     end if;
 
+    -- 16/12/2025 2
+    if (select count(*) from applied_updates where id='161220252') = 0 then
+        -- '[PH] Cat Figurine' (According to screenshots).
+        UPDATE `item_template` SET `name` = '[PH] Cat Figurine' WHERE (`entry` = '5329');
+
+        -- Ghost Saber Display ID.
+        UPDATE `creature_template` SET `display_id1` = '748' WHERE (`entry` = '3619');
+
+        -- Fix flying Figurine.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '38.105' WHERE (`spawn_id` = '399301');
+
+        -- Cat Figurine Goobers, ignore.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399311');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399312');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399313');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399314');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399315');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399316');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399317');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399318');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399319');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399320');
+
+        -- Cat Figurine chests scripts.
+        -- Ghost Saber has a 13% chance to spawn, and Glowing Cat Figurine has a 55.22% drop chance from him.
+        DELETE FROM `gameobject_scripts` WHERE `id`=399301;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399301, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399302;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399302, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399303;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399303, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399304;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399304, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399305;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399305, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399306;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399306, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399307;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399307, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399308;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399308, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399309;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399309, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=399310;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (399310, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `generic_scripts` WHERE `id`=1335901;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1335901, 0, 0, 15, 5968, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
+
+        DELETE FROM `generic_scripts` WHERE `id`=1335902;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1335902, 0, 0, 5, 0, 5968, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Interrupt Cast - Dummy');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1606
+        UPDATE `creature_template` SET SET `level_min` = '19', `level_max` = '20', `ai_name` = '', `mechanic_immune_mask` = '0', `display_id1` = '1532', `name` = 'Deviate Thundersnout', `rank` = '1', `spell_list_id` = '5055', `scale` = '0.4', `faction` = '16' WHERE (`entry` = '5055');
+
+        -- New creature spell lists.
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (5055, 'Deviate Lasher', 6255, 80, 1, 0, 0, 0, 4, 8, 16, 24, 0, 7342, 100, 1, 0, 0, 0, 2, 6, 14, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Ghamoo-Ra - Raare Elite.
+        UPDATE `creature_template` SET `rank` = '2' WHERE (`entry` = '4887');
+
+        -- Invalid faction 350 -> 16 (Monster).
+        UPDATE `creature_template` SET `faction` = '16' WHERE `faction` = 350;
+
+        -- Pools.
+        INSERT INTO `pool_template` (`pool_entry`, `max_limit`, `description`, `flags`, `instance`) VALUES ('10002', '1', 'Spawn Elite Blackfathom : Ghamoo-Ra', '0', '0');
+        INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`, `flags`) VALUES ('25732', '10002', '15', 'Blackfathom Ghamoo-Ra', '0');
+        -- Aku'mai Fisher.
+        UPDATE `spawns_creatures` SET `spawn_entry1` = '4824', `position_x` = '-442.424', `position_y` = '211.822', `position_z` = '-52.6367' WHERE (`spawn_id` = '26109');
+        INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALUES ('26109', '10002', '0', 'Blackfathom Akumai Fisher');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1598
+        -- Disable second spawn.
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '400410');
+
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1599
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400470', '1000', '0', '0', '0', '0', '-10933.7', '-378.684', '39.7037', '5.45', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400471', '1001', '0', '0', '0', '0', '-10926.5', '-380.11', '39.2032', '0.778', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+        
+        -- Gringer, reduce detection range.
+        UPDATE `creature_template` SET `detection_range` = '6' WHERE (`entry` = '2858');
+
+        insert into applied_updates values ('161220252');
+    end if;
+
 end $
 delimiter ;

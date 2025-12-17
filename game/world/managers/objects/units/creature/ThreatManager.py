@@ -117,10 +117,9 @@ class ThreatManager:
         threat = self._calculate_threat_for_self(threat, attacker=source)
 
         # Notify pet that owner has been attacked.
-        active_pet = self.unit.pet_manager.get_active_controlled_pet()
-        if active_pet:
+        for pet_or_guardian in self.unit.pet_manager.get_pet_and_guardians():
             proximity_aggro = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT == threat
-            active_pet.creature.object_ai.owner_attacked_by(source, proximity_aggro)
+            pet_or_guardian.object_ai.owner_attacked_by(source, proximity_aggro)
 
         if source is not self.unit:
             self.unit.enter_combat(source)

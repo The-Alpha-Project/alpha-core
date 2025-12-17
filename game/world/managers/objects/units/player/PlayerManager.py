@@ -147,6 +147,7 @@ class PlayerManager(UnitManager):
 
             # GM checks.
             self.is_god = False
+            self.is_gm = False
             self.collision_cheat = False
             if self.session.account_mgr.is_gm():
                 self.set_gm_tag()
@@ -230,9 +231,11 @@ class PlayerManager(UnitManager):
 
     def set_gm_tag(self, on=True, reload=False):
         if on:
+            self.is_gm = True
             self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
             self.chat_flags |= ChatFlags.CHAT_TAG_GM
         else:
+            self.is_gm = False
             self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GM
             self.chat_flags &= ~ChatFlags.CHAT_TAG_GM
 
@@ -515,7 +518,6 @@ class PlayerManager(UnitManager):
 
         # Leave combat.
         self.leave_combat()
-        self.threat_manager.reset()
 
         # Remove from transport.
         if self.movement_info.remove_from_transport():
@@ -994,7 +996,7 @@ class PlayerManager(UnitManager):
         if level != self.level:
             # Even if level 255 is the maximum supported, client doesn't expect a level higher than 100
             # (player won't even appear in the /who list).
-            max_level = 100 if self.session.account_mgr.is_gm() else config.Unit.Player.Defaults.max_level
+            max_level = 100 if self.is_gm else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
                 # Check if the new level is higher than the current one or not.
                 is_leveling_up = level > self.level

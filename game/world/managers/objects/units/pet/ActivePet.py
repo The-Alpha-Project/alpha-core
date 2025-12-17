@@ -77,7 +77,7 @@ class ActivePet:
         self.get_pet_data().set_active(True)
 
         if self.is_permanent() or not self.is_controlled():
-            # Permanent pet/totem.
+            # Permanent pet/totem/guardian.
             self.creature.set_summoned_by(self._pet_manager.owner, spell_id=self.get_created_by_spell(),
                                           subtype=self.creature.subtype,
                                           movement_type=MovementTypes.IDLE)

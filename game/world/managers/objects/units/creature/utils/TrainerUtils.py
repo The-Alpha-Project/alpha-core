@@ -66,7 +66,7 @@ class TrainerUtils:
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
-                spell.ID, player_mgr.race, player_mgr.class_)
+                spell.ID, player_mgr.race, player_mgr.class_, player_mgr.is_gm)
 
             # Spell is not available to player.
             if not skill_line_ability:
@@ -198,7 +198,7 @@ class TrainerUtils:
         if not creature_mgr.is_trainer():
             return False
 
-        if not creature_mgr.is_within_interactable_distance(player_mgr) and not player_mgr.session.account_mgr.is_gm():
+        if not creature_mgr.is_within_interactable_distance(player_mgr) and not player_mgr.is_gm:
             return False
 
         # If expecting a specific class, check if they match.

@@ -1,3 +1,4 @@
+import itertools
 import random
 import time
 
@@ -113,7 +114,8 @@ class ScriptHandler:
         # dataint1-4 = chance (total cant be above 100)
         scripts = [datalong for datalong in ScriptHelpers.get_filtered_datalong(command)]
         weights = [dataint for dataint in ScriptHelpers.get_filtered_dataint(command)]
-        script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
+        script_id = random.choices(scripts, weights=weights, k=1)[0]
+
         command.source.get_map().enqueue_script(source=command.source, target=command.target,
                                                 script_type=ScriptTypes.SCRIPT_TYPE_GENERIC, script_id=script_id)
         return False
