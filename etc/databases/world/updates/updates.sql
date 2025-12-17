@@ -1642,6 +1642,9 @@ begin not atomic
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1599
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400470', '1000', '0', '0', '0', '0', '-10933.7', '-378.684', '39.7037', '5.45', '300', '300', '0', '100', '0', '0', '0', '0', '0');
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400471', '1001', '0', '0', '0', '0', '-10926.5', '-380.11', '39.2032', '0.778', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+        
+        -- Gringer, reduce detection range.
+        UPDATE `creature_template` SET `detection_range` = '6' WHERE (`entry` = '2858');
 
         insert into applied_updates values ('161220252');
     end if;
