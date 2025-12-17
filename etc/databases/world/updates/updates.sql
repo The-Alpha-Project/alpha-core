@@ -1220,7 +1220,7 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '399320');
 
         -- Cat Figurine chests scripts.
-        -- Ghost Saber has a 13% chance to spawn, and Glowing Cat Figurine has a 55.22% chance to drop from him.
+        -- Ghost Saber has a 13% chance to spawn, and Glowing Cat Figurine has a 55.22% drop chance from him.
         DELETE FROM `gameobject_scripts` WHERE `id`=399301;
         INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (399301, 0, 0, 39, 1335901, 1335902, 0, 0, 0, 0, 0, 0, 13, 87, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Summon Ghost Saber');
