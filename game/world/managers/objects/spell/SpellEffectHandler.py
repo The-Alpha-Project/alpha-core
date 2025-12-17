@@ -608,6 +608,9 @@ class SpellEffectHandler:
         if not radius:
             radius = PET_FOLLOW_DISTANCE
 
+        summon_type = TempSummonType.TEMP_SUMMON_TIMED_COMBAT_OR_CORPSE_DESPAWN if duration > 0 \
+            else TempSummonType.TEMP_SUMMON_DEAD_DESPAWN
+
         # Detach guardians with same entry if any.
         caster.pet_manager.detach_pets_by_entry(creature_entry)
 
@@ -630,6 +633,7 @@ class SpellEffectHandler:
                                                       faction=caster.faction, ttl=duration,
                                                       possessed=False,
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
+                                                      summon_type=summon_type,
                                                       is_guardian=True)
 
             caster.get_map().spawn_object(instance=creature_manager)

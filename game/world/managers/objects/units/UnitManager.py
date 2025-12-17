@@ -236,6 +236,9 @@ class UnitManager(ObjectManager):
 
         return super().is_hostile_to(target)
 
+    def has_aggro(self):
+        return self.threat_manager.has_aggro()
+
     def can_perform_melee_attack(self):
         return self.combat_target and self.has_melee() and not self.is_casting() \
             and not self.unit_state & UnitStates.STUNNED and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
@@ -324,9 +327,9 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
-        active_pet = self.pet_manager.get_active_controlled_pet()
-        if active_pet:
-            active_pet.creature.object_ai.owner_attacked(victim)
+        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
+        for pet_or_guardian in pet_and_guardians:
+            pet_or_guardian.object_ai.owner_attacked(victim)
 
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
@@ -1043,10 +1046,11 @@ class UnitManager(ObjectManager):
         if self.in_combat:
             return False
 
-        # Make sure pet enters combat as well.
-        pet = self.pet_manager.get_active_controlled_pet()
-        if pet and not pet.creature.in_combat:
-            pet.creature.enter_combat()
+        # Make sure pet or guardians enter combat as well.
+        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
+        for pet_or_guardian in pet_and_guardians:
+            if not pet_or_guardian.in_combat:
+                pet_or_guardian.enter_combat()
 
         self.in_combat = True
         self.set_unit_flag(UnitFlags.UNIT_FLAG_IN_COMBAT, active=True)
@@ -1075,12 +1079,14 @@ class UnitManager(ObjectManager):
         self.combat_target = None
         self.in_combat = False
 
-        # Make sure pet leaves combat if it has no aggro or no longer able to attack current target.
-        pet = self.pet_manager.get_active_controlled_pet()
-        if pet and (not pet.creature.threat_manager.has_aggro()
-                    or (pet.creature.combat_target and not pet.creature.can_attack_target(pet.creature.combat_target))):
-            pet.creature.spell_manager.remove_casts()
-            pet.creature.leave_combat()
+        # Make sure pet/guardians leaves combat if it has no aggro or no longer able to attack current target.
+        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
+        for pet_or_guardian in pet_and_guardians:
+            combat_target = pet_or_guardian.combat_target
+            can_attack = combat_target and pet_or_guardian.can_attack_target(combat_target)
+            if not pet_or_guardian.has_aggro() or not can_attack:
+                pet_or_guardian.spell_manager.remove_casts()
+                pet_or_guardian.leave_combat()
 
         self.set_unit_flag(UnitFlags.UNIT_FLAG_IN_COMBAT, active=False)
         return True
@@ -1119,9 +1125,9 @@ class UnitManager(ObjectManager):
 
     def set_beast_master(self, active=True):
         self.beast_master = active
-        controlled_pet = self.pet_manager.get_active_controlled_pet()
-        if controlled_pet:
-            controlled_pet.beast_master = active
+        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
+        for pet_or_guardian in pet_and_guardians:
+            pet_or_guardian.beast_master = active
 
     def update_sanctuary(self, elapsed):
         if not self.sanctuary_timer:
@@ -1466,8 +1472,8 @@ class UnitManager(ObjectManager):
 
     # Implemented by CreatureManager.
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
-        # Link self to summoner if not totem.
-        if not self.is_totem():
+        # Totems/Guardians are not linked to players. (No portrait)
+        if not self.is_totem() and not self.is_guardian():
             summoner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, self.guid if not remove else 0)
         # Set faction, either original or summoner. (Restored on CreatureManager/PlayerManager)
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)

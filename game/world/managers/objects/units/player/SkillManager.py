@@ -298,7 +298,8 @@ class SkillManager:
         # Validate the given skill can actually be used by requester given its race and class.
         if not DbcDatabaseManager.SkillLineAbilityHolder.get_skill_line_ability_for_race_and_class(skill_line_abilities,
                                                                                                    self.player_mgr.race,
-                                                                                                   self.player_mgr.class_):
+                                                                                                   self.player_mgr.class_,
+                                                                                                   self.player_mgr.is_gm):
             return False
 
 
@@ -534,9 +535,9 @@ class SkillManager:
         self._roll_profession_skill_gain_chance(lock_result.skill_type, chance, gather_skill_gain_factor)
 
     @staticmethod
-    def get_skill_and_skill_line_for_spell_id(spell_id, race, class_):
+    def get_skill_and_skill_line_for_spell_id(spell_id, race, class_, gm=False):
         skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
-            spell_id, race, class_)
+            spell_id, race, class_, gm=gm)
 
         if not skill_line_ability:
             return 0, None
@@ -547,7 +548,8 @@ class SkillManager:
     def get_skill_info_for_spell_id(self, spell_id):
         race = self.player_mgr.race
         class_ = self.player_mgr.class_
-        skill, skill_line_ability = SkillManager.get_skill_and_skill_line_for_spell_id(spell_id, race, class_)
+        skill, skill_line_ability = SkillManager.get_skill_and_skill_line_for_spell_id(
+            spell_id, race, class_, self.player_mgr.is_gm)
 
         if not skill:
             return None, None, None
@@ -746,7 +748,7 @@ class SkillManager:
 
     def get_skill_for_spell_id(self, spell_id):
         skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
-            spell_id, self.player_mgr.race, self.player_mgr.class_)
+            spell_id, self.player_mgr.race, self.player_mgr.class_, self.player_mgr.is_gm)
         if not skill_line_ability or not skill_line_ability.SkillLine:
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
