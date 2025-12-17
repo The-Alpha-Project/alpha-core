@@ -1196,5 +1196,352 @@ begin not atomic
         insert into applied_updates values ('151220251');
     end if;
 
+    -- 16/12/2025 1
+    if (select count(*) from applied_updates where id='161220251') = 0 then
+        -- Grizzle Halfmane - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=34701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (34701, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grizzle Halfmane - Cast Spell Cleave');
+
+        -- Fenros - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=50704;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (50704, 0, 0, 15, 7301, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenros - Cast Spell Frost Armor');
+
+        -- King Bangalash - Cast Spell Summon Panthers
+        DELETE FROM `creature_ai_scripts` WHERE `id`=73101;
+
+        -- Lost One Riftseeker - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=76202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (76202, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lost One Riftseeker - Cast Spell Summon Imp');
+
+        -- Kurzen Commando - Cast Spell Smoke Bomb
+        DELETE FROM `creature_ai_scripts` WHERE `id`=93803;
+
+        -- Archbishop Benedictus - Cast Spell Power Word: Shield - Holy Word: Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=128403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (128403, 0, 0, 15, 600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archbishop Benedictus - Cast Spell Holy Word: Shield'),
+        (128403, 0, 0, 44, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archbishop Benedictus - Increment Phase');
+
+        -- Archbishop Benedictus - Cast Spell Holy Smite
+        DELETE FROM `creature_ai_scripts` WHERE `id`=128404;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (128404, 0, 0, 15, 6060, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archbishop Benedictus - Cast Spell Holy Smite');
+
+        -- Archbishop Benedictus - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=128405;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (128405, 0, 0, 15, 6131, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archbishop Benedictus - Cast Spell Frost Nova');
+
+        -- Archbishop Benedictus - Cast Spell Holy Word: Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=128412;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (128412, 0, 0, 15, 600, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Archbishop Benedictus - Cast Spell Holy Word: Shield');
+
+        -- Bloodsail Warlock - Summon Succubus.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=156406;
+
+        -- Bloodsail Warlock - Cast Spell Summon Imp.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=156403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (156403, 0, 0, 15, 688, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodsail Warlock - Cast Spell Summon Imp');
+
+        -- Bloodsail Warlock - Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=156405;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (156405, 0, 0, 15, 688, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodsail Warlock - Summon Imp');
+
+        -- Defias Evoker - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=172904;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (172904, 0, 0, 15, 7300, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Cast Spell Frost Armor');
+
+        -- Flesh Golem - Cast Spell Uppercut
+        DELETE FROM `creature_ai_scripts` WHERE `id`=180502;
+
+        -- Devouring Ooze - Cast Spell Summon Oozeling
+        DELETE FROM `creature_ai_scripts` WHERE `id`=180802;
+
+        -- Darkmaster Gandling - Cast Shadow Portal
+        DELETE FROM `creature_ai_scripts` WHERE `id`=185304;
+
+        -- Scarlet Smith - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=188501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (188501, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Smith - Cast Spell Strike');
+
+        -- Scarlet Smith - Cast Spell Knockdown
+        DELETE FROM `creature_ai_scripts` WHERE `id`=188502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (188502, 0, 0, 15, 6961, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Smith - Cast Spell Knockdown');
+
+        -- Farmer Solliden - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=193601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (193601, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Farmer Solliden - Cast Spell Strike');
+
+        -- Feral Nightsaber - Cast Spell Rend
+        DELETE FROM `creature_ai_scripts` WHERE `id`=203401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (203401, 0, 0, 15, 6547, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Feral Nightsaber - Cast Spell Rend');
+
+        -- Reef Crawler - Cast Spell Rend
+        DELETE FROM `creature_ai_scripts` WHERE `id`=223501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (223501, 0, 0, 15, 6547, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Reef Crawler - Cast Spell Rend');
+
+        -- Witherbark Shadowcaster - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=255302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (255302, 0, 0, 15, 688, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Witherbark Shadowcaster - Cast Spell Summon Imp');
+
+        -- Invalid.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=1659201;
+
+        -- Stromgarde Vindicator - Cast Crazed Hunger
+        DELETE FROM `creature_ai_scripts` WHERE `id`=258501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (258501, 0, 0, 15, 3151, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stromgarde Vindicator - Cast Crazed Hunger');
+
+        -- Human Skull - Cast Summon Human Skull aand Event.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=1220201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1220201, 0, 0, 39, 0, 0, 0, 0, 11885, 40, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Human Skull - Start Event Script');
+
+        -- Vilebranch Soul Eater - Cast Spell Soul Drain
+        DELETE FROM `creature_ai_scripts` WHERE `id`=264701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (264701, 0, 0, 15, 7295, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Soul Eater - Cast Spell Soul Drain');
+
+        -- Vilebranch Aman zasi Guard - Cast Spell Shield Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=264801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (264801, 0, 0, 15, 1672, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Aman zasi Guard - Cast Spell Shield Bash');
+
+        -- Witherbark Broodguard - Cast Spell Summon Witherbark Bloodlings
+        DELETE FROM `creature_ai_scripts` WHERE `id`=268601;
+
+        -- Dustbelcher Wyrmhunter - Cast Spell Throw Rock
+        DELETE FROM `creature_ai_scripts` WHERE `id`=271601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (271601, 0, 0, 15, 4165, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dustbelcher Wyrmhunter - Cast Spell Throw Rock');
+
+        -- Vicious Owlbeast - Cast Spell Fatal Bite
+        DELETE FROM `creature_ai_scripts` WHERE `id`=292701;
+
+        -- Bristleback Interloper - Cast Spell Rend
+        DELETE FROM `creature_ai_scripts` WHERE `id`=323201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (323201, 0, 0, 15, 772, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bristleback Interloper - Cast Spell Rend');
+
+        -- Twilight Fire Guard - Cast Spell Fire Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=586101;
+
+        -- Deviate Slayer - Cast Spell Fatal Bite
+        DELETE FROM `creature_ai_scripts` WHERE `id`=363301;
+
+        -- Mad Magglish - Cast Spell Smoke Bomb
+        DELETE FROM `creature_ai_scripts` WHERE `id`=365502;
+
+        -- Lord Cobrahn - Cast Spell Cobrahn Serpent Form
+        DELETE FROM `creature_ai_scripts` WHERE `id`=366903;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (366903, 0, 0, 39, 1, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Lord Cobrahn - Enable Attack and Combat Movement'),
+        (366903, 0, 0, 55, 36691, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Lord Cobrahn - Set Spells Template'),
+        (366903, 0, 0, 44, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lord Cobrahn - Set Phase to 1');
+
+        -- Boahn - Cast Serpent Form
+        DELETE FROM `creature_ai_scripts` WHERE `id`=367202;
+
+        -- Biletoad - Cast Spell Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=383501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (383501, 0, 0, 15, 744, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Biletoad - Cast Spell Poison');
+
+        -- Thistlefur Avenger - Cast Spell Crazed Hunger
+        DELETE FROM `creature_ai_scripts` WHERE `id`=392502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (392502, 0, 0, 15, 3151, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Thistlefur Avenger - Cast Spell Crazed Hunger'),
+        (392502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1151, 0, 0, 0, 0, 0, 0, 0, 0, 'Thistlefur Avenger - Say Text');
+
+        -- Mirkfallon Keeper - Cast Spell Mirkfallon Fungus
+        DELETE FROM `creature_ai_scripts` WHERE `id`=405601;
+
+        -- Silithid Invader - Cast Spell Silithid Pox
+        DELETE FROM `creature_ai_scripts` WHERE `id`=413102;
+
+        -- Firemane Ash Tail - Cast Spell Fire Blast
+        DELETE FROM `creature_ai_scripts` WHERE `id`=433102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (433102, 0, 0, 15, 2138, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Firemane Ash Tail - Cast Spell Fire Blast');
+
+        -- Firemane Ash Tail - Cast Spell Fire Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=433103;
+
+        -- Brimgore - Cast Spell Flame Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=433901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (433901, 0, 0, 15, 6725, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Brimgore - Cast Spell Flame Strike');
+
+        -- Darkmist Widow - Cast Spell CustomSpell
+        DELETE FROM `creature_ai_scripts` WHERE `id`=438002;
+
+        -- Acidic Swamp Ooze - Cast Spell Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=439301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (439301, 0, 0, 15, 744, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Acidic Swamp Ooze - Cast Spell Poison');
+
+        -- Charlga Razorflank - Cast Spell Restore Mana
+        DELETE FROM `creature_ai_scripts` WHERE `id`=442101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (442101, 0, 0, 15, 438, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Charlga Razorflank - Cast Spell Restore Mana');
+
+        -- Rotting Agam ar - Cast Spell Cursed Blood
+        DELETE FROM `creature_ai_scripts` WHERE `id`=451201;
+
+        -- Razorfen Geomancer - Cast Spell Summon Earth Rumbler
+        DELETE FROM `creature_ai_scripts` WHERE `id`=452002;
+
+        -- Razorfen Dustweaver - Cast Spell Summon Wind Howler
+        DELETE FROM `creature_ai_scripts` WHERE `id`=452201;
+
+        -- Razorfen Groundshaker - Cast Spell Earth Shock
+        DELETE FROM `creature_ai_scripts` WHERE `id`=452301;
+
+        -- Razorfen Earthbreaker - Cast Spell Earth Shock
+        DELETE FROM `creature_ai_scripts` WHERE `id`=452501;
+
+        -- Razorfen Beast Trainer - Cast Spell Summon Tamed Boar
+        DELETE FROM `creature_ai_scripts` WHERE `id`=453101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (453101, 0, 0, 15, 7905, 7, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razorfen Beast Trainer - Cast Spell Summon Tamed Boar');
+
+        -- Razorfen Beastmaster - Cast Spell Summon Tamed Hyena
+        DELETE FROM `creature_ai_scripts` WHERE `id`=453202;
+
+        -- Greater Kraul Bat - Cast Spell Sonic Burst
+        DELETE FROM `creature_ai_scripts` WHERE `id`=453901;
+
+        -- Blood of Agamaggan - Cast Spell Curse of Blood
+        DELETE FROM `creature_ai_scripts` WHERE `id`=454101;
+
+        -- Gelkis Earthcaller - Cast Spell Summon Gelkis Rumbler
+        DELETE FROM `creature_ai_scripts` WHERE `id`=465101;
+
+        -- Maraudine Stormer - Cast Spell Chain Lightning
+        DELETE FROM `creature_ai_scripts` WHERE `id`=465803;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (465803, 0, 0, 15, 421, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Maraudine Stormer - Cast Spell Chain Lightning');
+
+        -- Burning Blade Reaver - Cast Spell Swipe
+        DELETE FROM `creature_ai_scripts` WHERE `id`=466401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (466401, 0, 0, 15, 780, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Burning Blade Reaver - Cast Spell Swipe');
+
+        -- Hukku's Imp - Cast Fireball
+        DELETE FROM `creature_ai_scripts` WHERE `id`=865801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (865801, 0, 0, 15, 854, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hukku''s Imp - Cast Fireball');
+
+        -- Burning Blade Invoker - Cast Spell Flamestrike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=470501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (470501, 0, 0, 15, 2120, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Burning Blade Invoker - Cast Spell Flamestrike');
+
+        -- Twilight Aquamancer - Cast Spell Summon Water Elemental
+        DELETE FROM `creature_ai_scripts` WHERE `id`=481102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (481102, 0, 0, 15, 765, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Aquamancer - Cast Spell Summon Water Elemental');
+
+        -- Twilight Loreseeker - Cast Spell Strength of Stone
+        DELETE FROM `creature_ai_scripts` WHERE `id`=481202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (481202, 0, 0, 15, 6864, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Loreseeker - Cast Spell Strength of Stone');
+
+        -- Earthcaller Halmgar - Cast Spell Summon Earth Rumbler
+        DELETE FROM `creature_ai_scripts` WHERE `id`=484202;
+
+        -- Stone Keeper - Cast Spell Stoned
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485701;
+
+        -- Stone Keeper - Cast Spell Stoned
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485703;
+
+        -- Stone Keeper - Cast Spell Self Destruct
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485704;
+
+        -- Saturated Ooze - Cast Spell Summon Oozeling
+        DELETE FROM `creature_ai_scripts` WHERE `id`=522802;
+
+        -- Atal ai Corpse Eater - Cast Spell Atal ai Corpse Eat
+        DELETE FROM `creature_ai_scripts` WHERE `id`=527001;
+
+        -- Atal ai Deathwalker - Cast Spell Summon Atal ai Deathwalker s Spirit
+        DELETE FROM `creature_ai_scripts` WHERE `id`=527103;
+
+        -- Atal ai High Priest - Cast Spell Shadow Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=527301;
+
+        -- Vale Screecher - Cast Spell Sonic Burst
+        DELETE FROM `creature_ai_scripts` WHERE `id`=530701;
+
+        -- Rogue Vale Screecher - Cast Spell Sonic Burst
+        DELETE FROM `creature_ai_scripts` WHERE `id`=530801;
+
+        -- Jademir Boughguard - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=532001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (532001, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jademir Boughguard - Cast Spell Cleave');
+
+        -- Hatecrest Serpent Guard - Cast Spell Frost Shot
+        DELETE FROM `creature_ai_scripts` WHERE `id`=533301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (533301, 0, 0, 15, 6985, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatecrest Serpent Guard - Cast Spell Frost Shot');
+
+        -- Northspring Harpy - Cast Spell Flow of the Northspring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=536201;
+
+        -- Northspring Roguefeather - Cast Spell Flow of the Northspring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=536303;
+
+        -- Northspring Slayer - Cast Spell Flow of the Northspring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=536402;
+
+        -- Hazzali Stinger - Cast Spell Summon Hazzali Parasites
+        DELETE FROM `creature_ai_scripts` WHERE `id`=545002;
+
+        -- Hazzali Swarmer - Cast Spell Summon Hazzali Parasites
+        DELETE FROM `creature_ai_scripts` WHERE `id`=545102;
+
+        -- Hazzali Worker - Cast Spell Summon Hazzali Parasites
+        DELETE FROM `creature_ai_scripts` WHERE `id`=545202;
+
+        -- Hazzali Tunneler - Cast Spell Summon Hazzali Parasites
+        DELETE FROM `creature_ai_scripts` WHERE `id`=545302;
+
+        -- Hazzali Sandreaver - Cast Spell Summon Hazzali Parasites
+        DELETE FROM `creature_ai_scripts` WHERE `id`=545402;
+
+        -- Timbermaw Ancestor - Cast Healing Wave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=1572001;
+
+        -- Khan Dez hepah - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=560002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (560002, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Khan Dez hepah - Cast Spell Strike');
+
+        -- Sandfury Witch Doctor - Totem
+        DELETE FROM `creature_ai_scripts` WHERE `id`=565002;
+
+        -- Random mobs - Cast Green Channeling
+        DELETE FROM `creature_ai_scripts` WHERE `id`=571201;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=571301;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=571601;
+
+        insert into applied_updates values ('161220251');
+    end if;
+
 end $
 delimiter ;
