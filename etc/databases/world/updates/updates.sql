@@ -1614,7 +1614,7 @@ begin not atomic
 
         DELETE FROM `generic_scripts` WHERE `id`=1335902;
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (1335902, 0, 0, 5, 0, 5968, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurines - InterruptCast');
+        (1335902, 0, 0, 5, 0, 5968, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cat Figurine - Interrupt Cast - Dummy');
 
         insert into applied_updates values ('161220252');
     end if;
