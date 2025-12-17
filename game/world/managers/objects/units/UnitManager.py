@@ -1468,7 +1468,7 @@ class UnitManager(ObjectManager):
 
     # Implemented by CreatureManager.
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
-        # Totems/Guardians are not linked to players. (No portrait)
+        # Totems/Guardians are not linked to players (no portrait will appear).
         if not self.is_totem() and not self.is_guardian():
             summoner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, self.guid if not remove else 0)
         # Set faction, either original or summoner. (Restored on CreatureManager/PlayerManager)

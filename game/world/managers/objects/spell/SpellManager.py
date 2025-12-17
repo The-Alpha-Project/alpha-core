@@ -1447,7 +1447,7 @@ class SpellManager:
             if not self.caster.can_attack_target(validation_target):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_FRIENDLY)
                 return False
-            # Patch 1.12.0 - Can now be used on targets that are in combat, as long as the rogue remains stealth.
+            # Patch 1.12.0 - Pick Pocket can now be used on targets that are in combat, as long as the rogue remains stealthed.
             if validation_target.in_combat:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_AFFECTING_COMBAT)
                 return False
