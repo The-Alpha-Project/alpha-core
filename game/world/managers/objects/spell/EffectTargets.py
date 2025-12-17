@@ -452,8 +452,7 @@ class EffectTargets:
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
             # Unit pets.
-            unit_pets = unit.pet_manager.get_pet_and_guardians()
-            for pet_or_guardian in unit_pets:
+            for pet_or_guardian in unit.pet_manager.get_pet_and_guardians():
                 if caster.location.distance_sqrd(pet_or_guardian.location) < distance_sqrd:
                     units_in_range.append(pet_or_guardian)
             # Unit.

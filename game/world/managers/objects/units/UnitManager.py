@@ -327,8 +327,7 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
-        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
-        for pet_or_guardian in pet_and_guardians:
+        for pet_or_guardian in self.pet_manager.get_pet_and_guardians():
             pet_or_guardian.object_ai.owner_attacked(victim)
 
         # Reset offhand weapon attack
@@ -1047,8 +1046,7 @@ class UnitManager(ObjectManager):
             return False
 
         # Make sure pet or guardians enter combat as well.
-        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
-        for pet_or_guardian in pet_and_guardians:
+        for pet_or_guardian in self.pet_manager.get_pet_and_guardians():
             if not pet_or_guardian.in_combat:
                 pet_or_guardian.enter_combat()
 
@@ -1079,9 +1077,8 @@ class UnitManager(ObjectManager):
         self.combat_target = None
         self.in_combat = False
 
-        # Make sure pet/guardians leaves combat if it has no aggro or no longer able to attack current target.
-        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
-        for pet_or_guardian in pet_and_guardians:
+        # Make sure pet/guardians leave combat if they have no aggro or no longer able to attack current target.
+        for pet_or_guardian in self.pet_manager.get_pet_and_guardians():
             combat_target = pet_or_guardian.combat_target
             can_attack = combat_target and pet_or_guardian.can_attack_target(combat_target)
             if not pet_or_guardian.has_aggro() or not can_attack:
@@ -1125,8 +1122,7 @@ class UnitManager(ObjectManager):
 
     def set_beast_master(self, active=True):
         self.beast_master = active
-        pet_and_guardians = self.pet_manager.get_pet_and_guardians()
-        for pet_or_guardian in pet_and_guardians:
+        for pet_or_guardian in self.pet_manager.get_pet_and_guardians():
             pet_or_guardian.beast_master = active
 
     def update_sanctuary(self, elapsed):
