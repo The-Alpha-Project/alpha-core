@@ -50,10 +50,21 @@ class PoolObject:
                                        if not chanced_entry.spawn.is_spawned()]
 
         if available_to_spawn_explicit:
-            weights = [chanced_entry.chance for chanced_entry in available_to_spawn_explicit]
-            count = min(len(available_to_spawn_explicit), max_limit)
-            choices = random.choices(available_to_spawn_explicit, weights, k=count)
-            for choice in choices:
+            # Pair each entry with its chance.
+            entry_weight_pairs = [(entry, entry.chance) for entry in available_to_spawn_explicit]
+
+            # Extract weights for selection.
+            weights = [pair[1] for pair in entry_weight_pairs]
+
+            # Select based on weights.
+            count = min(len(entry_weight_pairs), max_limit)
+            choices = random.choices(entry_weight_pairs, weights=weights, k=count)
+
+            # Choices and their specific weights (chance).
+            for choice, weight in choices:
+                roll = random.random()
+                if roll > weight / 100:
+                    continue
                 spawned += 1
                 max_limit -= 1
                 choice.spawn.spawn(from_pool=True)
