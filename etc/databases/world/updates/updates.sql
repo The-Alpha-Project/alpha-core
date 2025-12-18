@@ -1651,6 +1651,8 @@ begin not atomic
 
     -- 17/12/2025 1
     if (select count(*) from applied_updates where id='171220251') = 0 then
+        
+        INSERT INTO `item_template` (`entry`, `name`) VALUES ('6833', 'White Tuxedo Shirt');
 
         -- Item: Heavy Mithril Shoulder
         -- Entry: 7918

@@ -48,12 +48,13 @@ class TalentManager:
             if not spell:
                 continue
 
-            skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
-                spell.ID, self.player_mgr.race, self.player_mgr.class_)
+            if DbcDatabaseManager.SkillLineAbilityHolder.spell_has_skill_line_ability(spell.ID):
+                skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+                    spell.ID, self.player_mgr.race, self.player_mgr.class_)
 
-            # Talent is not available to player.
-            if not skill_line_ability:
-                continue
+                # Talent is not available to player.
+                if not skill_line_ability:
+                    continue
 
             # Check item/skill requirements to see if player can ever learn talent.
             if not TrainerUtils.player_can_learn_talent(training_spell, spell, self.player_mgr, self_talent=True):
