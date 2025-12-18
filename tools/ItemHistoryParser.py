@@ -392,4 +392,3 @@ class ItemHistoryParser:
 
         changed_item.updates.append(f'-- {field_name.upper()} from {current_value} to {oldest_entry.old}')
         changed_item.updates.append(f"UPDATE `item_template` SET `{field_name}` = '{oldest_entry.old}' WHERE (`entry` = '{entry}');")
-        pass
