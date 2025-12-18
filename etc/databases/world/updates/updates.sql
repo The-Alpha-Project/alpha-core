@@ -1668,12 +1668,12 @@ begin not atomic
         -- FIRE_RES
         -- Current date:     2004-08-20 10:26:38
         -- New date:         2004-08-20 10:26:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SHADOW_RES
         -- Current date:     2004-08-20 10:26:38
         -- New date:         2004-08-20 10:26:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 225 to 85
         UPDATE `item_template` SET `armor` = '85' WHERE (`entry` = '7918');
@@ -1691,7 +1691,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-12 15:16:32
         -- New date:         2004-07-12 15:16:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-03 05:47:23
@@ -1706,7 +1706,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-25 16:54:18
         -- New date:         2004-08-25 16:54:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19295 to 18404
         UPDATE `item_template` SET `display_id` = '18404' WHERE (`entry` = '9486');
@@ -1729,17 +1729,17 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-08-20 11:14:42
         -- New date:         2004-08-20 11:14:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:14:42
         -- New date:         2004-08-20 11:14:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:14:42
         -- New date:         2004-08-20 11:14:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 31201 to 12929
         UPDATE `item_template` SET `display_id` = '12929' WHERE (`entry` = '7148');
@@ -1769,7 +1769,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-03 17:04:47
         -- New date:         2004-09-03 17:04:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-09-23 12:58:41
@@ -1784,7 +1784,7 @@ begin not atomic
         -- SHADOW_RES
         -- Current date:     2004-09-03 17:04:47
         -- New date:         2004-09-03 17:04:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20663 to 18323
         UPDATE `item_template` SET `display_id` = '18323' WHERE (`entry` = '9422');
@@ -1802,7 +1802,7 @@ begin not atomic
         -- SELL_PRICE
         -- Current date:     2004-08-20 11:50:38
         -- New date:         2004-08-20 11:50:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE from 5000 to 3000
         UPDATE `item_template` SET `sell_price` = '3000' WHERE (`entry` = '7910');
@@ -1814,12 +1814,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-10-14 17:33:41
         -- New date:         2004-10-14 17:33:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Old Whistle of the Obsidian Raptor to Whistle of the Obsidian Raptor
         UPDATE `item_template` SET `name` = 'Whistle of the Obsidian Raptor' WHERE (`entry` = '8590');
@@ -1866,12 +1866,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-12 13:13:32
         -- New date:         2004-10-12 13:13:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-10-12 13:13:32
         -- New date:         2004-10-12 13:13:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- FROST_RES
         -- Current date:     2004-10-01 02:27:15
@@ -1918,7 +1918,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-23 00:10:52
         -- New date:         2005-03-23 00:10:52
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '7981');
@@ -1930,7 +1930,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-15 11:07:12
         -- New date:         2004-07-15 11:07:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 08:28:06
@@ -1966,7 +1966,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 11:50:47
         -- New date:         2004-08-20 11:50:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 47 to 68
         UPDATE `item_template` SET `dmg_min1` = '68' WHERE (`entry` = '2825');
@@ -1994,7 +1994,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 22:04:59
         -- New date:         2004-11-08 22:04:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 26371 to 14984
         UPDATE `item_template` SET `display_id` = '14984' WHERE (`entry` = '7428');
@@ -2006,7 +2006,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:02
         -- New date:         2004-11-08 03:30:02
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:02
@@ -2032,7 +2032,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-28 19:42:37
         -- New date:         2004-09-28 19:42:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '6083');
@@ -2099,12 +2099,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-09 03:13:01
         -- New date:         2004-10-09 03:13:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-09 03:13:01
         -- New date:         2004-10-09 03:13:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 21 to 17
         UPDATE `item_template` SET `dmg_min1` = '17' WHERE (`entry` = '2941');
@@ -2122,7 +2122,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:00:23
         -- New date:         2004-11-08 15:00:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:00:23
@@ -2141,7 +2141,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-19 15:54:39
         -- New date:         2004-07-19 15:54:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '5490');
@@ -2172,7 +2172,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-10-14 14:30:00
         -- New date:         2004-10-14 14:30:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '6914');
@@ -2184,7 +2184,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-09-05 02:43:43
         -- New date:         2004-09-05 02:43:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 14
         UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8495');
@@ -2196,7 +2196,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 20:59:20
         -- New date:         2005-03-22 20:59:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 5 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '3735');
@@ -2208,27 +2208,27 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-06-23 13:32:14
         -- New date:         2004-06-23 13:32:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE
         -- Current date:     2004-06-23 13:32:14
         -- New date:         2004-06-23 13:32:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- BUY_PRICE
         -- Current date:     2004-06-23 13:32:14
         -- New date:         2004-06-23 13:32:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-06-23 13:32:14
         -- New date:         2004-06-23 13:32:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE
         -- Current date:     2004-06-23 13:32:14
         -- New date:         2004-06-23 13:32:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 12 to 0
         UPDATE `item_template` SET `class_` = '0' WHERE (`entry` = '1261');
@@ -2253,12 +2253,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-12 15:16:34
         -- New date:         2004-07-12 15:16:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-07-12 15:16:34
         -- New date:         2004-07-12 15:16:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 174 to 64
         UPDATE `item_template` SET `armor` = '64' WHERE (`entry` = '7542');
@@ -2274,7 +2274,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-04 02:08:24
         -- New date:         2004-09-04 02:08:24
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Silithid Talon to Sillithid Talon
         UPDATE `item_template` SET `name` = 'Sillithid Talon' WHERE (`entry` = '5854');
@@ -2291,7 +2291,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 04:19:36
         -- New date:         2004-11-08 04:19:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 04:19:36
@@ -2312,7 +2312,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:00:22
         -- New date:         2004-11-08 15:00:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:00:22
@@ -2365,7 +2365,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 11:50:37
         -- New date:         2004-08-20 11:50:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 25053 to 13078
         UPDATE `item_template` SET `display_id` = '13078' WHERE (`entry` = '7961');
@@ -2388,7 +2388,7 @@ begin not atomic
         -- NATURE_RES
         -- Current date:     2004-08-20 11:50:33
         -- New date:         2004-08-20 11:50:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 02:27:09
@@ -2409,7 +2409,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:29:57
         -- New date:         2004-11-08 03:29:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:29:57
@@ -2454,7 +2454,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:11:22
         -- New date:         2005-03-22 21:11:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '5973');
@@ -2466,12 +2466,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2005-05-16 21:39:52
         -- New date:         2005-05-16 21:39:52
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2005-05-16 21:39:52
         -- New date:         2005-05-16 21:39:52
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 34 to 0
         UPDATE `item_template` SET `required_level` = '0' WHERE (`entry` = '5530');
@@ -2502,7 +2502,7 @@ begin not atomic
         -- DMG_MAX1
         -- Current date:     2004-09-29 01:17:34
         -- New date:         2004-09-29 01:17:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 4 to 6
         UPDATE `item_template` SET `dmg_min1` = '6' WHERE (`entry` = '2754');
@@ -2542,17 +2542,17 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-05-28 12:19:45
         -- New date:         2004-05-28 12:19:45
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-05-28 12:19:45
         -- New date:         2004-05-28 12:19:45
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:45
         -- New date:         2004-05-28 12:19:45
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 21 to 30
         UPDATE `item_template` SET `dmg_min1` = '30' WHERE (`entry` = '1220');
@@ -2578,7 +2578,7 @@ begin not atomic
         -- NATURE_RES
         -- Current date:     2004-08-20 10:24:00
         -- New date:         2004-08-20 10:24:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- FROST_RES
         -- Current date:     2005-07-19 00:45:22
@@ -2639,7 +2639,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:29:57
         -- New date:         2004-11-08 03:29:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-07-12 06:12:49
@@ -2649,12 +2649,12 @@ begin not atomic
         -- STAT_TYPE3
         -- Current date:     2004-09-30 19:57:26
         -- New date:         2004-09-30 19:57:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-09-30 19:57:26
         -- New date:         2004-09-30 19:57:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 28195 to 4439
         UPDATE `item_template` SET `display_id` = '4439' WHERE (`entry` = '9624');
@@ -2672,7 +2672,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-23 10:43:33
         -- New date:         2004-08-23 10:43:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 04:19:37
@@ -2682,22 +2682,22 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-08-23 10:43:33
         -- New date:         2004-08-23 10:43:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-08-23 10:43:33
         -- New date:         2004-08-23 10:43:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-08-23 10:43:33
         -- New date:         2004-08-23 10:43:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-08-23 10:43:33
         -- New date:         2004-08-23 10:43:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Platemail Boots to Field Plate Boots
         UPDATE `item_template` SET `name` = 'Field Plate Boots' WHERE (`entry` = '8089');
@@ -2719,7 +2719,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-20 23:23:38
         -- New date:         2004-07-20 23:23:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 18718 to 18101
         UPDATE `item_template` SET `display_id` = '18101' WHERE (`entry` = '8027');
@@ -2797,7 +2797,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 10:24:00
         -- New date:         2004-08-20 10:24:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:06
@@ -2823,7 +2823,7 @@ begin not atomic
         -- DMG_MAX1
         -- Current date:     2004-06-17 17:32:05
         -- New date:         2004-06-17 17:32:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1 from 75 to 77
         UPDATE `item_template` SET `dmg_max1` = '77' WHERE (`entry` = '5813');
@@ -2835,7 +2835,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 11:51:01
         -- New date:         2004-08-20 11:51:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-12 15:51:29
@@ -2850,12 +2850,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-08-20 11:51:01
         -- New date:         2004-08-20 11:51:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-08-20 11:51:01
         -- New date:         2004-08-20 11:51:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 13440 to 0
         UPDATE `item_template` SET `spellid_1` = '0' WHERE (`entry` = '1982');
@@ -2901,7 +2901,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Gray Ram to Gray Ram Harness
         UPDATE `item_template` SET `name` = 'Gray Ram Harness' WHERE (`entry` = '5864');
@@ -2948,7 +2948,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:07
         -- New date:         2004-11-08 03:30:07
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-10-01 02:27:09
@@ -2981,17 +2981,17 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:14:42
         -- New date:         2004-08-20 11:14:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2005-05-09 18:26:32
         -- New date:         2005-05-09 18:26:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2005-05-09 18:26:32
         -- New date:         2005-05-09 18:26:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20424 to 18437
         UPDATE `item_template` SET `display_id` = '18437' WHERE (`entry` = '9514');
@@ -3012,7 +3012,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-08 15:42:36
         -- New date:         2004-07-08 15:42:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2004-10-01 02:27:10
@@ -3040,7 +3040,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2005-04-20 16:46:39
         -- New date:         2005-04-20 16:46:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-04-20 16:46:39
@@ -3071,7 +3071,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-10-12 19:13:14
         -- New date:         2004-10-12 19:13:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 21363 to 2874
         UPDATE `item_template` SET `display_id` = '2874' WHERE (`entry` = '8167');
@@ -3083,7 +3083,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-05-21 01:40:15
         -- New date:         2005-05-21 01:40:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 5 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '3737');
@@ -3187,7 +3187,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-23 13:32:15
         -- New date:         2004-06-23 13:32:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '1129');
@@ -3244,7 +3244,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-08-24 04:43:10
         -- New date:         2005-08-24 04:43:10
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 8 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '6347');
@@ -3256,12 +3256,12 @@ begin not atomic
         -- ARMOR
         -- Current date:     2004-05-28 12:19:46
         -- New date:         2004-05-28 12:19:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:46
         -- New date:         2004-05-28 12:19:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 10 to 6
         UPDATE `item_template` SET `armor` = '6' WHERE (`entry` = '3360');
@@ -3275,7 +3275,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-19 15:54:41
         -- New date:         2004-07-19 15:54:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-13 06:41:46
@@ -3311,17 +3311,17 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 11:14:42
         -- New date:         2004-08-20 11:14:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2004-10-01 02:27:06
         -- New date:         2004-10-01 02:27:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 02:27:06
         -- New date:         2004-10-01 02:27:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 795 to 169
         UPDATE `item_template` SET `armor` = '169' WHERE (`entry` = '9458');
@@ -3353,7 +3353,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-20 23:23:38
         -- New date:         2004-07-20 23:23:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4803');
@@ -3365,7 +3365,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-08 16:09:19
         -- New date:         2004-07-08 16:09:19
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:29:57
@@ -3389,7 +3389,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:29:59
         -- New date:         2004-11-08 03:29:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:29:59
@@ -3410,7 +3410,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-05-17 14:13:02
         -- New date:         2005-05-17 14:13:02
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 6 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '9297');
@@ -3422,7 +3422,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:14
         -- New date:         2004-08-20 11:50:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:33:51
@@ -3448,7 +3448,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:05
         -- New date:         2004-11-08 07:05:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:05
@@ -3467,12 +3467,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-11-08 02:46:31
         -- New date:         2004-11-08 02:46:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-11-08 02:46:31
         -- New date:         2004-11-08 02:46:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2 from 5 to 0
         UPDATE `item_template` SET `stat_type2` = '0' WHERE (`entry` = '9513');
@@ -3486,7 +3486,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 14
         UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8592');
@@ -3498,7 +3498,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 03:30:03
         -- New date:         2004-11-08 03:30:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:03
@@ -3508,12 +3508,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-09-30 19:57:26
         -- New date:         2004-09-30 19:57:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-09-30 19:57:26
         -- New date:         2004-09-30 19:57:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Arcane Gloves to Zephyr Gloves
         UPDATE `item_template` SET `name` = 'Zephyr Gloves' WHERE (`entry` = '8287');
@@ -3531,7 +3531,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-17 11:43:07
         -- New date:         2004-07-17 11:43:07
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 18716 to 9518
         UPDATE `item_template` SET `display_id` = '9518' WHERE (`entry` = '9308');
@@ -3543,7 +3543,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-10 13:41:07
         -- New date:         2004-11-10 13:41:07
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-08 17:13:14
@@ -3558,12 +3558,12 @@ begin not atomic
         -- INVENTORY_TYPE
         -- Current date:     2004-08-21 10:31:18
         -- New date:         2004-08-21 10:31:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-21 10:31:18
         -- New date:         2004-08-21 10:31:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Royal Diplomatic Scepter to Royal Diplomatic Sceptre
         UPDATE `item_template` SET `name` = 'Royal Diplomatic Sceptre' WHERE (`entry` = '9457');
@@ -3583,7 +3583,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-20 11:14:41
         -- New date:         2004-08-20 11:14:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-11-08 19:19:58
@@ -3598,12 +3598,12 @@ begin not atomic
         -- INVENTORY_TYPE
         -- Current date:     2004-11-08 19:19:58
         -- New date:         2004-11-08 19:19:58
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-11-08 19:19:58
         -- New date:         2004-11-08 19:19:58
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Ebonclaw Reaver to Blackclaw
         UPDATE `item_template` SET `name` = 'Blackclaw' WHERE (`entry` = '1994');
@@ -3642,7 +3642,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 02:53:44
         -- New date:         2004-11-08 02:53:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 02:53:44
@@ -3652,7 +3652,7 @@ begin not atomic
         -- BLOCK
         -- Current date:     2004-09-23 00:18:29
         -- New date:         2004-09-23 00:18:29
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 26121 to 18821
         UPDATE `item_template` SET `display_id` = '18821' WHERE (`entry` = '9816');
@@ -3701,12 +3701,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-15 11:07:12
         -- New date:         2004-07-15 11:07:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-15 11:07:12
         -- New date:         2004-07-15 11:07:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19311 to 18607
         UPDATE `item_template` SET `display_id` = '18607' WHERE (`entry` = '9685');
@@ -3720,7 +3720,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-15 14:04:04
         -- New date:         2004-09-15 14:04:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4898');
@@ -3742,27 +3742,27 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-06-28 17:17:50
         -- New date:         2004-06-28 17:17:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-25 15:17:37
         -- New date:         2004-08-25 15:17:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-25 15:17:37
         -- New date:         2004-08-25 15:17:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2004-08-25 15:17:37
         -- New date:         2004-08-25 15:17:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-08-25 15:17:37
         -- New date:         2004-08-25 15:17:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE3
         -- Current date:     2004-09-23 15:40:50
@@ -3800,7 +3800,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-09-03 16:27:51
         -- New date:         2004-09-03 16:27:51
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 14
         UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8500');
@@ -3812,7 +3812,7 @@ begin not atomic
         -- ARMOR
         -- Current date:     2004-05-28 12:19:47
         -- New date:         2004-05-28 12:19:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 17 to 16
         UPDATE `item_template` SET `armor` = '16' WHERE (`entry` = '2109');
@@ -3824,7 +3824,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:01:29
         -- New date:         2005-03-22 21:01:29
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 2 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '5772');
@@ -3836,12 +3836,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-08 16:56:42
         -- New date:         2004-07-08 16:56:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-09-22 21:27:14
         -- New date:         2004-09-22 21:27:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-06-14 18:52:25
@@ -3851,12 +3851,12 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-10-01 02:27:06
         -- New date:         2004-10-01 02:27:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-10-01 02:27:06
         -- New date:         2004-10-01 02:27:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 18689 to 18384
         UPDATE `item_template` SET `display_id` = '18384' WHERE (`entry` = '9470');
@@ -3876,7 +3876,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-21 10:31:15
         -- New date:         2004-08-21 10:31:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:33:51
@@ -3935,7 +3935,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 18:16:43
         -- New date:         2004-11-08 18:16:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 18:16:43
@@ -3959,12 +3959,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-09-30 20:57:21
         -- New date:         2004-09-30 20:57:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-09-30 20:57:21
         -- New date:         2004-09-30 20:57:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 92 to 121
         UPDATE `item_template` SET `armor` = '121' WHERE (`entry` = '8298');
@@ -3993,7 +3993,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-20 23:23:38
         -- New date:         2004-07-20 23:23:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19492 to 1442
         UPDATE `item_template` SET `display_id` = '1442' WHERE (`entry` = '8838');
@@ -4005,7 +4005,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 07:05:04
         -- New date:         2004-11-08 07:05:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Sorcerer Sphere to Sorceress Sphere
         UPDATE `item_template` SET `name` = 'Sorceress Sphere' WHERE (`entry` = '9882');
@@ -4017,7 +4017,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:06
         -- New date:         2004-11-08 07:05:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:06
@@ -4036,7 +4036,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:48:34
         -- New date:         2005-03-22 21:48:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 2 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '2601');
@@ -4081,7 +4081,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-21 11:18:18
         -- New date:         2004-08-21 11:18:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:33:52
@@ -4124,7 +4124,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-22 21:27:14
         -- New date:         2004-09-22 21:27:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:01
@@ -4144,7 +4144,7 @@ begin not atomic
         -- STAT_VALUE3
         -- Current date:     2004-08-20 11:50:40
         -- New date:         2004-08-20 11:50:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Hibernal Cloak to Venomshroud Cloak
         UPDATE `item_template` SET `name` = 'Venomshroud Cloak' WHERE (`entry` = '8109');
@@ -4166,12 +4166,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-14 15:00:34
         -- New date:         2004-10-14 15:00:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-10-14 15:00:34
         -- New date:         2004-10-14 15:00:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 25 to 0
         UPDATE `item_template` SET `required_level` = '0' WHERE (`entry` = '6766');
@@ -4185,7 +4185,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 22:07:15
         -- New date:         2005-03-22 22:07:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '7452');
@@ -4197,12 +4197,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-24 15:15:48
         -- New date:         2004-08-24 15:15:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-09-29 00:42:23
         -- New date:         2004-09-29 00:42:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 22:09:46
@@ -4273,22 +4273,22 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Arcane Bands to Zephyr Bands
         UPDATE `item_template` SET `name` = 'Zephyr Bands' WHERE (`entry` = '8285');
@@ -4310,22 +4310,22 @@ begin not atomic
         -- SELL_PRICE
         -- Current date:     2004-10-08 01:10:06
         -- New date:         2004-10-08 01:10:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- BUY_PRICE
         -- Current date:     2004-10-08 01:10:06
         -- New date:         2004-10-08 01:10:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-08-25 15:17:37
         -- New date:         2004-08-25 15:17:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-08-25 15:17:37
         -- New date:         2004-08-25 15:17:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE from 0 to 7581
         UPDATE `item_template` SET `sell_price` = '7581' WHERE (`entry` = '8704');
@@ -4343,7 +4343,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-21 11:55:21
         -- New date:         2004-06-21 11:55:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4029');
@@ -4355,7 +4355,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2005-10-12 00:27:20
         -- New date:         2005-10-12 00:27:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 12
         UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2751');
@@ -4367,7 +4367,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:04:27
         -- New date:         2005-03-22 21:04:27
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '2407');
@@ -4411,7 +4411,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:05
         -- New date:         2004-11-08 03:30:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:05
@@ -4421,12 +4421,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 25711 to 16509
         UPDATE `item_template` SET `display_id` = '16509' WHERE (`entry` = '8201');
@@ -4444,7 +4444,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2005-08-22 00:36:01
         -- New date:         2005-08-22 00:36:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 2874 to 568
         UPDATE `item_template` SET `display_id` = '568' WHERE (`entry` = '8154');
@@ -4456,7 +4456,7 @@ begin not atomic
         -- NAME
         -- Current date:     2005-04-11 18:40:43
         -- New date:         2005-04-11 18:40:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-04-11 18:40:43
@@ -4466,12 +4466,12 @@ begin not atomic
         -- STAT_TYPE3
         -- Current date:     2005-04-11 18:40:43
         -- New date:         2005-04-11 18:40:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2005-04-11 18:40:43
         -- New date:         2005-04-11 18:40:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Arcane Boots to Zephyr Boots
         UPDATE `item_template` SET `name` = 'Zephyr Boots' WHERE (`entry` = '8284');
@@ -4489,12 +4489,12 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-08-22 12:15:53
         -- New date:         2004-08-22 12:15:53
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-28 19:42:35
         -- New date:         2004-09-28 19:42:35
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 3 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4407');
@@ -4527,7 +4527,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-05-28 12:19:45
         -- New date:         2004-05-28 12:19:45
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '1017');
@@ -4539,7 +4539,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-08 16:09:20
         -- New date:         2004-07-08 16:09:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:06
@@ -4584,7 +4584,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-06-28 15:59:16
         -- New date:         2004-06-28 15:59:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 18098 to 12421
         UPDATE `item_template` SET `display_id` = '12421' WHERE (`entry` = '7307');
@@ -4596,12 +4596,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-12 17:48:11
         -- New date:         2004-07-12 17:48:11
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE
         -- Current date:     2004-09-23 00:14:27
         -- New date:         2004-09-23 00:14:27
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19493 to 13489
         UPDATE `item_template` SET `display_id` = '13489' WHERE (`entry` = '8831');
@@ -4681,7 +4681,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2005-10-12 00:27:21
         -- New date:         2005-10-12 00:27:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 12
         UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2732');
@@ -4693,12 +4693,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-23 15:41:31
         -- New date:         2004-09-23 15:41:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-10-02 20:12:30
         -- New date:         2004-10-02 20:12:30
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-09-10 08:27:37
@@ -4776,7 +4776,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:14:15
         -- New date:         2005-03-22 21:14:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '7991');
@@ -4788,7 +4788,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-15 11:07:12
         -- New date:         2004-07-15 11:07:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:29:57
@@ -4807,17 +4807,17 @@ begin not atomic
         -- DMG_MAX1
         -- Current date:     2004-11-27 21:03:11
         -- New date:         2004-11-27 21:03:11
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-11-27 21:03:11
         -- New date:         2004-11-27 21:03:11
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-11-27 21:03:11
         -- New date:         2004-11-27 21:03:11
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1 from 12 to 11
         UPDATE `item_template` SET `dmg_max1` = '11' WHERE (`entry` = '6651');
@@ -4833,7 +4833,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:07:59
         -- New date:         2004-11-08 15:07:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:07:59
@@ -4852,7 +4852,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-10-07 18:12:40
         -- New date:         2004-10-07 18:12:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 5
         UPDATE `item_template` SET `stackable` = '5' WHERE (`entry` = '6250');
@@ -4864,12 +4864,12 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-10-01 02:27:13
         -- New date:         2004-10-01 02:27:13
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NATURE_RES
         -- Current date:     2004-08-20 11:51:01
         -- New date:         2004-08-20 11:51:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 0 to 5102
         UPDATE `item_template` SET `spellid_1` = '5102' WHERE (`entry` = '6723');
@@ -4917,32 +4917,32 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-09-24 06:47:34
         -- New date:         2004-09-24 06:47:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-09-24 06:47:34
         -- New date:         2004-09-24 06:47:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE3
         -- Current date:     2004-09-24 06:47:34
         -- New date:         2004-09-24 06:47:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-09-24 06:47:34
         -- New date:         2004-09-24 06:47:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE4
         -- Current date:     2004-09-24 06:47:34
         -- New date:         2004-09-24 06:47:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE4
         -- Current date:     2004-09-24 06:47:34
         -- New date:         2004-09-24 06:47:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Marbled Buckler to Gypsy Buckler
         UPDATE `item_template` SET `name` = 'Gypsy Buckler' WHERE (`entry` = '6725');
@@ -4970,7 +4970,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-09-23 00:14:28
         -- New date:         2004-09-23 00:14:28
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 16589 to 2600
         UPDATE `item_template` SET `spellid_1` = '2600' WHERE (`entry` = '8529');
@@ -4982,7 +4982,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-21 11:55:33
         -- New date:         2004-06-21 11:55:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '2466');
@@ -5004,12 +5004,12 @@ begin not atomic
         -- STAT_TYPE3
         -- Current date:     2004-08-20 10:23:57
         -- New date:         2004-08-20 10:23:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-08-20 10:23:57
         -- New date:         2004-08-20 10:23:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 23134 to 15099
         UPDATE `item_template` SET `display_id` = '15099' WHERE (`entry` = '9605');
@@ -5037,7 +5037,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-05 23:21:03
         -- New date:         2004-05-05 23:21:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 9 to 16
         UPDATE `item_template` SET `dmg_min1` = '16' WHERE (`entry` = '1394');
@@ -5053,12 +5053,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-06-21 11:55:34
         -- New date:         2004-06-21 11:55:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-06-21 11:55:34
         -- New date:         2004-06-21 11:55:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 24 to 16
         UPDATE `item_template` SET `required_level` = '16' WHERE (`entry` = '5509');
@@ -5072,7 +5072,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-28 18:19:28
         -- New date:         2004-09-28 18:19:28
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:12
@@ -5091,7 +5091,7 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-08-20 11:50:35
         -- New date:         2004-08-20 11:50:35
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-12-21 20:44:16
@@ -5101,12 +5101,12 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-08-20 11:50:35
         -- New date:         2004-08-20 11:50:35
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-08-20 11:50:35
         -- New date:         2004-08-20 11:50:35
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 2 to 3
         UPDATE `item_template` SET `dmg_min1` = '3' WHERE (`entry` = '8067');
@@ -5124,7 +5124,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-20 11:50:19
         -- New date:         2004-08-20 11:50:19
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Rugged Leather to Armored Leather
         UPDATE `item_template` SET `name` = 'Armored Leather' WHERE (`entry` = '8170');
@@ -5136,7 +5136,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:29
         -- New date:         2004-08-20 11:50:29
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-12-21 20:41:45
@@ -5155,7 +5155,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-12 09:57:01
         -- New date:         2004-07-12 09:57:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 19:25:06
@@ -5165,12 +5165,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 13:06:06
         -- New date:         2004-10-01 13:06:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 13:06:06
         -- New date:         2004-10-01 13:06:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 18901 to 16827
         UPDATE `item_template` SET `display_id` = '16827' WHERE (`entry` = '9536');
@@ -5188,7 +5188,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-10-07 18:12:40
         -- New date:         2004-10-07 18:12:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 5
         UPDATE `item_template` SET `stackable` = '5' WHERE (`entry` = '6252');
@@ -5200,7 +5200,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-29 11:52:07
         -- New date:         2004-09-29 11:52:07
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-04 02:55:11
@@ -5236,12 +5236,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-02 20:12:31
         -- New date:         2004-10-02 20:12:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-02 20:12:31
         -- New date:         2004-10-02 20:12:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 41 to 40
         UPDATE `item_template` SET `dmg_min1` = '40' WHERE (`entry` = '7946');
@@ -5259,7 +5259,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:00:23
         -- New date:         2004-11-08 15:00:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:00:23
@@ -5290,7 +5290,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-24 06:47:33
         -- New date:         2004-09-24 06:47:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 13496 to 1659
         UPDATE `item_template` SET `display_id` = '1659' WHERE (`entry` = '7909');
@@ -5302,7 +5302,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-10-13 10:34:29
         -- New date:         2004-10-13 10:34:29
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 1 to 20
         UPDATE `item_template` SET `stackable` = '20' WHERE (`entry` = '4846');
@@ -5314,7 +5314,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-09-11 02:33:42
         -- New date:         2004-09-11 02:33:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 0 to 4141
         UPDATE `item_template` SET `spellid_1` = '4141' WHERE (`entry` = '4519');
@@ -5336,7 +5336,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 10:24:00
         -- New date:         2004-08-20 10:24:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 44 to 65
         UPDATE `item_template` SET `dmg_min1` = '65' WHERE (`entry` = '9412');
@@ -5371,7 +5371,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-24 16:33:36
         -- New date:         2004-11-24 16:33:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Witherbark Skull to Witherbark Scalp
         UPDATE `item_template` SET `name` = 'Witherbark Scalp' WHERE (`entry` = '9320');
@@ -5383,7 +5383,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-23 13:36:42
         -- New date:         2004-06-23 13:36:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '2798');
@@ -5424,7 +5424,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:00:23
         -- New date:         2004-11-08 15:00:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:00:23
@@ -5443,12 +5443,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-10-07 18:12:40
         -- New date:         2004-10-07 18:12:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE
         -- Current date:     2004-10-07 18:12:40
         -- New date:         2004-10-07 18:12:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Scorpashi Venom to Lasher Venom
         UPDATE `item_template` SET `name` = 'Lasher Venom' WHERE (`entry` = '6248');
@@ -5462,22 +5462,22 @@ begin not atomic
         -- ARMOR
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 28 to 26
         UPDATE `item_template` SET `armor` = '26' WHERE (`entry` = '2274');
@@ -5507,17 +5507,17 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-21 11:31:48
         -- New date:         2004-09-21 11:31:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-09-21 11:31:48
         -- New date:         2004-09-21 11:31:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- FIRE_RES
         -- Current date:     2004-08-20 10:23:58
         -- New date:         2004-08-20 10:23:58
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 48 to 45
         UPDATE `item_template` SET `required_level` = '45' WHERE (`entry` = '5266');
@@ -5538,27 +5538,27 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-22 21:27:44
         -- New date:         2004-09-22 21:27:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-09-22 21:27:44
         -- New date:         2004-09-22 21:27:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- FIRE_RES
         -- Current date:     2004-08-20 11:14:44
         -- New date:         2004-08-20 11:14:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE3
         -- Current date:     2004-09-22 21:27:44
         -- New date:         2004-09-22 21:27:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-09-22 21:27:44
         -- New date:         2004-09-22 21:27:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 1135 to 1133
         UPDATE `item_template` SET `spellid_1` = '1133' WHERE (`entry` = '4696');
@@ -5580,17 +5580,17 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-10-02 20:12:31
         -- New date:         2004-10-02 20:12:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-10-02 20:12:31
         -- New date:         2004-10-02 20:12:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-10-02 20:12:31
         -- New date:         2004-10-02 20:12:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 35 to 34
         UPDATE `item_template` SET `dmg_min1` = '34' WHERE (`entry` = '5616');
@@ -5606,17 +5606,17 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-09 17:16:05
         -- New date:         2004-11-09 17:16:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-11-09 17:16:05
         -- New date:         2004-11-09 17:16:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2005-03-22 22:12:02
         -- New date:         2005-03-22 22:12:02
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Manual: Strong Anti-Venom to Formula: Strong Anti-Venom
         UPDATE `item_template` SET `name` = 'Formula: Strong Anti-Venom' WHERE (`entry` = '6454');
@@ -5632,7 +5632,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-09-08 04:13:44
         -- New date:         2004-09-08 04:13:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 14824 to 0
         UPDATE `item_template` SET `spellid_1` = '0' WHERE (`entry` = '3574');
@@ -5644,12 +5644,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-14 22:31:54
         -- New date:         2004-10-14 22:31:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-10-14 22:31:54
         -- New date:         2004-10-14 22:31:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 10 to 0
         UPDATE `item_template` SET `required_level` = '0' WHERE (`entry` = '5103');
@@ -5683,7 +5683,7 @@ begin not atomic
         -- ITEM_LEVEL
         -- Current date:     2004-10-12 13:13:33
         -- New date:         2004-10-12 13:13:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-10-12 13:13:33
@@ -5746,7 +5746,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-09-04 02:08:22
         -- New date:         2004-09-04 02:08:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 2 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4374');
@@ -5758,12 +5758,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-08-20 10:24:00
         -- New date:         2004-08-20 10:24:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-08-20 10:24:00
         -- New date:         2004-08-20 10:24:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 27 to 23
         UPDATE `item_template` SET `required_level` = '23' WHERE (`entry` = '9510');
@@ -5789,27 +5789,27 @@ begin not atomic
         -- ARMOR
         -- Current date:     2004-09-23 00:14:27
         -- New date:         2004-09-23 00:14:27
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2004-07-08 16:22:40
         -- New date:         2004-07-08 16:22:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-07-08 16:22:40
         -- New date:         2004-07-08 16:22:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-07-08 16:22:40
         -- New date:         2004-07-08 16:22:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-07-08 16:22:40
         -- New date:         2004-07-08 16:22:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 50 to 0
         UPDATE `item_template` SET `armor` = '0' WHERE (`entry` = '8663');
@@ -5888,7 +5888,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:20
         -- New date:         2004-08-20 11:50:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-09-23 00:14:26
@@ -5914,7 +5914,7 @@ begin not atomic
         -- ARMOR
         -- Current date:     2004-11-08 19:25:07
         -- New date:         2004-11-08 19:25:07
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 286 to 344
         UPDATE `item_template` SET `armor` = '344' WHERE (`entry` = '8309');
@@ -5952,12 +5952,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-01 02:33:52
         -- New date:         2004-10-01 02:33:52
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 02:33:52
         -- New date:         2004-10-01 02:33:52
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 65 to 73
         UPDATE `item_template` SET `armor` = '73' WHERE (`entry` = '6788');
@@ -5983,7 +5983,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 11:50:21
         -- New date:         2004-08-20 11:50:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 50 to 48
         UPDATE `item_template` SET `dmg_min1` = '48' WHERE (`entry` = '9378');
@@ -6039,7 +6039,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-07-17 18:13:55
         -- New date:         2004-07-17 18:13:55
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 6 to 5
         UPDATE `item_template` SET `subclass` = '5' WHERE (`entry` = '3989');
@@ -6051,12 +6051,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:04
         -- New date:         2004-11-08 07:05:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-10-01 02:27:20
         -- New date:         2004-10-01 02:27:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:04
@@ -6114,7 +6114,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 19:25:07
         -- New date:         2004-11-08 19:25:07
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 19:25:07
@@ -6147,7 +6147,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-28 19:42:35
         -- New date:         2004-09-28 19:42:35
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Long Elegant Feather to Long Gryphon Feather
         UPDATE `item_template` SET `name` = 'Long Gryphon Feather' WHERE (`entry` = '4589');
@@ -6159,7 +6159,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 09:47:03
         -- New date:         2004-11-08 09:47:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 09:47:03
@@ -6209,7 +6209,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:08:00
         -- New date:         2004-11-08 15:08:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:08:00
@@ -6297,7 +6297,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:05
         -- New date:         2004-11-08 07:05:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:05
@@ -6373,12 +6373,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2005-09-02 17:22:09
         -- New date:         2005-09-02 17:22:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-09-02 17:22:09
         -- New date:         2005-09-02 17:22:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 26324 to 18457
         UPDATE `item_template` SET `display_id` = '18457' WHERE (`entry` = '8313');
@@ -6392,7 +6392,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:06
         -- New date:         2004-11-08 03:30:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:06
@@ -6435,7 +6435,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-11-09 17:07:06
         -- New date:         2004-11-09 17:07:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 1287 to 187
         UPDATE `item_template` SET `armor` = '187' WHERE (`entry` = '9404');
@@ -6451,22 +6451,22 @@ begin not atomic
         -- SELL_PRICE
         -- Current date:     2004-09-24 06:47:32
         -- New date:         2004-09-24 06:47:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- BUY_PRICE
         -- Current date:     2004-09-24 06:47:32
         -- New date:         2004-09-24 06:47:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-02 19:03:36
         -- New date:         2004-09-02 19:03:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-09-02 19:03:36
         -- New date:         2004-09-02 19:03:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE from 0 to 8851
         UPDATE `item_template` SET `sell_price` = '8851' WHERE (`entry` = '8623');
@@ -6484,7 +6484,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:09:46
         -- New date:         2005-03-22 21:09:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '8029');
@@ -6496,7 +6496,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-20 23:30:34
         -- New date:         2004-06-20 23:30:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3901');
@@ -6569,7 +6569,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:00:22
         -- New date:         2004-11-08 15:00:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:00:22
@@ -6588,7 +6588,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-11 00:01:06
         -- New date:         2004-09-11 00:01:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4886');
@@ -6600,12 +6600,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-12-07 14:08:13
         -- New date:         2004-12-07 14:08:13
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Old Whistle of the Ivory Raptor to Whistle of the Ivory Raptor
         UPDATE `item_template` SET `name` = 'Whistle of the Ivory Raptor' WHERE (`entry` = '8589');
@@ -6624,7 +6624,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Brown Ram to Brown Ram Harness
         UPDATE `item_template` SET `name` = 'Brown Ram Harness' WHERE (`entry` = '5872');
@@ -6655,7 +6655,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-11-08 03:30:11
         -- New date:         2004-11-08 03:30:11
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:10
@@ -6670,7 +6670,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 11:50:42
         -- New date:         2004-08-20 11:50:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 22234 to 16150
         UPDATE `item_template` SET `display_id` = '16150' WHERE (`entry` = '7959');
@@ -6716,7 +6716,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 22:04:59
         -- New date:         2004-11-08 22:04:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-17 12:40:49
@@ -6792,7 +6792,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 19:25:10
         -- New date:         2004-11-08 19:25:10
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 19:25:10
@@ -6816,7 +6816,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-10-01 02:27:21
         -- New date:         2004-10-01 02:27:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 06:11:43
@@ -6852,12 +6852,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-09-23 15:40:49
         -- New date:         2004-09-23 15:40:49
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-09-23 15:40:49
         -- New date:         2004-09-23 15:40:49
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 136 to 193
         UPDATE `item_template` SET `dmg_min1` = '193' WHERE (`entry` = '2291');
@@ -6887,7 +6887,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-08 15:42:36
         -- New date:         2004-07-08 15:42:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 268 to 67
         UPDATE `item_template` SET `armor` = '67' WHERE (`entry` = '7927');
@@ -6941,7 +6941,7 @@ begin not atomic
         -- NAME
         -- Current date:     2005-08-18 20:53:23
         -- New date:         2005-08-18 20:53:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Worn Dragonscale to Dragonscale
         UPDATE `item_template` SET `name` = 'Dragonscale' WHERE (`entry` = '8165');
@@ -6953,7 +6953,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-21 11:55:26
         -- New date:         2004-06-21 11:55:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4053');
@@ -6965,7 +6965,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-21 11:55:20
         -- New date:         2004-06-21 11:55:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4278');
@@ -6977,7 +6977,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-20 18:08:42
         -- New date:         2004-08-20 18:08:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Wicked Claw to Wicked Sharp Talon
         UPDATE `item_template` SET `name` = 'Wicked Sharp Talon' WHERE (`entry` = '8146');
@@ -6989,7 +6989,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-05-28 12:19:47
         -- New date:         2004-05-28 12:19:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3728');
@@ -7001,7 +7001,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2005-05-21 17:15:16
         -- New date:         2005-05-21 17:15:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-05-21 17:15:16
@@ -7032,12 +7032,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 03:30:04
         -- New date:         2004-11-08 03:30:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:04
         -- New date:         2004-11-08 03:30:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:04
@@ -7052,12 +7052,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-09-23 00:14:28
         -- New date:         2004-09-23 00:14:28
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 02:27:08
         -- New date:         2004-10-01 02:27:08
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Alabaster Shield to Spectral Shield
         UPDATE `item_template` SET `name` = 'Spectral Shield' WHERE (`entry` = '8320');
@@ -7147,12 +7147,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-06-21 11:55:33
         -- New date:         2004-06-21 11:55:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-06-21 11:55:33
         -- New date:         2004-06-21 11:55:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 20 to 0
         UPDATE `item_template` SET `required_level` = '0' WHERE (`entry` = '2794');
@@ -7166,7 +7166,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:09:47
         -- New date:         2005-03-22 21:09:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '3873');
@@ -7183,17 +7183,17 @@ begin not atomic
         -- FIRE_RES
         -- Current date:     2004-08-20 10:24:00
         -- New date:         2004-08-20 10:24:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-09-30 20:57:25
         -- New date:         2004-09-30 20:57:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-09-30 20:57:25
         -- New date:         2004-09-30 20:57:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 118 to 43
         UPDATE `item_template` SET `armor` = '43' WHERE (`entry` = '8348');
@@ -7237,7 +7237,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:29:57
         -- New date:         2004-11-08 03:29:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:29:57
@@ -7256,7 +7256,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 11:17:26
         -- New date:         2004-11-08 11:17:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-06-14 18:52:36
@@ -7275,7 +7275,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:26:06
         -- New date:         2005-03-22 21:26:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '8028');
@@ -7287,12 +7287,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-22 15:23:50
         -- New date:         2004-08-22 15:23:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-11-08 04:19:37
         -- New date:         2004-11-08 04:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 04:19:37
@@ -7302,22 +7302,22 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-08-22 15:23:50
         -- New date:         2004-08-22 15:23:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-08-22 15:23:50
         -- New date:         2004-08-22 15:23:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-08-22 15:23:50
         -- New date:         2004-08-22 15:23:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-08-22 15:23:50
         -- New date:         2004-08-22 15:23:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Platemail Helm to Field Plate Helm
         UPDATE `item_template` SET `name` = 'Field Plate Helm' WHERE (`entry` = '8092');
@@ -7372,7 +7372,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:09:02
         -- New date:         2004-11-08 03:09:02
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-05-22 23:05:00
@@ -7404,17 +7404,17 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-08-20 11:14:41
         -- New date:         2004-08-20 11:14:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:14:41
         -- New date:         2004-08-20 11:14:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:14:41
         -- New date:         2004-08-20 11:14:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 3 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '7506');
@@ -7442,7 +7442,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-08-20 11:51:10
         -- New date:         2004-08-20 11:51:10
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 10 to 1
         UPDATE `item_template` SET `stackable` = '1' WHERE (`entry` = '9260');
@@ -7454,7 +7454,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-01 19:23:53
         -- New date:         2004-07-01 19:23:53
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 22:05:00
@@ -7464,7 +7464,7 @@ begin not atomic
         -- FIRE_RES
         -- Current date:     2004-08-30 16:50:40
         -- New date:         2004-08-30 16:50:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 16523 to 14067
         UPDATE `item_template` SET `display_id` = '14067' WHERE (`entry` = '7334');
@@ -7480,7 +7480,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-04 02:08:24
         -- New date:         2004-09-04 02:08:24
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Silithid Heart to Sillithid Heart
         UPDATE `item_template` SET `name` = 'Sillithid Heart' WHERE (`entry` = '5855');
@@ -7492,7 +7492,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-29 15:49:43
         -- New date:         2004-07-29 15:49:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4626');
@@ -7517,17 +7517,17 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-05-28 12:19:37
         -- New date:         2004-05-28 12:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-05-28 12:19:37
         -- New date:         2004-05-28 12:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:37
         -- New date:         2004-05-28 12:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 32 to 47
         UPDATE `item_template` SET `dmg_min1` = '47' WHERE (`entry` = '5626');
@@ -7548,12 +7548,12 @@ begin not atomic
         -- STAT_TYPE3
         -- Current date:     2004-10-01 02:27:06
         -- New date:         2004-10-01 02:27:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-10-01 02:27:06
         -- New date:         2004-10-01 02:27:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 94 to 35
         UPDATE `item_template` SET `armor` = '35' WHERE (`entry` = '9420');
@@ -7569,12 +7569,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-21 11:32:08
         -- New date:         2004-09-21 11:32:08
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2005-04-26 00:17:21
         -- New date:         2005-04-26 00:17:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2005-04-26 00:17:21
@@ -7589,12 +7589,12 @@ begin not atomic
         -- INVENTORY_TYPE
         -- Current date:     2005-04-26 00:17:21
         -- New date:         2005-04-26 00:17:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2005-04-26 00:17:21
         -- New date:         2005-04-26 00:17:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 22233 to 18306
         UPDATE `item_template` SET `display_id` = '18306' WHERE (`entry` = '9416');
@@ -7637,7 +7637,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-08 15:42:33
         -- New date:         2004-07-08 15:42:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 04:19:38
@@ -7652,12 +7652,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-08-20 10:26:39
         -- New date:         2004-08-20 10:26:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-08-20 10:26:39
         -- New date:         2004-08-20 10:26:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 18775 to 15419
         UPDATE `item_template` SET `display_id` = '15419' WHERE (`entry` = '7537');
@@ -7708,7 +7708,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-22 15:23:48
         -- New date:         2004-08-22 15:23:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-02 10:49:56
@@ -7738,12 +7738,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-11-08 04:19:36
         -- New date:         2004-11-08 04:19:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-11-08 04:19:36
         -- New date:         2004-11-08 04:19:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20348 to 18442
         UPDATE `item_template` SET `display_id` = '18442' WHERE (`entry` = '9517');
@@ -7769,7 +7769,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:30
         -- New date:         2004-08-20 11:50:30
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-09-22 21:27:14
@@ -7838,12 +7838,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-11-08 04:19:37
         -- New date:         2004-11-08 04:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-11-08 04:19:37
         -- New date:         2004-11-08 04:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 24 to 13
         UPDATE `item_template` SET `dmg_min1` = '13' WHERE (`entry` = '8184');
@@ -7866,7 +7866,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-07-08 15:42:35
         -- New date:         2004-07-08 15:42:35
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:02
@@ -7876,7 +7876,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-10-01 08:28:03
         -- New date:         2004-10-01 08:28:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 28987 to 16675
         UPDATE `item_template` SET `display_id` = '16675' WHERE (`entry` = '8345');
@@ -7942,7 +7942,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-23 19:49:10
         -- New date:         2004-09-23 19:49:10
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-09-23 19:49:10
@@ -7957,7 +7957,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-21 11:18:27
         -- New date:         2004-08-21 11:18:27
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 22220 to 18326
         UPDATE `item_template` SET `display_id` = '18326' WHERE (`entry` = '9425');
@@ -7975,17 +7975,17 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-21 11:31:46
         -- New date:         2004-09-21 11:31:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-09-21 11:31:46
         -- New date:         2004-09-21 11:31:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SHADOW_RES
         -- Current date:     2004-08-20 10:23:59
         -- New date:         2004-08-20 10:23:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 54 to 43
         UPDATE `item_template` SET `required_level` = '43' WHERE (`entry` = '1973');
@@ -8001,7 +8001,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:06
         -- New date:         2004-11-08 07:05:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-12-21 20:41:52
@@ -8020,7 +8020,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:14
         -- New date:         2004-08-20 11:50:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:33:51
@@ -8060,7 +8060,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-10-06 18:15:19
         -- New date:         2004-10-06 18:15:19
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 3 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4386');
@@ -8143,12 +8143,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 02:33:44
         -- New date:         2004-10-01 02:33:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 02:33:44
         -- New date:         2004-10-01 02:33:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 179 to 162
         UPDATE `item_template` SET `armor` = '162' WHERE (`entry` = '8306');
@@ -8185,7 +8185,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-07-14 17:12:25
         -- New date:         2004-07-14 17:12:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:07
@@ -8223,7 +8223,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:10:46
         -- New date:         2005-03-22 21:10:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '8395');
@@ -8247,7 +8247,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:18:14
         -- New date:         2005-03-22 21:18:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 2 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '6275');
@@ -8299,12 +8299,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-05 21:03:41
         -- New date:         2004-08-05 21:03:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Harness: Black Ram to Black Ram Harness
         UPDATE `item_template` SET `name` = 'Black Ram Harness' WHERE (`entry` = '5874');
@@ -8323,7 +8323,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from White Ram to White Ram Harness
         UPDATE `item_template` SET `name` = 'White Ram Harness' WHERE (`entry` = '5873');
@@ -8347,12 +8347,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 18:41:21
         -- New date:         2004-10-01 18:41:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 18:41:21
         -- New date:         2004-10-01 18:41:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 61 to 48
         UPDATE `item_template` SET `dmg_min1` = '48' WHERE (`entry` = '9490');
@@ -8382,7 +8382,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-20 11:51:03
         -- New date:         2004-08-20 11:51:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2005-02-15 14:01:41
@@ -8397,7 +8397,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-01 17:09:00
         -- New date:         2004-07-01 17:09:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Steelarrow Crossbow to Dark Iron Crossbow
         UPDATE `item_template` SET `name` = 'Dark Iron Crossbow' WHERE (`entry` = '6315');
@@ -8415,7 +8415,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-15 00:04:17
         -- New date:         2004-07-15 00:04:17
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '5848');
@@ -8432,7 +8432,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:06
         -- New date:         2004-11-08 07:05:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:06
@@ -8453,7 +8453,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-23 13:32:13
         -- New date:         2004-06-23 13:32:13
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '5675');
@@ -8465,7 +8465,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-27 15:33:11
         -- New date:         2004-07-27 15:33:11
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '2702');
@@ -8482,12 +8482,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-12 03:55:59
         -- New date:         2004-10-12 03:55:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-10-12 03:55:59
         -- New date:         2004-10-12 03:55:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 18104 to 0
         UPDATE `item_template` SET `spellid_1` = '0' WHERE (`entry` = '811');
@@ -8503,7 +8503,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 18:08:43
         -- New date:         2004-08-20 18:08:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 9408 to 498
         UPDATE `item_template` SET `spellid_1` = '498' WHERE (`entry` = '9393');
@@ -8515,7 +8515,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-12-21 20:44:16
         -- New date:         2004-12-21 20:44:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 28972 to 28971
         UPDATE `item_template` SET `display_id` = '28971' WHERE (`entry` = '9946');
@@ -8542,7 +8542,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 10:26:38
         -- New date:         2004-08-20 10:26:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 23264 to 16151
         UPDATE `item_template` SET `display_id` = '16151' WHERE (`entry` = '7960');
@@ -8560,7 +8560,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2004-09-03 16:27:50
         -- New date:         2004-09-03 16:27:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 14
         UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8497');
@@ -8572,22 +8572,22 @@ begin not atomic
         -- SELL_PRICE
         -- Current date:     2004-10-14 15:33:33
         -- New date:         2004-10-14 15:33:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- BUY_PRICE
         -- Current date:     2004-10-14 15:33:33
         -- New date:         2004-10-14 15:33:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-14 15:33:33
         -- New date:         2004-10-14 15:33:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-10-14 15:33:33
         -- New date:         2004-10-14 15:33:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE from 0 to 6851
         UPDATE `item_template` SET `sell_price` = '6851' WHERE (`entry` = '8705');
@@ -8605,12 +8605,12 @@ begin not atomic
         -- INVENTORY_TYPE
         -- Current date:     2004-07-06 21:24:37
         -- New date:         2004-07-06 21:24:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-07-06 21:24:37
         -- New date:         2004-07-06 21:24:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE from 13 to 21
         UPDATE `item_template` SET `inventory_type` = '21' WHERE (`entry` = '6360');
@@ -8629,22 +8629,22 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-09-30 20:57:21
         -- New date:         2004-09-30 20:57:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-09-30 20:57:21
         -- New date:         2004-09-30 20:57:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-09-30 20:57:21
         -- New date:         2004-09-30 20:57:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-09-30 20:57:21
         -- New date:         2004-09-30 20:57:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 82 to 93
         UPDATE `item_template` SET `armor` = '93' WHERE (`entry` = '8293');
@@ -8664,7 +8664,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-11 11:43:44
         -- New date:         2004-11-11 11:43:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-02 07:55:18
@@ -8679,12 +8679,12 @@ begin not atomic
         -- INVENTORY_TYPE
         -- Current date:     2004-11-11 11:43:44
         -- New date:         2004-11-11 11:43:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-11-11 11:43:44
         -- New date:         2004-11-11 11:43:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Skullcrusher Mace to Skullcrusher
         UPDATE `item_template` SET `name` = 'Skullcrusher' WHERE (`entry` = '1608');
@@ -8704,12 +8704,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 02:27:39
         -- New date:         2004-11-08 02:27:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-10-01 01:09:04
         -- New date:         2004-10-01 01:09:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 02:27:39
@@ -8730,7 +8730,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:14:43
         -- New date:         2004-08-20 11:14:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:07
@@ -8770,7 +8770,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-10-07 18:12:40
         -- New date:         2004-10-07 18:12:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Malem Pendant to A Malem Pendant
         UPDATE `item_template` SET `name` = 'A Malem Pendant' WHERE (`entry` = '6479');
@@ -8820,7 +8820,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-23 00:14:28
         -- New date:         2004-09-23 00:14:28
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:04
@@ -8840,12 +8840,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 02:33:44
         -- New date:         2004-10-01 02:33:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 02:33:44
         -- New date:         2004-10-01 02:33:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Ebonhold Leggings to Ebon Chain Leggings
         UPDATE `item_template` SET `name` = 'Ebon Chain Leggings' WHERE (`entry` = '8271');
@@ -8891,7 +8891,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2005-12-09 01:31:01
         -- New date:         2005-12-09 01:31:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 7 to 5
         UPDATE `item_template` SET `class_` = '5' WHERE (`entry` = '6522');
@@ -8903,7 +8903,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-08-31 18:33:21
         -- New date:         2004-08-31 18:33:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4513');
@@ -8925,7 +8925,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 11:50:19
         -- New date:         2004-08-20 11:50:19
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 21 to 20
         UPDATE `item_template` SET `dmg_min1` = '20' WHERE (`entry` = '9485');
@@ -8953,7 +8953,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-15 11:07:13
         -- New date:         2004-07-15 11:07:13
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 3918 to 2945
         UPDATE `item_template` SET `display_id` = '2945' WHERE (`entry` = '8723');
@@ -8965,7 +8965,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-10-07 18:12:40
         -- New date:         2004-10-07 18:12:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 5
         UPDATE `item_template` SET `stackable` = '5' WHERE (`entry` = '6251');
@@ -8977,7 +8977,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-05-09 18:26:10
         -- New date:         2005-05-09 18:26:10
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 5 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '6661');
@@ -8989,7 +8989,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-10-07 18:12:40
         -- New date:         2004-10-07 18:12:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 5
         UPDATE `item_template` SET `stackable` = '5' WHERE (`entry` = '6249');
@@ -9026,7 +9026,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2005-02-09 23:21:59
         -- New date:         2005-02-09 23:21:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19531 to 11207
         UPDATE `item_template` SET `display_id` = '11207' WHERE (`entry` = '8168');
@@ -9043,7 +9043,7 @@ begin not atomic
         -- BLOCK
         -- Current date:     2004-11-08 03:04:37
         -- New date:         2004-11-08 03:04:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 511 to 405
         UPDATE `item_template` SET `armor` = '405' WHERE (`entry` = '9804');
@@ -9057,7 +9057,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-08-20 11:50:22
         -- New date:         2004-08-20 11:50:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 3 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4403');
@@ -9069,7 +9069,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-14 17:12:25
         -- New date:         2004-07-14 17:12:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 08:28:01
@@ -9084,7 +9084,7 @@ begin not atomic
         -- STAT_VALUE3
         -- Current date:     2004-09-04 02:08:22
         -- New date:         2004-09-04 02:08:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19307 to 18446
         UPDATE `item_template` SET `display_id` = '18446' WHERE (`entry` = '9521');
@@ -9114,7 +9114,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-24 14:12:50
         -- New date:         2004-09-24 14:12:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-10-01 18:41:20
@@ -9124,12 +9124,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-09-24 14:12:50
         -- New date:         2004-09-24 14:12:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-09-24 14:12:50
         -- New date:         2004-09-24 14:12:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Lifestone to Lifestone Medallion
         UPDATE `item_template` SET `name` = 'Lifestone Medallion' WHERE (`entry` = '833');
@@ -9147,7 +9147,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-08-12 15:36:05
         -- New date:         2004-08-12 15:36:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 1 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3684');
@@ -9159,12 +9159,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 15:08:00
         -- New date:         2004-11-08 15:08:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:08:00
         -- New date:         2004-11-08 15:08:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Ivy Orb to Enchantress Orb
         UPDATE `item_template` SET `name` = 'Enchantress Orb' WHERE (`entry` = '9800');
@@ -9203,7 +9203,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 04:19:37
         -- New date:         2004-11-08 04:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 04:19:37
@@ -9276,7 +9276,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-21 11:51:48
         -- New date:         2004-06-21 11:51:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3014');
@@ -9288,7 +9288,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-24 09:02:58
         -- New date:         2004-08-24 09:02:58
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 18:41:21
@@ -9303,12 +9303,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 18:41:21
         -- New date:         2004-10-01 18:41:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 18:41:21
         -- New date:         2004-10-01 18:41:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20556 to 18329
         UPDATE `item_template` SET `display_id` = '18329' WHERE (`entry` = '9426');
@@ -9361,7 +9361,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-30 20:57:24
         -- New date:         2004-09-30 20:57:24
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-09-08 03:07:06
@@ -9380,7 +9380,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-20 23:23:38
         -- New date:         2004-07-20 23:23:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19498 to 7328
         UPDATE `item_template` SET `display_id` = '7328' WHERE (`entry` = '8836');
@@ -9397,12 +9397,12 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-11-08 04:19:37
         -- New date:         2004-11-08 04:19:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-08 15:50:26
         -- New date:         2004-07-08 15:50:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 355 to 65
         UPDATE `item_template` SET `armor` = '65' WHERE (`entry` = '7922');
@@ -9418,22 +9418,22 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-10-14 13:31:00
         -- New date:         2004-10-14 13:31:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-14 13:31:00
         -- New date:         2004-10-14 13:31:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-10-14 13:31:00
         -- New date:         2004-10-14 13:31:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-10-14 13:31:00
         -- New date:         2004-10-14 13:31:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20029 to 16128
         UPDATE `item_template` SET `display_id` = '16128' WHERE (`entry` = '9511');
@@ -9451,7 +9451,7 @@ begin not atomic
         -- ARMOR
         -- Current date:     2005-04-24 07:26:38
         -- New date:         2005-04-24 07:26:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 332 to 400
         UPDATE `item_template` SET `armor` = '400' WHERE (`entry` = '8303');
@@ -9463,7 +9463,7 @@ begin not atomic
         -- SELL_PRICE
         -- Current date:     2005-09-11 01:38:15
         -- New date:         2005-09-11 01:38:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE from 25 to 500
         UPDATE `item_template` SET `sell_price` = '500' WHERE (`entry` = '7228');
@@ -9487,7 +9487,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 20:59:19
         -- New date:         2005-03-22 20:59:19
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '8390');
@@ -9537,12 +9537,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-08 15:42:33
         -- New date:         2004-07-08 15:42:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-07-08 15:42:33
         -- New date:         2004-07-08 15:42:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 85 to 43
         UPDATE `item_template` SET `armor` = '43' WHERE (`entry` = '7531');
@@ -9577,7 +9577,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-29 18:27:53
         -- New date:         2004-07-29 18:27:53
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 5
         UPDATE `item_template` SET `stackable` = '5' WHERE (`entry` = '4522');
@@ -9613,12 +9613,12 @@ begin not atomic
         -- SELL_PRICE
         -- Current date:     2004-06-17 15:02:48
         -- New date:         2004-06-17 15:02:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE
         -- Current date:     2004-06-17 15:02:48
         -- New date:         2004-06-17 15:02:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE from 0 to 1
         UPDATE `item_template` SET `sell_price` = '1' WHERE (`entry` = '4703');
@@ -9644,7 +9644,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-24 09:02:50
         -- New date:         2004-08-24 09:02:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2005-10-22 11:19:41
@@ -9680,22 +9680,22 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-04 12:22:03
         -- New date:         2004-10-04 12:22:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-04 12:22:03
         -- New date:         2004-10-04 12:22:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-10-04 12:22:03
         -- New date:         2004-10-04 12:22:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-04 12:22:03
         -- New date:         2004-10-04 12:22:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 27 to 23
         UPDATE `item_template` SET `dmg_min1` = '23' WHERE (`entry` = '1959');
@@ -9717,7 +9717,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-15 14:04:04
         -- New date:         2004-09-15 14:04:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4897');
@@ -9729,7 +9729,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-16 21:50:09
         -- New date:         2004-06-16 21:50:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4495');
@@ -9741,7 +9741,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-05-25 13:47:18
         -- New date:         2004-05-25 13:47:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Tough Leather Pants to Hardened Leather Pants
         UPDATE `item_template` SET `name` = 'Hardened Leather Pants' WHERE (`entry` = '1808');
@@ -9753,7 +9753,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2005-08-08 00:50:33
         -- New date:         2005-08-08 00:50:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2005-09-08 11:54:00
@@ -9786,7 +9786,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-10-03 05:47:23
         -- New date:         2004-10-03 05:47:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Icepane Warhammer to Icebane Warhammer
         UPDATE `item_template` SET `name` = 'Icebane Warhammer' WHERE (`entry` = '2254');
@@ -9798,7 +9798,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-23 13:32:16
         -- New date:         2004-06-23 13:32:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '884');
@@ -9810,7 +9810,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 17:22:32
         -- New date:         2004-11-08 17:22:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 17:22:32
@@ -9829,7 +9829,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:08:00
         -- New date:         2004-11-08 15:08:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-09-23 22:09:51
@@ -9938,7 +9938,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-29 03:56:05
         -- New date:         2004-09-29 03:56:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-02 13:14:21
@@ -9964,7 +9964,7 @@ begin not atomic
         -- NAME
         -- Current date:     2005-08-18 20:53:22
         -- New date:         2005-08-18 20:53:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-08-18 20:53:22
@@ -9997,12 +9997,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-05 21:02:47
         -- New date:         2004-09-05 21:02:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE3
         -- Current date:     2004-09-05 21:02:47
         -- New date:         2004-09-05 21:02:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 15 to 10
         UPDATE `item_template` SET `required_level` = '10' WHERE (`entry` = '2166');
@@ -10016,7 +10016,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-07-08 15:42:33
         -- New date:         2004-07-08 15:42:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:15
@@ -10026,12 +10026,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-08 15:42:33
         -- New date:         2004-07-08 15:42:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-07-08 15:42:33
         -- New date:         2004-07-08 15:42:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Cabalist Chestpiece to Cabalist Breastplate
         UPDATE `item_template` SET `name` = 'Cabalist Breastplate' WHERE (`entry` = '7527');
@@ -10049,7 +10049,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:50
         -- New date:         2004-08-20 11:50:50
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-04-25 10:38:18
@@ -10059,12 +10059,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-09 08:52:19
         -- New date:         2004-07-09 08:52:19
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-07-09 08:52:19
         -- New date:         2004-07-09 08:52:19
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 21292 to 15549
         UPDATE `item_template` SET `display_id` = '15549' WHERE (`entry` = '7529');
@@ -10082,7 +10082,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-19 15:54:43
         -- New date:         2004-07-19 15:54:43
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '5437');
@@ -10099,12 +10099,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 18:41:21
         -- New date:         2004-10-01 18:41:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 18:41:21
         -- New date:         2004-10-01 18:41:21
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 146 to 49
         UPDATE `item_template` SET `armor` = '49' WHERE (`entry` = '9366');
@@ -10120,7 +10120,7 @@ begin not atomic
         -- STAT_TYPE3
         -- Current date:     2004-10-02 23:39:05
         -- New date:         2004-10-02 23:39:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE3 from 5 to 0
         UPDATE `item_template` SET `stat_type3` = '0' WHERE (`entry` = '8189');
@@ -10132,7 +10132,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-04-11 18:40:00
         -- New date:         2005-04-11 18:40:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '6045');
@@ -10181,7 +10181,7 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-05-28 12:19:40
         -- New date:         2004-05-28 12:19:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-08-24 15:15:51
@@ -10191,7 +10191,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:40
         -- New date:         2004-05-28 12:19:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 10 to 20
         UPDATE `item_template` SET `dmg_min1` = '20' WHERE (`entry` = '1958');
@@ -10207,7 +10207,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-05-09 17:24:29
         -- New date:         2004-05-09 17:24:29
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Rawhide Pants to Tough Leather Pants
         UPDATE `item_template` SET `name` = 'Tough Leather Pants' WHERE (`entry` = '1800');
@@ -10219,12 +10219,12 @@ begin not atomic
         -- SELL_PRICE
         -- Current date:     2004-08-20 10:26:36
         -- New date:         2004-08-20 10:26:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- BUY_PRICE
         -- Current date:     2004-07-08 16:09:20
         -- New date:         2004-07-08 16:09:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SELL_PRICE from 0 to 15852
         UPDATE `item_template` SET `sell_price` = '15852' WHERE (`entry` = '9362');
@@ -10243,12 +10243,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-12 13:13:33
         -- New date:         2004-10-12 13:13:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-10-12 13:13:33
         -- New date:         2004-10-12 13:13:33
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SHADOW_RES
         -- Current date:     2005-08-19 21:09:48
@@ -10258,12 +10258,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-01 02:27:15
         -- New date:         2004-10-01 02:27:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-08-22 12:15:45
         -- New date:         2004-08-22 12:15:45
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- BLOCK from 30 to 50
         UPDATE `item_template` SET `block` = '50' WHERE (`entry` = '1169');
@@ -10290,12 +10290,12 @@ begin not atomic
         -- BUY_PRICE
         -- Current date:     2004-06-21 11:55:23
         -- New date:         2004-06-21 11:55:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-06-21 11:55:23
         -- New date:         2004-06-21 11:55:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Raw Spotted Yellowtail to Raw Spotted Fin Yellowtail
         UPDATE `item_template` SET `name` = 'Raw Spotted Fin Yellowtail' WHERE (`entry` = '4603');
@@ -10356,42 +10356,42 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-12-12 08:19:59
         -- New date:         2004-12-12 08:19:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20032 to 18562
         UPDATE `item_template` SET `display_id` = '18562' WHERE (`entry` = '9379');
@@ -10436,12 +10436,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-10-07 21:49:39
         -- New date:         2004-10-07 21:49:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-10-07 21:49:39
         -- New date:         2004-10-07 21:49:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 30 to 0
         UPDATE `item_template` SET `required_level` = '0' WHERE (`entry` = '3706');
@@ -10455,7 +10455,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-20 23:30:34
         -- New date:         2004-06-20 23:30:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3509');
@@ -10510,12 +10510,12 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-11-08 19:51:10
         -- New date:         2004-11-08 19:51:10
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-11-08 19:51:10
         -- New date:         2004-11-08 19:51:10
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 14
         UPDATE `item_template` SET `subclass` = '14' WHERE (`entry` = '6196');
@@ -10531,7 +10531,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:04
         -- New date:         2004-11-08 03:30:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:04
@@ -10550,7 +10550,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-08-06 12:34:03
         -- New date:         2004-08-06 12:34:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 29 to 24
         UPDATE `item_template` SET `required_level` = '24' WHERE (`entry` = '1991');
@@ -10579,7 +10579,7 @@ begin not atomic
         -- NATURE_RES
         -- Current date:     2004-08-21 11:18:16
         -- New date:         2004-08-21 11:18:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2004-10-01 02:27:09
@@ -10607,7 +10607,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-28 17:19:54
         -- New date:         2004-09-28 17:19:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3714');
@@ -10619,7 +10619,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 02:27:37
         -- New date:         2004-11-08 02:27:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-10-05 17:08:36
@@ -10671,12 +10671,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-01 20:31:46
         -- New date:         2004-10-01 20:31:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 20:31:46
         -- New date:         2004-10-01 20:31:46
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1 from 7 to 1
         UPDATE `item_template` SET `stat_type1` = '1' WHERE (`entry` = '7559');
@@ -10700,12 +10700,12 @@ begin not atomic
         -- STAT_TYPE3
         -- Current date:     2004-10-01 08:28:05
         -- New date:         2004-10-01 08:28:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-10-01 08:28:05
         -- New date:         2004-10-01 08:28:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 127 to 122
         UPDATE `item_template` SET `dmg_min1` = '122' WHERE (`entry` = '812');
@@ -10735,7 +10735,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-08-28 01:42:13
         -- New date:         2005-08-28 01:42:13
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 3 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4415');
@@ -10785,7 +10785,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-15 11:07:12
         -- New date:         2004-07-15 11:07:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 18723 to 17493
         UPDATE `item_template` SET `display_id` = '17493' WHERE (`entry` = '8587');
@@ -10847,7 +10847,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 06:01:29
         -- New date:         2004-11-08 06:01:29
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 2616 to 1096
         UPDATE `item_template` SET `display_id` = '1096' WHERE (`entry` = '2290');
@@ -10859,12 +10859,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-22 21:27:24
         -- New date:         2004-09-22 21:27:24
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-10-01 02:27:20
         -- New date:         2004-10-01 02:27:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:05
@@ -10885,7 +10885,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-09-22 21:27:14
         -- New date:         2004-09-22 21:27:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-05-28 08:16:33
@@ -10916,7 +10916,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-05 21:02:44
         -- New date:         2004-09-05 21:02:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Dried Bat Blood to Bat Blood
         UPDATE `item_template` SET `name` = 'Bat Blood' WHERE (`entry` = '6293');
@@ -10947,7 +10947,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2005-09-08 12:04:30
         -- New date:         2005-09-08 12:04:30
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 5
         UPDATE `item_template` SET `stackable` = '5' WHERE (`entry` = '8683');
@@ -10959,22 +10959,22 @@ begin not atomic
         -- ARMOR
         -- Current date:     2004-04-19 11:36:42
         -- New date:         2004-04-19 11:36:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-04-19 11:36:42
         -- New date:         2004-04-19 11:36:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-04-19 11:36:42
         -- New date:         2004-04-19 11:36:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2004-04-19 11:36:42
         -- New date:         2004-04-19 11:36:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 14 to 13
         UPDATE `item_template` SET `armor` = '13' WHERE (`entry` = '6239');
@@ -10992,7 +10992,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-07-15 16:01:54
         -- New date:         2004-07-15 16:01:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Heavy Silken Thread to Mage Thread
         UPDATE `item_template` SET `name` = 'Mage Thread' WHERE (`entry` = '8343');
@@ -11004,7 +11004,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 23:10:09
         -- New date:         2005-03-22 23:10:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '6710');
@@ -11021,7 +11021,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 04:19:36
         -- New date:         2004-11-08 04:19:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-12-19 19:07:21
@@ -11071,12 +11071,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-01 02:27:15
         -- New date:         2004-10-01 02:27:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 02:27:15
         -- New date:         2004-10-01 02:27:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 260 to 65
         UPDATE `item_template` SET `armor` = '65' WHERE (`entry` = '943');
@@ -11125,7 +11125,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-10-13 10:11:20
         -- New date:         2004-10-13 10:11:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 24686 to 4720
         UPDATE `item_template` SET `display_id` = '4720' WHERE (`entry` = '7965');
@@ -11137,7 +11137,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-10-08 08:32:15
         -- New date:         2004-10-08 08:32:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 23754 to 13686
         UPDATE `item_template` SET `display_id` = '13686' WHERE (`entry` = '7076');
@@ -11149,7 +11149,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-19 15:13:00
         -- New date:         2004-07-19 15:13:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 8587 to 5531
         UPDATE `item_template` SET `display_id` = '5531' WHERE (`entry` = '1826');
@@ -11180,7 +11180,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:05
         -- New date:         2004-11-08 07:05:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 27777 to 12493
         UPDATE `item_template` SET `display_id` = '12493' WHERE (`entry` = '9840');
@@ -11211,17 +11211,17 @@ begin not atomic
         -- NAME
         -- Current date:     2004-08-20 11:50:32
         -- New date:         2004-08-20 11:50:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:32
         -- New date:         2004-08-20 11:50:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_
         -- Current date:     2004-08-20 11:50:32
         -- New date:         2004-08-20 11:50:32
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Tiny Crimson Whelpling to Tiny Crimson Whelping
         UPDATE `item_template` SET `name` = 'Tiny Crimson Whelping' WHERE (`entry` = '8499');
@@ -11284,12 +11284,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-07 23:59:41
         -- New date:         2004-07-07 23:59:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-07-07 23:59:41
         -- New date:         2004-07-07 23:59:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL from 1 to 0
         UPDATE `item_template` SET `required_level` = '0' WHERE (`entry` = '4851');
@@ -11303,7 +11303,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:15:44
         -- New date:         2005-03-22 21:15:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 2 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '5773');
@@ -11355,17 +11355,17 @@ begin not atomic
         -- NAME
         -- Current date:     2004-06-21 11:55:34
         -- New date:         2004-06-21 11:55:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-08-20 10:23:56
         -- New date:         2004-08-20 10:23:56
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE
         -- Current date:     2004-06-21 11:55:34
         -- New date:         2004-06-21 11:55:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Mechanical Squirrel Box to Mechanical Squirrel
         UPDATE `item_template` SET `name` = 'Mechanical Squirrel' WHERE (`entry` = '4401');
@@ -11381,7 +11381,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-10-01 18:41:20
         -- New date:         2004-10-01 18:41:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 9397 to 0
         UPDATE `item_template` SET `spellid_1` = '0' WHERE (`entry` = '862');
@@ -11412,7 +11412,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-20 23:23:38
         -- New date:         2004-07-20 23:23:38
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19494 to 18087
         UPDATE `item_template` SET `display_id` = '18087' WHERE (`entry` = '8846');
@@ -11429,12 +11429,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-29 03:56:06
         -- New date:         2004-09-29 03:56:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-09-29 03:56:06
         -- New date:         2004-09-29 03:56:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 137 to 38
         UPDATE `item_template` SET `armor` = '38' WHERE (`entry` = '7917');
@@ -11450,7 +11450,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-04 02:08:23
         -- New date:         2004-09-04 02:08:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 03:58:18
@@ -11465,12 +11465,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-10-01 03:58:18
         -- New date:         2004-10-01 03:58:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-10-01 03:58:18
         -- New date:         2004-10-01 03:58:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20602 to 6460
         UPDATE `item_template` SET `display_id` = '6460' WHERE (`entry` = '7116');
@@ -11490,7 +11490,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-19 15:13:00
         -- New date:         2004-07-19 15:13:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 17230 to 14312
         UPDATE `item_template` SET `display_id` = '14312' WHERE (`entry` = '7349');
@@ -11512,12 +11512,12 @@ begin not atomic
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:50:42
         -- New date:         2004-08-20 11:50:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:50:42
         -- New date:         2004-08-20 11:50:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 32 to 31
         UPDATE `item_template` SET `dmg_min1` = '31' WHERE (`entry` = '7942');
@@ -11535,12 +11535,12 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-10-24 03:05:57
         -- New date:         2004-10-24 03:05:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-10-24 03:05:57
         -- New date:         2004-10-24 03:05:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE1
         -- Current date:     2005-08-20 23:58:42
@@ -11611,7 +11611,7 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-05-28 12:19:48
         -- New date:         2004-05-28 12:19:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-08-22 12:15:53
@@ -11621,7 +11621,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:48
         -- New date:         2004-05-28 12:19:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 9 to 19
         UPDATE `item_template` SET `dmg_min1` = '19' WHERE (`entry` = '2265');
@@ -11700,22 +11700,22 @@ begin not atomic
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:50:20
         -- New date:         2004-08-20 11:50:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:50:20
         -- New date:         2004-08-20 11:50:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-10-05 11:03:24
         -- New date:         2004-10-05 11:03:24
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-05 11:03:24
         -- New date:         2004-10-05 11:03:24
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 33 to 39
         UPDATE `item_template` SET `dmg_min1` = '39' WHERE (`entry` = '9424');
@@ -11737,12 +11737,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-06-21 11:55:26
         -- New date:         2004-06-21 11:55:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-10 05:18:18
         -- New date:         2004-11-10 05:18:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-11-10 05:18:18
@@ -11752,12 +11752,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-11-10 05:18:18
         -- New date:         2004-11-10 05:18:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-11-10 05:18:18
         -- New date:         2004-11-10 05:18:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 17146 to 13653
         UPDATE `item_template` SET `display_id` = '13653' WHERE (`entry` = '7047');
@@ -11777,7 +11777,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-07-08 16:56:41
         -- New date:         2004-07-08 16:56:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:14
@@ -11838,7 +11838,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:37:00
         -- New date:         2005-03-22 21:37:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '8406');
@@ -11850,7 +11850,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:05
         -- New date:         2004-11-08 07:05:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:05
@@ -11869,7 +11869,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-22 17:08:06
         -- New date:         2004-06-22 17:08:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '5056');
@@ -11893,7 +11893,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-14 17:12:25
         -- New date:         2004-07-14 17:12:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3337');
@@ -11905,12 +11905,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 15:00:23
         -- New date:         2004-11-08 15:00:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 15:00:23
         -- New date:         2004-11-08 15:00:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 27807 to 18913
         UPDATE `item_template` SET `display_id` = '18913' WHERE (`entry` = '9893');
@@ -11929,7 +11929,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-12 17:48:12
         -- New date:         2004-07-12 17:48:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:10
@@ -11957,12 +11957,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 07:05:03
         -- New date:         2004-11-08 07:05:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:03
         -- New date:         2004-11-08 07:05:03
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:03
@@ -11983,17 +11983,17 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-28 17:19:56
         -- New date:         2004-09-28 17:19:56
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:51:01
         -- New date:         2004-08-20 11:51:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- INVENTORY_TYPE
         -- Current date:     2004-08-20 11:51:01
         -- New date:         2004-08-20 11:51:01
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Hillborne Axe to Axe of the Hills
         UPDATE `item_template` SET `name` = 'Axe of the Hills' WHERE (`entry` = '2080');
@@ -12009,7 +12009,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-15 11:07:12
         -- New date:         2004-07-15 11:07:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 19130 to 18606
         UPDATE `item_template` SET `display_id` = '18606' WHERE (`entry` = '9684');
@@ -12033,7 +12033,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 02:27:37
         -- New date:         2004-11-08 02:27:37
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 02:27:37
@@ -12064,7 +12064,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:42
         -- New date:         2004-08-20 11:50:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20874 to 13688
         UPDATE `item_template` SET `display_id` = '13688' WHERE (`entry` = '7068');
@@ -12095,7 +12095,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-15 11:07:12
         -- New date:         2004-07-15 11:07:12
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 3668 to 3347
         UPDATE `item_template` SET `display_id` = '3347' WHERE (`entry` = '9247');
@@ -12126,12 +12126,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-03 16:27:51
         -- New date:         2004-09-03 16:27:51
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_
         -- Current date:     2004-09-03 16:27:51
         -- New date:         2004-09-03 16:27:51
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20629 to 17284
         UPDATE `item_template` SET `display_id` = '17284' WHERE (`entry` = '8485');
@@ -12145,7 +12145,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-21 11:51:48
         -- New date:         2004-06-21 11:51:48
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '1013');
@@ -12157,7 +12157,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2005-04-18 05:19:17
         -- New date:         2005-04-18 05:19:17
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2005-12-30 17:21:26
@@ -12172,12 +12172,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-18 13:06:25
         -- New date:         2004-07-18 13:06:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-07-18 13:06:25
         -- New date:         2004-07-18 13:06:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 26591 to 18354
         UPDATE `item_template` SET `display_id` = '18354' WHERE (`entry` = '8178');
@@ -12197,7 +12197,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-07-08 15:50:26
         -- New date:         2004-07-08 15:50:26
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:11
@@ -12207,17 +12207,17 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 3
         UPDATE `item_template` SET `subclass` = '3' WHERE (`entry` = '7938');
@@ -12237,7 +12237,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-04-19 03:56:47
         -- New date:         2005-04-19 03:56:47
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 6 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '5640');
@@ -12249,7 +12249,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:06
         -- New date:         2004-11-08 07:05:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-08-26 07:13:56
@@ -12273,7 +12273,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-07-08 15:42:36
         -- New date:         2004-07-08 15:42:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 268 to 59
         UPDATE `item_template` SET `armor` = '59' WHERE (`entry` = '7919');
@@ -12287,7 +12287,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:05
         -- New date:         2004-11-08 07:05:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:05
@@ -12306,17 +12306,17 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-22 21:27:13
         -- New date:         2004-09-22 21:27:13
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:04
         -- New date:         2004-11-08 03:30:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-09-02 17:22:09
@@ -12339,27 +12339,27 @@ begin not atomic
         -- NAME
         -- Current date:     2004-09-29 03:56:06
         -- New date:         2004-09-29 03:56:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1
         -- Current date:     2004-10-06 01:16:56
         -- New date:         2004-10-06 01:16:56
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-29 03:56:06
         -- New date:         2004-09-29 03:56:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-09-29 03:56:06
         -- New date:         2004-09-29 03:56:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Whistle of the Mottled Red Raptor to Whistle of the Crimson Raptor
         UPDATE `item_template` SET `name` = 'Whistle of the Crimson Raptor' WHERE (`entry` = '8586');
@@ -12379,7 +12379,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:20
         -- New date:         2004-08-20 11:50:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:06
@@ -12394,7 +12394,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-07-08 15:42:34
         -- New date:         2004-07-08 15:42:34
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 20193 to 18309
         UPDATE `item_template` SET `display_id` = '18309' WHERE (`entry` = '9418');
@@ -12443,7 +12443,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-05-24 21:57:51
         -- New date:         2004-05-24 21:57:51
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-10-01 02:27:14
@@ -12476,7 +12476,7 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-06-10 15:35:45
         -- New date:         2004-06-10 15:35:45
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-08-24 15:15:51
@@ -12486,7 +12486,7 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-06-10 15:35:45
         -- New date:         2004-06-10 15:35:45
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 8 to 16
         UPDATE `item_template` SET `dmg_min1` = '16' WHERE (`entry` = '3223');
@@ -12502,7 +12502,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:04
         -- New date:         2004-11-08 03:30:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:04
@@ -12552,7 +12552,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:18:14
         -- New date:         2005-03-22 21:18:14
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 5 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '5528');
@@ -12574,12 +12574,12 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-04 02:08:23
         -- New date:         2004-09-04 02:08:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-09-04 02:08:23
         -- New date:         2004-09-04 02:08:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 8 to 12
         UPDATE `item_template` SET `dmg_min1` = '12' WHERE (`entry` = '8069');
@@ -12597,7 +12597,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:05
         -- New date:         2004-11-08 07:05:05
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:05
@@ -12621,12 +12621,12 @@ begin not atomic
         -- DMG_MAX1
         -- Current date:     2004-05-28 12:19:40
         -- New date:         2004-05-28 12:19:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:40
         -- New date:         2004-05-28 12:19:40
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 5 to 11
         UPDATE `item_template` SET `dmg_min1` = '11' WHERE (`entry` = '2260');
@@ -12642,12 +12642,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:29:57
         -- New date:         2004-11-08 03:29:57
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-10-01 02:33:51
         -- New date:         2004-10-01 02:33:51
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:29:57
@@ -12668,7 +12668,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:51:00
         -- New date:         2004-08-20 11:51:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 21583 to 13688
         UPDATE `item_template` SET `display_id` = '13688' WHERE (`entry` = '7077');
@@ -12680,7 +12680,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-09-25 21:26:58
         -- New date:         2004-09-25 21:26:58
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 23287 to 13688
         UPDATE `item_template` SET `display_id` = '13688' WHERE (`entry` = '7078');
@@ -12692,7 +12692,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-09 07:03:18
         -- New date:         2004-11-09 07:03:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-03-04 10:06:39
@@ -12711,7 +12711,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-15 14:04:04
         -- New date:         2004-09-15 14:04:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '4896');
@@ -12723,7 +12723,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-08-20 18:08:42
         -- New date:         2004-08-20 18:08:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-09 01:10:12
@@ -12742,7 +12742,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:04:36
         -- New date:         2004-11-08 03:04:36
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-12-21 20:41:52
@@ -12761,7 +12761,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-09 16:09:22
         -- New date:         2004-11-09 16:09:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Cracked Dragon Molting to Lesser Moonstone Shards
         UPDATE `item_template` SET `name` = 'Lesser Moonstone Shards' WHERE (`entry` = '3179');
@@ -12806,7 +12806,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-23 13:32:15
         -- New date:         2004-06-23 13:32:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '1130');
@@ -12830,7 +12830,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-09-08 11:59:31
         -- New date:         2005-09-08 11:59:31
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 6 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '9303');
@@ -12842,7 +12842,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-07-19 15:54:39
         -- New date:         2004-07-19 15:54:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '3254');
@@ -12854,7 +12854,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:06
         -- New date:         2004-11-08 07:05:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 07:05:06
@@ -12873,7 +12873,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-23 00:08:59
         -- New date:         2005-03-23 00:08:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 2 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4354');
@@ -12885,12 +12885,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-07-08 10:19:54
         -- New date:         2004-07-08 10:19:54
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2005-03-22 21:01:27
         -- New date:         2005-03-22 21:01:27
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Schematic: EZ-Thro Dynamite to Plans: EZ-Thro Dynamite
         UPDATE `item_template` SET `name` = 'Plans: EZ-Thro Dynamite' WHERE (`entry` = '6716');
@@ -12904,7 +12904,7 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 07:05:06
         -- New date:         2004-11-08 07:05:06
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-11-08 07:05:06
@@ -12930,7 +12930,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 21:20:41
         -- New date:         2005-03-22 21:20:41
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 5 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '5489');
@@ -12942,12 +12942,12 @@ begin not atomic
         -- DMG_MIN1
         -- Current date:     2004-10-15 00:25:04
         -- New date:         2004-10-15 00:25:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-10-15 00:25:04
         -- New date:         2004-10-15 00:25:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 108 to 125
         UPDATE `item_template` SET `dmg_min1` = '125' WHERE (`entry` = '9372');
@@ -12966,42 +12966,42 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-08-20 11:50:18
         -- New date:         2004-08-20 11:50:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-08-20 11:50:18
         -- New date:         2004-08-20 11:50:18
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE2
         -- Current date:     2004-10-01 20:08:16
         -- New date:         2004-10-01 20:08:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 20:08:16
         -- New date:         2004-10-01 20:08:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE3
         -- Current date:     2004-10-01 20:08:16
         -- New date:         2004-10-01 20:08:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-10-01 20:08:16
         -- New date:         2004-10-01 20:08:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE4
         -- Current date:     2004-10-01 20:08:16
         -- New date:         2004-10-01 20:08:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE4
         -- Current date:     2004-10-01 20:08:16
         -- New date:         2004-10-01 20:08:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 31 to 13
         UPDATE `item_template` SET `armor` = '13' WHERE (`entry` = '9491');
@@ -13039,12 +13039,12 @@ begin not atomic
         -- REQUIRED_LEVEL
         -- Current date:     2004-08-24 09:02:51
         -- New date:         2004-08-24 09:02:51
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ITEM_LEVEL
         -- Current date:     2004-08-24 09:02:51
         -- New date:         2004-08-24 09:02:51
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1 from 36 to 31
         UPDATE `item_template` SET `dmg_min1` = '31' WHERE (`entry` = '872');
@@ -13074,12 +13074,12 @@ begin not atomic
         -- NAME
         -- Current date:     2004-11-08 03:29:59
         -- New date:         2004-11-08 03:29:59
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID
         -- Current date:     2004-08-20 11:50:20
         -- New date:         2004-08-20 11:50:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2005-02-06 06:47:00
@@ -13173,22 +13173,22 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-09-30 20:57:23
         -- New date:         2004-09-30 20:57:23
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-08-20 10:26:39
         -- New date:         2004-08-20 10:26:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_TYPE3
         -- Current date:     2004-08-20 10:26:39
         -- New date:         2004-08-20 10:26:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE3
         -- Current date:     2004-08-20 10:26:39
         -- New date:         2004-08-20 10:26:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 96 to 53
         UPDATE `item_template` SET `armor` = '53' WHERE (`entry` = '9647');
@@ -13208,7 +13208,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-06-23 13:32:15
         -- New date:         2004-06-23 13:32:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '1598');
@@ -13220,7 +13220,7 @@ begin not atomic
         -- STACKABLE
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STACKABLE from 20 to 10
         UPDATE `item_template` SET `stackable` = '10' WHERE (`entry` = '6281');
@@ -13232,7 +13232,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-04-11 18:40:00
         -- New date:         2005-04-11 18:40:00
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 4 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '7989');
@@ -13244,7 +13244,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-04-19 04:10:25
         -- New date:         2005-04-19 04:10:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 1 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '7613');
@@ -13277,7 +13277,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2004-07-15 11:07:13
         -- New date:         2004-07-15 11:07:13
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-11 22:45:21
@@ -13348,7 +13348,7 @@ begin not atomic
         -- SPELLID_1
         -- Current date:     2004-08-20 10:26:39
         -- New date:         2004-08-20 10:26:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SPELLID_1 from 14537 to 9587
         UPDATE `item_template` SET `spellid_1` = '9587' WHERE (`entry` = '7734');
@@ -13360,7 +13360,7 @@ begin not atomic
         -- SUBCLASS
         -- Current date:     2005-03-22 23:35:15
         -- New date:         2005-03-22 23:35:15
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS from 5 to 0
         UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '5488');
@@ -13384,7 +13384,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2005-10-12 00:27:20
         -- New date:         2005-10-12 00:27:20
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 12
         UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2749');
@@ -13441,12 +13441,12 @@ begin not atomic
         -- STAT_TYPE1
         -- Current date:     2004-08-20 11:14:42
         -- New date:         2004-08-20 11:14:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE1
         -- Current date:     2004-08-20 11:14:42
         -- New date:         2004-08-20 11:14:42
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR from 126 to 60
         UPDATE `item_template` SET `armor` = '60' WHERE (`entry` = '9474');
@@ -13462,7 +13462,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-07-08 15:50:25
         -- New date:         2004-07-08 15:50:25
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:29:59
@@ -13493,7 +13493,7 @@ begin not atomic
         -- CLASS_
         -- Current date:     2005-10-12 00:27:22
         -- New date:         2005-10-12 00:27:22
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- CLASS_ from 15 to 12
         UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2728');
@@ -13505,12 +13505,12 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 02:27:39
         -- New date:         2004-11-08 02:27:39
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- SUBCLASS
         -- Current date:     2004-10-01 02:27:16
         -- New date:         2004-10-01 02:27:16
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 02:27:39
@@ -13544,22 +13544,22 @@ begin not atomic
         -- NAME
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MIN1
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DMG_MAX1
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- REQUIRED_LEVEL
         -- Current date:     2004-05-28 12:19:44
         -- New date:         2004-05-28 12:19:44
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- NAME from Umbral Mace to Grey Iron Mace
         UPDATE `item_template` SET `name` = 'Grey Iron Mace' WHERE (`entry` = '6982');
@@ -13628,7 +13628,7 @@ begin not atomic
         -- DISPLAY_ID
         -- Current date:     2004-11-08 03:30:04
         -- New date:         2004-11-08 03:30:04
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- ARMOR
         -- Current date:     2004-11-08 03:30:04
@@ -13638,12 +13638,12 @@ begin not atomic
         -- STAT_TYPE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- STAT_VALUE2
         -- Current date:     2004-10-01 02:27:09
         -- New date:         2004-10-01 02:27:09
-        -- Days diff: 0
+        -- Days diff: Unknown
 
         -- DISPLAY_ID from 27375 to 19870
         UPDATE `item_template` SET `display_id` = '19870' WHERE (`entry` = '8277');
