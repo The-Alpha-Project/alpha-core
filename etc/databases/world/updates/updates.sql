@@ -1658,6 +1658,14 @@ begin not atomic
         -- Missing item.
         INSERT INTO `item_template` (`entry`, `name`) VALUES ('6833', 'White Tuxedo Shirt');
 
+        -- Copper Vein.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5608.865', `spawn_positionY` = '-259.373', `spawn_positionZ` = '373.528' WHERE (`spawn_id` = '29576');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-554.417', `spawn_positionY` = '-232.681', `spawn_positionZ` = '364.0' WHERE (`spawn_id` = '29354');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5530.527', `spawn_positionY` = '-254.104', `spawn_positionZ` = '374.899' WHERE (`spawn_id` = '10223');
+
+        -- Chest.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5537.956', `spawn_positionY` = '-144.758', `spawn_positionZ` = '367.029' WHERE (`spawn_id` = '60123');
+
         -- Item: Heavy Mithril Shoulder
         -- Entry: 7918
 
