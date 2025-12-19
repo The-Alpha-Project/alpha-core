@@ -1652,6 +1652,9 @@ begin not atomic
     -- 17/12/2025 1
     if (select count(*) from applied_updates where id='171220251') = 0 then
      
+        -- Gnomish Toolbox.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-237.214', `spawn_positionY` = '-5304.138', `spawn_positionZ` = '-15.693' WHERE (`spawn_id` = '12418');
+
         -- Fix bart Tidewater wps. (Falling from Menethil Harbor)
         DELETE FROM creature_movement WHERE id = 9475;
         INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
