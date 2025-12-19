@@ -1652,6 +1652,10 @@ begin not atomic
     -- 17/12/2025 1
     if (select count(*) from applied_updates where id='171220251') = 0 then
         
+        -- Frostmane placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-6524.385', `position_y` = '702.039', `position_z` = '391.195', `orientation` = '4.655' WHERE (`spawn_id` = '932');
+
+        -- Missing item.
         INSERT INTO `item_template` (`entry`, `name`) VALUES ('6833', 'White Tuxedo Shirt');
 
         -- Item: Heavy Mithril Shoulder
