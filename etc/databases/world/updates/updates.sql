@@ -1652,8 +1652,26 @@ begin not atomic
     -- 17/12/2025 1
     if (select count(*) from applied_updates where id='171220251') = 0 then
      
-        -- Gnomish Toolbox.
+        -- Fix all Gnomish Toolboxes.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-237.214', `spawn_positionY` = '-5304.138', `spawn_positionZ` = '-15.693' WHERE (`spawn_id` = '12418');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '30.931', `spawn_positionY` = '-5375.034', `spawn_positionZ` = '-10.957' WHERE (`spawn_id` = '65910');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-81.718', `spawn_positionY` = '-5384.413', `spawn_positionZ` = '-18.662' WHERE (`spawn_id` = '12404');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-9.162' WHERE (`spawn_id` = '12407');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-25.715' WHERE (`spawn_id` = '12408');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-17.715' WHERE (`spawn_id` = '12409');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-20.008' WHERE (`spawn_id` = '12410');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '35.010', `spawn_positionY` = '-5369.168', `spawn_positionZ` = '-11.707' WHERE (`spawn_id` = '12411');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-15.987' WHERE (`spawn_id` = '12412');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-327.694', `spawn_positionY` = '-5257.269', `spawn_positionZ` = '-19.711' WHERE (`spawn_id` = '12413');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-299.008', `spawn_positionY` = '-5267.061', `spawn_positionZ` = '-10.097' WHERE (`spawn_id` = '12414');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-328.153', `spawn_positionY` = '-5264.120', `spawn_positionZ` = '-20.204' WHERE (`spawn_id` = '12415');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-175.524', `spawn_positionY` = '-5324.803', `spawn_positionZ` = '-24.218' WHERE (`spawn_id` = '12416');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-215.653', `spawn_positionY` = '-5310.200', `spawn_positionZ` = '-20.280' WHERE (`spawn_id` = '12417');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '193.828', `spawn_positionY` = '-5241.215', `spawn_positionZ` = '-19.067' WHERE (`spawn_id` = '12420');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-9.317' WHERE (`spawn_id` = '12421');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-75.232', `spawn_positionY` = '-5360.025', `spawn_positionZ` = '-23.855' WHERE (`spawn_id` = '12619');
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '-22.278' WHERE (`spawn_id` = '12620');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '35.777', `spawn_positionY` = '-5369.779', `spawn_positionZ` = '-11.586' WHERE (`spawn_id` = '65910');
 
         -- Fix bart Tidewater wps. (Falling from Menethil Harbor)
         DELETE FROM creature_movement WHERE id = 9475;
