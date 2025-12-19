@@ -43,6 +43,7 @@ class AreaTriggerHandler:
 
             area_trigger_teleport = WorldDatabaseManager.area_trigger_teleport_get_by_id(trigger_id)
             if not area_trigger_teleport:
+                Logger.warning(f'Area Trigger with id {trigger_id} not found in world database.')
                 return 0
 
             map_dbc = DbcDatabaseManager.map_get_by_id(area_trigger_teleport.target_map)
