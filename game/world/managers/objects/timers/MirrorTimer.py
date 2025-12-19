@@ -146,6 +146,9 @@ class MirrorTimer:
         if not (self.remaining == 0 and self.owner.health > 0):
             return
 
+        if self.owner.is_gm or self.owner.is_god:
+            return
+        
         damage = int(self.owner.max_health * dmg_multiplier)
         self.send_mirror_timer_damage(damage)
 
