@@ -1666,6 +1666,9 @@ begin not atomic
         -- Chest.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5537.956', `spawn_positionY` = '-144.758', `spawn_positionZ` = '367.029' WHERE (`spawn_id` = '60123');
 
+        -- Food Crate.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '410.911' WHERE (`spawn_id` = '24617');
+
         -- Item: Heavy Mithril Shoulder
         -- Entry: 7918
 
