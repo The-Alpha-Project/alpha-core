@@ -1698,7 +1698,7 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '-6524.385', `position_y` = '702.039', `position_z` = '391.195', `orientation` = '4.655' WHERE (`spawn_id` = '932');
 
         -- Missing item.
-        INSERT INTO `item_template` (`entry`, `name`) VALUES ('6833', 'White Tuxedo Shirt');
+        INSERT INTO `item_template` VALUES (6833,4,0,'White Tuxedo Shirt','',13115,1,0,1,2000,500,4,-1,-1,25,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,-1,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,1);
 
         -- Copper Vein.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5608.865', `spawn_positionY` = '-259.373', `spawn_positionZ` = '373.528' WHERE (`spawn_id` = '29576');
@@ -1875,15 +1875,15 @@ begin not atomic
         -- New date:         2004-10-14 17:33:41
         -- Days diff: Unknown
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
         -- Days diff: Unknown
 
         -- NAME from Old Whistle of the Obsidian Raptor to Whistle of the Obsidian Raptor
         UPDATE `item_template` SET `name` = 'Whistle of the Obsidian Raptor' WHERE (`entry` = '8590');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8590');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8590');
 
 
         -- Item: Barbaric Iron Helm
@@ -2240,13 +2240,13 @@ begin not atomic
         -- Item: Parrot Cage (Senegal)
         -- Entry: 8495
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-05 02:43:43
         -- New date:         2004-09-05 02:43:43
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8495');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8495');
 
 
         -- Item: Recipe: Hot Lion Chops
@@ -2264,7 +2264,7 @@ begin not atomic
         -- Item: Midnight Orb
         -- Entry: 1261
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-06-23 13:32:14
         -- New date:         2004-06-23 13:32:14
         -- Days diff: Unknown
@@ -2289,8 +2289,8 @@ begin not atomic
         -- New date:         2004-06-23 13:32:14
         -- Days diff: Unknown
 
-        -- CLASS_ from 12 to 0
-        UPDATE `item_template` SET `class_` = '0' WHERE (`entry` = '1261');
+        -- CLASS from 12 to 0
+        UPDATE `item_template` SET `class` = '0' WHERE (`entry` = '1261');
         -- SELL_PRICE from 0 to 270
         UPDATE `item_template` SET `sell_price` = '270' WHERE (`entry` = '1261');
         -- BUY_PRICE from 0 to 67
@@ -2937,7 +2937,7 @@ begin not atomic
         -- Days diff: 23
         -- Overrides WDB:                   3925
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-29 00:00:00
         -- New date:         2004-09-05 21:02:41
         -- Days diff: 23
@@ -2945,8 +2945,8 @@ begin not atomic
 
         -- NAME from Reins of the Striped Nightsaber to Reins of the Striped Panther
         UPDATE `item_template` SET `name` = 'Reins of the Striped Panther' WHERE (`entry` = '8629');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8629');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8629');
 
 
         -- Item: Gray Ram
@@ -2957,15 +2957,15 @@ begin not atomic
         -- New date:         2004-08-05 21:03:41
         -- Days diff: 64
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
         -- Days diff: Unknown
 
         -- NAME from Gray Ram to Gray Ram Harness
         UPDATE `item_template` SET `name` = 'Gray Ram Harness' WHERE (`entry` = '5864');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '5864');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '5864');
 
 
         -- Item: Champion's Armor
@@ -3169,7 +3169,7 @@ begin not atomic
         -- Days diff: 23
         -- Overrides WDB:                   3925
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-29 00:00:00
         -- New date:         2004-09-05 21:02:41
         -- Days diff: 23
@@ -3177,8 +3177,8 @@ begin not atomic
 
         -- NAME from Reins of the Striped Frostsaber to Reins of the Ivory Tiger
         UPDATE `item_template` SET `name` = 'Reins of the Ivory Tiger' WHERE (`entry` = '8631');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8631');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8631');
 
 
         -- Item: Crooked Staff
@@ -3209,7 +3209,7 @@ begin not atomic
         -- Days diff: 23
         -- Overrides WDB:                   3925
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-29 00:00:00
         -- New date:         2004-09-05 21:02:41
         -- Days diff: 23
@@ -3217,8 +3217,8 @@ begin not atomic
 
         -- NAME from Reins of the Spotted Frostsaber to Reins of the Snow Tiger
         UPDATE `item_template` SET `name` = 'Reins of the Snow Tiger' WHERE (`entry` = '8632');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8632');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8632');
 
 
         -- Item: Crushing Maul
@@ -3542,13 +3542,13 @@ begin not atomic
         -- Item: Whistle of the Violet Raptor
         -- Entry: 8592
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8592');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8592');
 
 
         -- Item: Arcane Gloves
@@ -3856,13 +3856,13 @@ begin not atomic
         -- Item: Great Horned Owl
         -- Entry: 8500
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-03 16:27:51
         -- New date:         2004-09-03 16:27:51
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8500');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8500');
 
 
         -- Item: Frostmane Chain Vest
@@ -4411,13 +4411,13 @@ begin not atomic
         -- Item: Green Hills of Stranglethorn - Page 27
         -- Entry: 2751
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2005-10-12 00:27:20
         -- New date:         2005-10-12 00:27:20
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 12
-        UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2751');
+        -- CLASS from 15 to 12
+        UPDATE `item_template` SET `class` = '12' WHERE (`entry` = '2751');
 
 
         -- Item: Pattern: White Leather Jerkin
@@ -4737,13 +4737,13 @@ begin not atomic
         -- Item: Green Hills of Stranglethorn - Page 8
         -- Entry: 2732
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2005-10-12 00:27:21
         -- New date:         2005-10-12 00:27:21
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 12
-        UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2732');
+        -- CLASS from 15 to 12
+        UPDATE `item_template` SET `class` = '12' WHERE (`entry` = '2732');
 
 
         -- Item: Blackmetal Cape
@@ -6661,15 +6661,15 @@ begin not atomic
         -- New date:         2004-12-07 14:08:13
         -- Days diff: Unknown
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
         -- Days diff: Unknown
 
         -- NAME from Old Whistle of the Ivory Raptor to Whistle of the Ivory Raptor
         UPDATE `item_template` SET `name` = 'Whistle of the Ivory Raptor' WHERE (`entry` = '8589');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8589');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8589');
 
 
         -- Item: Brown Ram
@@ -6680,15 +6680,15 @@ begin not atomic
         -- New date:         2004-08-05 21:03:41
         -- Days diff: 64
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
         -- Days diff: Unknown
 
         -- NAME from Brown Ram to Brown Ram Harness
         UPDATE `item_template` SET `name` = 'Brown Ram Harness' WHERE (`entry` = '5872');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '5872');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '5872');
 
 
         -- Item: Tough Scorpid Boots
@@ -8360,15 +8360,15 @@ begin not atomic
         -- New date:         2004-08-05 21:03:41
         -- Days diff: Unknown
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
         -- Days diff: Unknown
 
         -- NAME from Harness: Black Ram to Black Ram Harness
         UPDATE `item_template` SET `name` = 'Black Ram Harness' WHERE (`entry` = '5874');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '5874');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '5874');
 
 
         -- Item: White Ram
@@ -8379,15 +8379,15 @@ begin not atomic
         -- New date:         2004-08-05 21:03:41
         -- Days diff: 64
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-07 22:09:09
         -- New date:         2004-09-07 22:09:09
         -- Days diff: Unknown
 
         -- NAME from White Ram to White Ram Harness
         UPDATE `item_template` SET `name` = 'White Ram Harness' WHERE (`entry` = '5873');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '5873');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '5873');
 
 
         -- Item: Gizmotron Megachopper
@@ -8616,13 +8616,13 @@ begin not atomic
         -- Item: Rabbit Crate (Snowshoe)
         -- Entry: 8497
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-03 16:27:50
         -- New date:         2004-09-03 16:27:50
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8497');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8497');
 
 
         -- Item: OOX-22/FE Distress Beacon
@@ -8947,13 +8947,13 @@ begin not atomic
         -- Item: Deviate Fish
         -- Entry: 6522
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2005-12-09 01:31:01
         -- New date:         2005-12-09 01:31:01
         -- Days diff: Unknown
 
-        -- CLASS_ from 7 to 5
-        UPDATE `item_template` SET `class_` = '5' WHERE (`entry` = '6522');
+        -- CLASS from 7 to 5
+        UPDATE `item_template` SET `class` = '5' WHERE (`entry` = '6522');
 
 
         -- Item: Raptor Heart
@@ -11277,7 +11277,7 @@ begin not atomic
         -- New date:         2004-08-20 11:50:32
         -- Days diff: Unknown
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-08-20 11:50:32
         -- New date:         2004-08-20 11:50:32
         -- Days diff: Unknown
@@ -11286,8 +11286,8 @@ begin not atomic
         UPDATE `item_template` SET `name` = 'Tiny Crimson Whelping' WHERE (`entry` = '8499');
         -- DISPLAY_ID from 20655 to 18051
         UPDATE `item_template` SET `display_id` = '18051' WHERE (`entry` = '8499');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8499');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8499');
 
 
         -- Item: Manual Crowd Pummeler
@@ -12187,15 +12187,15 @@ begin not atomic
         -- New date:         2004-09-03 16:27:51
         -- Days diff: Unknown
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-03 16:27:51
         -- New date:         2004-09-03 16:27:51
         -- Days diff: Unknown
 
         -- DISPLAY_ID from 20629 to 17284
         UPDATE `item_template` SET `display_id` = '17284' WHERE (`entry` = '8485');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8485');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8485');
 
 
         -- Item: Iron Rivet
@@ -12400,7 +12400,7 @@ begin not atomic
         -- New date:         2004-09-29 03:56:06
         -- Days diff: Unknown
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2004-09-13 07:17:54
         -- New date:         2004-09-13 07:17:54
         -- Days diff: Unknown
@@ -12422,8 +12422,8 @@ begin not atomic
 
         -- NAME from Whistle of the Mottled Red Raptor to Whistle of the Crimson Raptor
         UPDATE `item_template` SET `name` = 'Whistle of the Crimson Raptor' WHERE (`entry` = '8586');
-        -- CLASS_ from 15 to 14
-        UPDATE `item_template` SET `class_` = '14' WHERE (`entry` = '8586');
+        -- CLASS from 15 to 14
+        UPDATE `item_template` SET `class` = '14' WHERE (`entry` = '8586');
         -- SPELLID_1 from 16084 to 10797
         UPDATE `item_template` SET `spellid_1` = '10797' WHERE (`entry` = '8586');
         -- REQUIRED_LEVEL from 60 to 40
@@ -13440,13 +13440,13 @@ begin not atomic
         -- Item: Green Hills of Stranglethorn - Page 25
         -- Entry: 2749
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2005-10-12 00:27:20
         -- New date:         2005-10-12 00:27:20
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 12
-        UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2749');
+        -- CLASS from 15 to 12
+        UPDATE `item_template` SET `class` = '12' WHERE (`entry` = '2749');
 
 
         -- Item: Jouster's Visor
@@ -13549,13 +13549,13 @@ begin not atomic
         -- Item: Green Hills of Stranglethorn - Page 4
         -- Entry: 2728
 
-        -- CLASS_
+        -- CLASS
         -- Current date:     2005-10-12 00:27:22
         -- New date:         2005-10-12 00:27:22
         -- Days diff: Unknown
 
-        -- CLASS_ from 15 to 12
-        UPDATE `item_template` SET `class_` = '12' WHERE (`entry` = '2728');
+        -- CLASS from 15 to 12
+        UPDATE `item_template` SET `class` = '12' WHERE (`entry` = '2728');
 
 
         -- Item: Warmonger's Cloak

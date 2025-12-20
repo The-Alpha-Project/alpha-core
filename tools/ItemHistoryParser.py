@@ -103,7 +103,7 @@ class ItemHistoryParser:
                     item_classes = ItemHistoryParser.extract_value(lines, FieldNames.itemclass, parse_int=True)
                     for val in item_classes:
                         if item_template.class_ == val.new:
-                            ItemHistoryParser.update(entry, item_template.name, item_template.class_, item_classes, val.date, 'class_')
+                            ItemHistoryParser.update(entry, item_template.name, item_template.class_, item_classes, val.date, 'class')
                             break
 
                     item_sub_classes = ItemHistoryParser.extract_value(lines, FieldNames.itemsubclass, parse_int=True)
