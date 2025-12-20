@@ -388,6 +388,10 @@ class DbcDatabaseManager:
             return None
 
         @staticmethod
+        def spell_has_skill_line_ability(spell_id) -> bool:
+            return len(DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)) > 0
+
+        @staticmethod
         def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_, gm=False):
             skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
             if not skill_line_abilities:

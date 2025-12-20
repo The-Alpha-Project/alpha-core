@@ -65,12 +65,12 @@ class TrainerUtils:
                 spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
-            skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
-                spell.ID, player_mgr.race, player_mgr.class_, player_mgr.is_gm)
-
-            # Spell is not available to player.
-            if not skill_line_ability:
-                continue
+            if DbcDatabaseManager.SkillLineAbilityHolder.spell_has_skill_line_ability(spell.ID):
+                skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+                    spell.ID, player_mgr.race, player_mgr.class_, player_mgr.is_gm)
+                # Spell is not available to player.
+                if not skill_line_ability:
+                    continue
 
             # Skill step.
             skill_step: int = 0
