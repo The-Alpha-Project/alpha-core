@@ -13,10 +13,10 @@ PET_FOLLOW_ANGLE = math.pi / 2
 
 
 class PetMovement(BaseMovement):
-
     def __init__(self, spline_callback, is_default):
         super().__init__(move_type=MoveType.PET, spline_callback=spline_callback, is_default=is_default)
         self.follow_state: PetMoveState = PetMoveState.AT_HOME
+        self.home_position = None
         self.stay_position = None
         self.pet_range_move = None
         self._is_lagging = False
