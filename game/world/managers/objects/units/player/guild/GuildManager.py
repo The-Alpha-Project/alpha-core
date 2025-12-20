@@ -22,6 +22,34 @@ class GuildManager:
         self.members = {}
         self.guild_master = None
 
+    @staticmethod
+    def extract_real_guild_id(composite_guild_id):
+        # Extract the original local guild ID from a composite ID sent by the client.
+        return composite_guild_id & 0x00FFFFFF
+
+    @staticmethod
+    def extract_realm_id(composite_guild_id):
+        # Extract the realm ID from a composite ID (useful for validation).
+        return composite_guild_id >> 24
+
+    @staticmethod
+    def build_composite_guild_id(guild_id):
+        return (config.Server.Connection.Realm.local_realm_id << 24) | guild_id
+
+    def get_composite_guild_id(self):
+        # We generate a composite guild id based on realm_id + real guild_id to prevent WDB cache clashes as explained
+        # in https://github.com/The-Alpha-Project/alpha-core/issues/1609#issuecomment-3675838463
+        # Assuming realm IDs are small (e.g., 1-255), shifting left by 24 bits leaves plenty of room for local IDs
+        # (up to ~16 million per realm).
+        #
+        # Examples:
+        # REALM    GUILD ID    CALCULATION        COMPOSITE ID (dec)    COMPOSITE ID (hex)
+        # -----    --------    -----------        ------------------    ------------------
+        # Brill    1           (1 << 24) | 1      16,777,217            0x01000001
+        # Brill    2           (1 << 24) | 2      16,777,218            0x01000002
+        # Tel'Abim 1           (2 << 24) | 1      33,554,433            0x02000001
+        return (self.guild.realm_id << 24) | self.guild.guild_id
+
     def load_guild_members(self):
         members = RealmDatabaseManager.guild_get_members(self.guild)
 
@@ -300,7 +328,7 @@ class GuildManager:
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, 0)
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0, force)
         else:
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild.guild_id)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, self.get_composite_guild_id())
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.members[player_mgr.guid].rank)
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0, force)  # Format creation_data
 
@@ -319,7 +347,7 @@ class GuildManager:
         self.build_update(player_mgr, unset=False, force=True)
 
     def build_guild_query(self):
-        data = pack('<I', self.guild.guild_id)
+        data = pack('<I', self.get_composite_guild_id())
 
         name_bytes = PacketWriter.string_to_bytes(self.guild.name)
         data += pack(f'<{len(name_bytes)}s', name_bytes)

@@ -16,7 +16,7 @@ class CorpseManager(ObjectManager):
         self.owner = owner
         self.map_id = owner.map_id
         self.instance_id = owner.instance_id
-        self.guild_id = owner.guild_manager.guild.guild_id if owner.guild_manager else 0
+        self.guild_id = owner.guild_manager.get_composite_guild_id() if owner.guild_manager else 0
         self.location = owner.location.copy()
         self.current_scale = owner.current_scale
         self.native_display_id = owner.native_display_id
