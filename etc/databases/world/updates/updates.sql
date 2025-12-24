@@ -13716,6 +13716,37 @@ begin not atomic
         insert into applied_updates values ('171220251');
     end if;
 
+    -- 23/12/2025 1
+    if (select count(*) from applied_updates where id='231220251') = 0 then
+        -- Fix Engineering items.
+        UPDATE `item_template` SET `display_id` = '7435' WHERE (`entry` = '4358');
+        UPDATE `item_template` SET `display_id` = '7435' WHERE (`entry` = '4378');
+        UPDATE `item_template` SET `display_id` = '7435' WHERE (`entry` = '10507');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4358');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4378');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4367');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4398');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4370');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4406');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4375');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4376');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4381');
+        UPDATE `item_template` SET `subclass` = '0' WHERE (`entry` = '4388');
+
+        -- Bandages.
+        UPDATE `item_template` SET `spellid_1` = '746', `spellcharges_1` = '-1', `spellcooldown_1` = '60000', `spellcategory_1` = '150', `spellcategorycooldown_1` = '60000' WHERE (`entry` = '1251');
+        UPDATE `item_template` SET `spellid_1` = '1159', `spellcharges_1` = '-1', `spellcooldown_1` = '60000', `spellcategory_1` = '150', `spellcategorycooldown_1` = '60000' WHERE (`entry` = '2581');
+
+        -- Burning War Axe.
+        UPDATE `item_template` SET `spellid_1` = '7711', `spellcharges_1` = '-1' WHERE (`entry` = '2299');
+
+        insert into applied_updates values ('231220251');
+    end if;
+
+
+
+
+
 
 end $
 delimiter ;
