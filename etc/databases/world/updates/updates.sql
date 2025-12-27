@@ -13869,7 +13869,7 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7227', `spawn_positionY` = '-813.303', `spawn_positionZ` = '-2.444' WHERE (`spawn_id` = '24253');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7293.99', `spawn_positionY` = '-1007.82', `spawn_positionZ` = '14.1899' WHERE (`spawn_id` = '68491');
 
-        -- Clamps.
+        -- Clams.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7190.36', `spawn_positionY` = '-801.884', `spawn_positionZ` = '-6.08355' WHERE (`spawn_id` = '48046');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7168.23', `spawn_positionY` = '-770.48', `spawn_positionZ` = '-5.91007' WHERE (`spawn_id` = '48047');
 
