@@ -13788,6 +13788,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '87148');
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '87152');
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '87151');
+        
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1614
+        UPDATE `areatrigger_teleport` SET `target_position_x` = '7200', `target_position_y` = '-838', `target_position_z` = '-2' WHERE (`id` = '259');
 
         insert into applied_updates values ('231220251');
     end if;
