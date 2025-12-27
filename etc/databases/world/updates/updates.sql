@@ -13791,6 +13791,8 @@ begin not atomic
         
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1614
         UPDATE `areatrigger_teleport` SET `target_position_x` = '7200', `target_position_y` = '-838', `target_position_z` = '-2', `target_orientation` = '1.69' WHERE (`id` = '259');
+        UPDATE `worldports` SET `x` = '7200', `y` = '-838', `z` = '-2', `o` = '4.60' WHERE (`entry` = '116');
+        UPDATE `worldports` SET `x` = '7200', `y` = '-838', `z` = '-2', `o` = '4.60' WHERE (`entry` = '115');
 
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1615
         UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7329.976', `position_y` = '-926.581', `position_z` = '26.886', `ignored` = '0' WHERE (`spawn_id` = '33285');
@@ -13826,6 +13828,50 @@ begin not atomic
         UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7225.653', `position_y` = '-869.667', `position_z` = '3.192', `ignored` = '0' WHERE (`spawn_id` = '38974');
         UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7162.353', `position_y` = '-987.953', `position_z` = '5.219', `ignored` = '0' WHERE (`spawn_id` = '38976');
         UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7154.26', `position_y` = '-976.811', `position_z` = '5.219', `ignored` = '0' WHERE (`spawn_id` = '38977');
+
+        -- Sapphire of Aku'Mai.
+        UPDATE `gameobject_template` SET `displayId` = '219' WHERE (`entry` = '178186');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7170.637', `spawn_positionY` = '-835.637', `spawn_positionZ` = '-4.33', `ignored` = '0' WHERE (`spawn_id` = '47700');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7207.226', `spawn_positionY` = '-820.836', `spawn_positionZ` = '-4.359', `ignored` = '0' WHERE (`spawn_id` = '47701');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7194.21', `spawn_positionY` = '-822.588', `spawn_positionZ` = '-2.327', `ignored` = '0' WHERE (`spawn_id` = '47702');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7240.419', `spawn_positionY` = '-801.943', `spawn_positionZ` = '-0.804', `ignored` = '0' WHERE (`spawn_id` = '47703');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7242.694', `spawn_positionY` = '-796.015', `spawn_positionZ` = '-0.703', `ignored` = '0' WHERE (`spawn_id` = '12597');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7218.879', `spawn_positionY` = '-856.85', `spawn_positionZ` = '1.475', `ignored` = '0' WHERE (`spawn_id` = '12680');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7230.974', `spawn_positionY` = '-889.777', `spawn_positionZ` = '8.922', `ignored` = '0' WHERE (`spawn_id` = '12737');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7207.672', `spawn_positionY` = '-922.717', `spawn_positionZ` = '19.06', `ignored` = '0' WHERE (`spawn_id` = '12971');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7188.083', `spawn_positionY` = '-969.881', `spawn_positionZ` = '9.085', `ignored` = '0' WHERE (`spawn_id` = '12974');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7143.786', `spawn_positionY` = '-1009.911', `spawn_positionZ` = '1.745', `ignored` = '0' WHERE (`spawn_id` = '12975');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7150.199', `spawn_positionY` = '-978.224', `spawn_positionZ` = '1.997', `ignored` = '0' WHERE (`spawn_id` = '12976');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7134.333', `spawn_positionY` = '-972.33', `spawn_positionZ` = '1.834', `ignored` = '0' WHERE (`spawn_id` = '47704');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7172.979', `spawn_positionY` = '-1008.211', `spawn_positionZ` = '8.581', `ignored` = '0' WHERE (`spawn_id` = '47705');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7215.15', `spawn_positionY` = '-1031.327', `spawn_positionZ` = '5.573', `ignored` = '0' WHERE (`spawn_id` = '47706');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7204.904', `spawn_positionY` = '-990.651', `spawn_positionZ` = '12.862', `ignored` = '0' WHERE (`spawn_id` = '48527');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7258.449', `spawn_positionY` = '-992.256', `spawn_positionZ` = '15.103', `ignored` = '0' WHERE (`spawn_id` = '66114');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7290.677', `spawn_positionY` = '-987.456', `spawn_positionZ` = '12.206', `ignored` = '0' WHERE (`spawn_id` = '66117');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7323.686', `spawn_positionY` = '-1011.742', `spawn_positionZ` = '8.448', `ignored` = '0' WHERE (`spawn_id` = '12607');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7353.294', `spawn_positionY` = '-1004.24', `spawn_positionZ` = '4.619', `ignored` = '0' WHERE (`spawn_id` = '12608');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7344.894', `spawn_positionY` = '-979.081', `spawn_positionZ` = '5.518', `ignored` = '0' WHERE (`spawn_id` = '12633');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7339.358', `spawn_positionY` = '-936.26', `spawn_positionZ` = '-5.943', `ignored` = '0' WHERE (`spawn_id` = '12970');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7361.472', `spawn_positionY` = '-946.255', `spawn_positionZ` = '-2.422', `ignored` = '0' WHERE (`spawn_id` = '12973');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7232.584', `spawn_positionY` = '-1088.886', `spawn_positionZ` = '-2.906', `ignored` = '0' WHERE (`spawn_id` = '12977');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7236.339', `spawn_positionY` = '-1071.187', `spawn_positionZ` = '-1.655', `ignored` = '0' WHERE (`spawn_id` = '47708');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7231.96', `spawn_positionY` = '-1029.418', `spawn_positionZ` = '5.442', `ignored` = '0' WHERE (`spawn_id` = '47709');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7202.164', `spawn_positionY` = '-1047.757', `spawn_positionZ` = '0.243', `ignored` = '0' WHERE (`spawn_id` = '47710');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7206.83', `spawn_positionY` = '-1054.763', `spawn_positionZ` = '3.452', `ignored` = '0' WHERE (`spawn_id` = '47711');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7187.108', `spawn_positionY` = '-1056.761', `spawn_positionZ` = '3.699', `ignored` = '0' WHERE (`spawn_id` = '55103');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7221.238', `spawn_positionY` = '-873.562', `spawn_positionZ` = '4.657', `ignored` = '0' WHERE (`spawn_id` = '55104');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7228.259', `spawn_positionY` = '-806.796', `spawn_positionZ` = '-2.275', `ignored` = '0' WHERE (`spawn_id` = '55105');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7269.82', `spawn_positionY` = '-816.293', `spawn_positionZ` = '-6.59', `ignored` = '0' WHERE (`spawn_id` = '55106');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7254.73', `spawn_positionY` = '-829.8', `spawn_positionZ` = '-1.72', `ignored` = '0' WHERE (`spawn_id` = '55191');
+
+        -- Bruiseweed.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7232.22', `spawn_positionY` = '-912.841', `spawn_positionZ` = '15.0677' WHERE (`spawn_id` = '68490');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7227', `spawn_positionY` = '-813.303', `spawn_positionZ` = '-2.444' WHERE (`spawn_id` = '68497');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7293.99', `spawn_positionY` = '-1007.82', `spawn_positionZ` = '14.1899' WHERE (`spawn_id` = '68491');
+
+        -- Clamps.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7190.36', `spawn_positionY` = '-801.884', `spawn_positionZ` = '-6.08355' WHERE (`spawn_id` = '48046');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7168.23', `spawn_positionY` = '-770.48', `spawn_positionZ` = '-5.91007' WHERE (`spawn_id` = '48047');
 
         insert into applied_updates values ('231220251');
     end if;
