@@ -13792,6 +13792,41 @@ begin not atomic
         -- https://github.com/The-Alpha-Project/alpha-core/issues/1614
         UPDATE `areatrigger_teleport` SET `target_position_x` = '7200', `target_position_y` = '-838', `target_position_z` = '-2', `target_orientation` = '1.69' WHERE (`id` = '259');
 
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1615
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7329.976', `position_y` = '-926.581', `position_z` = '26.886', `ignored` = '0' WHERE (`spawn_id` = '33285');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7330.661', `position_y` = '-956.526', `position_z` = '21.355', `ignored` = '0' WHERE (`spawn_id` = '33286');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7361.977', `position_y` = '-956.526', `position_z` = '15.8', `ignored` = '0' WHERE (`spawn_id` = '33287');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7360.347', `position_y` = '-924.597', `position_z` = '10.244', `ignored` = '0' WHERE (`spawn_id` = '33288');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7331.168', `position_y` = '-969.052', `position_z` = '1.274', `ignored` = '0' WHERE (`spawn_id` = '33289');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7345.075', `position_y` = '-956.467', `position_z` = '-2.549', `ignored` = '0' WHERE (`spawn_id` = '33290');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7335.171', `position_y` = '-994.75', `position_z` = '4.594', `ignored` = '0' WHERE (`spawn_id` = '33291');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7337.593', `position_y` = '-1014.914', `position_z` = '5.07', `ignored` = '0' WHERE (`spawn_id` = '33292');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4803', `position_x` = '7324.585', `position_y` = '-1006.85', `position_z` = '7.31', `ignored` = '0' WHERE (`spawn_id` = '33293');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7307.925', `position_y` = '-998.504', `position_z` = '10.407', `ignored` = '0' WHERE (`spawn_id` = '33294');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7291.623', `position_y` = '-1003.646', `position_z` = '13.72', `ignored` = '0' WHERE (`spawn_id` = '33295');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7264.027', `position_y` = '-985.447', `position_z` = '14.062', `ignored` = '0' WHERE (`spawn_id` = '33296');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7242.308', `position_y` = '-986.236', `position_z` = '12.419', `ignored` = '0' WHERE (`spawn_id` = '33297');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7215.997', `position_y` = '-1001.37', `position_z` = '8.272', `ignored` = '0' WHERE (`spawn_id` = '33298');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7218.884', `position_y` = '-1023.406', `position_z` = '5.734', `ignored` = '0' WHERE (`spawn_id` = '33299');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7186.713', `position_y` = '-1018.934', `position_z` = '6.373', `ignored` = '0' WHERE (`spawn_id` = '33300');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7172.797', `position_y` = '-976.058', `position_z` = '7.43', `ignored` = '0' WHERE (`spawn_id` = '33302');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7220.33', `position_y` = '-1024.405', `position_z` = '5.534', `ignored` = '0' WHERE (`spawn_id` = '33303');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7181.906', `position_y` = '-966.99', `position_z` = '8.068', `ignored` = '0' WHERE (`spawn_id` = '33304');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7198.093', `position_y` = '-952.203', `position_z` = '13.206', `ignored` = '0' WHERE (`spawn_id` = '33305');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7210.375', `position_y` = '-933.342', `position_z` = '19.135', `ignored` = '0' WHERE (`spawn_id` = '33306');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7215.71', `position_y` = '-903.382', `position_z` = '13.826', `ignored` = '0' WHERE (`spawn_id` = '33307');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7234.793', `position_y` = '-876.929', `position_z` = '5.612', `ignored` = '0' WHERE (`spawn_id` = '33308');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7226.869', `position_y` = '-847.338', `position_z` = '1.036', `ignored` = '0' WHERE (`spawn_id` = '33309');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7238.033', `position_y` = '-830.053', `position_z` = '-0.934', `ignored` = '0' WHERE (`spawn_id` = '33310');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7261.411', `position_y` = '-822.074', `position_z` = '-6.646', `ignored` = '0' WHERE (`spawn_id` = '33311');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7228.346', `position_y` = '-817.803', `position_z` = '-2.083', `ignored` = '0' WHERE (`spawn_id` = '33312');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7200.409', `position_y` = '-832.39', `position_z` = '-3.295', `ignored` = '0' WHERE (`spawn_id` = '38665');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7197.827', `position_y` = '-809.274', `position_z` = '-5.784', `ignored` = '0' WHERE (`spawn_id` = '38666');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7234.529', `position_y` = '-853.076', `position_z` = '1.142', `ignored` = '0' WHERE (`spawn_id` = '38808');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7225.653', `position_y` = '-869.667', `position_z` = '3.192', `ignored` = '0' WHERE (`spawn_id` = '38974');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7162.353', `position_y` = '-987.953', `position_z` = '5.219', `ignored` = '0' WHERE (`spawn_id` = '38976');
+        UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7154.26', `position_y` = '-976.811', `position_z` = '5.219', `ignored` = '0' WHERE (`spawn_id` = '38977');
+
         insert into applied_updates values ('231220251');
     end if;
 
