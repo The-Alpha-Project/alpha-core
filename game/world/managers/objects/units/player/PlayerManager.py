@@ -540,7 +540,7 @@ class PlayerManager(UnitManager):
                 pending_teleport.destination_location.z,
                 pending_teleport.destination_location.o,
                 self.pitch,
-                MoveFlags.MOVEFLAG_NONE
+                MoveFlags.MOVEFLAG_NONE if not self.collision_cheat else MoveFlags.MOVEFLAG_DONTCOLLIDE
             )
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_TELEPORT_ACK, data))
