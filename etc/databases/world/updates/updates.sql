@@ -13866,7 +13866,7 @@ begin not atomic
 
         -- Bruiseweed.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7232.22', `spawn_positionY` = '-912.841', `spawn_positionZ` = '15.0677' WHERE (`spawn_id` = '68490');
-        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7227', `spawn_positionY` = '-813.303', `spawn_positionZ` = '-2.444' WHERE (`spawn_id` = '68497');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7227', `spawn_positionY` = '-813.303', `spawn_positionZ` = '-2.444' WHERE (`spawn_id` = '24253');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7293.99', `spawn_positionY` = '-1007.82', `spawn_positionZ` = '14.1899' WHERE (`spawn_id` = '68491');
 
         -- Clamps.
