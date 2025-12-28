@@ -55,10 +55,10 @@ setup-all: ## Run config, db-setup, and up
 	$(MAKE) up
 
 external_db: ## Switch to external DB and disable local sql
-	@set -a; . ./.env; set +a; python3 tools/external_db.py
+	@set -a; . ./.env; set +a; python3 etc/docker/external_db.py
 
 internal_db: ## Switch to local sql and enable localdb profile
-	@set -a; . ./.env; set +a; python3 tools/internal_db.py
+	@set -a; . ./.env; set +a; python3 etc/docker/internal_db.py
 ##@ [Database]
 db-create: build-utility db-start-local db-user ## Create databases
 	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/create_databases.sh

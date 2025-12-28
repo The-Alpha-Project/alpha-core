@@ -19,6 +19,8 @@
 
 ## ⚙️ Configuration
 
+For Docker Compose + Makefile usage, see `README.docker.md`.
+
 1. In `etc/config`, create a copy of `config.yml.dist` and rename it to `config.yml`.  
    Edit the file as needed for your setup.
 

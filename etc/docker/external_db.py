@@ -1,3 +1,5 @@
+"""Switch .env + config.yml to use external database settings."""
+
 import os
 import sys
 from pathlib import Path
