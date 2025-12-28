@@ -1,34 +1,115 @@
 
 DOCKER_COMPOSE_FILE ?= docker-compose.yml
+DOCKER_COMPOSE ?= set -a; . ./.env; set +a; docker compose -f $(DOCKER_COMPOSE_FILE)
+UTILITY := utility
 
 # Well documented Makefiles
 DEFAULT_GOAL := help
 
 help:
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-40s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+	@echo "Available commands:"
+	@echo ""
+	@echo "=== Setup ==="
+	@echo "  make config              - Install default config to alpha-core"
+	@echo "  make setup-all           - Run config, db-setup, and up"
+	@echo "  make external_db         - Switch to external DB and disable local sql"
+	@echo "  make internal_db         - Switch to local sql and enable localdb profile"
+	@echo ""
+	@echo "=== Database ==="
+	@echo "  make db-user             - Create DB user (if not root)"
+	@echo "  make db-create           - Create databases"
+	@echo "  make db-drop             - Drop databases"
+	@echo "  make db-populate         - Populate databases (schema only)"
+	@echo "  make db-update           - Apply database updates"
+	@echo "  make db-setup            - Create, populate, then update databases"
+	@echo "  make db-backup           - Backup databases (optional BACKUP=folder)"
+	@echo "  make db-restore          - Restore databases (optional BACKUP=folder)"
+	@echo ""
+	@echo "=== Docker ==="
+	@echo "  make up                  - Build and start all containers"
+	@echo "  make start               - Start all containers"
+	@echo "  make stop                - Stop all containers (not dev)"
+	@echo "  make restart             - Restart all containers (not dev)"
+	@echo "  make down                - Stop and remove containers (not dev)"
+	@echo "  make build-utility       - Build utility image"
+	@echo "  make connect <name>      - Connect to container"
+	@echo "  make list                - List running containers"
+	@echo ""
+	@echo "=== Logs ==="
+	@echo "  make log <name>          - Show container log"
+	@echo "  make logs                - Show all containers logs"
 
 ##@ [Run Firsttime]
+.PHONY: config
 config: ## Install default config to alpha-core
-	cp etc/config/config.yml.dist etc/config/config.yml
+	@if [ -e etc/config/config.yml ] && [ ! -w etc/config/config.yml ]; then \
+		echo "etc/config/config.yml is not writable; run: sudo chown $$USER:$$USER etc/config/config.yml"; \
+		exit 1; \
+	fi
+	@cp etc/config/config.yml.dist etc/config/config.yml
+	@echo "Config installed to etc/config/config.yml"
+
+setup-all: ## Run config, db-setup, and up
+	$(MAKE) config
+	$(MAKE) db-setup
+	$(MAKE) up
+
+external_db: ## Switch to external DB and disable local sql
+	@set -a; . ./.env; set +a; python3 tools/external_db.py
+
+internal_db: ## Switch to local sql and enable localdb profile
+	@set -a; . ./.env; set +a; python3 tools/internal_db.py
+##@ [Database]
+db-create: build-utility db-start-local db-user ## Create databases
+	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/create_databases.sh
+
+db-drop: build-utility db-start-local ## Drop databases
+	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/drop_databases.sh
+
+db-populate: build-utility db-start-local ## Populate databases (schema only)
+	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/populate_databases.sh
+
+db-update: build-utility db-start-local ## Apply database updates
+	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/update_databases.sh
+
+db-setup: ## Create, populate, then update databases
+	$(MAKE) db-create
+	$(MAKE) db-populate
+	$(MAKE) db-update
+
+db-backup: build-utility db-start-local ## Backup databases (optional BACKUP=folder)
+	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/backup_db.sh
+
+db-restore: build-utility db-start-local ## Restore databases (optional BACKUP=folder)
+	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/restore_db.sh
 
 ##@ [Docker]
+build-utility: ## Build utility image
+	$(DOCKER_COMPOSE) build $(UTILITY)
+
+db-user: build-utility db-start-local ## Create DB user (if not root)
+	$(DOCKER_COMPOSE) run --rm $(UTILITY) /bin/commands/create_db_user.sh
+
+db-start-local: ## Start local sql if MYSQL_HOST=sql
+	@set -a; . ./.env; set +a; \
+	if [ "$$MYSQL_HOST" = "sql" ] || [ "$$MYSQL_HOST" = "127.0.0.1" ] || [ "$$MYSQL_HOST" = "localhost" ]; then \
+		$(DOCKER_COMPOSE) up -d sql; \
+	fi
+
 up: ## Build and start all containers
-	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+	$(DOCKER_COMPOSE) up -d
 
 start: ## Start all containers
-	docker compose -f $(DOCKER_COMPOSE_FILE) start
+	$(DOCKER_COMPOSE) start
 
 stop: ## Stop all containers (not dev)
-	docker compose -f $(DOCKER_COMPOSE_FILE) stop
+	$(DOCKER_COMPOSE) stop
 
 restart: ## Restart all containers (not dev)
-	docker compose -f $(DOCKER_COMPOSE_FILE) restart
+	$(DOCKER_COMPOSE) restart
 
 down: ## Stop and remove containers (not dev)
-	docker compose -f $(DOCKER_COMPOSE_FILE) down
-
-build: ## Just build all docker images
-	docker compose -f $(DOCKER_COMPOSE_FILE) build
+	$(DOCKER_COMPOSE) down
 
 connect: ## Connect to container. usage: make connect <container>
 	docker exec -it $(filter-out $@,$(MAKECMDGOALS)) /bin/sh
@@ -37,22 +118,8 @@ list: ## List all runnning containers
 	docker ps -a --format="table {{.Names}}\t{{.Image}}\t{{.Status}}"
 
 ##@ [Logs]
-log: ## show one contaienr log. usage: make log <container>
+log: ## show one contaienr log. usage: make log <contai ner>
 	docker logs $(filter-out $@,$(MAKECMDGOALS)) -f
 
-all-logs: ## Show all containers logs
-	docker-compose logs -f
- 
-##@ [Profiles: dev]
-up-dev: ## Build and start dev profile with PhpMyAdmin, Inotify (run it after make up)
-	docker compose -f $(DOCKER_COMPOSE_FILE) --profile dev up -d
-
-start-dev: ## Start built containers in dev profile
-	docker start alpha-core-phpmyadmin-1 alpha-core-inotify-1
-	
-stop-dev: ## Stop built containers in dev profile
-	docker stop alpha-core-phpmyadmin-1 alpha-core-inotify-1
-
-down-dev: ## Stop and remove dev profile containers
-	docker stop alpha-core-phpmyadmin-1 alpha-core-inotify-1
-	docker rm alpha-core-phpmyadmin-1 alpha-core-inotify-1
+logs: ## Show all containers logs
+	$(DOCKER_COMPOSE) logs -f

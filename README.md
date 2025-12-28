@@ -47,19 +47,15 @@
 > host: 127.0.0.1
 > ```
 
-5. In `etc/databases`, run `create_databases.sql` with a root (or equivalent) user. This creates:
-   - User: `alphapython`
-   - Databases: `alpha_auth`, `alpha_realm`, `alpha_world`, `alpha_dbc`
-
-> [!NOTE]  
-> If you're using Docker and want to use the `alphapython` user, you may need to change
-> `'alphapython'@'localhost'` to `'alphapython'@'IPv4OfYourDockerContainer'` in `create_databases.sql`
-> if you encounter permission errors.
+5. Create the databases using the utility scripts:
+   - `make db-create`
+   - Uses `.env` values (`MYSQL_USERNAME`, `MYSQL_PASSWORD`, `DB_PREFIX`)
+   - Creates `${DB_PREFIX}auth`, `${DB_PREFIX}realm`, `${DB_PREFIX}world`, `${DB_PREFIX}dbc`
 
 6. Each folder (`auth`, `dbc`, `realm`, `world`) in `etc/databases` contains:
    - Base SQL files
    - Updates in the `/updates` subfolder  
-     Example: `dbc/updates` should be applied to the `alpha_dbc` database.
+     Example: `dbc/updates` should be applied to the `${DB_PREFIX}dbc` database.
 
 ---
 
@@ -82,6 +78,8 @@
 - Minimum requirements:
   - [Docker](https://www.docker.com/products/docker-desktop/) `19.03+`
   - `docker-compose` `1.28+` (install with `pip3 install docker-compose` if needed)
+
+See `README.docker.md` for Docker Compose and Makefile workflows.
 
 - Start the containers:
   ```bash

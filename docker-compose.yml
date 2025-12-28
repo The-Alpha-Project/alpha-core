@@ -1,25 +1,34 @@
-version: '3.9'
+x-${PROJECT}-shared-env: &shared-env
+  - TZ=${TIME_ZONE}
+  - MYSQL_HOST=${MYSQL_HOST}
+  - DB_HOST=${MYSQL_HOST}
+  - DB_PORT=${MYSQL_PORT}
+  - MYSQL_SSL_MODE=${MYSQL_SSL_MODE}
+  - MYSQL_ADMIN_USERNAME=${MYSQL_ADMIN_USERNAME}
+  - MYSQL_ADMIN_PASSWORD=${MYSQL_ADMIN_PASSWORD}
+  - MYSQL_USERNAME=${MYSQL_USERNAME}
+  - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  - DB_SKIP_CREATE=${DB_SKIP_CREATE}
+  - EXTERNAL_DB_HOST=${EXTERNAL_DB_HOST}
+  - CONSOLE_MODE=${CONSOLE_MODE}
+  - FORWARD_ADDRESS_OVERRIDE=${FORWARD_ADDRESS_OVERRIDE}
 
 x-${PROJECT}-shared-conf: &shared-conf
-  environment:
-    - TZ=${TIME_ZONE}
-    - MYSQL_HOST=${MYSQL_HOST}
-    - MYSQL_USERNAME=${MYSQL_USERNAME}
-    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    - CONSOLE_MODE=${CONSOLE_MODE}
-    - FORWARD_ADDRESS_OVERRIDE=${FORWARD_ADDRESS_OVERRIDE}
+  environment: *shared-env
   volumes:
     - .:/var/wow/
   restart: on-failure
-  depends_on:
-    - sql
 
 services:
   main:
     image: ${PROJECT}:${OS_TAG}
     container_name: ${PROJECT}
     ipc: "host"
-    build: {context: ., dockerfile: etc/docker/main/Dockerfile}
+    build:
+      context: .
+      dockerfile: etc/docker/main/Dockerfile
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
     ports:
       - "3443:3443"
       - "7878:7878"
@@ -32,7 +41,11 @@ services:
     image: ${PROJECT}-world:${OS_TAG}
     container_name: ${PROJECT}-world
     ipc: "host"
-    build: {context: ., dockerfile: etc/docker/world/Dockerfile}
+    build:
+      context: .
+      dockerfile: etc/docker/world/Dockerfile
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
     ports:
       - "3443:3443"
       - "7878:7878"
@@ -45,7 +58,11 @@ services:
     image: ${PROJECT}-realm:${OS_TAG}
     container_name: ${PROJECT}-realm
     ipc: "host"
-    build: {context: ., dockerfile: etc/docker/realm/Dockerfile}
+    build:
+      context: .
+      dockerfile: etc/docker/realm/Dockerfile
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
     ports:
       - "9090:9090"
       - "9100:9100"
@@ -57,10 +74,12 @@ services:
     image: ${PROJECT}-db:${DB_TAG}
     container_name: ${PROJECT}-db
     build: {context: ., dockerfile: etc/docker/sql/Dockerfile}
+    profiles:
+      - localdb
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
     ports:
-      - "3306:3306"
+      - "${MYSQL_HOST_PORT}:${MYSQL_PORT}"
     volumes:
       - ./etc/databases/:/etc/databases/
     restart: on-failure
@@ -89,6 +108,20 @@ services:
     restart: on-failure
     profiles:
       - dev
+
+  utility:
+    image: ${PROJECT}-utility:${OS_TAG}
+    container_name: ${PROJECT}-utility
+    build:
+      context: .
+      dockerfile: etc/docker/utility/Dockerfile
+      args:
+        BASE_IMAGE: ${BASE_IMAGE}
+    <<: *shared-conf
+    tty: true
+    restart: "no"
+    profiles:
+      - utility
 
 networks:
   default:
