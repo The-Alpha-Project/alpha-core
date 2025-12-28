@@ -1021,6 +1021,12 @@ class UnitManager(ObjectManager):
         return self.has_block_passive and not self.spell_manager.is_casting() and \
             not self.unit_state & UnitStates.STUNNED
 
+    def has_shield(self):
+        return False
+
+    def has_buckler(self):
+        return False
+
     def can_parry(self, attacker_location=None, in_combat=False):
         if not in_combat:
             return self.has_parry_passive

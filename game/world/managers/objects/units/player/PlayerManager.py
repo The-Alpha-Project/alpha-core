@@ -36,7 +36,7 @@ from utils.ByteUtils import ByteUtils
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
-from utils.constants.ItemCodes import InventoryTypes
+from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
@@ -1381,8 +1381,23 @@ class PlayerManager(UnitManager):
         if attacker_location and not self.location.has_in_arc(attacker_location):
             return False  # players can't block from behind.
 
-        return self.inventory.has_offhand() and \
-            self.inventory.get_offhand().item_template.inventory_type == InventoryTypes.SHIELD
+        return self.has_shield() or self.has_buckler()
+
+    # override
+    def has_shield(self):
+        if not self.inventory.has_offhand():
+            return False
+        item_template = self.inventory.get_offhand().item_template
+        return (item_template.inventory_type == InventoryTypes.SHIELD
+                and item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_SHIELD)
+
+    # override
+    def has_buckler(self):
+        if not self.inventory.has_offhand():
+            return False
+        item_template = self.inventory.get_offhand().item_template
+        return (item_template.inventory_type == InventoryTypes.SHIELD
+                and item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_BUCKLER)
 
     # override
     def can_parry(self, attacker_location=None, in_combat=False):

@@ -5,7 +5,8 @@ from game.world.managers.objects.spell.aura import AuraEffectDummyHandler
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError
+from utils.constants import ItemCodes
+from utils.constants.ItemCodes import InventoryError, ItemSubClasses
 from utils.constants.MiscCodes import UnitDynamicTypes, ProcFlags
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
@@ -774,16 +775,27 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DODGE_CHANCE,
                                                          amount_percent, percentual=False)
 
-    # TODO: Need to have separate blocking stats depending on item subclass.
-    #  e.g. 'Increases your chance to block with a Shield (not a Buckler) by 2%.'
     @staticmethod
     def handle_mod_block_chance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
             return
+
+        item_subclass = aura.spell_effect.casting_spell.spell_entry.EquippedItemSubclass
+        shield_present = item_subclass & (1 << ItemSubClasses.ITEM_SUBCLASS_SHIELD)
+        buckler_present = item_subclass & (1 << ItemSubClasses.ITEM_SUBCLASS_BUCKLER)
+
+        if shield_present and buckler_present:
+            stat_type = UnitStats.BLOCK_SHIELD | UnitStats.BLOCK_BUCKLER
+        elif shield_present:
+            stat_type = UnitStats.BLOCK_SHIELD
+        elif buckler_present:
+            stat_type = UnitStats.BLOCK_BUCKLER
+        else:
+            return
+
         amount_percent = aura.get_effect_points() / 100
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.BLOCK_CHANCE,
-                                                         amount_percent, percentual=False)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount_percent, percentual=False)
 
     @staticmethod
     def handle_mod_threat(aura, effect_target, remove):
