@@ -13875,6 +13875,15 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7190.36', `spawn_positionY` = '-801.884', `spawn_positionZ` = '-6.08355' WHERE (`spawn_id` = '48046');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7168.23', `spawn_positionY` = '-770.48', `spawn_positionZ` = '-5.91007' WHERE (`spawn_id` = '48047');
 
+        -- Fallenroot Satyr.
+        UPDATE `spawns_creatures` SET `position_x` = '7213.932', `position_y` = '-832.024', `position_z` = '-2.712', `ignored` = '0' WHERE (`spawn_id` = '33166');
+        UPDATE `spawns_creatures` SET `position_x` = '7227.299', `position_y` = '-861.059', `position_z` = '1.865', `ignored` = '0' WHERE (`spawn_id` = '33167');
+        UPDATE `spawns_creatures` SET `position_x` = '7225.854', `position_y` = '-912.134', `position_z` = '15.323', `ignored` = '0' WHERE (`spawn_id` = '33168');
+        UPDATE `spawns_creatures` SET `position_x` = '7172.837', `position_y` = '-1001.29', `position_z` = '9.511', `ignored` = '0' WHERE (`spawn_id` = '33169');
+        UPDATE `spawns_creatures` SET `position_x` = '7198.722', `position_y` = '-1010.773', `position_z` = '7.385', `ignored` = '0' WHERE (`spawn_id` = '33170');
+        UPDATE `spawns_creatures` SET `position_x` = '7282.656', `position_y` = '-991.871', `position_z` = '13.75', `ignored` = '0' WHERE (`spawn_id` = '33171');
+        UPDATE `spawns_creatures` SET `position_x` = '7340.932', `position_y` = '-1004.148', `position_z` = '3.857', `ignored` = '0' WHERE (`spawn_id` = '33172');
+
         insert into applied_updates values ('231220251');
     end if;
 
