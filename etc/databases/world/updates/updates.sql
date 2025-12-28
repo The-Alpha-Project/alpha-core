@@ -13830,7 +13830,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `spawn_entry2` = '4802', `position_x` = '7154.26', `position_y` = '-976.811', `position_z` = '5.219', `ignored` = '0' WHERE (`spawn_id` = '38977');
 
         -- Sapphire of Aku'Mai.
+        UPDATE `gameobject_template` SET `displayId` = '219' WHERE (`entry` = '178184');
         UPDATE `gameobject_template` SET `displayId` = '219' WHERE (`entry` = '178186');
+
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7170.637', `spawn_positionY` = '-835.637', `spawn_positionZ` = '-4.33', `ignored` = '0' WHERE (`spawn_id` = '47700');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7207.226', `spawn_positionY` = '-820.836', `spawn_positionZ` = '-4.359', `ignored` = '0' WHERE (`spawn_id` = '47701');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '7194.21', `spawn_positionY` = '-822.588', `spawn_positionZ` = '-2.327', `ignored` = '0' WHERE (`spawn_id` = '47702');
