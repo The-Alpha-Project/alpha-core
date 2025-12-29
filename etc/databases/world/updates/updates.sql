@@ -13884,6 +13884,11 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '7282.656', `position_y` = '-991.871', `position_z` = '13.75', `ignored` = '0' WHERE (`spawn_id` = '33171');
         UPDATE `spawns_creatures` SET `position_x` = '7340.932', `position_y` = '-1004.148', `position_z` = '3.857', `ignored` = '0' WHERE (`spawn_id` = '33172');
 
+        -- Whaldak Spider Trainer placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-4833.676', `position_y` = '-2706.077', `orientation` = '3.731' WHERE (`spawn_id` = '400071');
+        -- Olthran Craghelm placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5037.026', `position_y` = '-1149.393', `position_z` = '530.177', `orientation` = '0.340' WHERE (`spawn_id` = '92');
+
         insert into applied_updates values ('231220251');
     end if;
 
