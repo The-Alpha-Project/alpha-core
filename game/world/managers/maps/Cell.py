@@ -2,6 +2,8 @@ from game.world.managers.maps.helpers.CellUtils import  CellUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from threading import RLock
 
+from utils.ConfigManager import config
+
 
 class Cell:
     def __init__(self, cell_x=0, cell_y=0, map_id=0, instance_id=0, key=''):
@@ -185,6 +187,9 @@ class Cell:
             self.send_all(packet, source, exclude)
             return
 
+        is_yell = int(range_) == int(config.World.Chat.ChatRange.yell_range)
+        is_say = int(range_) == int(config.World.Chat.ChatRange.say_range)
+
         players_reached = set()
         for guid, player_mgr in list(self.players.items()):
             # Skip offline players.
@@ -200,9 +205,10 @@ class Cell:
             # Skip players that have ignored the source.
             if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
                 continue
-            # Ensure the player knows about the source object.
-            if guid != source.guid and source.guid not in player_mgr.known_objects:
-                continue
+            # Ensure the player knows about the source object if this is not a chat message.
+            if not is_say and not is_yell:
+                if guid != source.guid and source.guid not in player_mgr.known_objects:
+                    continue
 
             # Add to reached players.
             players_reached.add(guid)
