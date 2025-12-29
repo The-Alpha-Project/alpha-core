@@ -30,11 +30,9 @@ services:
       args:
         BASE_IMAGE: ${BASE_IMAGE}
     ports:
-      - "3443:3443"
-      - "7878:7878"
+      - "3724:3724" 
       - "8100:8100"
-      - "9090:9090"
-      - "9100:9100"
+      - "9081:9081"
     <<: *shared-conf
 
   world:
@@ -47,8 +45,6 @@ services:
       args:
         BASE_IMAGE: ${BASE_IMAGE}
     ports:
-      - "3443:3443"
-      - "7878:7878"
       - "8100:8100"
     <<: *shared-conf
     profiles:
@@ -64,8 +60,8 @@ services:
       args:
         BASE_IMAGE: ${BASE_IMAGE}
     ports:
-      - "9090:9090"
-      - "9100:9100"
+      - "3724:3724" 
+      - "9081:9081" 
     <<: *shared-conf
     profiles:
       - realm
