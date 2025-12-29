@@ -180,26 +180,38 @@ class Cell:
             camera.broadcast_packet(packet, exclude=players_reached)
 
     def send_all_in_range(self, packet, range_, source, include_source=True, exclude=None, use_ignore=False):
+        # If range is non-positive, send to all players without filtering.
         if range_ <= 0:
             self.send_all(packet, source, exclude)
-        else:
-            players_reached = set()
-            for guid, player_mgr in list(self.players.items()):
-                if not player_mgr.online or not player_mgr.location.distance(source.location) <= range_:
-                    continue
-                if not include_source and player_mgr.guid == source.guid:
-                    continue
-                if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
-                    continue
-                # Never send messages to a player that does not know the source object.
-                if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
-                    continue
-                players_reached.add(player_mgr.guid)
-                player_mgr.enqueue_packet(packet)
+            return
 
-            # If this cell has cameras, route packets.
-            for camera in FarSightManager.get_cell_cameras(self):
-                camera.broadcast_packet(packet, exclude=players_reached)
+        players_reached = set()
+        for guid, player_mgr in list(self.players.items()):
+            # Skip offline players.
+            if not player_mgr.online:
+                continue
+            # Check distance.
+            distance = player_mgr.location.distance(source.location)
+            if distance > range_:
+                continue
+            # Optionally exclude source.
+            if not include_source and player_mgr.guid == source.guid:
+                continue
+            # Skip players that have ignored the source.
+            if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
+                continue
+            # Ensure the player knows about the source object.
+            if guid != source.guid and source.guid not in player_mgr.known_objects:
+                continue
+
+            # Add to reached players.
+            players_reached.add(guid)
+            # Send packet.
+            player_mgr.enqueue_packet(packet)
+
+        # Route packets via cameras if applicable.
+        for camera in FarSightManager.get_cell_cameras(self):
+            camera.broadcast_packet(packet, exclude=players_reached)
 
     def can_deactivate(self):
         return not self.has_players() and not self.has_cameras()
