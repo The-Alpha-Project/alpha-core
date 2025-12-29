@@ -1249,11 +1249,6 @@ class UnitManager(ObjectManager):
     def set_rooted(self, active=True, index=-1) -> bool:
         is_rooted = self.set_move_flag(MoveFlags.MOVEFLAG_ROOTED, active, index)
         is_rooted |= self.set_unit_state(UnitStates.ROOTED, active, index)
-
-        if is_rooted:
-            # Stop movement if needed.
-            self.movement_manager.stop()
-
         return is_rooted
 
     def set_stunned(self, active=True, index=-1) -> bool:
@@ -1342,6 +1337,10 @@ class UnitManager(ObjectManager):
             self.movement_flags |= move_flag
         else:
             self.movement_flags &= ~move_flag
+
+        # Force movement stop if rooted or immobilized.
+        if flag_changed and is_active and move_flag in {MoveFlags.MOVEFLAG_ROOTED, MoveFlags.MOVEFLAG_IMMOBILIZED}:
+            self.movement_manager.stop(force=True)
 
         # Only broadcast swimming, rooted, walking or immobilized.
         if flag_changed and move_flag in {MoveFlags.MOVEFLAG_SWIMMING, MoveFlags.MOVEFLAG_ROOTED,
