@@ -169,9 +169,7 @@ class SpellEffect:
 
         # Roll.
         rolled_points = random.randint(min_roll, max_roll) if self.die_sides != 0 else 0
-        self.effect_points = self.base_points + int(self.real_points_per_level * self.caster_effective_level) + rolled_points
-
-        return self.effect_points
+        return self.base_points + int(self.real_points_per_level * self.caster_effective_level) + rolled_points
 
     def get_effect_simple_points(self) -> int:
         return self.base_points + self.base_dice
