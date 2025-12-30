@@ -13974,6 +13974,9 @@ begin not atomic
         (400478, 25, -3904.568, -865.126, -6.452, 0, 0, 0, 0),
         (400478, 26, -3851.88, -948.064, -6.452, 0, 0, 0, 0);
 
+        -- Wharfmaster Lozgil.
+        UPDATE `spawns_creatures` SET `position_x` = '-14303.7', `position_y` = '527.608', `position_z` = '8.83', `orientation` = '4.86', `ignored` = '0', `map` = '0' WHERE (`spawn_id` = '184');
+
         insert into applied_updates values ('231220251');
     end if;
 
