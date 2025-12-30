@@ -13889,6 +13889,27 @@ begin not atomic
         -- Olthran Craghelm placement.
         UPDATE `spawns_creatures` SET `position_x` = '-5037.026', `position_y` = '-1149.393', `position_z` = '530.177', `orientation` = '0.340' WHERE (`spawn_id` = '92');
 
+        -- Hammerhead Sharks - Theramore.
+        UPDATE `creature_template` SET `display_id1` = '2851', `display_id2` = '0', `display_id3` = '0' WHERE (`entry` = '5185');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400474', '5185', '0', '0', '0', '1', '-3937.427', '-4650.228', '-6.616', '0.317', '300', '300', '0', '100', '0', '2', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400475', '5185', '0', '0', '0', '1', '-4026.160', '-4566.016', '-11.210', '3.257', '300', '300', '0', '100', '0', '2', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400476', '5185', '0', '0', '0', '1', '-3871.077', '-4715.082', '-11.359', '2.328', '300', '300', '0', '100', '0', '2', '0', '0', '0');
+
+        DELETE FROM creature_movement WHERE id = 400476;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (400476, 0, -3871.08, -4715.08, -11.359, 0, 0, 0, 0),
+        (400476, 1, -3937.43, -4650.23, -6.616, 0, 0, 0, 0);
+
+        DELETE FROM creature_movement WHERE id = 400474;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (400474, 0, -3937.43, -4650.23, -6.616, 0, 0, 0, 0),
+        (400474, 1, -4019.872, -4570.601, -10.032, 0, 0, 0, 0);
+
+        DELETE FROM creature_movement WHERE id = 400475;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (400475, 0, -4026.16, -4566.02, -11.21, 0, 0, 0, 0),
+        (400475, 1, -3852.411, -4695.709, -8.891, 0, 0, 0, 0);
+
         insert into applied_updates values ('231220251');
     end if;
 
