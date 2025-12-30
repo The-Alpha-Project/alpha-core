@@ -13890,7 +13890,7 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '-5037.026', `position_y` = '-1149.393', `position_z` = '530.177', `orientation` = '0.340' WHERE (`spawn_id` = '92');
 
         -- Hammerhead Sharks - Theramore.
-        UPDATE `creature_template` SET `display_id1` = '2851', `display_id2` = '0', `display_id3` = '0' WHERE (`entry` = '5185');
+        UPDATE `creature_template` SET `display_id1` = '2851', `display_id2` = '0', `display_id3` = '0', `level_min` = '10', `level_max` = '30' WHERE (`entry` = '5185');
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400474', '5185', '0', '0', '0', '1', '-3937.427', '-4650.228', '-6.616', '0.317', '300', '300', '0', '100', '0', '2', '0', '0', '0');
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400475', '5185', '0', '0', '0', '1', '-4026.160', '-4566.016', '-11.210', '3.257', '300', '300', '0', '100', '0', '2', '0', '0', '0');
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400476', '5185', '0', '0', '0', '1', '-3871.077', '-4715.082', '-11.359', '2.328', '300', '300', '0', '100', '0', '2', '0', '0', '0');
@@ -13909,6 +13909,70 @@ begin not atomic
         INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
         (400475, 0, -4026.16, -4566.02, -11.21, 0, 0, 0, 0),
         (400475, 1, -3852.411, -4695.709, -8.891, 0, 0, 0, 0);
+
+        -- Hammerhead Sharks - Wetlands.
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400477', '5185', '0', '0', '0', '0', '-3619.912', '-667.062', '-5.495', '2.847', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400478', '5185', '0', '0', '0', '0', '-3860.069', '-970.231', '-9.424', '1.893', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400479', '5185', '0', '0', '0', '0', '-3086.198', '-878.560', '-8.186', '6.281', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+
+        DELETE FROM creature_movement WHERE id = 400477;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (400477, 0, -3619.912, -667.062, -6.0, 0, 0, 0, 0),
+        (400477, 1, -3679.512, -654.877, -5.768, 0, 0, 0, 0),
+        (400477, 2, -3754.543, -660.885, -6.968, 0, 0, 0, 0),
+        (400477, 3, -3840.858, -725.926, -4.462, 0, 0, 0, 0),
+        (400477, 4, -3895.266, -798.169, -3.192, 0, 0, 0, 0),
+        (400477, 5, -3888.073, -871.998, -4.459, 0, 0, 0, 0),
+        (400477, 6, -3886.798, -925.889, -5.656, 0, 0, 0, 0),
+        (400477, 7, -3926.045, -899.105, -3.271, 0, 0, 0, 0),
+        (400477, 8, -3944.383, -846.207, -7.741, 0, 0, 0, 0),
+        (400477, 9, -3916.853, -764.062, -6.979, 0, 0, 0, 0),
+        (400477, 10, -3789.159, -667.851, -6.656, 0, 0, 0, 0),
+        (400477, 11, -3643.234, -665.627, -3.28, 0, 0, 0, 0);
+
+        DELETE FROM creature_movement WHERE id = 400479;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (400479, 0, -3086.198, -878.56, -8.186, 0, 0, 0, 0),
+        (400479, 1, -2994.042, -890.377, -5.982, 0, 0, 0, 0),
+        (400479, 2, -2949.162, -914.763, -5.667, 0, 0, 0, 0),
+        (400479, 3, -2911.086, -967.312, -5.657, 0, 0, 0, 0),
+        (400479, 4, -2860.667, -1015.364, -7.212, 0, 0, 0, 0),
+        (400479, 5, -2763.598, -1087.138, -4.957, 0, 0, 0, 0),
+        (400479, 6, -2757.104, -1009.766, -6.123, 0, 0, 0, 0),
+        (400479, 7, -2805.729, -952.217, -6.572, 0, 0, 0, 0),
+        (400479, 8, -2943.019, -953.778, -2.742, 0, 0, 0, 0),
+        (400479, 9, -2977.853, -888.88, -3.793, 0, 0, 0, 0),
+        (400479, 10, -3063.256, -876.323, -6.928, 0, 0, 0, 0);
+
+        DELETE FROM creature_movement WHERE id = 400478;
+        INSERT INTO creature_movement (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (400478, 0, -3860.07, -970.231, -9.424, 0, 0, 0, 0),
+        (400478, 1, -3847.447, -1041.32, -6.086, 0, 0, 0, 0),
+        (400478, 2, -3818.298, -1131.86, -5.075, 0, 0, 0, 0),
+        (400478, 3, -3765.189, -1227.954, -3.878, 0, 0, 0, 0),
+        (400478, 4, -3670.321, -1173.761, -6.452, 0, 0, 0, 0),
+        (400478, 5, -3577.506, -1101.181, -6.452, 0, 0, 0, 0),
+        (400478, 6, -3535.464, -1039.792, -6.452, 0, 0, 0, 0),
+        (400478, 7, -3601.396, -975.107, -6.452, 0, 0, 0, 0),
+        (400478, 8, -3580.904, -907.404, -6.452, 0, 0, 0, 0),
+        (400478, 9, -3553.939, -839.087, -6.452, 0, 0, 0, 0),
+        (400478, 10, -3589.421, -832.031, -6.452, 0, 0, 0, 0),
+        (400478, 11, -3623.885, -909.151, -6.452, 0, 0, 0, 0),
+        (400478, 12, -3665.608, -962.974, -6.452, 0, 0, 0, 0),
+        (400478, 13, -3740.933, -964.078, -6.452, 0, 0, 0, 0),
+        (400478, 14, -3818.444, -943.057, -6.452, 0, 0, 0, 0),
+        (400478, 15, -3874.734, -902.968, -6.452, 0, 0, 0, 0),
+        (400478, 16, -3893.729, -846.193, -6.452, 0, 0, 0, 0),
+        (400478, 17, -3884.289, -777.849, -6.452, 0, 0, 0, 0),
+        (400478, 18, -3836.793, -736.491, -6.452, 0, 0, 0, 0),
+        (400478, 19, -3857.304, -679.108, -6.452, 0, 0, 0, 0),
+        (400478, 20, -3943.348, -631.051, -6.452, 0, 0, 0, 0),
+        (400478, 21, -4076.014, -691.217, -6.452, 0, 0, 0, 0),
+        (400478, 22, -4120.404, -774.243, -6.452, 0, 0, 0, 0),
+        (400478, 23, -4071.049, -793.069, -6.452, 0, 0, 0, 0),
+        (400478, 24, -3991.929, -826.605, -6.452, 0, 0, 0, 0),
+        (400478, 25, -3904.568, -865.126, -6.452, 0, 0, 0, 0),
+        (400478, 26, -3851.88, -948.064, -6.452, 0, 0, 0, 0);
 
         insert into applied_updates values ('231220251');
     end if;
