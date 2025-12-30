@@ -13977,6 +13977,9 @@ begin not atomic
         -- Wharfmaster Lozgil.
         UPDATE `spawns_creatures` SET `position_x` = '-14303.7', `position_y` = '527.608', `position_z` = '8.83', `orientation` = '4.86', `ignored` = '0', `map` = '0' WHERE (`spawn_id` = '184');
 
+        -- Frostmaw.
+        UPDATE `creature_template` SET `display_id1` = '934' WHERE (`entry` = '4504');
+
         insert into applied_updates values ('231220251');
     end if;
 
