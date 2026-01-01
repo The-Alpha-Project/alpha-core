@@ -1836,6 +1836,9 @@ class SpellManager:
         # Only players receive cast results.
         if is_player:
             if error == SpellCheckCastResult.SPELL_NO_ERROR:
+                # TODO: Client displays spell failed with items casts like 'Fresh Carcass' or 'Etched Phial'
+                #  when given the spell id, might be sending spell start or go packet with wrong structure.
+                spell_id = spell_id if not casting_spell.source_item else 0
                 data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
             else:
                 if misc_data != -1:
