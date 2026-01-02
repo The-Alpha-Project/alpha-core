@@ -386,6 +386,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_FORCE_MOVE_ROOT_ACK: MovementHandler.handle_movement_status,
     OpCode.CMSG_FORCE_MOVE_UNROOT_ACK: MovementHandler.handle_movement_status,
     OpCode.CMSG_FORCE_SPEED_CHANGE_ACK: MovementHandler.handle_movement_status,
+    OpCode.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK: MovementHandler.handle_movement_status,
 
     # Ignored packets (Use NullHandler)
     OpCode.CMSG_TUTORIAL_CLEAR: NullHandler.handle,

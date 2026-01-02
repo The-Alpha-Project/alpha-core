@@ -821,7 +821,8 @@ class QuestManager:
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ALREADY_ON)
             return
 
-        if quest_id in self.completed_quests:
+        # Only one timed quest can be active.
+        if self.has_timed_quest():
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
 
@@ -1278,6 +1279,12 @@ class QuestManager:
 
         for active_quest in list(self.active_quests.values()):
             if active_quest.still_needs_item(item_template):
+                return True
+        return False
+
+    def has_timed_quest(self):
+        for active_quest in list(self.active_quests.values()):
+            if QuestHelpers.is_timed_quest(active_quest.quest):
                 return True
         return False
 

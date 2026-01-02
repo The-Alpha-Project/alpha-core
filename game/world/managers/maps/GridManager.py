@@ -197,15 +197,16 @@ class GridManager:
 
         return affected_cells
 
-    def _get_surrounding_cells_by_cell(self, cell=None, cell_x=0, cell_y=0, map_id=0, instance_id=0):
+    def _get_surrounding_cells_by_cell(self, cell=None, cell_x=0, cell_y=0, map_id=0, instance_id=0, range_=0):
         if cell:
             cell_x = cell.cell_x
             cell_y = cell.cell_y
             map_id = cell.map_id
             instance_id = cell.instance_id
 
+        view_distance = VIEW_DISTANCE if not range_ else range_
         # Calculate how many cells to include in each direction given the view distance, at least 1.
-        max_cells_radius = max(1, int(VIEW_DISTANCE // CELL_SIZE))
+        max_cells_radius = max(1, int(view_distance // CELL_SIZE))
         surrounding_cells = set()
 
         for dx in range(-max_cells_radius, max_cells_radius + 1):
@@ -222,13 +223,15 @@ class GridManager:
 
         return surrounding_cells
 
-    def _get_surrounding_cells_by_object(self, world_object):
+    def _get_surrounding_cells_by_object(self, world_object, range_=0):
         pos = world_object.location
-        return self._get_surrounding_cells_by_location(pos.x, pos.y, world_object.map_id, world_object.instance_id)
+        return self._get_surrounding_cells_by_location(
+            pos.x, pos.y, world_object.map_id, world_object.instance_id, range_=range_)
 
-    def _get_surrounding_cells_by_location(self, x, y, map_, instance_id):
+    def _get_surrounding_cells_by_location(self, x, y, map_, instance_id, range_=0):
         cell_x, cell_y = CellUtils.generate_coord_data(x, y)
-        return self._get_surrounding_cells_by_cell(cell_x=cell_x, cell_y=cell_y, map_id=map_, instance_id=instance_id)
+        return self._get_surrounding_cells_by_cell(cell_x=cell_x, cell_y=cell_y, map_id=map_,
+                                                   instance_id=instance_id, range_=range_)
 
     def send_surrounding(self, packet, world_object, include_self=True, exclude=None, use_ignore=False):
         if world_object.current_cell:
@@ -244,7 +247,7 @@ class GridManager:
             Logger.warning(f'{world_object.get_name()} Cannot send surrounding in range without current cell.')
             return
 
-        for cell in self._get_surrounding_cells_by_object(world_object):
+        for cell in self._get_surrounding_cells_by_object(world_object, range_=range_):
             cell.send_all_in_range(packet, range_, world_object, include_self, exclude, use_ignore)
 
     def get_surrounding_objects(self, world_object, object_types):

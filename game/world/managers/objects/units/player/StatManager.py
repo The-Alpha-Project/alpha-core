@@ -51,6 +51,8 @@ class UnitStats(IntFlag):
     PARRY_CHANCE = auto()
     DODGE_CHANCE = auto()
     BLOCK_CHANCE = auto()
+    BLOCK_SHIELD = auto()
+    BLOCK_BUCKLER = auto()
     # Note: Block value did not exist in 0.5.3
 
     PROC_CHANCE = auto()
@@ -868,7 +870,16 @@ class StatManager:
         rating_difference_block = self._get_combat_rating_difference(attacker.level, combat_rating,
                                                                      use_block=self.unit_mgr.can_block(in_combat=True))
 
-        block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
+        block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True)
+
+        # Shield/Buckler bonuses.
+        if self.unit_mgr.has_shield():
+            block_chance += self.get_total_stat(UnitStats.BLOCK_SHIELD, accept_float=True)
+        elif self.unit_mgr.has_buckler():
+            block_chance += self.get_total_stat(UnitStats.BLOCK_BUCKLER, accept_float=True)
+
+        block_chance += rating_difference_block * 0.0004
+
         can_block = not (invalid_result_mask & HitInfo.BLOCK) and self.unit_mgr.can_block(attacker.location, in_combat=True)
         if can_block and random.random() < block_chance:
             return hit_info | HitInfo.BLOCK
@@ -1244,6 +1255,12 @@ class StatManager:
 
         # Percentual bonuses are stored as 100% = 1, client expects 100% = 100
         value = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) * 100
+
+        # Shield/Buckler bonuses.
+        if self.unit_mgr.has_shield():
+            value += self.get_total_stat(UnitStats.BLOCK_SHIELD, accept_float=True) * 100
+        elif self.unit_mgr.has_buckler():
+            value += self.get_total_stat(UnitStats.BLOCK_BUCKLER, accept_float=True) * 100
 
         # Penalty against player of same level with max skill.
         value += self._get_combat_rating_difference(use_block=True) * 0.04
