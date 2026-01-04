@@ -835,14 +835,15 @@ class SpellManager:
         if not self.caster.is_unit(by_mask=True):
             return  # Non-unit casters should not broadcast their casts.
 
-        is_player = self.caster.is_player()
+        source_guid = self.caster.guid
+        if casting_spell.source_item:
+            source_guid = casting_spell.source_item.guid
 
-        source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
         cast_flags = casting_spell.cast_flags
 
         # Validate if this spell crashes the client.
         # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
-        if not is_player and not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell):
+        if not self.caster.is_player() and not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell):
             Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid cast.')
             cast_flags |= SpellCastFlags.CAST_FLAG_PROC
 
@@ -866,7 +867,7 @@ class SpellManager:
         # Spell start.
         data = pack(signature, *data)
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data)
-        self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
+        self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
 
     def handle_channel_start(self, casting_spell):
         if not casting_spell.is_channeled():
@@ -960,13 +961,14 @@ class SpellManager:
         self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
     def send_spell_go(self, casting_spell):
-        # The client expects the source to only be set for unit casters.
-        caster_unit = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() \
-            else self.caster.guid
+        source_guid = self.caster.guid
+        if casting_spell.source_item:
+            source_guid = casting_spell.source_item.guid
+
         caster_guid = self.caster.guid if self.caster.is_unit(by_mask=True) else 0
 
         # Exclude proc flag from GO - proc casts are visible in 0.5.5 screenshots.
-        data = [caster_unit, caster_guid, casting_spell.spell_entry.ID,
+        data = [source_guid, caster_guid, casting_spell.spell_entry.ID,
                 casting_spell.cast_flags & ~SpellCastFlags.CAST_FLAG_PROC]
 
         signature = '<2QIHB'  # caster, source, ID, flags .. (targets, ammo info).
