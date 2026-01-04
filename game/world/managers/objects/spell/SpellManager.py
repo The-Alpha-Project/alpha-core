@@ -1,4 +1,3 @@
-import math
 import time
 from random import randint
 from struct import pack
