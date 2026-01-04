@@ -13983,6 +13983,11 @@ begin not atomic
         INSERT INTO `event_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (727, 0, 0, 10, 4504, 0, 1, 0, 0, 0, 0, 0, 8, 0, -1, 7, 234.227, -239.227, 141.325, 2.84489, 0, 'Frostmaw: Summon Creature Frostmaw');
 
+        -- Fresh Carcass - Player cast flag.
+        UPDATE `item_template` SET `flags` = '64' WHERE (`entry` = '5810');
+        -- Etched Phial - Player cast flag.
+        UPDATE `item_template` SET `flags` = '2112' WHERE (`entry` = '5867');
+
         insert into applied_updates values ('231220251');
     end if;
 
