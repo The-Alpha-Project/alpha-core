@@ -304,6 +304,7 @@ class CreatureManager(UnitManager):
         self.apply_default_auras()
 
         # Movement.
+        self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=self.static_flags & CreatureStaticFlags.AQUATIC != 0)
         self.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.should_always_run_ooc())
         self.movement_manager.initialize_or_reset()
 
@@ -946,6 +947,9 @@ class CreatureManager(UnitManager):
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
         if not self.can_swim():
+            return
+
+        if not self.get_map().is_active_cell_for_location(self.location):
             return
 
         is_under_water = self.is_under_water()

@@ -33,6 +33,7 @@ class SpellEffect:
 
     caster_effective_level: int
     effect_index: int
+    effect_points: int = 0
     targets: EffectTargets
     radius_entry: SpellRadius
 
@@ -50,6 +51,7 @@ class SpellEffect:
         self.load_effect(casting_spell.spell_entry, index)
 
         self.caster_effective_level = casting_spell.caster_effective_level
+        self.effect_points = self.get_effect_points()
         self.targets = EffectTargets(casting_spell, self)
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
         self.casting_spell = casting_spell
@@ -158,7 +160,15 @@ class SpellEffect:
         return self.aura_period != 0
 
     def get_effect_points(self) -> int:
-        rolled_points = random.randint(1, self.die_sides + self.dice_per_level) if self.die_sides != 0 else 0
+        if self.effect_points:
+            return self.effect_points
+
+        # Calculate min and max dice roll values.
+        min_roll = 1 if self.die_sides != 0 else 0
+        max_roll = self.die_sides + self.dice_per_level if self.die_sides != 0 else 0
+
+        # Roll.
+        rolled_points = random.randint(min_roll, max_roll) if self.die_sides != 0 else 0
         return self.base_points + int(self.real_points_per_level * self.caster_effective_level) + rolled_points
 
     def get_effect_simple_points(self) -> int:
