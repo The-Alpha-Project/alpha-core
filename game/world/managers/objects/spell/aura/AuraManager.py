@@ -157,7 +157,7 @@ class AuraManager:
 
             # An interrupt for sitting does not exist.
             # Food/drink spells do claim that the player must remain seated.
-            # In later versions an aurainterrupt exists for this purpose.
+            # In later versions an aura interrupt exists for this purpose.
             if aura.source_spell.is_refreshment_spell() and changed_stand_state and \
                     self.unit_mgr.stand_state != StandState.UNIT_SITTING:
                 self.remove_aura(aura)
