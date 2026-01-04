@@ -13736,16 +13736,15 @@ begin not atomic
         -- Burning War Axe.
         UPDATE `item_template` SET `spellid_1` = '7711', `spellcharges_1` = '-1' WHERE (`entry` = '2299');
 
-        -- Thundersnout.
+        -- Deviate Thundersnout.
         UPDATE `creature_template` SET `rank` = '1' WHERE (`entry` = '5055');
-        UPDATE `creature_template` SET `damage_multiplier` = '1.7', `health_multiplier` = '2.5', `armor_multiplier` = '1' WHERE (`entry` = '5055');
+        UPDATE `creature_template` SET `damage_multiplier` = '1.7', `health_multiplier` = '3', `armor_multiplier` = '1' WHERE (`entry` = '5055');
         UPDATE `creature_template` SET `detection_range` = '20' WHERE (`entry` = '5055');
 
-        -- Deviate Crocolisks are now non-elite.
+        -- Deviate Crocolisks.
         UPDATE `creature_template` SET `rank` = '1' WHERE (`entry` = '5053');
-        UPDATE `creature_template` SET `damage_multiplier` = '1.7', `health_multiplier` = '2.5', `armor_multiplier` = '1' WHERE (`entry` = '5053');
+        UPDATE `creature_template` SET `damage_multiplier` = '1.7', `health_multiplier` = '3', `armor_multiplier` = '1' WHERE (`entry` = '5053');
         UPDATE `creature_template` SET `detection_range` = '20' WHERE (`entry` = '5053');
-        UPDATE `creature_template` SET `level_max` = '20' WHERE (`entry` = '5053');
 
         -- New creature spell lists.
         REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (5055, 'Deviate Lasher', 6255, 80, 1, 0, 0, 0, 5, 10, 12, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -13982,11 +13981,6 @@ begin not atomic
         DELETE FROM `event_scripts` WHERE `id`=727;
         INSERT INTO `event_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (727, 0, 0, 10, 4504, 0, 1, 0, 0, 0, 0, 0, 8, 0, -1, 7, 234.227, -239.227, 141.325, 2.84489, 0, 'Frostmaw: Summon Creature Frostmaw');
-
-        -- Fresh Carcass - Player cast flag.
-        UPDATE `item_template` SET `flags` = '64' WHERE (`entry` = '5810');
-        -- Etched Phial - Player cast flag.
-        UPDATE `item_template` SET `flags` = '2112' WHERE (`entry` = '5867');
 
         insert into applied_updates values ('231220251');
     end if;
