@@ -419,6 +419,13 @@ class SpellManager:
         self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_NO_ERROR)
         self.send_spell_go(casting_spell)
 
+        # Spells that use the KneelLoop animation causes the client to get stuck in this animation until relog.
+        # Send a KneelEnd animation to resolve this issue. e.g. spell 6717 'Place Lion Carcass'
+        if casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.CastKit == 380:  # KneelLoop.
+            data = pack(f'QI', self.caster.guid, 444)
+            packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
+            self.caster.enqueue_packet(packet)
+
         if casting_spell.requires_combo_points():
             # Combo points will be reset by consume_resources_for_cast.
             casting_spell.spent_combo_points = self.caster.combo_points
