@@ -6,6 +6,7 @@
 
 # Project files
 etc/config/config.yml
+.env
 etc/logs
 
 # Extractor
