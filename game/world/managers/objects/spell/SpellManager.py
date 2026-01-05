@@ -497,16 +497,19 @@ class SpellManager:
 
                 spell_target = target
                 spell_caster = casting_spell.spell_caster
-                # Swap target/caster on reflect. TODO actual reflect handling - this flag is never set.
+                # Swap target/caster on reflect.
+                # TODO: Proper handling of reflect if possible, we are missing MISS_REASON_REFLECTED from vanilla.
+                #  So for now, the damage will be reflected but combat log will display as if the reflector
+                #  casted the spell and the original target will show take damage animation.
                 if info.flags & SpellHitFlags.REFLECTED:
                     spell_target = casting_spell.spell_caster
                     spell_caster = target
 
                 if info.result == SpellMissReason.MISS_REASON_NONE:
                     SpellEffectHandler.apply_effect(casting_spell, effect, spell_caster, spell_target)
-                elif target.is_unit() and casting_spell.generates_threat_on_miss() and \
-                        casting_spell.spell_caster.can_attack_target(target):  # Add threat for failed hostile casts.
-                    target.threat_manager.add_threat(casting_spell.spell_caster)
+                elif spell_target.is_unit() and casting_spell.generates_threat_on_miss() and \
+                        spell_caster.can_attack_target(spell_target):  # Add threat for failed hostile casts.
+                    spell_target.threat_manager.add_threat(spell_caster)
 
             if len(object_targets) > 0:
                 continue  # Prefer unit target for handling (don't attempt to resolve other target types for one effect if unit targets aren't empty)

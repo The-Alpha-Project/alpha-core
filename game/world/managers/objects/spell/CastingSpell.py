@@ -205,6 +205,13 @@ class CastingSpell:
             school_mask = 1 << damage_school
         return school_mask
 
+    def can_reflect(self):
+        return (self.spell_entry.School  # Not physical.
+                and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY
+                and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY
+                and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE
+                and not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE)
+
     def get_ammo_for_cast(self) -> Optional[ItemManager]:
         if not self.is_ranged_weapon_attack():
             return None
