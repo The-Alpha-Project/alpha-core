@@ -1012,7 +1012,7 @@ class StatManager:
             # School reflect.
             reflect_chance += self.unit_mgr.stat_manager.get_total_stat(
                 UnitStats.SPELL_REFLECT_SCHOOL, 1 << spell_school, misc_value_is_mask=True, accept_float=True)
-            if random.random() < reflect_chance:
+            if reflect_chance and random.random() < reflect_chance:
                 hit_flags |= SpellHitFlags.REFLECTED
                 return SpellMissReason.MISS_REASON_NONE, hit_flags
 
