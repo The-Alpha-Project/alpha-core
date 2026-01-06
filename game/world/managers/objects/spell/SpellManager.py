@@ -498,7 +498,9 @@ class SpellManager:
                 spell_target = target
                 spell_caster = casting_spell.spell_caster
                 # Swap target/caster on reflect.
-                # TODO: Proper handling of reflect if possible, we are missing MISS_REASON_REFLECTED from vanilla.
+                # TODO: Proper handling of reflect if possible, we don't have MISS_REASON_REFLECTED from vanilla.
+                #  Reflect is not handled as a miss in alpha, instead, its probably handled through SMSG_SPELL_GO or
+                #  SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL.
                 #  So for now, the damage will be reflected but combat log will display as if the reflector
                 #  casted the spell and the original target will show take damage animation.
                 if info.flags & SpellHitFlags.REFLECTED:
