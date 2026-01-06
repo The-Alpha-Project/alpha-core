@@ -826,8 +826,6 @@ class UnitManager(ObjectManager):
 
         # TODO: We never reach this even when set over get_spell_miss_result_against_self.
         if damage_info.hit_info & SpellHitFlags.REFLECTED:
-            damage_info.attacker = target
-            damage_info.target = self
             damage_info.proc_ex = ProcFlagsExLegacy.REFLECT
 
         # Target will die because of this attack.
