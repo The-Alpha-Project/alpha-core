@@ -502,7 +502,7 @@ class SpellManager:
                 #  Reflect is not handled as a miss in alpha, instead, its probably handled through SMSG_SPELL_GO or
                 #  SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL.
                 #  So for now, the damage will be reflected but combat log will display as if the reflector
-                #  casted the spell and the original target will show take damage animation.
+                #  casted the spell and the victim states will be wrong.
                 if info.flags & SpellHitFlags.REFLECTED:
                     spell_target = casting_spell.spell_caster
                     spell_caster = target
