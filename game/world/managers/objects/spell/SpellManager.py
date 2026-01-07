@@ -509,9 +509,9 @@ class SpellManager:
 
                 if info.result == SpellMissReason.MISS_REASON_NONE:
                     SpellEffectHandler.apply_effect(casting_spell, effect, spell_caster, spell_target)
-                elif spell_target.is_unit() and casting_spell.generates_threat_on_miss() and \
-                        spell_caster.can_attack_target(spell_target):  # Add threat for failed hostile casts.
-                    spell_target.threat_manager.add_threat(spell_caster)
+                elif target.is_unit() and casting_spell.generates_threat_on_miss() and \
+                         casting_spell.spell_caster.can_attack_target(target):  # Add threat for failed hostile casts.
+                    target.threat_manager.add_threat(casting_spell.spell_caster)
 
             if len(object_targets) > 0:
                 continue  # Prefer unit target for handling (don't attempt to resolve other target types for one effect if unit targets aren't empty)
