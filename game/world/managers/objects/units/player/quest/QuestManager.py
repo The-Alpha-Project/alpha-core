@@ -705,15 +705,6 @@ class QuestManager:
                 name_bytes
             ))
 
-        # Objective texts.
-        req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)
-        for index, objective_text in enumerate(req_objective_text_list):
-            req_objective_text_bytes = PacketWriter.string_to_bytes(req_objective_text_list[index])
-            data.extend(pack(
-                f'{len(req_objective_text_bytes)}s',
-                req_objective_text_bytes
-            ))
-
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
 
     def send_quest_giver_request_items(self, quest, quest_giver_id, close_on_cancel):
