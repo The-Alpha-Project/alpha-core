@@ -1833,9 +1833,9 @@ class SpellManager:
             spell_id = 0
 
         # Send spell failure only if this was an active spell.
-        if has_error:
+        if has_error and spell_id in self.casting_spells:
             # Do not broadcast errors upon creature spell cast validate() failing.
-            if spell_id not in self.casting_spells and casting_spell.creature_spell:
+            if casting_spell.creature_spell:
                 return
             
             charmer_or_summoner = self.caster.get_charmer_or_summoner()
