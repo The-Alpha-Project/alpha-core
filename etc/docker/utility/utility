@@ -1,0 +1,13 @@
+#!/bin/sh
+
+COMMAND="$1"
+shift
+
+SCRIPT="/bin/commands/${COMMAND}.sh"
+
+if [ -x "$SCRIPT" ]; then
+    exec "$SCRIPT" "$@"
+else
+    # echo "No command script found for: $COMMAND, running directly..."
+    exec "$COMMAND" "$@"
+fi

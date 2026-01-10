@@ -1,8 +1,10 @@
 #!/bin/bash
 
 function init_database() {
-    SQL_DUMP='CREATE DATABASE `alpha_'${1}'` /*!40100 COLLATE utf8mb4_general_ci */;'$'\n'
-    SQL_DUMP=${SQL_DUMP}'USE `alpha_'${1}'`;'$'\n'
+    DB_PREFIX="${DB_PREFIX:-alpha_}"
+    DB_NAME="${DB_PREFIX}${1}"
+    SQL_DUMP='CREATE DATABASE `'${DB_NAME}'` /*!40100 COLLATE utf8mb4_general_ci */;'$'\n'
+    SQL_DUMP=${SQL_DUMP}'USE `'${DB_NAME}'`;'$'\n'
     SQL_DUMP=${SQL_DUMP}$(cat /etc/databases/${1}/${1}.sql)$'\n'
     SQL_DUMP=${SQL_DUMP}$(cat /etc/databases/${1}/updates/*.sql)
 
