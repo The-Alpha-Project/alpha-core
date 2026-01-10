@@ -20,7 +20,7 @@ class ReadItemHandler:
                 result = world_session.player_mgr.inventory.can_use_item(item.item_template)
 
             if result == InventoryError.BAG_OK:
-                data = pack('<2Q', item.guid, item.guid)
+                data = pack('<1Q', item.guid)
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_OK, data))
             else:
                 world_session.player_mgr.inventory.send_equip_error(result)
