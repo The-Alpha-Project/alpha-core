@@ -1824,6 +1824,9 @@ class SpellManager:
         if casting_spell.hide_result:
             error = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
+        # More research needed on client Spell_C_SetModal and CastResultHandler:
+        # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
+        #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
         # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
         # Which are items with no ITEM_FLAG_PLAYERCAST which ends up displaying spell failed in the cast bar.
         if not has_error and casting_spell.source_item and not casting_spell.source_item.is_player_cast():
