@@ -1819,20 +1819,19 @@ class SpellManager:
     def send_cast_result(self, casting_spell, error, misc_data=-1):
         is_player = self.caster.is_player()
         spell_id = casting_spell.spell_entry.ID
-
-        # Item casts which set the spell as modal (Spell_C_SetModal) will always display the cast result as failed
-        # if the spell id is provided.
-        # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
-        #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
-        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
-        if casting_spell.source_item and not casting_spell.is_instant_cast():
-            spell_id = 0
+        has_error = error != SpellCheckCastResult.SPELL_NO_ERROR
 
         if casting_spell.hide_result:
             error = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
+        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
+        # Which are items with no ITEM_FLAG_PLAYERCAST which ends up displaying spell failed in the cast bar.
+        if (not has_error and casting_spell.source_item and not casting_spell.is_instant_cast()
+                and not casting_spell.source_item.is_player_cast()):
+            spell_id = 0
+
         # Send spell failure only if this was an active spell.
-        if error != SpellCheckCastResult.SPELL_NO_ERROR:
+        if has_error:
             # Do not broadcast errors upon creature spell cast validate() failing.
             if spell_id not in self.casting_spells and casting_spell.creature_spell:
                 return
@@ -1856,7 +1855,7 @@ class SpellManager:
 
         # Only players receive cast results.
         if is_player:
-            if error == SpellCheckCastResult.SPELL_NO_ERROR:
+            if not has_error:
                 data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
             else:
                 if misc_data != -1:
