@@ -1834,8 +1834,8 @@ class SpellManager:
 
         # Send spell failure only if this was an active spell.
         if has_error and spell_id in self.casting_spells:
-            # Do not broadcast errors upon creature spell cast validate() failing.
-            if casting_spell.creature_spell:
+            # Do not broadcast errors upon creature/go cast validate() failing.
+            if not is_player:
                 return
             
             charmer_or_summoner = self.caster.get_charmer_or_summoner()
@@ -1845,13 +1845,6 @@ class SpellManager:
             
             data = pack('<QIB', self.caster.guid, spell_id, error)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
-
-            # TODO: Cozy Fire, client crashes, maybe we should not broadcast some Gameobjects spell cast errors?
-            # TODO: Also noticed this buff is applied to players from Bright Campfires spawned by enemies, not sure
-            #  if thats suppose to happen given that they do inherit the enemy faction and the buff is beneficial.
-            #  @Fluglow you can reproduce this by standing at -1648.34 -1869.82 80.8706 0, it will hit eventually.
-            if spell_id == 7358:
-                return
 
             self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
