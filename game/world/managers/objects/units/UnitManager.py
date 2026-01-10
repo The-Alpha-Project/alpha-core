@@ -824,6 +824,10 @@ class UnitManager(ObjectManager):
         damage_info.absorb = target.get_school_absorb_for_damage(damage_info)
         damage_info.total_damage = max(0, damage_info.base_damage - damage_info.absorb)
 
+        # TODO: We never reach this even when set over get_spell_miss_result_against_self.
+        if damage_info.hit_info & SpellHitFlags.REFLECTED:
+            damage_info.proc_ex = ProcFlagsExLegacy.REFLECT
+
         # Target will die because of this attack.
         if target.health - damage_info.total_damage <= 0:
             damage_info.hit_info |= HitInfo.UNIT_DEAD

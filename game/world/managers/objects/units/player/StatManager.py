@@ -63,6 +63,8 @@ class UnitStats(IntFlag):
     SPELL_SCHOOL_CRITICAL = auto()
     SPELL_SCHOOL_POWER_COST = auto()
     SPELL_CASTING_SPEED = auto()
+    SPELL_REFLECT = auto()
+    SPELL_REFLECT_SCHOOL = auto()
 
     DAMAGE_DONE = auto()
     DAMAGE_DONE_SCHOOL = auto()
@@ -1002,6 +1004,17 @@ class StatManager:
         if self.unit_mgr.unit_state & UnitStates.SANCTUARY or \
                 self.unit_mgr.has_damage_immunity(spell_school, casting_spell=casting_spell):
             return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
+
+        # Reflect.
+        if casting_spell.can_reflect() and caster.can_attack_target(self.unit_mgr):
+            # Base reflect.
+            reflect_chance = self.unit_mgr.stat_manager.get_total_stat(UnitStats.SPELL_REFLECT, accept_float=True)
+            # School reflect.
+            reflect_chance += self.unit_mgr.stat_manager.get_total_stat(
+                UnitStats.SPELL_REFLECT_SCHOOL, 1 << spell_school, misc_value_is_mask=True, accept_float=True)
+            if reflect_chance and random.random() < reflect_chance:
+                hit_flags |= SpellHitFlags.REFLECTED
+                return SpellMissReason.MISS_REASON_NONE, hit_flags
 
         is_base_attack_spell = casting_spell.is_weapon_attack()
 

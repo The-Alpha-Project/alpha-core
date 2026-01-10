@@ -48,7 +48,7 @@ class VendorUtils:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry.item)
             if item_template:
                 items_data.extend(pack(
-                    '<7I',
+                    '<3i4I',
                     count + 1,  # m_muid, acts as slot counter.
                     item_template.entry,
                     item_template.display_id,
@@ -58,14 +58,14 @@ class VendorUtils:
                     item_template.buy_count  # Stack count.
                 ))
                 item_templates.append(item_template)
+            else:
+                Logger.warning(f'Vendor {creature_mgr.get_name()} has invalid item with entry {item_entry.item}')
 
         item_count = len(item_templates)
         if item_count == 0:
             items_data.extend(pack('<B', 0))
-        else:
-            items_data.extend(items_data)
 
-        data = pack(f'<QB{len(items_data)}s', creature_mgr.guid, item_count, bytes(items_data))
+        data = pack(f'<QB{len(items_data)}s', creature_mgr.guid, item_count, items_data)
 
         # Send all vendor item query details.
         if item_count > 0:

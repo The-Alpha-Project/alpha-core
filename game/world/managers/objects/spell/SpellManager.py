@@ -497,7 +497,12 @@ class SpellManager:
 
                 spell_target = target
                 spell_caster = casting_spell.spell_caster
-                # Swap target/caster on reflect. TODO actual reflect handling - this flag is never set.
+                # Swap target/caster on reflect.
+                # TODO: Proper handling of reflect if possible, we don't have MISS_REASON_REFLECTED from vanilla.
+                #  Reflect is not handled as a miss in alpha, instead, its probably handled through SMSG_SPELL_GO or
+                #  SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL.
+                #  So for now, the damage will be reflected but combat log will display as if the reflector
+                #  casted the spell and the victim states will be wrong.
                 if info.flags & SpellHitFlags.REFLECTED:
                     spell_target = casting_spell.spell_caster
                     spell_caster = target
@@ -505,7 +510,7 @@ class SpellManager:
                 if info.result == SpellMissReason.MISS_REASON_NONE:
                     SpellEffectHandler.apply_effect(casting_spell, effect, spell_caster, spell_target)
                 elif target.is_unit() and casting_spell.generates_threat_on_miss() and \
-                        casting_spell.spell_caster.can_attack_target(target):  # Add threat for failed hostile casts.
+                         casting_spell.spell_caster.can_attack_target(target):  # Add threat for failed hostile casts.
                     target.threat_manager.add_threat(casting_spell.spell_caster)
 
             if len(object_targets) > 0:
@@ -1814,6 +1819,14 @@ class SpellManager:
     def send_cast_result(self, casting_spell, error, misc_data=-1):
         is_player = self.caster.is_player()
         spell_id = casting_spell.spell_entry.ID
+
+        # Item casts which set the spell as modal (Spell_C_SetModal) will always display the cast result as failed
+        # if the spell id is provided.
+        # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
+        #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
+        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
+        if casting_spell.source_item and not casting_spell.is_instant_cast():
+            spell_id = 0
 
         if casting_spell.hide_result:
             error = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT

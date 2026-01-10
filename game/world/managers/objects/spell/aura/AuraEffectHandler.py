@@ -805,6 +805,32 @@ class AuraEffectHandler:
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.THREAT_GENERATION, amount, percentual=True)
 
+    @staticmethod
+    def handle_reflect_spells(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount = aura.get_effect_points() / 100
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_REFLECT, amount, percentual=False)
+
+    @staticmethod
+    def handle_reflect_spells_school(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
+            return
+        amount = aura.get_effect_points() / 100
+        misc_value = aura.spell_effect.misc_value  # Spell school
+
+        if misc_value == -2:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        elif misc_value == -1:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_SPELL
+        else:
+            spell_school = 1 << misc_value
+
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_REFLECT_SCHOOL, amount,
+                                                         percentual=False, misc_value=spell_school)
+
 
 AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_BIND_SIGHT: AuraEffectHandler.handle_bind_sight,
@@ -843,7 +869,6 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_FEAR: AuraEffectHandler.handle_mod_fear,
     AuraTypes.SPELL_AURA_MOD_CONFUSE: AuraEffectHandler.handle_mod_confuse,
 
-
     # Immunity modifiers.
     AuraTypes.SPELL_AURA_EFFECT_IMMUNITY: AuraEffectHandler.handle_effect_immunity,
     AuraTypes.SPELL_AURA_STATE_IMMUNITY: AuraEffectHandler.handle_state_immunity,
@@ -873,18 +898,16 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
     AuraTypes.SPELL_AURA_MOD_ATTACKSPEED: AuraEffectHandler.handle_mod_attack_speed,
     AuraTypes.SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK: AuraEffectHandler.handle_mod_casting_speed,
-
     AuraTypes.SPELL_AURA_MOD_HIT_CHANCE: AuraEffectHandler.handle_mod_hit_chance,
     AuraTypes.SPELL_AURA_MOD_PARRY_PERCENT: AuraEffectHandler.handle_mod_parry_chance,
     AuraTypes.SPELL_AURA_MOD_DODGE_PERCENT: AuraEffectHandler.handle_mod_dodge_chance,
     AuraTypes.SPELL_AURA_MOD_BLOCK_PERCENT: AuraEffectHandler.handle_mod_block_chance,
-
     AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN: AuraEffectHandler.handle_mod_damage_taken,
-
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE: AuraEffectHandler.handle_mod_damage_done,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE: AuraEffectHandler.handle_mod_damage_done_creature,
-
-    AuraTypes.SPELL_AURA_MOD_THREAT: AuraEffectHandler.handle_mod_threat
+    AuraTypes.SPELL_AURA_MOD_THREAT: AuraEffectHandler.handle_mod_threat,
+    AuraTypes.SPELL_AURA_REFLECT_SPELLS: AuraEffectHandler.handle_reflect_spells,
+    AuraTypes.SPELL_AURA_REFLECT_SPELLS_SCHOOL: AuraEffectHandler.handle_reflect_spells_school
 }
 
 PROC_AURA_EFFECTS = [

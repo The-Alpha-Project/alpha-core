@@ -47,11 +47,9 @@ class DamageInfoHolder:
     #  the right packet structure.
     def get_damage_done_packet(self):
         flags = WorldTextFlags.NORMAL_DAMAGE
+
         if self.hit_info & SpellHitFlags.CRIT:
             flags |= WorldTextFlags.CRIT
-        if self.hit_info & SpellHitFlags.REFLECTED:
-            flags &= ~(WorldTextFlags.NORMAL_DAMAGE | WorldTextFlags.CRIT)
-            flags |= WorldTextFlags.MISS_ABSORBED
         if self.absorb:
             flags |= WorldTextFlags.MISS_ABSORBED
 
