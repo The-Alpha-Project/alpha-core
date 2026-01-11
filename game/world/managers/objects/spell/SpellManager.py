@@ -429,7 +429,7 @@ class SpellManager:
         # Spells that use the KneelLoop animation causes the client to get stuck in this animation until relog.
         # Send a KneelEnd animation to resolve this issue. e.g. spell 6717 'Place Lion Carcass'
         if casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.CastKit == 380:  # KneelLoop.
-            data = pack(f'QI', self.caster.guid, 444)
+            data = pack(f'QI', self.caster.guid, 444)  # KneelEnd.
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
             self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
 
