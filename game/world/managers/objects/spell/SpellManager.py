@@ -395,6 +395,13 @@ class SpellManager:
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
                 self.send_cast_start(casting_spell)
+
+                # Fix mining animation never playing on first attempt.
+                if casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.PrecastKit == 166:
+                    data = pack(f'QI', self.caster.guid, casting_spell.spell_visual_entry.PrecastKit)
+                    packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
+                    self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
+
             return
 
         # Spell is instant, perform cast
@@ -424,7 +431,7 @@ class SpellManager:
         if casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.CastKit == 380:  # KneelLoop.
             data = pack(f'QI', self.caster.guid, 444)
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
-            self.caster.enqueue_packet(packet)
+            self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
 
         if casting_spell.requires_combo_points():
             # Combo points will be reset by consume_resources_for_cast.
