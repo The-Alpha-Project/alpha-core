@@ -1326,11 +1326,12 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                     return False
             # Line of sight.
-            target_ray_vector = validation_target.get_ray_position() if not is_terrain \
-                else target_loc.get_ray_vector(is_terrain=True)
-            if not self.caster.get_map().los_check(self.caster.get_ray_position(), target_ray_vector):
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
-                return False
+            if self.caster.is_unit(by_mask=True):
+                target_ray_vector = validation_target.get_ray_position() if not is_terrain \
+                    else target_loc.get_ray_vector(is_terrain=is_terrain)
+                if not self.caster.get_map().los_check(self.caster.get_ray_position(), target_ray_vector):
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
+                    return False
 
         # Item target checks.
         if casting_spell.initial_target_is_item():
