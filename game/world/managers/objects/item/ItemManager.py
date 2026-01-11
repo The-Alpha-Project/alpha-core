@@ -365,6 +365,9 @@ class ItemManager(ObjectManager):
         # flags = 0x0001 (ITEM_DYNFLAG_BOUND) and static flags = 0x0000.
         return ByteUtils.shorts_to_int(self.item_instance.item_flags, self.item_template.flags)
 
+    def is_player_cast(self):
+        return self._get_item_flags() & ItemFlags.ITEM_FLAG_PLAYERCAST
+
     # Enchantments.
 
     @staticmethod

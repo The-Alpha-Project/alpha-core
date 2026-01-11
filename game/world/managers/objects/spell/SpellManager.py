@@ -395,6 +395,13 @@ class SpellManager:
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
                 self.send_cast_start(casting_spell)
+
+                # Fix mining animation never playing on first attempt.
+                if casting_spell.is_mining_spell():
+                    data = pack(f'QI', self.caster.guid, casting_spell.spell_visual_entry.PrecastKit)
+                    packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
+                    self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
+
             return
 
         # Spell is instant, perform cast
@@ -422,9 +429,9 @@ class SpellManager:
         # Spells that use the KneelLoop animation causes the client to get stuck in this animation until relog.
         # Send a KneelEnd animation to resolve this issue. e.g. spell 6717 'Place Lion Carcass'
         if casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.CastKit == 380:  # KneelLoop.
-            data = pack(f'QI', self.caster.guid, 444)
+            data = pack(f'QI', self.caster.guid, 444)  # KneelEnd.
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
-            self.caster.enqueue_packet(packet)
+            self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
 
         if casting_spell.requires_combo_points():
             # Combo points will be reset by consume_resources_for_cast.
@@ -1326,11 +1333,12 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                     return False
             # Line of sight.
-            target_ray_vector = validation_target.get_ray_position() if not is_terrain \
-                else target_loc.get_ray_vector(is_terrain=True)
-            if not self.caster.get_map().los_check(self.caster.get_ray_position(), target_ray_vector):
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
-                return False
+            if self.caster.is_unit(by_mask=True):
+                target_ray_vector = validation_target.get_ray_position() if not is_terrain \
+                    else target_loc.get_ray_vector(is_terrain=is_terrain)
+                if not self.caster.get_map().los_check(self.caster.get_ray_position(), target_ray_vector):
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
+                    return False
 
         # Item target checks.
         if casting_spell.initial_target_is_item():
@@ -1819,22 +1827,23 @@ class SpellManager:
     def send_cast_result(self, casting_spell, error, misc_data=-1):
         is_player = self.caster.is_player()
         spell_id = casting_spell.spell_entry.ID
-
-        # Item casts which set the spell as modal (Spell_C_SetModal) will always display the cast result as failed
-        # if the spell id is provided.
-        # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
-        #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
-        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
-        if casting_spell.source_item and not casting_spell.is_instant_cast():
-            spell_id = 0
+        has_error = error != SpellCheckCastResult.SPELL_NO_ERROR
 
         if casting_spell.hide_result:
             error = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
+        # More research needed on client Spell_C_SetModal and CastResultHandler:
+        # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
+        #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
+        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
+        # Which are items with no ITEM_FLAG_PLAYERCAST which ends up displaying spell failed in the cast bar.
+        if not has_error and casting_spell.source_item and not casting_spell.source_item.is_player_cast():
+            spell_id = 0
+
         # Send spell failure only if this was an active spell.
-        if error != SpellCheckCastResult.SPELL_NO_ERROR:
-            # Do not broadcast errors upon creature spell cast validate() failing.
-            if spell_id not in self.casting_spells and casting_spell.creature_spell:
+        if has_error and spell_id in self.casting_spells:
+            # Do not broadcast errors upon creature/go cast validate() failing.
+            if not is_player:
                 return
             
             charmer_or_summoner = self.caster.get_charmer_or_summoner()
@@ -1845,18 +1854,11 @@ class SpellManager:
             data = pack('<QIB', self.caster.guid, spell_id, error)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
 
-            # TODO: Cozy Fire, client crashes, maybe we should not broadcast some Gameobjects spell cast errors?
-            # TODO: Also noticed this buff is applied to players from Bright Campfires spawned by enemies, not sure
-            #  if thats suppose to happen given that they do inherit the enemy faction and the buff is beneficial.
-            #  @Fluglow you can reproduce this by standing at -1648.34 -1869.82 80.8706 0, it will hit eventually.
-            if spell_id == 7358:
-                return
-
             self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
         # Only players receive cast results.
         if is_player:
-            if error == SpellCheckCastResult.SPELL_NO_ERROR:
+            if not has_error:
                 data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
             else:
                 if misc_data != -1:

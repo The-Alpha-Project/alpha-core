@@ -212,6 +212,9 @@ class CastingSpell:
                 and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE
                 and not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE)
 
+    def is_mining_spell(self):
+        return self.spell_entry.Totem_1 == 2901  # Mining pick.
+
     def get_ammo_for_cast(self) -> Optional[ItemManager]:
         if not self.is_ranged_weapon_attack():
             return None
