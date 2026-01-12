@@ -764,16 +764,17 @@ class StatManager:
             weapon_type = 0
 
         target_creature_type = victim.creature_type
+        spell_school_mask = 1 << attack_school
 
         # 1. Attacker (self) Damage Done Bonuses
         flat_done = (
-            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, False, attack_school, True) +
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, False, spell_school_mask, True) +
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, False, weapon_type, True) +
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, False, target_creature_type)
         )
 
         pct_done = (
-            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, True, attack_school, True) *
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, True, spell_school_mask, True) *
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, True, weapon_type, True) *
             self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, True, target_creature_type)
         )
@@ -781,7 +782,6 @@ class StatManager:
         damage_dealt = (damage + flat_done) * pct_done
 
         # 2. Victim Damage Taken Bonuses
-        spell_school_mask = 1 << attack_school
         flat_taken = victim.stat_manager.get_aura_stat_bonus(
             UnitStats.DAMAGE_TAKEN_SCHOOL, False, spell_school_mask, True
         )
