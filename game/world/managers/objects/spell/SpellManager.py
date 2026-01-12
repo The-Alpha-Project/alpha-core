@@ -645,18 +645,6 @@ class SpellManager:
         if not self.casting_spells:
             return
 
-        casting_spell_flag_cases = {
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT: moved,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE: received_damage,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_INTERRUPT: interrupted,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK: received_auto_attack
-        }
-        channeling_spell_flag_cases = {
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE: received_damage,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT: moved,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING: turned
-        }
-
         for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 continue
@@ -665,14 +653,21 @@ class SpellManager:
             crushing_interrupt = hit_info & HitInfo.CRUSHING and not casting_spell.is_ability()
 
             if casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
-                for flag, condition in channeling_spell_flag_cases.items():
-                    channel_flags = casting_spell.spell_entry.ChannelInterruptFlags
-                    if not (channel_flags & flag) or not condition:
-                        continue
+                channel_flags = casting_spell.spell_entry.ChannelInterruptFlags
+                interrupt = False
 
+                if (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE) and received_damage:
+                    interrupt = True
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and moved:
+                    interrupt = True
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING) and turned:
+                    interrupt = True
+
+                if interrupt:
                     full_interrupt = channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT
                     if not full_interrupt and not crushing_interrupt:
-                        if flag & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE:
+                        # Only damage triggers partial interrupts for channels.
+                        if received_damage:
                             casting_spell.handle_partial_interrupt()
                             continue
 
@@ -683,17 +678,29 @@ class SpellManager:
                 # Ignore other spells that are already active (e.g. area auras).
                 continue
 
-            for flag, condition in casting_spell_flag_cases.items():
-                spell_flags = casting_spell.spell_entry.InterruptFlags
-                if not (spell_flags & flag) or not condition:
-                    continue
+            spell_flags = casting_spell.spell_entry.InterruptFlags
+            interrupt = False
+            triggered_by_damage = False
+            triggered_by_autoattack = False
 
+            if (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT) and moved:
+                interrupt = True
+            elif (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE) and received_damage:
+                interrupt = True
+                triggered_by_damage = True
+            elif (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_INTERRUPT) and interrupted:
+                interrupt = True
+            elif (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK) and received_auto_attack:
+                interrupt = True
+                triggered_by_autoattack = True
+
+            if interrupt:
                 partial_interrupt = spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL
                 if partial_interrupt and not crushing_interrupt:
-                    if flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE:
+                    if triggered_by_damage:
                         casting_spell.handle_partial_interrupt()
                         continue
-                    elif flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK:
+                    elif triggered_by_autoattack:
                         continue  # Skip auto attack for partial interrupts.
 
                 self.remove_cast(casting_spell, interrupted=True)
