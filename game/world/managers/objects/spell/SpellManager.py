@@ -308,7 +308,7 @@ class SpellManager:
         if not self.caster.is_unit(by_mask=True):
             return
 
-        spell_stat = item.spell_stats.get(spell_slot)
+        spell_stat = item.spell_stats[spell_slot]
         if not spell_stat:
             return
 
