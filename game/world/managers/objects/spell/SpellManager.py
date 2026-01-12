@@ -396,7 +396,7 @@ class SpellManager:
             if not casting_spell.triggered:
                 self.send_cast_start(casting_spell)
 
-                # Fix mining animation never playing on first attempt.
+                # Fix mining animation never playing on the first attempt.
                 if casting_spell.is_mining_spell():
                     data = pack(f'QI', self.caster.guid, casting_spell.spell_visual_entry.PrecastKit)
                     packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
