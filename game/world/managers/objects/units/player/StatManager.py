@@ -765,23 +765,34 @@ class StatManager:
 
         target_creature_type = victim.creature_type
 
-        flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, percentual=False, misc_value=attack_school) + \
-            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, percentual=False, misc_value=weapon_type, misc_value_is_mask=True) + \
-            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, percentual=False, misc_value=target_creature_type)
+        # 1. Attacker (self) Damage Done Bonuses
+        flat_done = (
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, False, attack_school, True) +
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, False, weapon_type, True) +
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, False, target_creature_type)
+        )
 
-        percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, percentual=True, misc_value=attack_school) * \
-            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, percentual=True, misc_value=weapon_type, misc_value_is_mask=True) * \
-            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, percentual=True, misc_value=target_creature_type)
+        pct_done = (
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, True, attack_school, True) *
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, True, weapon_type, True) *
+            self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, True, target_creature_type)
+        )
 
-        damage_dealt = (damage + flat_bonuses) * percentual_bonuses
+        damage_dealt = (damage + flat_done) * pct_done
 
-        # Add victim buffs/debuffs after calculations to not scale them.
-        damage_dealt += victim.stat_manager.get_total_stat(UnitStats.DAMAGE_TAKEN_SCHOOL, 1 << attack_school,
-                                                           accept_negative=True, misc_value_is_mask=True)
+        # 2. Victim Damage Taken Bonuses
+        spell_school_mask = 1 << attack_school
+        flat_taken = victim.stat_manager.get_aura_stat_bonus(
+            UnitStats.DAMAGE_TAKEN_SCHOOL, False, spell_school_mask, True
+        )
 
-        # Last, account for armor mitigation if applicable.
-        # TODO Should bleed spells ignore armor?
-        #  Effect mechanic fields aren't present in 0.5.3, but are referenced by SPELL_AURA_MECHANIC_IMMUNITY
+        pct_taken = victim.stat_manager.get_aura_stat_bonus(
+            UnitStats.DAMAGE_TAKEN_SCHOOL, True, spell_school_mask, True
+        )
+
+        damage_dealt = (damage_dealt + flat_taken) * pct_taken
+
+        # 3. Armor Mitigation
         if attack_school == SpellSchools.SPELL_SCHOOL_NORMAL:
             total_armor = victim.stat_manager.get_total_stat(UnitStats.RESISTANCE_PHYSICAL)
 
@@ -799,7 +810,6 @@ class StatManager:
             # reduction = min(0.75, reduction)
             # damage_dealt *= 1 - reduction
 
-        # Damage taken reduction can bring damage to negative, limit to 0.
         return max(0, int(damage_dealt))
 
     def roll_proc_chance(self, base_chance: float) -> bool:
