@@ -304,35 +304,38 @@ class SpellManager:
 
             self.start_spell_cast(initialized_spell=casting_spell)
 
-    def handle_item_cast_attempt(self, item, spell_target, target_mask):
+    def handle_item_cast_attempt(self, item, spell_target, target_mask, spell_slot):
         if not self.caster.is_unit(by_mask=True):
             return
 
-        for item_spell in item.spell_stats:
-            if not item_spell.spell_id:
-                continue
+        spell_stat = item.spell_stats.get(spell_slot)
+        if not spell_stat:
+            return
 
-            if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_USE:
-                continue
+        if not spell_stat.spell_id:
+            return
 
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(item_spell.spell_id)
-            if not spell:
-                Logger.warning(f'Spell {item_spell.spell_id} tied to item {item.item_template.entry} '
+        if spell_stat.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_USE:
+            return
+
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_stat.spell_id)
+        if not spell:
+            Logger.warning(f'Spell {spell_stat.spell_id} tied to item {item.item_template.entry} '
                                f'({item.get_name()}) could not be found in the spell database.')
-                continue
+            return
 
-            casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item=item)
-            if not casting_spell:
-                continue
+        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item=item)
+        if not casting_spell:
+            return
 
-            if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here.
-                self.caster.set_stand_state(StandState.UNIT_SITTING)
+        if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here.
+            self.caster.set_stand_state(StandState.UNIT_SITTING)
 
-            # If item binds on use, bind it now.
-            if item.item_template.bonding == ItemBondingTypes.BIND_WHEN_USE:
-                item.set_binding(True)
+        # If the item binds on use, bind it now.
+        if item.item_template.bonding == ItemBondingTypes.BIND_WHEN_USE:
+            item.set_binding(True)
 
-            self.start_spell_cast(initialized_spell=casting_spell)
+        self.start_spell_cast(initialized_spell=casting_spell)
 
     def handle_cast_attempt(self, spell_id, spell_target, target_mask, triggered=False, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
