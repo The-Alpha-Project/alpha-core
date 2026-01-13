@@ -170,7 +170,7 @@ class UpdateBuilder:
             # If data exceeds uint16, split packets.
             if len(data) + len(update_bytes) > 65535:
                 packet_bytes = bytearray(pack('<I', transactions)) + data
-                packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, bytes(packet_bytes)))
+                packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, packet_bytes))
                 transactions = 0
                 data.clear()
             data.extend(update_bytes)
@@ -178,7 +178,7 @@ class UpdateBuilder:
 
         if data:
             packet_bytes = bytearray(pack('<I', transactions)) + data
-            packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, bytes(packet_bytes)))
+            packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, packet_bytes))
 
         data.clear()
 

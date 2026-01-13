@@ -193,7 +193,7 @@ class MpqArchive:
 
     def decrypt_block_from_bytes(self, data, seed_1):
         seed_2 = 0xeeeeeeee
-        data: bytearray = bytearray(data)
+        data = bytearray(data)
         for i in range(0, len(data) - 3, 4):
             seed_2 = self.storm_buffer[(0x400 + (seed_1 & 0xff))] + seed_2 & 0xffffffff
             result = unpack('<I', data[i:i + 4])[0]
@@ -205,4 +205,4 @@ class MpqArchive:
             data[i + 1] = (result >> 8) & 0xff
             data[i + 2] = (result >> 16) & 0xff
             data[i + 3] = (result >> 24) & 0xff
-        return bytes(data)
+        return data

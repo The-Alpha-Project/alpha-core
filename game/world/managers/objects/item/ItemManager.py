@@ -482,7 +482,7 @@ class ItemManager(ObjectManager):
                     query_data.extend(item_bytes)
                     written_items += 1
 
-                packet = pack(f'<B{len(query_data)}s', written_items, bytes(query_data))
+                packet = pack(f'<B{len(query_data)}s', written_items, query_data)
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
                 query_data.clear()
                 written_items = 0
