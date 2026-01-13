@@ -101,6 +101,11 @@ class UpdatePacketFactory:
         return not self.update_mask.is_empty()
 
     def reset_older_than(self, timestamp_to_compare, ignore_timestamps=False):
+        if ignore_timestamps:
+            self.update_mask.clear()
+            self.update_timestamps = [0] * self.fields_size
+            return True
+
         all_clear = True
         set_bits = self.update_mask.update_mask.search(1)
         # Convert search iterator to a list because we might modify the mask while iterating if we weren't using search(1)
@@ -110,10 +115,6 @@ class UpdatePacketFactory:
             return True
 
         for index in set_bits:
-            if ignore_timestamps:
-                self.update_mask.unset_bit(index)
-                continue
-
             timestamp = self.update_timestamps[index]
             if timestamp == 0:
                 continue
