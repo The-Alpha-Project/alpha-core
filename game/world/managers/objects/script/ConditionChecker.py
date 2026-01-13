@@ -673,7 +673,7 @@ class ConditionChecker:
         scripted_event = map_.get_map_event_data(condition.value1)
         if scripted_event:
             for event_target in scripted_event.event_targets:
-                if not ConditionChecker.validate(condition.value2, _source, event_target.target)
+                if not ConditionChecker.validate(condition.value2, _source, event_target.target):
                     return False
         return True
 
