@@ -851,12 +851,12 @@ class InventoryManager:
         else:
             self.owner.enqueue_packet(packet)
 
-    def reset_fields_older_than(self, now):
+    def reset_fields_older_than(self, now, ignore_timestamps=False):
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
-            container.reset_fields_older_than(now)
-            [item.reset_fields_older_than(now) for item in list(container.sorted_slots.values())]
+            container.reset_fields_older_than(now, ignore_timestamps=ignore_timestamps)
+            [item.reset_fields_older_than(now, ignore_timestamps=ignore_timestamps) for item in list(container.sorted_slots.values())]
 
     # Owner will check for items pending changes.
     def has_pending_updates(self):

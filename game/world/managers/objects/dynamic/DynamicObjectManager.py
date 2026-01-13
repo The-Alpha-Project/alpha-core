@@ -56,13 +56,19 @@ class DynamicObjectManager(ObjectManager):
 
         self.initialized = True
 
+    # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            elapsed = now - self.last_tick
-            if self.ttl > 0:
-                self.ttl = max(0, self.ttl - elapsed)
-                if self.ttl == 0:
-                    self.despawn()
+        super().update(now)
+
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
+
+        elapsed = now - self.last_tick
+        if self.ttl > 0:
+            self.ttl = max(0, self.ttl - elapsed)
+            if self.ttl == 0:
+                self.despawn()
 
         self.last_tick = now
 

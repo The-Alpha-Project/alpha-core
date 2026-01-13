@@ -27,7 +27,11 @@ class UpdatePacketFactory:
         self.update_values_bytes = [b'\x00\x00\x00\x00'] * self.fields_size
         self.update_values = [0] * self.fields_size
         self.update_mask.set_count(self.fields_size)
-        self._load_encapsulation(fields_type)
+
+        # Cache dynamic and private fields for faster lookups.
+        encapsulation = self._load_encapsulation(fields_type)
+        self.dynamic_fields = {i for i, enc in encapsulation.items() if enc == EncapsulationType.DYNAMIC}
+        self.private_fields = {i for i, enc in encapsulation.items() if enc == EncapsulationType.PRIVATE}
 
     @staticmethod
     def _load_encapsulation(fields_type):
@@ -39,13 +43,9 @@ class UpdatePacketFactory:
         FIELDS_ENCAPSULATION[fields_type] = {}
         DEBUG_INFORMATION[fields_type] = {}
 
-        # Collect all involved update field types from the current type up to ObjectFields.
-        update_field_types = []
-
-        # Start from the provided fields_type.
-        current_type = fields_type
-
         # Traverse parent fields until reaching ObjectFields.
+        current_type = fields_type
+        update_field_types = []
         while True:
             update_field_types.insert(0, current_type)
             if current_type == ObjectFields:
@@ -53,30 +53,25 @@ class UpdatePacketFactory:
             current_type = current_type.parent_fields()
 
         # Process each update field type in order.
-        for index, update_type in enumerate(update_field_types):
+        for update_type in update_field_types:
             for update_field in update_type:
                 # For each component in the update field, store encapsulation info.
                 for offset in range(update_field.size):
                     field_index = update_field.value + offset
-                    field_str_value = f"[{field_index}] {update_field.name}_{offset} - [{update_field.flags.name}]"
                     # Store debugging info for each field.
-                    DEBUG_INFORMATION[fields_type][field_index] = field_str_value
+                    DEBUG_INFORMATION[fields_type][field_index] = (
+                        f"[{field_index}] {update_field.name}_{offset} - [{update_field.flags.name}]"
+                    )
                     # Store the encapsulation flags for the field.
                     FIELDS_ENCAPSULATION[fields_type][field_index] = update_field.flags
 
         return FIELDS_ENCAPSULATION[fields_type]
 
     def is_dynamic_field(self, index):
-        if not self._validate_field_existence(index):
-            return False
-
-        return FIELDS_ENCAPSULATION[self.fields_type][index] == EncapsulationType.DYNAMIC
+        return index in self.dynamic_fields
 
     def has_read_rights_for_field(self, index, requester):
-        if not self._validate_field_existence(index):
-            return False
-
-        if requester.guid != self.owner_guid and FIELDS_ENCAPSULATION[self.fields_type][index] == EncapsulationType.PRIVATE:
+        if requester.guid != self.owner_guid and index in self.private_fields:
             # self._debug_field_acquisition(requester, index, was_protected=True)
             return False
 
@@ -84,9 +79,7 @@ class UpdatePacketFactory:
         return True
 
     def _validate_field_existence(self, index):
-        if self.fields_type not in FIELDS_ENCAPSULATION:
-            return False
-        return index in FIELDS_ENCAPSULATION[self.fields_type]
+        return self.fields_type in FIELDS_ENCAPSULATION and index in FIELDS_ENCAPSULATION[self.fields_type]
 
     # Debug what UpdateFields players sees from self, other player, units, items, gameobjects, etc.
     def _debug_field_acquisition(self, requester, index, was_protected):
@@ -95,10 +88,10 @@ class UpdatePacketFactory:
         Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
 
     # Makes sure every single player gets the same mask and values.
-    def generate_update_data(self, flush_current=True):
+    def generate_update_data(self, flush_current=True, ignore_timestamps=False):
         update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes.copy())
         if flush_current:
-            self.update_mask.clear()
+            self.reset_older_than(None, ignore_timestamps=ignore_timestamps)
         return update_object
 
     def reset(self):
@@ -107,11 +100,24 @@ class UpdatePacketFactory:
     def has_pending_updates(self):
         return not self.update_mask.is_empty()
 
-    def reset_older_than(self, timestamp_to_compare):
+    def reset_older_than(self, timestamp_to_compare, ignore_timestamps=False):
         all_clear = True
-        for index, timestamp in enumerate(self.update_timestamps):
-            if not timestamp:
+        set_bits = self.update_mask.update_mask.search(1)
+        # Convert search iterator to a list because we might modify the mask while iterating if we weren't using search(1)
+        # though search(1) returns an iterator of indices.
+        set_bits = list(set_bits)
+        if not set_bits:
+            return True
+
+        for index in set_bits:
+            if ignore_timestamps:
+                self.update_mask.unset_bit(index)
                 continue
+
+            timestamp = self.update_timestamps[index]
+            if timestamp == 0:
+                continue
+
             if timestamp <= timestamp_to_compare:
                 self.update_mask.unset_bit(index)
             else:
@@ -123,21 +129,28 @@ class UpdatePacketFactory:
         if not is_int64:
             return self.update_values[index] != value
 
-        field_0 = int(value & 0xFFFFFFFF)
-        field_1 = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
-        return self.update_values[index] != field_0 or self.update_values[index + 1] != field_1
+        # Check both lower and upper parts for 64-bit values.
+        return (self.update_values[index] != int(value & 0xFFFFFFFF) or
+                self.update_values[index + 1] != int((value >> 32) & 0xFFFFFFFF))
 
-    def update(self, index, value, value_type, is_int64):
+    def update(self, index, value, value_type, is_int64, now):
         # Handle 64-bit 'q' type by splitting into two 32-bit updates.
         if is_int64:
             lower_value = int(value & 0xFFFFFFFF)
             upper_value = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
 
-            # Recursively update lower and upper parts.
-            self.update(index, lower_value, 'I', False)
-            self.update(index + 1, upper_value, 'I', False)
+            # Inline update for both parts to avoid recursion overhead.
+            self.update_timestamps[index] = now
+            self.update_values[index] = lower_value
+            self.update_values_bytes[index] = pack('<I', lower_value)
+            self.update_mask.set_bit(index)
+
+            self.update_timestamps[index + 1] = now
+            self.update_values[index + 1] = upper_value
+            self.update_values_bytes[index + 1] = pack('<I', upper_value)
+            self.update_mask.set_bit(index + 1)
         else:
-            self.update_timestamps[index] = time.time()
+            self.update_timestamps[index] = now
             self.update_values[index] = value
             self.update_values_bytes[index] = pack(f'<{value_type}', value)
             self.update_mask.set_bit(index)

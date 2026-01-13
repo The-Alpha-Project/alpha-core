@@ -31,14 +31,17 @@ class CreatureSpawn:
         self.pool = None
 
     def update(self, now):
-        if now > self.last_tick > 0 and not self.borrowed: # Skip update if creature instance is charmed.
-            elapsed = now - self.last_tick
-            creature = self.creature_instance
-            if creature:
-                if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
-                    self._update_respawn(elapsed)
-            else:
+        if now <= self.last_tick or self.last_tick <= 0 or self.borrowed:
+            self.last_tick = now
+            return
+
+        elapsed = now - self.last_tick
+        creature = self.creature_instance
+        if creature:
+            if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
                 self._update_respawn(elapsed)
+        else:
+            self._update_respawn(elapsed)
 
         self.last_tick = now
 

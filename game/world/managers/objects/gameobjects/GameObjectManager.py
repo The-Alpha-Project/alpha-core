@@ -56,20 +56,26 @@ class GameObjectManager(ObjectManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            elapsed = now - self.last_tick
+        super().update(now)
 
-            if self.is_active_object():
-                # Time to live checks for standalone instances.
-                if not self._check_time_to_live(elapsed):
-                    return  # Object destroyed.
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
 
-                # SpellManager update.
-                self.spell_manager.update(now)
+        elapsed = now - self.last_tick
 
-            # Check if this game object should be updated yet or not.
-            if self.has_pending_updates():
-                self.get_map().update_object(self, has_changes=True)
+        if self.is_active_object():
+            # Time to live checks for standalone instances.
+            if not self._check_time_to_live(elapsed):
+                self.last_tick = now
+                return  # Object destroyed.
+
+            # SpellManager update.
+            self.spell_manager.update(now)
+
+        # Check if this game object should be updated yet or not.
+        if self.has_pending_updates():
+            self.get_map().update_object(self, has_changes=True)
 
         self.last_tick = now
 
@@ -331,7 +337,7 @@ class GameObjectManager(ObjectManager):
     def _get_fields_update(self, is_create, requester, update_data=None):
         # Make sure we work on a copy of the current mask and values.
         if not update_data:
-            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
+            update_data = self.update_packet_factory.generate_update_data(flush_current=True, ignore_timestamps=True)
 
         mask = update_data.update_bit_mask
         values = update_data.update_field_values

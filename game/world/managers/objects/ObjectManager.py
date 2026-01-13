@@ -76,6 +76,7 @@ class ObjectManager:
         self.movement_spline = None
         self.object_ai = None
         self.collision_cheat = False
+        self.tick_time = 0
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
@@ -248,9 +249,9 @@ class ObjectManager:
         # Reset updated fields.
         self.update_packet_factory.reset()
 
-    def reset_fields_older_than(self, timestamp):
+    def reset_fields_older_than(self, timestamp, ignore_timestamps=False):
         # Reset updated fields older than the specified timestamp.
-        return self.update_packet_factory.reset_older_than(timestamp)
+        return self.update_packet_factory.reset_older_than(timestamp, ignore_timestamps=ignore_timestamps)
 
     # Fall Time (Not implemented for units, anim progress for transports).
     # noinspection PyMethodMayBeStatic
@@ -296,7 +297,7 @@ class ObjectManager:
     def _get_fields_update(self, is_create, requester, update_data=None):
         # Make sure we work on a copy of the current mask and values.
         if not update_data:
-            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
+            update_data = self.update_packet_factory.generate_update_data(flush_current=True, ignore_timestamps=True)
 
         mask = update_data.update_bit_mask
         values = update_data.update_field_values
@@ -338,7 +339,7 @@ class ObjectManager:
         return self._set_value(index, value, 'Q', True, force)
 
     def set_float(self, index, value, force=False):
-        return self._set_value(index, value, 'f', force, False)
+        return self._set_value(index, value, 'f', False, force)
 
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index, False)
@@ -372,7 +373,7 @@ class ObjectManager:
     def _set_value(self, index, value, value_type, is_int64, force=False):
         force = force and self.is_player()
         if force or self.update_packet_factory.should_update(index, value, is_int64):
-            self.update_packet_factory.update(index, value, value_type, is_int64)
+            self.update_packet_factory.update(index, value, value_type, is_int64, self.tick_time)
             if force and self.is_in_world():  # Changes should apply immediately.
                 self.get_map().update_object(self, has_changes=True)
             return True, force
@@ -380,7 +381,7 @@ class ObjectManager:
 
     # override
     def update(self, now):
-        pass
+        self.tick_time = now
 
     # override
     def initialize_field_values(self):
