@@ -14,6 +14,8 @@ class UpdatePacketFactory:
         self.owner_guid = 0
         self.fields_size = 0
         self.fields_type = None
+        self.dynamic_fields = None
+        self.private_fields = None
         self.update_values_bytes = []  # Values bytes representation, used for update packets.
         self.update_values = []  # Raw values, used to compare current vs new without having to pack or unpack.
         self.update_mask = UpdateMask()
