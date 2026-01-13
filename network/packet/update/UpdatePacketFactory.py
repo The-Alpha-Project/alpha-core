@@ -14,7 +14,6 @@ class UpdatePacketFactory:
         self.owner_guid = 0
         self.fields_size = 0
         self.fields_type = None
-        self.update_timestamps = []  # Timestamps for each field once it's touched.
         self.update_values_bytes = []  # Values bytes representation, used for update packets.
         self.update_values = []  # Raw values, used to compare current vs new without having to pack or unpack.
         self.update_mask = UpdateMask()
@@ -23,7 +22,6 @@ class UpdatePacketFactory:
         self.owner_guid = owner_guid
         self.fields_type = fields_type
         self.fields_size = fields_type.END.value
-        self.update_timestamps = [0] * self.fields_size
         self.update_values_bytes = [b'\x00\x00\x00\x00'] * self.fields_size
         self.update_values = [0] * self.fields_size
         self.update_mask.set_count(self.fields_size)
@@ -88,10 +86,10 @@ class UpdatePacketFactory:
         Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
 
     # Makes sure every single player gets the same mask and values.
-    def generate_update_data(self, flush_current=True, ignore_timestamps=False):
+    def generate_update_data(self, flush_current=True):
         update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes.copy())
         if flush_current:
-            self.reset_older_than(timestamp_to_compare=None, ignore_timestamps=ignore_timestamps)
+            self.reset()
         return update_object
 
     def reset(self):
@@ -99,31 +97,6 @@ class UpdatePacketFactory:
 
     def has_pending_updates(self):
         return not self.update_mask.is_empty()
-
-    def reset_older_than(self, timestamp_to_compare, ignore_timestamps=False):
-        if ignore_timestamps:
-            self.update_mask.clear()
-            self.update_timestamps = [0] * self.fields_size
-            return True
-
-        all_clear = True
-        set_bits = self.update_mask.update_mask.search(1)
-        # Convert search iterator to a list because we might modify the mask while iterating if we weren't using search(1)
-        # though search(1) returns an iterator of indices.
-        set_bits = list(set_bits)
-        if not set_bits:
-            return True
-
-        for index in set_bits:
-            timestamp = self.update_timestamps[index]
-            if timestamp == 0:
-                continue
-
-            if timestamp <= timestamp_to_compare:
-                self.update_mask.unset_bit(index)
-            else:
-                all_clear = False
-        return all_clear
 
     # Check if the new value is different from the field known value.
     def should_update(self, index, value, is_int64):
@@ -134,24 +107,21 @@ class UpdatePacketFactory:
         return (self.update_values[index] != int(value & 0xFFFFFFFF) or
                 self.update_values[index + 1] != int((value >> 32) & 0xFFFFFFFF))
 
-    def update(self, index, value, value_type, is_int64, now):
+    def update(self, index, value, value_type, is_int64):
         # Handle 64-bit 'q' type by splitting into two 32-bit updates.
         if is_int64:
             lower_value = int(value & 0xFFFFFFFF)
             upper_value = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
 
             # Inline update for both parts to avoid recursion overhead.
-            self.update_timestamps[index] = now
             self.update_values[index] = lower_value
             self.update_values_bytes[index] = pack('<I', lower_value)
             self.update_mask.set_bit(index)
 
-            self.update_timestamps[index + 1] = now
             self.update_values[index + 1] = upper_value
             self.update_values_bytes[index + 1] = pack('<I', upper_value)
             self.update_mask.set_bit(index + 1)
         else:
-            self.update_timestamps[index] = now
             self.update_values[index] = value
             self.update_values_bytes[index] = pack(f'<{value_type}', value)
             self.update_mask.set_bit(index)

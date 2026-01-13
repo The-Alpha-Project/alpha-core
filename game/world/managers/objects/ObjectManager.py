@@ -76,7 +76,6 @@ class ObjectManager:
         self.movement_spline = None
         self.object_ai = None
         self.collision_cheat = False
-        self.tick_time = 0
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
@@ -245,13 +244,9 @@ class ObjectManager:
     def reset_scale(self):
         self.set_scale(self.native_scale)
 
-    def reset_fields(self):
+    def reset_update_fields(self):
         # Reset updated fields.
         self.update_packet_factory.reset()
-
-    def reset_fields_older_than(self, timestamp, ignore_timestamps=False):
-        # Reset updated fields older than the specified timestamp.
-        return self.update_packet_factory.reset_older_than(timestamp, ignore_timestamps=ignore_timestamps)
 
     # Fall Time (Not implemented for units, anim progress for transports).
     # noinspection PyMethodMayBeStatic
@@ -297,7 +292,7 @@ class ObjectManager:
     def _get_fields_update(self, is_create, requester, update_data=None):
         # Make sure we work on a copy of the current mask and values.
         if not update_data:
-            update_data = self.update_packet_factory.generate_update_data(flush_current=True, ignore_timestamps=True)
+            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
 
         mask = update_data.update_bit_mask
         values = update_data.update_field_values
@@ -373,7 +368,7 @@ class ObjectManager:
     def _set_value(self, index, value, value_type, is_int64, force=False):
         force = force and self.is_player()
         if force or self.update_packet_factory.should_update(index, value, is_int64):
-            self.update_packet_factory.update(index, value, value_type, is_int64, self.tick_time)
+            self.update_packet_factory.update(index, value, value_type, is_int64)
             if force and self.is_in_world():  # Changes should apply immediately.
                 self.get_map().update_object(self, has_changes=True)
             return True, force
@@ -381,7 +376,7 @@ class ObjectManager:
 
     # override
     def update(self, now):
-        self.tick_time = now
+        pass
 
     # override
     def initialize_field_values(self):

@@ -337,7 +337,7 @@ class GameObjectManager(ObjectManager):
     def _get_fields_update(self, is_create, requester, update_data=None):
         # Make sure we work on a copy of the current mask and values.
         if not update_data:
-            update_data = self.update_packet_factory.generate_update_data(flush_current=True, ignore_timestamps=True)
+            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
 
         mask = update_data.update_bit_mask
         values = update_data.update_field_values
