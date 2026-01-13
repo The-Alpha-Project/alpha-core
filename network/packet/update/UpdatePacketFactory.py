@@ -91,7 +91,7 @@ class UpdatePacketFactory:
     def generate_update_data(self, flush_current=True, ignore_timestamps=False):
         update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes.copy())
         if flush_current:
-            self.reset_older_than(None, ignore_timestamps=ignore_timestamps)
+            self.reset_older_than(timestamp_to_compare=None, ignore_timestamps=ignore_timestamps)
         return update_object
 
     def reset(self):
