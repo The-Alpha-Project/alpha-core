@@ -340,7 +340,6 @@ class GameObjectManager(ObjectManager):
             update_data = self.update_packet_factory.generate_update_data(flush_current=True)
 
         mask = update_data.update_bit_mask
-        values = update_data.update_field_values
 
         data = bytearray()
         for index in range(self.update_packet_factory.update_mask.field_count):
@@ -360,7 +359,7 @@ class GameObjectManager(ObjectManager):
                 # Client doesn't remove collision for doors sent with active state - always send as ready.
                 value = pack('<I', GameObjectStates.GO_STATE_READY)
             else:
-                value = values[index]
+                value = update_data.get_field_bytes(index)
 
             data.extend(value)
             mask[index] = 1
