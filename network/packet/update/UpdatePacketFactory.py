@@ -84,7 +84,7 @@ class UpdatePacketFactory:
     # Debug what UpdateFields players sees from self, other player, units, items, gameobjects, etc.
     def _debug_field_acquisition(self, requester, index, was_protected):
         update_field_info = DEBUG_INFORMATION[self.fields_type][index]
-        result = {'[PROTECTED]' if was_protected else '[ACCESSED]'}
+        result = '[PROTECTED]' if was_protected else '[ACCESSED]'
         Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
 
     # Makes sure every single player gets the same mask and values.
