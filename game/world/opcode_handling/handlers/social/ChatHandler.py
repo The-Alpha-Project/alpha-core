@@ -17,7 +17,7 @@ class ChatHandler:
         if not world_session.player_mgr:
             return 0
 
-        if world_session.player_mgr.language_mod:
+        if world_session.player_mgr.language_mod > -1:
             lang = world_session.player_mgr.language_mod
 
         # Override language to universal for GMs.
