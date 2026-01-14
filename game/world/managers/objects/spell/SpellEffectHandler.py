@@ -737,6 +737,12 @@ class SpellEffectHandler:
         target.movement_manager.move_distracted(duration, angle=angle)
 
     @staticmethod
+    def handle_pull(casting_spell, effect, caster, target):
+        if not target.is_unit():
+            return
+        target.threat_manager.add_threat(caster, is_pull_effect=True)
+
+    @staticmethod
     def handle_interrupt_cast(casting_spell, effect, caster, target):
         if not target.is_unit(by_mask=True):
             return
@@ -1011,6 +1017,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_STUCK: SpellEffectHandler.handle_stuck,
     SpellEffects.SPELL_EFFECT_INTERRUPT_CAST: SpellEffectHandler.handle_interrupt_cast,
     SpellEffects.SPELL_EFFECT_DISTRACT: SpellEffectHandler.handle_distract,
+    SpellEffects.SPELL_EFFECT_PULL: SpellEffectHandler.handle_pull,
 
     # Event scripts.
     SpellEffects.SPELL_EFFECT_SEND_EVENT: SpellEffectHandler.handle_send_event,

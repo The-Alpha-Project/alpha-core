@@ -640,6 +640,7 @@ class CreatureManager(UnitManager):
         if self.is_alive:
             # Update call for help timer.
             self.call_for_help_timer += elapsed
+            self.threat_manager.update(now)
             # Regeneration.
             self.regenerate(elapsed)
             # Spell/Aura Update.
@@ -671,7 +672,7 @@ class CreatureManager(UnitManager):
                 self._update_swimming_state()
 
         has_changes = self.has_pending_updates()
-        # Check if this creature object should be updated yet or not.
+        # Check if this creature object should be updated.
         if has_changes or self.has_moved:
             self.get_map().update_object(self, has_changes=has_changes)
             self.set_has_moved(False, False, flush=True)
