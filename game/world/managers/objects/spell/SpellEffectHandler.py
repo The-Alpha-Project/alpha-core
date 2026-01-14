@@ -740,10 +740,16 @@ class SpellEffectHandler:
     def handle_pull(casting_spell, effect, caster, target):
         if not target.is_unit():
             return
+
+        # Only beasts can be affected; see Beast Call description:
+        # "Call the targeted beast, which will not call for help."
         if target.creature_type != CreatureTypes.BEAST:
             return
+
+        # Prevent pulling creatures that are already in combat.
         if target.combat_target:
             return
+
         target.threat_manager.add_threat(caster, is_pull_effect=True)
 
     @staticmethod
