@@ -16,6 +16,7 @@ class WanderingMovement(BaseMovement):
         self.wander_home_position = None
         self.last_wandering_movement = 0
         self.wait_time_seconds = 0
+        self.movements_remaining = 0
 
     # override
     def initialize(self, unit):
@@ -28,10 +29,24 @@ class WanderingMovement(BaseMovement):
     def update(self, now, elapsed):
         if self._can_wander(now):
             self.last_wandering_movement = now
-            if self._wander():
-                self.wait_time_seconds = randint(1, 12) + self.get_total_time_secs()
+
+            if self.movements_remaining > 0:
+                if self._wander():
+                    self.movements_remaining -= 1
+
+                    if self.movements_remaining == 0:
+                        self.wait_time_seconds = randint(4, 10)
+                    else:
+                        self.wait_time_seconds = self.get_total_time_secs()
+                else:
+                    self.wait_time_seconds = randint(1, 3)
             else:
-                self.wait_time_seconds = randint(1, 3)
+                self.movements_remaining = randint(0, 2 if self.wandering_distance <= 1.0 else 8)
+                if self.movements_remaining > 0:
+                    self.last_wandering_movement = 0
+                    self.wait_time_seconds = 0
+                else:
+                    self.wait_time_seconds = randint(4, 10)
 
         super().update(now, elapsed)
 
@@ -41,7 +56,8 @@ class WanderingMovement(BaseMovement):
             # Make sure the last known position gets updated.
             self.spline.update_to_now()
             self.spline = None
-        self.wait_time_seconds = randint(1, 12)
+        self.movements_remaining = 0
+        self.wait_time_seconds = randint(4, 10)
         self.last_wandering_movement = time.time()
 
     def _wander(self):
