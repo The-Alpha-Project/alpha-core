@@ -212,7 +212,7 @@ class ThreatManager:
         if not self._call_for_help_range and not radius:
             return
 
-        if self.pull_effect_duration > 0:
+        if self.pull_effect_duration:
             return
 
         # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.
