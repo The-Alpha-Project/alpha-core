@@ -97,7 +97,6 @@ class PlayerManager(UnitManager):
         self.chat_flags = chat_flags
         self.afk_message = ''
         self.dnd_message = ''
-        self.language_mod = 0
         self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0

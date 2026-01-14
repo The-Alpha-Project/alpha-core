@@ -399,7 +399,12 @@ class SpellManager:
             if not casting_spell.triggered:
                 self.send_cast_start(casting_spell)
 
-                # Fix mining animation never playing on the first attempt.
+                # Fix mining animation never playing on the first attempt. Actually this issue happens with all other
+                # spells having a PrecastKit (for example, mage's Fireball), but more inconsistently; maybe failing just
+                # one every 20 attempts. However, the first attempt of the Mining spell always failed to play the
+                # animation correctly.
+                # TODO: This is probably just a general client issue, but adding a TODO here just in case someone wants
+                #  to dig and investigate deeper.
                 if casting_spell.is_mining_spell():
                     data = pack(f'QI', self.caster.guid, casting_spell.spell_visual_entry.PrecastKit)
                     packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
@@ -1842,7 +1847,7 @@ class SpellManager:
         if casting_spell.hide_result:
             error = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
-        # More research needed on client Spell_C_SetModal and CastResultHandler:
+        # TODO: More research needed on client Spell_C_SetModal and CastResultHandler:
         # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
         #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
         # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).

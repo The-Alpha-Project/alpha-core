@@ -712,7 +712,7 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
         amount = aura.get_effect_points()
-        misc_value = aura.spell_effect.misc_value  # Spell school
+        misc_value = aura.spell_effect.misc_value  # Spell school.
 
         if misc_value == -2:
             spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
@@ -730,7 +730,7 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
             return
         amount = aura.get_effect_points()
-        misc_value = aura.spell_effect.misc_value  # Spell school
+        misc_value = aura.spell_effect.misc_value  # Spell school.
 
         # Fatigued (3271) is the only spell with a negative misc value (-2).
         # There are no descriptions, but in VMaNGOS this is handled as all schools.
@@ -851,6 +851,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_language(aura, effect_target, remove):
+        # TODO: Even though the mod is applied, units aren't switching their language to Demonic. Implement that.
         if remove:
             effect_target.language_mod = 0
             return

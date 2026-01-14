@@ -25,7 +25,7 @@ from utils.constants.MiscCodes import AttackTypes, GameObjectStates, DynamicObje
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
-from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitFlags, UnitStates, CreatureTypes
 
 
 class SpellEffectHandler:
@@ -739,6 +739,8 @@ class SpellEffectHandler:
     @staticmethod
     def handle_pull(casting_spell, effect, caster, target):
         if not target.is_unit():
+            return
+        if target.creature_type != CreatureTypes.BEAST:
             return
         target.threat_manager.add_threat(caster, is_pull_effect=True)
 

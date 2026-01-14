@@ -200,6 +200,8 @@ class UnitManager(ObjectManager):
         self._school_absorbs = {}
         # Effects modifying unit flags.
         self._flag_effects = dict(dict())  # Enum: (Flag: set(source id))
+        # Language override, used by spells like Curse of Tongues.
+        self.language_mod = 0
 
         self.movement_info = MovementInfo(self)
         self.has_moved = False
