@@ -461,7 +461,7 @@ class AuraTypes(IntEnum):  # from cmangos-classic; entries over 88 don't exist i
     SPELL_AURA_MOD_HIT_CHANCE = 54
 #    SPELL_AURA_MOD_SPELL_HIT_CHANCE = 55
     SPELL_AURA_TRANSFORM = 56
-#    SPELL_AURA_MOD_SPELL_CRIT_CHANCE = 57 - Thrown Finesse, (OLD) Magic Focus
+#    SPELL_AURA_MOD_SPELL_CRIT_CHANCE = 57 - Thrown Finesse (Spears), (OLD) Magic Focus
     SPELL_AURA_MOD_INCREASE_SWIM_SPEED = 58
     SPELL_AURA_MOD_DAMAGE_DONE_CREATURE = 59
     SPELL_AURA_MOD_PACIFY_SILENCE = 60
