@@ -7,7 +7,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, \
-    GuildTypeCommand, ChannelNotifications, Languages
+    GuildTypeCommand, ChannelNotifications, Languages, BroadcastMessageType
 from utils.constants.OpCodes import OpCode
 
 
@@ -45,6 +45,8 @@ class ChatManager:
     @staticmethod
     def send_monster_message(sender, message, chat_type, lang, range_, target=None):
         target_guid = target.guid if target else sender.guid
+        if sender.language_mod > -1 and chat_type != BroadcastMessageType.BROADCAST_MSG_EMOTE:
+            lang = sender.language_mod
         packet = ChatManager._get_monster_message_packet(sender.creature_template.name, target_guid,
                                                          ChatFlags.CHAT_TAG_NONE, message, chat_type, lang)
         sender.get_map().send_surrounding_in_range(packet, sender, range_, use_ignore=False)

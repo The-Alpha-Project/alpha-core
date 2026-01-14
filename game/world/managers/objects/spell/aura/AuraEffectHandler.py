@@ -851,7 +851,6 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_language(aura, effect_target, remove):
-        # TODO: Even though the mod is applied, units aren't switching their language to Demonic. Implement that.
         if remove:
             effect_target.language_mod = -1
             return
