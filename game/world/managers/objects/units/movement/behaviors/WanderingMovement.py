@@ -33,9 +33,9 @@ class WanderingMovement(BaseMovement):
             if self.movements_remaining > 0:
                 if self._wander():
                     self.movements_remaining -= 1
-
                     if self.movements_remaining == 0:
-                        self.wait_time_seconds = randint(4, 10)
+                        # Last movement, wait spline time plus random.
+                        self.wait_time_seconds = self.get_total_time_secs() + randint(4, 10)
                     else:
                         self.wait_time_seconds = self.get_total_time_secs()
                 else:
