@@ -741,11 +741,6 @@ class SpellEffectHandler:
         if not target.is_unit():
             return
 
-        # Only beasts can be affected; see Beast Call description:
-        # "Call the targeted beast, which will not call for help."
-        if target.creature_type != CreatureTypes.BEAST:
-            return
-
         # Prevent pulling creatures that are already in combat.
         if target.combat_target:
             return
