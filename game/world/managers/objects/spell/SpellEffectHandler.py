@@ -742,6 +742,8 @@ class SpellEffectHandler:
             return
         if target.creature_type != CreatureTypes.BEAST:
             return
+        if target.combat_target:
+            return
         target.threat_manager.add_threat(caster, is_pull_effect=True)
 
     @staticmethod

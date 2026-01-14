@@ -26,15 +26,15 @@ class ThreatManager:
 
     def __init__(self, owner: UnitManager, call_for_help_range=0):
         self.unit = owner
-        self.pull_timer = 0
+        self.pull_effect_duration = 0
         self.holders: dict[int, ThreatHolder] = {}
         self.current_holder: Optional[ThreatHolder] = None
         self._call_for_help_range = call_for_help_range
 
     def update(self, now):
-        if not self.pull_timer or now < self.pull_timer:
+        if not self.pull_effect_duration or now < self.pull_effect_duration:
             return
-        self.pull_timer = 0
+        self.pull_effect_duration = 0
 
     def has_aggro_from(self, target):
         return target.guid in self.holders
@@ -121,8 +121,9 @@ class ThreatManager:
             return
 
         # Target will not call for help for the next 3 seconds.
+        # (See SPELL_EFFECT_PULL - Spell 'Beast Call' 2641).
         if is_pull_effect:
-            self.pull_timer = time.time() + 3.0
+            self.pull_effect_duration = time.time() + 3.0
 
         threat = self._calculate_threat_for_self(threat, attacker=source)
 
@@ -211,7 +212,7 @@ class ThreatManager:
         if not self._call_for_help_range and not radius:
             return
 
-        if self.pull_timer:
+        if self.pull_effect_duration > 0:
             return
 
         # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.
