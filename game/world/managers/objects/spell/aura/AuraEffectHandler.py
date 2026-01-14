@@ -695,8 +695,34 @@ class AuraEffectHandler:
 
         misc_value = aura.spell_effect.misc_value  # Spell school
 
+        if misc_value == -2:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        elif misc_value == -1:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_SPELL
+        else:
+            spell_school = 1 << misc_value
+
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_DONE_SCHOOL, amount,
-                                                         percentual=False, misc_value=misc_value)
+                                                         percentual=False, misc_value=spell_school)
+
+    @staticmethod
+    def handle_mod_damage_percent_done(aura, effect_target, remove):
+        # Polymorph Pig/Chicken.
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.get_effect_points()
+        misc_value = aura.spell_effect.misc_value  # Spell school
+
+        if misc_value == -2:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        elif misc_value == -1:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_SPELL
+        else:
+            spell_school = 1 << misc_value
+
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_DONE_SCHOOL, amount,
+                                                         percentual=True, misc_value=spell_school)
 
     @staticmethod
     def handle_mod_damage_taken(aura, effect_target, remove):
@@ -718,6 +744,24 @@ class AuraEffectHandler:
 
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_TAKEN_SCHOOL, amount,
                                                          percentual=False, misc_value=spell_school)
+
+    @staticmethod
+    def handle_mod_damage_percent_taken(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.get_effect_points()
+        misc_value = aura.spell_effect.misc_value  # Spell school
+
+        if misc_value == -2:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        elif misc_value == -1:
+            spell_school = SpellSchoolMask.SPELL_SCHOOL_MASK_SPELL
+        else:
+            spell_school = 1 << misc_value
+
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.DAMAGE_TAKEN_SCHOOL, amount,
+                                                         percentual=True, misc_value=spell_school)
 
     @staticmethod
     def handle_mod_damage_done_creature(aura, effect_target, remove):
@@ -804,6 +848,14 @@ class AuraEffectHandler:
             return
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.THREAT_GENERATION, amount, percentual=True)
+
+    @staticmethod
+    def handle_mod_language(aura, effect_target, remove):
+        if remove:
+            effect_target.language_mod = 0
+            return
+        language = aura.spell_effect.misc_value
+        effect_target.language_mod = language
 
     @staticmethod
     def handle_reflect_spells(aura, effect_target, remove):
@@ -902,12 +954,15 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_PARRY_PERCENT: AuraEffectHandler.handle_mod_parry_chance,
     AuraTypes.SPELL_AURA_MOD_DODGE_PERCENT: AuraEffectHandler.handle_mod_dodge_chance,
     AuraTypes.SPELL_AURA_MOD_BLOCK_PERCENT: AuraEffectHandler.handle_mod_block_chance,
+    AuraTypes.SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN: AuraEffectHandler.handle_mod_damage_percent_taken,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_TAKEN: AuraEffectHandler.handle_mod_damage_taken,
+    AuraTypes.SPELL_AURA_MOD_DAMAGE_PERCENT_DONE: AuraEffectHandler.handle_mod_damage_percent_done,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE: AuraEffectHandler.handle_mod_damage_done,
     AuraTypes.SPELL_AURA_MOD_DAMAGE_DONE_CREATURE: AuraEffectHandler.handle_mod_damage_done_creature,
     AuraTypes.SPELL_AURA_MOD_THREAT: AuraEffectHandler.handle_mod_threat,
     AuraTypes.SPELL_AURA_REFLECT_SPELLS: AuraEffectHandler.handle_reflect_spells,
-    AuraTypes.SPELL_AURA_REFLECT_SPELLS_SCHOOL: AuraEffectHandler.handle_reflect_spells_school
+    AuraTypes.SPELL_AURA_REFLECT_SPELLS_SCHOOL: AuraEffectHandler.handle_reflect_spells_school,
+    AuraTypes.SPELL_AURA_MOD_LANGUAGE: AuraEffectHandler.handle_mod_language
 }
 
 PROC_AURA_EFFECTS = [

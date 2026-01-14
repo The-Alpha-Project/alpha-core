@@ -16,11 +16,15 @@ class SpellFocusManager(GameObjectManager):
         self.radius = self.get_data_field(1, float) / 2.0
         self.linked_trap = self.get_data_field(2, int)
 
-    # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            if self.is_active_object():
-                self._check_linked_trap()
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
+
+        if self.is_active_object():
+            self._check_linked_trap()
+
+        self.last_tick = now
         super().update(now)
 
     # override

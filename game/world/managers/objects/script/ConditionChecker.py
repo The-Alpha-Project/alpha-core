@@ -666,7 +666,6 @@ class ConditionChecker:
         # True if all extra targets that are part of the given event satisfy the given condition.
         # Condition_value1 = event id.
         # Condition_value2 = condition id.
-        satisfied = True
         unit = _source if _source else _target
         map_ = unit.get_map()
         if not map_:
@@ -674,10 +673,9 @@ class ConditionChecker:
         scripted_event = map_.get_map_event_data(condition.value1)
         if scripted_event:
             for event_target in scripted_event.event_targets:
-                satisfied = satisfied and ConditionChecker.validate(condition.value2, _source, event_target)
-                if not satisfied:
+                if not ConditionChecker.validate(condition.value2, _source, event_target.target):
                     return False
-        return satisfied
+        return True
 
     @staticmethod
     def check_condition_object_is_spawned(_condition, _source, target):

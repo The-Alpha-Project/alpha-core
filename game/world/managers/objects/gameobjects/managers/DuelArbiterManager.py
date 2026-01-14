@@ -38,19 +38,23 @@ class DuelArbiterManager(GameObjectManager):
         self.duel_info: dict[int, PlayerDuelInformation] = {}
         self.duel_state = DuelState.DUEL_STATE_REQUESTED
 
-    # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            # Validate both players are linked to self.
-            self._validate_arbiter()
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            super().update(now)
+            return
 
-            if self._duel_started():
-                # Check players within boundaries.
-                self._boundary_check(now - self.last_tick)
-            # Check if both participants have accepted the duel, if they did, start the duel.
-            elif self._start_duel_check():
-                self._start_duel()
+        # Validate both players are linked to self.
+        self._validate_arbiter()
 
+        if self._duel_started():
+            # Check players within boundaries.
+            self._boundary_check(now - self.last_tick)
+        # Check if both participants have accepted the duel, if they did, start the duel.
+        elif self._start_duel_check():
+            self._start_duel()
+
+        self.last_tick = now
         super().update(now)
 
     def request_duel(self, requester, target):

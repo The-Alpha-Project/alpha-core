@@ -23,13 +23,17 @@ class DoorManager(GameObjectManager):
         self.auto_close_secs = self.get_data_field(2, int)  # (65536 * seconds) (e.g. open after 5min = 19660800)
         self.no_damage_immune = self.get_data_field(3, int)
 
-    # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            if self.is_active_object():
-                # Check if we need to reset the original door state.
-                if self.get_auto_close_time() > 0 and self.is_active() and super().check_cooldown(now):
-                    self.reset_door_state()
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
+
+        if self.is_active_object():
+            # Check if we need to reset the original door state.
+            if self.get_auto_close_time() > 0 and self.is_active() and super().check_cooldown(now):
+                self.reset_door_state()
+
+        self.last_tick = now
         super().update(now)
 
     # override

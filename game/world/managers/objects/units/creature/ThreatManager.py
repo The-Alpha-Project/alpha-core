@@ -26,9 +26,15 @@ class ThreatManager:
 
     def __init__(self, owner: UnitManager, call_for_help_range=0):
         self.unit = owner
+        self.pull_timer = 0
         self.holders: dict[int, ThreatHolder] = {}
         self.current_holder: Optional[ThreatHolder] = None
         self._call_for_help_range = call_for_help_range
+
+    def update(self, now):
+        if not self.pull_timer or now < self.pull_timer:
+            return
+        self.pull_timer = 0
 
     def has_aggro_from(self, target):
         return target.guid in self.holders
@@ -44,13 +50,13 @@ class ThreatManager:
 
     def update_unit_threat_modifier(self, unit_mgr, remove=False):
         max_holder = self._get_max_threat_holder()
-        threat = 0  # Modifier does not affect current raw threat.
+        threat = 0  # Modifier does not affect the current raw threat.
         threat_mod = max_holder.total_raw_threat if max_holder and not remove else 0
         holder = self.holders.get(unit_mgr.guid)
         # Add or update threat and modifier.
         if not remove:
             self.add_threat(unit_mgr, threat, threat_mod)
-        # Remove modifier if player exist as a threat holder.
+        # Remove modifier if the player exists as a threat holder.
         elif holder:
             holder.threat_mod = threat_mod
 
@@ -103,7 +109,7 @@ class ThreatManager:
             self.unit.leave_combat()
 
     def add_threat(self, source, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
-                   is_call_for_help: bool = False):
+                   is_call_for_help: bool = False, is_pull_effect: bool = False):
         # Only players/units.
         if not source.is_unit(by_mask=True):
             return
@@ -113,6 +119,10 @@ class ThreatManager:
 
         if self.has_aggro_from(source) and threat == ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT:
             return
+
+        # Target will not call for help for the next 3 seconds.
+        if is_pull_effect:
+            self.pull_timer = time.time() + 3.0
 
         threat = self._calculate_threat_for_self(threat, attacker=source)
 
@@ -199,6 +209,9 @@ class ThreatManager:
     # Creatures only.
     def call_for_help(self, source, threat=THREAT_NOT_TO_LEAVE_COMBAT, radius=0):
         if not self._call_for_help_range and not radius:
+            return
+
+        if self.pull_timer:
             return
 
         # Until 0.5.4, creatures didn't call for help when fleeing, make it configurable.

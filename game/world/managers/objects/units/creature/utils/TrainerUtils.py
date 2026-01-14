@@ -119,7 +119,7 @@ class TrainerUtils:
         if not is_player_class_trainer and not has_available_spells:
             return False
         data_header = pack('<Q2I', creature_mgr.guid, trainer_type, train_spell_count)
-        data = data_header + bytes(train_spell_bytes) + greeting_bytes_packed
+        data = data_header + train_spell_bytes + greeting_bytes_packed
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
         return True
 

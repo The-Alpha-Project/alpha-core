@@ -36,12 +36,16 @@ class TransportManager(GameObjectManager):
         self.auto_close_secs = self.get_data_field(3, int)
         self.load_path_nodes()
 
-    # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            if self.is_active_object() and self.has_passengers():
-                self._calculate_progress()
-                self._update_passengers()
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
+
+        if self.is_active_object() and self.has_passengers():
+            self._calculate_progress()
+            self._update_passengers()
+
+        self.last_tick = now
         super().update(now)
 
     def load_path_nodes(self):

@@ -59,14 +59,14 @@ class GridManager:
             update_data = None
             if has_changes:
                 # Grab the current state of this world object update fields mask and values,
-                # which will be used for all interested requesters.
+                # which will be used for all observers.
                 update_data = world_object.update_packet_factory.generate_update_data(flush_current=True)
 
             self._update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
                                               has_inventory_changes=has_inventory_changes, update_data=update_data)
-            # At this point all player observers updated this world object, reset update fields bit masks.
+            # If the player also had inventory changes, reset the inventory update fields.
             if has_inventory_changes:
-                world_object.inventory.reset_fields_older_than(time.time())
+                world_object.inventory.reset_update_fields()
 
         # Notify cell changed if needed.
         if current_cell_key != source_cell_key:

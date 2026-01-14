@@ -97,6 +97,7 @@ class PlayerManager(UnitManager):
         self.chat_flags = chat_flags
         self.afk_message = ''
         self.dnd_message = ''
+        self.language_mod = 0
         self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
         self.race_mask = 0
         self.class_mask = 0
@@ -1521,95 +1522,99 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self, now):
+        super().update(now)
         # Handle cases in which the client crashes and we are unable to detect a proper logout/disconnect.
         # Client pings every 30 secs.
         if self.online and now - self.last_ping > 40:
             self.session.disconnect()
             return
 
-        if now > self.last_tick > 0 and self.online:
-            elapsed = now - self.last_tick
+        if now <= self.last_tick or self.last_tick <= 0 or not self.online:
+            self.last_tick = now
+            return
 
-            # Update played time.
-            self.player.totaltime += elapsed
-            self.player.leveltime += elapsed
+        elapsed = now - self.last_tick
 
-            # Stealth detect.
-            self.units_stealth_detection_check(elapsed)
-            # Regeneration.
-            self.regenerate(elapsed)
-            # Attack update.
-            self.attack_update(elapsed)
-            # Check swimming state.
-            self.check_swimming_state(elapsed)
-            # Sanctuary check.
-            self.update_sanctuary(elapsed)
+        # Update played time.
+        self.player.totaltime += elapsed
+        self.player.leveltime += elapsed
 
-            # SpellManager.
-            self.spell_manager.update(now)
-            # AuraManager.
-            self.aura_manager.update(now)
-            # QuestManager.
-            self.quest_manager.update(elapsed)
+        # Stealth detect.
+        self.units_stealth_detection_check(elapsed)
+        # Regeneration.
+        self.regenerate(elapsed)
+        # Attack update.
+        self.attack_update(elapsed)
+        # Check swimming state.
+        self.check_swimming_state(elapsed)
+        # Sanctuary check.
+        self.update_sanctuary(elapsed)
 
-            # Waypoints (mostly flying paths) update.
-            self.movement_manager.update(now, elapsed)
+        # SpellManager.
+        self.spell_manager.update(now)
+        # AuraManager.
+        self.aura_manager.update(now)
+        # QuestManager.
+        self.quest_manager.update(elapsed)
 
-            # Enchantment manager.
-            self.enchantment_manager.update(elapsed)
+        # Waypoints (mostly flying paths) update.
+        self.movement_manager.update(now, elapsed)
 
-            # Release spirit timer.
-            if not self.is_alive:
-                if self.spirit_release_timer < 300:  # 5 min.
-                    self.spirit_release_timer += elapsed
-                else:
-                    self.resurrect()
+        # Enchantment manager.
+        self.enchantment_manager.update(elapsed)
 
-            # Update timers (Breath, Fatigue, Feign Death).
-            if self.is_alive:
-                self.mirror_timers_manager.update(elapsed)
-
-            # Logout timer.
-            if self.logout_timer > 0:
-                self.logout_timer -= elapsed
-                if self.logout_timer < 0:
-                    self.logout()
-                    return
-
-            # Check if player has update fields changes.
-            has_changes = self.has_pending_updates()
-            # Avoid inventory/item update if there is an ongoing inventory operation.
-            has_inventory_changes = self.inventory.has_pending_updates()
-
-            # Movement checks and group updates.
-            has_moved = self.has_moved or self.has_turned
-            if has_moved or has_changes:
-                # Update self stats and location to other party members.
-                if self.group_manager:
-                    self.group_manager.update_party_member_stats(elapsed, requester=self)
-                # Player moved, notify surrounding units for proximity aggro.
-                if has_moved:
-                    # Check spell and aura move interrupts.
-                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    # Reset flags.
-                    self.set_has_moved(False, False, flush=True)
-                    self.get_map().get_detection_manager().queue_update_unit_placement(self)
-
-            # Update system, propagate player changes to surrounding units.
-            if self.online and (has_changes or has_inventory_changes):
-                self.get_map().update_object(self, has_changes, has_inventory_changes)
-            # Not dirty, has a pending teleport and a teleport is not ongoing.
-            elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
-                self.trigger_teleport()
-            # Do normal update.
+        # Release spirit timer.
+        if not self.is_alive:
+            if self.spirit_release_timer < 300:  # 5 min.
+                self.spirit_release_timer += elapsed
             else:
-                self.get_map().update_object(self)
-                self.synchronize_db_player()
+                self.resurrect()
 
-            # If not teleporting, notify self movement to surrounding units for proximity aggro.
-            if not self.update_lock:
-                self.update_manager.process_tick_updates()
+        # Update timers (Breath, Fatigue, Feign Death).
+        if self.is_alive:
+            self.mirror_timers_manager.update(elapsed)
+
+        # Logout timer.
+        if self.logout_timer > 0:
+            self.logout_timer -= elapsed
+            if self.logout_timer < 0:
+                self.logout()
+                return
+
+        # Check if player has update fields changes.
+        has_changes = self.has_pending_updates()
+        # Avoid inventory/item update if there is an ongoing inventory operation.
+        has_inventory_changes = self.inventory.has_pending_updates()
+
+        # Movement checks and group updates.
+        has_moved = self.has_moved or self.has_turned
+        if has_moved or has_changes:
+            # Update self stats and location to other party members.
+            if self.group_manager:
+                self.group_manager.update_party_member_stats(elapsed, requester=self)
+            # Player moved, notify surrounding units for proximity aggro.
+            if has_moved:
+                # Check spell and aura move interrupts.
+                self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                # Reset flags.
+                self.set_has_moved(False, False, flush=True)
+                self.get_map().get_detection_manager().queue_update_unit_placement(self)
+
+        # Update system, propagate player changes to surrounding units.
+        if self.online and (has_changes or has_inventory_changes):
+            self.get_map().update_object(self, has_changes, has_inventory_changes)
+        # Not dirty, has a pending teleport and a teleport is not ongoing.
+        elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
+            self.trigger_teleport()
+        # Do normal update.
+        else:
+            self.get_map().update_object(self)
+            self.synchronize_db_player()
+
+        # If not teleporting, notify self movement to surrounding units for proximity aggro.
+        if not self.update_lock:
+            self.update_manager.process_tick_updates()
 
         self.last_tick = now
 

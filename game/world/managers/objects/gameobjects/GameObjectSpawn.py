@@ -26,14 +26,17 @@ class GameObjectSpawn:
         self.pool = None
 
     def update(self, now):
-        if now > self.last_tick > 0:
-            elapsed = now - self.last_tick
-            gameobject = self.gameobject_instance
-            if gameobject:
-                if not gameobject.is_spawned and gameobject.initialized:
-                    self._update_respawn(elapsed)
-            else:
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
+
+        elapsed = now - self.last_tick
+        gameobject = self.gameobject_instance
+        if gameobject:
+            if not gameobject.is_spawned and gameobject.initialized:
                 self._update_respawn(elapsed)
+        else:
+            self._update_respawn(elapsed)
 
         self.last_tick = now
 

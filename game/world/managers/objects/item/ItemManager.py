@@ -365,6 +365,9 @@ class ItemManager(ObjectManager):
         # flags = 0x0001 (ITEM_DYNFLAG_BOUND) and static flags = 0x0000.
         return ByteUtils.shorts_to_int(self.item_instance.item_flags, self.item_template.flags)
 
+    def is_player_cast(self):
+        return self._get_item_flags() & ItemFlags.ITEM_FLAG_PLAYERCAST
+
     # Enchantments.
 
     @staticmethod
@@ -479,7 +482,7 @@ class ItemManager(ObjectManager):
                     query_data.extend(item_bytes)
                     written_items += 1
 
-                packet = pack(f'<B{len(query_data)}s', written_items, bytes(query_data))
+                packet = pack(f'<B{len(query_data)}s', written_items, query_data)
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
                 query_data.clear()
                 written_items = 0

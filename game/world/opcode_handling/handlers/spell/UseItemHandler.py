@@ -6,7 +6,7 @@ class UseItemHandler:
     @staticmethod
     def handle(world_session, reader):
         if len(reader.data) >= 5:  # Avoid handling empty use item packet.
-            bag, slot, spell_count, target_mask = unpack('<3BH', reader.data[:5])
+            bag, slot, spell_slot, target_mask = unpack('<3BH', reader.data[:5])
 
             item = world_session.player_mgr.inventory.get_item(bag, slot)
             if not item:
@@ -15,5 +15,5 @@ class UseItemHandler:
             target_bytes = reader.data[5:]
             target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
 
-            world_session.player_mgr.spell_manager.handle_item_cast_attempt(item, target, target_mask)
+            world_session.player_mgr.spell_manager.handle_item_cast_attempt(item, target, target_mask, spell_slot)
         return 0

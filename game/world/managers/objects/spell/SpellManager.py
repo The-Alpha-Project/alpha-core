@@ -304,35 +304,38 @@ class SpellManager:
 
             self.start_spell_cast(initialized_spell=casting_spell)
 
-    def handle_item_cast_attempt(self, item, spell_target, target_mask):
+    def handle_item_cast_attempt(self, item, spell_target, target_mask, spell_slot):
         if not self.caster.is_unit(by_mask=True):
             return
 
-        for item_spell in item.spell_stats:
-            if not item_spell.spell_id:
-                continue
+        spell_stat = item.spell_stats[spell_slot]
+        if not spell_stat:
+            return
 
-            if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_USE:
-                continue
+        if not spell_stat.spell_id:
+            return
 
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(item_spell.spell_id)
-            if not spell:
-                Logger.warning(f'Spell {item_spell.spell_id} tied to item {item.item_template.entry} '
+        if spell_stat.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_USE:
+            return
+
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_stat.spell_id)
+        if not spell:
+            Logger.warning(f'Spell {spell_stat.spell_id} tied to item {item.item_template.entry} '
                                f'({item.get_name()}) could not be found in the spell database.')
-                continue
+            return
 
-            casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item=item)
-            if not casting_spell:
-                continue
+        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item=item)
+        if not casting_spell:
+            return
 
-            if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here.
-                self.caster.set_stand_state(StandState.UNIT_SITTING)
+        if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here.
+            self.caster.set_stand_state(StandState.UNIT_SITTING)
 
-            # If item binds on use, bind it now.
-            if item.item_template.bonding == ItemBondingTypes.BIND_WHEN_USE:
-                item.set_binding(True)
+        # If the item binds on use, bind it now.
+        if item.item_template.bonding == ItemBondingTypes.BIND_WHEN_USE:
+            item.set_binding(True)
 
-            self.start_spell_cast(initialized_spell=casting_spell)
+        self.start_spell_cast(initialized_spell=casting_spell)
 
     def handle_cast_attempt(self, spell_id, spell_target, target_mask, triggered=False, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -395,6 +398,13 @@ class SpellManager:
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
                 self.send_cast_start(casting_spell)
+
+                # Fix mining animation never playing on the first attempt.
+                if casting_spell.is_mining_spell():
+                    data = pack(f'QI', self.caster.guid, casting_spell.spell_visual_entry.PrecastKit)
+                    packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
+                    self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
+
             return
 
         # Spell is instant, perform cast
@@ -422,9 +432,9 @@ class SpellManager:
         # Spells that use the KneelLoop animation causes the client to get stuck in this animation until relog.
         # Send a KneelEnd animation to resolve this issue. e.g. spell 6717 'Place Lion Carcass'
         if casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.CastKit == 380:  # KneelLoop.
-            data = pack(f'QI', self.caster.guid, 444)
+            data = pack(f'QI', self.caster.guid, 444)  # KneelEnd.
             packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
-            self.caster.enqueue_packet(packet)
+            self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
 
         if casting_spell.requires_combo_points():
             # Combo points will be reset by consume_resources_for_cast.
@@ -635,18 +645,6 @@ class SpellManager:
         if not self.casting_spells:
             return
 
-        casting_spell_flag_cases = {
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT: moved,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE: received_damage,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_INTERRUPT: interrupted,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK: received_auto_attack
-        }
-        channeling_spell_flag_cases = {
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE: received_damage,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT: moved,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING: turned
-        }
-
         for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 continue
@@ -655,14 +653,21 @@ class SpellManager:
             crushing_interrupt = hit_info & HitInfo.CRUSHING and not casting_spell.is_ability()
 
             if casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
-                for flag, condition in channeling_spell_flag_cases.items():
-                    channel_flags = casting_spell.spell_entry.ChannelInterruptFlags
-                    if not (channel_flags & flag) or not condition:
-                        continue
+                channel_flags = casting_spell.spell_entry.ChannelInterruptFlags
+                interrupt = False
 
+                if (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE) and received_damage:
+                    interrupt = True
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and moved:
+                    interrupt = True
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING) and turned:
+                    interrupt = True
+
+                if interrupt:
                     full_interrupt = channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT
                     if not full_interrupt and not crushing_interrupt:
-                        if flag & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE:
+                        # Only damage triggers partial interrupts for channels.
+                        if received_damage:
                             casting_spell.handle_partial_interrupt()
                             continue
 
@@ -673,17 +678,29 @@ class SpellManager:
                 # Ignore other spells that are already active (e.g. area auras).
                 continue
 
-            for flag, condition in casting_spell_flag_cases.items():
-                spell_flags = casting_spell.spell_entry.InterruptFlags
-                if not (spell_flags & flag) or not condition:
-                    continue
+            spell_flags = casting_spell.spell_entry.InterruptFlags
+            interrupt = False
+            triggered_by_damage = False
+            triggered_by_autoattack = False
 
+            if (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT) and moved:
+                interrupt = True
+            elif (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE) and received_damage:
+                interrupt = True
+                triggered_by_damage = True
+            elif (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_INTERRUPT) and interrupted:
+                interrupt = True
+            elif (spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK) and received_auto_attack:
+                interrupt = True
+                triggered_by_autoattack = True
+
+            if interrupt:
                 partial_interrupt = spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL
                 if partial_interrupt and not crushing_interrupt:
-                    if flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE:
+                    if triggered_by_damage:
                         casting_spell.handle_partial_interrupt()
                         continue
-                    elif flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK:
+                    elif triggered_by_autoattack:
                         continue  # Skip auto attack for partial interrupts.
 
                 self.remove_cast(casting_spell, interrupted=True)
@@ -1326,11 +1343,12 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                     return False
             # Line of sight.
-            target_ray_vector = validation_target.get_ray_position() if not is_terrain \
-                else target_loc.get_ray_vector(is_terrain=True)
-            if not self.caster.get_map().los_check(self.caster.get_ray_position(), target_ray_vector):
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
-                return False
+            if self.caster.is_unit(by_mask=True):
+                target_ray_vector = validation_target.get_ray_position() if not is_terrain \
+                    else target_loc.get_ray_vector(is_terrain=is_terrain)
+                if not self.caster.get_map().los_check(self.caster.get_ray_position(), target_ray_vector):
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
+                    return False
 
         # Item target checks.
         if casting_spell.initial_target_is_item():
@@ -1819,22 +1837,23 @@ class SpellManager:
     def send_cast_result(self, casting_spell, error, misc_data=-1):
         is_player = self.caster.is_player()
         spell_id = casting_spell.spell_entry.ID
-
-        # Item casts which set the spell as modal (Spell_C_SetModal) will always display the cast result as failed
-        # if the spell id is provided.
-        # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
-        #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
-        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
-        if casting_spell.source_item and not casting_spell.is_instant_cast():
-            spell_id = 0
+        has_error = error != SpellCheckCastResult.SPELL_NO_ERROR
 
         if casting_spell.hide_result:
             error = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
+        # More research needed on client Spell_C_SetModal and CastResultHandler:
+        # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
+        #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
+        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
+        # Which are items with no ITEM_FLAG_PLAYERCAST which ends up displaying spell failed in the cast bar.
+        if not has_error and casting_spell.source_item and not casting_spell.source_item.is_player_cast():
+            spell_id = 0
+
         # Send spell failure only if this was an active spell.
-        if error != SpellCheckCastResult.SPELL_NO_ERROR:
-            # Do not broadcast errors upon creature spell cast validate() failing.
-            if spell_id not in self.casting_spells and casting_spell.creature_spell:
+        if has_error and spell_id in self.casting_spells:
+            # Do not broadcast errors upon creature/go cast validate() failing.
+            if not is_player:
                 return
             
             charmer_or_summoner = self.caster.get_charmer_or_summoner()
@@ -1845,18 +1864,11 @@ class SpellManager:
             data = pack('<QIB', self.caster.guid, spell_id, error)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
 
-            # TODO: Cozy Fire, client crashes, maybe we should not broadcast some Gameobjects spell cast errors?
-            # TODO: Also noticed this buff is applied to players from Bright Campfires spawned by enemies, not sure
-            #  if thats suppose to happen given that they do inherit the enemy faction and the buff is beneficial.
-            #  @Fluglow you can reproduce this by standing at -1648.34 -1869.82 80.8706 0, it will hit eventually.
-            if spell_id == 7358:
-                return
-
             self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
         # Only players receive cast results.
         if is_player:
-            if error == SpellCheckCastResult.SPELL_NO_ERROR:
+            if not has_error:
                 data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
             else:
                 if misc_data != -1:

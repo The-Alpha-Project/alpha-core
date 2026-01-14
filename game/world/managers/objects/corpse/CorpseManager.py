@@ -80,11 +80,17 @@ class CorpseManager(ObjectManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0 and self.is_spawned:
-            elapsed = now - self.last_tick
-            self.ttl -= elapsed
-            if self.ttl <= 0:
-                self.despawn()
+        super().update(now)
+
+        if now <= self.last_tick or self.last_tick <= 0 or not self.is_spawned:
+            self.last_tick = now
+            return
+
+        elapsed = now - self.last_tick
+        self.ttl -= elapsed
+        if self.ttl <= 0:
+            self.despawn()
+
         self.last_tick = now
 
     # override

@@ -1,4 +1,4 @@
-from struct import pack, unpack
+from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -244,13 +244,9 @@ class ObjectManager:
     def reset_scale(self):
         self.set_scale(self.native_scale)
 
-    def reset_fields(self):
+    def reset_update_fields(self):
         # Reset updated fields.
         self.update_packet_factory.reset()
-
-    def reset_fields_older_than(self, timestamp):
-        # Reset updated fields older than the specified timestamp.
-        return self.update_packet_factory.reset_older_than(timestamp)
 
     # Fall Time (Not implemented for units, anim progress for transports).
     # noinspection PyMethodMayBeStatic
@@ -299,7 +295,6 @@ class ObjectManager:
             update_data = self.update_packet_factory.generate_update_data(flush_current=True)
 
         mask = update_data.update_bit_mask
-        values = update_data.update_field_values
 
         data = bytearray()
         for field_index in range(self.update_packet_factory.update_mask.field_count):
@@ -317,7 +312,7 @@ class ObjectManager:
                 mask[field_index] = 1
                 continue
             # Append field value and turn on the bit on mask.
-            data.extend(values[field_index])
+            data.extend(update_data.get_field_bytes(field_index))
             mask[field_index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
@@ -338,7 +333,7 @@ class ObjectManager:
         return self._set_value(index, value, 'Q', True, force)
 
     def set_float(self, index, value, force=False):
-        return self._set_value(index, value, 'f', force, False)
+        return self._set_value(index, value, 'f', False, force)
 
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index, False)
@@ -356,18 +351,7 @@ class ObjectManager:
         return self._get_value_by_type_at('f', index, False)
 
     def _get_value_by_type_at(self, value_type, index, is_int64):
-        if not self.update_packet_factory.update_values[index]:
-            return 0
-
-        # Return the raw value directly if not 64 bits.
-        if not is_int64:
-            return self.update_packet_factory.update_values[index]
-
-        # Unpack from two field bytes.
-        value = self.update_packet_factory.update_values_bytes[index]
-        value += self.update_packet_factory.update_values_bytes[index + 1]
-
-        return unpack(f'<{value_type}', value)[0]
+        return self.update_packet_factory.get_value(index, value_type, is_int64)
 
     def _set_value(self, index, value, value_type, is_int64, force=False):
         force = force and self.is_player()

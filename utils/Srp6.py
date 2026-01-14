@@ -98,7 +98,7 @@ class Srp6:
         f = s_key[1::2]
         g = SHA1(e).digest()
         h = SHA1(f).digest()
-        session_key = bytes(x for y in zip(g, h) for x in y)
+        session_key = bytearray(x for y in zip(g, h) for x in y)
         return session_key
 
     @staticmethod

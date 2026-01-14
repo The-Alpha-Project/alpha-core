@@ -619,55 +619,63 @@ class CreatureManager(UnitManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            elapsed = now - self.last_tick
+        super().update(now)
 
-            # Check for despawn logic for standalone instances.
-            if self._should_despawn(elapsed):
-                return  # Creature destroyed.
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
 
-            is_active = self.is_active_object()
-            if not is_active:
-                return
+        elapsed = now - self.last_tick
 
-            if self.is_alive:
-                # Update call for help timer.
-                self.call_for_help_timer += elapsed
-                # Regeneration.
-                self.regenerate(elapsed)
-                # Spell/Aura Update.
-                self.spell_manager.update(now)
-                self.aura_manager.update(now)
-                # Sanctuary check.
-                self.update_sanctuary(elapsed)
-                # AI.
-                if self.object_ai:
-                    self.object_ai.update_ai(elapsed, now)
-                # Movement Updates, order matters.
-                self.movement_manager.update(now, elapsed)
-                # Attack Update.
-                self.attack_update(elapsed)
-                # Movement checks.
-                if self.has_moved or self.has_turned:
-                    # Check spell and aura move interrupts.
-                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    if self.has_moved and self.has_player_observers():
-                        self.get_map().get_detection_manager().queue_update_unit_placement(self)
+        # Check for despawn logic for standalone instances.
+        if self._should_despawn(elapsed):
+            self.last_tick = now
+            return  # Creature destroyed.
 
-                if self.call_for_help_timer >= 0.33:
-                    if self.combat_target:
-                        self.threat_manager.call_for_help(self.combat_target)
-                    self.call_for_help_timer = 0
+        is_active = self.is_active_object()
+        if not is_active:
+            self.last_tick = now
+            return
 
-                if self.swim_checks_enabled:
-                    self._update_swimming_state()
+        if self.is_alive:
+            # Update call for help timer.
+            self.call_for_help_timer += elapsed
+            self.threat_manager.update(now)
+            # Regeneration.
+            self.regenerate(elapsed)
+            # Spell/Aura Update.
+            self.spell_manager.update(now)
+            self.aura_manager.update(now)
+            # Sanctuary check.
+            self.update_sanctuary(elapsed)
+            # AI.
+            if self.object_ai:
+                self.object_ai.update_ai(elapsed, now)
+            # Movement Updates, order matters.
+            self.movement_manager.update(now, elapsed)
+            # Attack Update.
+            self.attack_update(elapsed)
+            # Movement checks.
+            if self.has_moved or self.has_turned:
+                # Check spell and aura move interrupts.
+                self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                if self.has_moved and self.has_player_observers():
+                    self.get_map().get_detection_manager().queue_update_unit_placement(self)
 
-            has_changes = self.has_pending_updates()
-            # Check if this creature object should be updated yet or not.
-            if has_changes or self.has_moved:
-                self.get_map().update_object(self, has_changes=has_changes)
-                self.set_has_moved(False, False, flush=True)
+            if self.call_for_help_timer >= 0.33:
+                if self.combat_target:
+                    self.threat_manager.call_for_help(self.combat_target)
+                self.call_for_help_timer = 0
+
+            if self.swim_checks_enabled:
+                self._update_swimming_state()
+
+        has_changes = self.has_pending_updates()
+        # Check if this creature object should be updated.
+        if has_changes or self.has_moved:
+            self.get_map().update_object(self, has_changes=has_changes)
+            self.set_has_moved(False, False, flush=True)
 
         self.last_tick = now
 

@@ -25,12 +25,16 @@ class FishingNodeManager(GameObjectManager):
         super().initialize_from_gameobject_template(gobject_template)
         self.loot_manager = GameObjectLootManager(self)
 
-    # override
     def update(self, now):
-        if now > self.last_tick > 0:
-            if self.is_active_object():
-                elapsed = now - self.last_tick
-                self._update(elapsed)
+        if now <= self.last_tick or self.last_tick <= 0:
+            self.last_tick = now
+            return
+
+        if self.is_active_object():
+            elapsed = now - self.last_tick
+            self._update(elapsed)
+
+        self.last_tick = now
         super().update(now)
 
     def _update(self, elapsed):
