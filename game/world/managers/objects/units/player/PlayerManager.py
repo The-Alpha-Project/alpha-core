@@ -1687,8 +1687,6 @@ class PlayerManager(UnitManager):
             CorpseManager(owner=self).spawn()
 
         if self.resurrect_data and not release_spirit:
-            is_instant = self.resurrect_data.resurrect_map == self.map_id and \
-                         self.resurrect_data.resurrect_location == self.location
             self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location,
                           self.resurrect_data.recovery_percentage)
         else:

@@ -139,7 +139,7 @@ class PetAI(CreatureAI):
 
         command_state = self._get_command_state()
 
-        # Passive - passive pets can attack if told to.
+        # Passive pets can attack if told to.
         if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
             return command_state == PetCommandState.COMMAND_ATTACK
 
