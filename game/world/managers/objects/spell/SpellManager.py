@@ -1071,7 +1071,7 @@ class SpellManager:
         if not self.caster.is_player():
             return
 
-        data = pack('<IQI', spell.ID, self.caster.guid, cooldown_entry.cooldown_length)
+        data = pack('<IQH', spell.ID, self.caster.guid, cooldown_entry.get_cooldown(spell))
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def set_on_cooldown(self, casting_spell, cooldown_penalty=0):
@@ -1101,7 +1101,7 @@ class SpellManager:
         if not self.caster.is_player() or unlocks_on_trigger:
             return
 
-        data = pack('<IQI', spell.ID, self.caster.guid, cooldown_entry.cooldown_length)
+        data = pack('<IQH', spell.ID, self.caster.guid, cooldown_entry.get_cooldown(spell))
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
         if casting_spell.unlock_cooldown_on_trigger() and not unlocks_on_trigger:

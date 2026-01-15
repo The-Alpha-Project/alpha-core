@@ -45,3 +45,15 @@ class CooldownEntry:
         recovery = spell_entry.CategoryRecoveryTime if self.cooldown_category != -1 else spell_entry.RecoveryTime
         is_greater_than_dbc_cd = penalty > recovery
         return penalty if penalty and (self.forced or is_greater_than_dbc_cd) else recovery
+
+    # If the returned value is 0, the client will use the default cooldown from the spell DBC.
+    # Non-zero values are used to override the default cooldown (e.g., for custom penalties or forced cooldowns).
+    def get_cooldown(self, spell_entry):
+        penalty = self.cooldown_penalty
+        recovery = spell_entry.CategoryRecoveryTime if self.cooldown_category != -1 else spell_entry.RecoveryTime
+        is_greater_than_dbc_cd = penalty > recovery
+
+        if penalty and (self.forced or is_greater_than_dbc_cd):
+            return penalty
+
+        return 0
