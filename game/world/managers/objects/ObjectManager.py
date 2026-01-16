@@ -9,7 +9,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes, HighGuid
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes, HighGuid, SpeedType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellImmunity
 from utils.constants.UnitCodes import UnitReaction
@@ -229,7 +229,10 @@ class ObjectManager:
         self.current_scale = scale
         self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
-    def change_speed(self, speed=0):
+    def change_speed(self, speed_type=SpeedType.RUN, speed=0):
+        if speed_type != SpeedType.RUN:
+            return False
+
         if speed <= 0:
             speed = config.Unit.Defaults.run_speed
         elif speed >= 56:
