@@ -22,7 +22,7 @@ from utils.GitUtils import GitUtils
 from utils.Srp6 import Srp6
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, SpeedType
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureStaticFlags
 from utils.constants.UpdateFields import PlayerFields
@@ -130,7 +130,7 @@ class CommandManager:
         try:
             speed = config.Unit.Defaults.run_speed * float(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            player_mgr.change_speed(speed)
+            player_mgr.change_speed(SpeedType.RUN, speed)
 
             return 0, ''
         except ValueError:
@@ -141,7 +141,7 @@ class CommandManager:
         try:
             speed = config.Unit.Defaults.swim_speed * float(args)
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-            player_mgr.change_swim_speed(speed)
+            player_mgr.change_speed(SpeedType.SWIM, speed)
 
             return 0, ''
         except ValueError:

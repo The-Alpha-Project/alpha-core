@@ -37,7 +37,8 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes, \
+    SpeedType
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
@@ -740,41 +741,27 @@ class PlayerManager(UnitManager):
             packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
             self.enqueue_packet(packet)
 
-    # TODO Maybe merge all speed changes in one method
     # override
-    def change_speed(self, speed=0):
-        if super().change_speed(speed):
-            data = pack('<f', self.running_speed)
-            self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
-            self.get_map().send_surrounding(self.generate_movement_packet(), self, False)
+    def change_speed(self, speed_type=SpeedType.RUN, speed=0):
+        if super().change_speed(speed_type, speed):
+            if speed_type == SpeedType.RUN:
+                opcode = OpCode.SMSG_FORCE_SPEED_CHANGE
+                current_speed = self.running_speed
+            elif speed_type == SpeedType.SWIM:
+                opcode = OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE
+                current_speed = self.swim_speed
+            elif speed_type == SpeedType.WALK:
+                opcode = OpCode.MSG_MOVE_SET_WALK_SPEED
+                current_speed = self.walk_speed
+            elif speed_type == SpeedType.TURN:
+                opcode = OpCode.MSG_MOVE_SET_TURN_RATE
+                current_speed = self.turn_rate
+            else:
+                return
 
-    def change_swim_speed(self, swim_speed=0):
-        if swim_speed <= 0:
-            swim_speed = config.Unit.Defaults.swim_speed
-        elif swim_speed >= 56:
-            swim_speed = 56  # Max possible swim speed
-        self.swim_speed = swim_speed
-        data = pack('<f', self.swim_speed)
-        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
-        self.get_map().send_surrounding(self.generate_movement_packet(), self)
-
-    def change_walk_speed(self, walk_speed=0):
-        if walk_speed <= 0:
-            walk_speed = config.Unit.Defaults.walk_speed
-        elif walk_speed >= 56:
-            walk_speed = 56  # Max speed without glitches
-        self.walk_speed = walk_speed
-        data = pack('<f', self.walk_speed)
-        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
-        self.get_map().send_surrounding(self.generate_movement_packet(), self)
-
-    def change_turn_speed(self, turn_speed=0):
-        if turn_speed <= 0:
-            turn_speed = config.Unit.Player.Defaults.turn_speed
-        self.turn_rate = turn_speed
-        data = pack('<f', self.turn_rate)
-        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE, data))
-        self.get_map().send_surrounding(self.generate_movement_packet(), self)
+            data = pack('<f', current_speed)
+            self.enqueue_packet(PacketWriter.get_packet(opcode, data))
+            self.get_map().send_surrounding(self.generate_movement_packet(), self)
 
     # override
     def update_power_type(self):

@@ -763,6 +763,13 @@ class MoveFlags(IntEnum):
     MOVEFLAG_STOPPED_MASK = 0x3100F
 
 
+class SpeedType(IntEnum):
+    WALK = 0
+    RUN = 1
+    SWIM = 2
+    TURN = 3
+
+
 class BuyResults(IntEnum):
     BUY_ERR_ITEM_SOLD_OUT = 1
     BUY_ERR_NOT_ENOUGH_MONEY = 2

@@ -1,6 +1,7 @@
 from random import sample
 from struct import pack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -748,6 +749,22 @@ class SpellEffectHandler:
         target.threat_manager.add_threat(caster, is_pull_effect=True)
 
     @staticmethod
+    def handle_trigger_spell(casting_spell, effect, caster, target):
+        if not target.is_unit():
+            return
+
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(effect.trigger_spell_id)
+        if not spell:
+            return
+
+        casting_spell = caster.spell_manager.try_initialize_spell(spell, target if target else caster,
+                                                                  spell.Targets, validate=True, triggered=True)
+        if not casting_spell:
+            return
+
+        caster.spell_manager.start_spell_cast(initialized_spell=casting_spell)
+
+    @staticmethod
     def handle_interrupt_cast(casting_spell, effect, caster, target):
         if not target.is_unit(by_mask=True):
             return
@@ -1023,6 +1040,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_INTERRUPT_CAST: SpellEffectHandler.handle_interrupt_cast,
     SpellEffects.SPELL_EFFECT_DISTRACT: SpellEffectHandler.handle_distract,
     SpellEffects.SPELL_EFFECT_PULL: SpellEffectHandler.handle_pull,
+    SpellEffects.SPELL_EFFECT_TRIGGER_SPELL: SpellEffectHandler.handle_trigger_spell,
 
     # Event scripts.
     SpellEffects.SPELL_EFFECT_SEND_EVENT: SpellEffectHandler.handle_send_event,

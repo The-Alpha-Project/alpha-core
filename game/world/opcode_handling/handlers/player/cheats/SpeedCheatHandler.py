@@ -1,6 +1,7 @@
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from utils.Logger import Logger
+from utils.constants.MiscCodes import SpeedType
 
 
 class SpeedCheatHandler:
@@ -19,12 +20,12 @@ class SpeedCheatHandler:
         if len(reader.data) >= 52:  # Avoid handling empty speed cheat packet.
             speed = unpack('<f', reader.data[48:52])[0]
             if reader.opcode == OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT:
-                player_mgr.change_speed(speed)
+                player_mgr.change_speed(SpeedType.RUN, speed)
             elif reader.opcode == OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT:
-                player_mgr.change_swim_speed(speed)
+                player_mgr.change_speed(SpeedType.SWIM, speed)
             elif reader.opcode == OpCode.MSG_MOVE_SET_WALK_SPEED_CHEAT:
-                player_mgr.change_walk_speed(speed)
+                player_mgr.change_speed(SpeedType.WALK, speed)
             elif reader.opcode == OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT:
-                player_mgr.change_turn_speed(speed)
+                player_mgr.change_speed(SpeedType.TURN, speed)
 
         return 0

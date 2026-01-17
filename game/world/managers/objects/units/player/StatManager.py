@@ -8,7 +8,7 @@ from game.world.managers.objects.units.player.EnchantmentManager import Enchantm
 from utils.Formulas import UnitFormulas, CreatureFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
-from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, SkillCategories
+from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, SkillCategories, SpeedType
 from utils.constants.SpellCodes import SpellSchools, SpellHitFlags, SpellMissReason
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields
@@ -358,7 +358,7 @@ class StatManager:
             self.update_attack_base_damage(attack_type=AttackTypes.RANGED_ATTACK)
 
         # Only send base speed - change_speed will apply total value.
-        self.unit_mgr.change_speed(self.get_base_stat(UnitStats.SPEED_RUNNING))
+        self.unit_mgr.change_speed(SpeedType.RUN, self.get_base_stat(UnitStats.SPEED_RUNNING))
 
         hp_diff = self.update_max_health()
         mana_diff = self.update_max_mana()
@@ -479,13 +479,11 @@ class StatManager:
                 min_dmg = math.ceil(min_dmg * 0.4)
                 max_dmg = math.ceil(max_dmg * 0.4)
             else:
-                creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                    self.unit_mgr.creature_template.equipment_id)
-                if creature_equip_template:
-                    item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(
-                        creature_equip_template.equipentry1)
-                    if item_template:
-                        weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
+                item_entry = self.unit_mgr.get_virtual_equipment_entries()[0]
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
+                if item_template:
+                    weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
+
         self.weapon_reach = weapon_reach
 
         if attack_type != AttackTypes.RANGED_ATTACK:
