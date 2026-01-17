@@ -1166,7 +1166,7 @@ class UnitManager(ObjectManager):
         default_speed = config.Unit.Defaults.run_speed
 
         if speed_type == SpeedType.WALK:
-            stat_type = None  # Walk speed doesn't seem to have a StatManager entry, use base
+            stat_type = None
             default_speed = config.Unit.Defaults.walk_speed
         elif speed_type == SpeedType.SWIM:
             stat_type = UnitStats.SPEED_SWIMMING
