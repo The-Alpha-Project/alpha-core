@@ -479,13 +479,11 @@ class StatManager:
                 min_dmg = math.ceil(min_dmg * 0.4)
                 max_dmg = math.ceil(max_dmg * 0.4)
             else:
-                creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                    self.unit_mgr.creature_template.equipment_id)
-                if creature_equip_template:
-                    item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(
-                        creature_equip_template.equipentry1)
-                    if item_template:
-                        weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
+                item_entry = self.unit_mgr.get_virtual_equipment_entries()[0]
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
+                if item_template:
+                    weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
+
         self.weapon_reach = weapon_reach
 
         if attack_type != AttackTypes.RANGED_ATTACK:
