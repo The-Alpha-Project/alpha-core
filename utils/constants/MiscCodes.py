@@ -768,13 +768,6 @@ class SpeedType(IntEnum):
     RUN = 1
     SWIM = 2
     TURN = 3
-    PITCH = 4
-    BACK_WALK = 5
-    BACK_RUN = 6
-    BACK_SWIM = 7
-    FLIGHT = 8
-    BACK_FLIGHT = 9
-    MAX = 10
 
 
 class BuyResults(IntEnum):
