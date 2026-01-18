@@ -64,6 +64,14 @@ class GridManager:
 
             self._update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
                                               has_inventory_changes=has_inventory_changes, update_data=update_data)
+
+            # If the unit changed cells, it also needs to send the field updates to players in the old surroundings
+            # who are still in range of the new cell.
+            if cell_swap:
+                self._update_players_surroundings(source_cell_key, world_object=world_object, has_changes=has_changes,
+                                                  has_inventory_changes=has_inventory_changes, update_data=update_data,
+                                                  exclude_cells=self._get_surrounding_cells_by_cell(self.cells[current_cell_key]))
+
             # If the player also had inventory changes, reset the inventory update fields.
             if has_inventory_changes:
                 world_object.inventory.reset_update_fields()

@@ -1896,6 +1896,10 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
+        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
+        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
+        self.set_health(0)
+
         self.set_has_moved(False, False, True)
         self.call_for_help_timer = 0
         self.swim_checks_enabled = False
@@ -1923,11 +1927,6 @@ class UnitManager(ObjectManager):
         charmer = self.get_charmer_or_summoner()
         if charmer:
             charmer.pet_manager.handle_pet_death(self)
-
-        self.set_health(0)
-
-        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
-        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
 
         if killer and killer.is_player():
             if killer.current_selection == self.guid:

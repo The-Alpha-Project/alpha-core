@@ -339,7 +339,7 @@ class GameObjectManager(ObjectManager):
         if not update_data:
             update_data = self.update_packet_factory.generate_update_data(flush_current=True)
 
-        mask = update_data.update_bit_mask
+        mask = update_data.update_bit_mask.copy()
 
         data = bytearray()
         for index in range(self.update_packet_factory.update_mask.field_count):

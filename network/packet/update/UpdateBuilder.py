@@ -167,8 +167,8 @@ class UpdateBuilder:
         transactions = 0
         data = bytearray()
         for update_bytes in update_complete_bytes:
-            # If data exceeds uint16, split packets.
-            if len(data) + len(update_bytes) > 65535:
+            # If data exceeds uint16, split packets. (Account for opcode 4 bytes)
+            if len(data) + len(update_bytes) > 65531:
                 packet_bytes = bytearray(pack('<I', transactions)) + data
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, packet_bytes))
                 transactions = 0

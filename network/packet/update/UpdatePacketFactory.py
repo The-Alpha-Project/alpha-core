@@ -1,4 +1,5 @@
 from struct import  unpack_from, pack_into
+from threading import RLock
 from network.packet.update.UpdateData import UpdateData
 from network.packet.update.UpdateMask import UpdateMask
 from utils.Logger import Logger
@@ -17,6 +18,7 @@ class UpdatePacketFactory:
         self.private_fields = None
         self.update_values_bytes = bytearray()  # Values bytes representation, used for update packets.
         self.update_mask = UpdateMask()
+        self.lock = RLock()
 
     def init_values(self, owner_guid, fields_type):
         self.owner_guid = owner_guid
@@ -87,45 +89,52 @@ class UpdatePacketFactory:
 
     # Makes sure every single player gets the same mask and values.
     def generate_update_data(self, flush_current=True):
-        update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes[:])
-        if flush_current:
-            self.reset()
-        return update_object
+        with self.lock:
+            update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes[:])
+            if flush_current:
+                self.reset()
+            return update_object
 
     def reset(self):
-        self.update_mask.clear()
+        with self.lock:
+            self.update_mask.clear()
 
     def has_pending_updates(self):
-        return not self.update_mask.is_empty()
+        with self.lock:
+            return not self.update_mask.is_empty()
 
     def get_value(self, index, value_type, is_int64):
-        if not is_int64:
-            return unpack_from(f'<{value_type}', self.update_values_bytes, index * 4)[0]
+        with self.lock:
+            if not is_int64:
+                return unpack_from(f'<{value_type}', self.update_values_bytes, index * 4)[0]
 
-        # Unpack from two field bytes.
-        return unpack_from(f'<{value_type}', self.update_values_bytes, index * 4)[0]
+            # Unpack from two field bytes.
+            return unpack_from(f'<{value_type}', self.update_values_bytes, index * 4)[0]
 
     # Check if the new value is different from the field known value.
     def should_update(self, index, value, is_int64):
-        if not is_int64:
-            return self.get_value(index, 'I', False) != value
+        with self.lock:
+            if not is_int64:
+                return self.get_value(index, 'I', False) != value
 
-        # Check both lower and upper parts for 64-bit values.
-        return (self.get_value(index, 'I', False) != int(value & 0xFFFFFFFF) or
-                self.get_value(index + 1, 'I', False) != int((value >> 32) & 0xFFFFFFFF))
+            # Check both lower and upper parts for 64-bit values.
+            return (self.get_value(index, 'I', False) != int(value & 0xFFFFFFFF) or
+                    self.get_value(index + 1, 'I', False) != int((value >> 32) & 0xFFFFFFFF))
 
     def update(self, index, value, value_type, is_int64):
-        # Handle 64-bit 'q' type by splitting into two 32-bit updates.
-        if is_int64:
-            lower_value = int(value & 0xFFFFFFFF)
-            upper_value = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
+        with self.lock:
+            # Handle 64-bit 'q' type by splitting into two 32-bit updates.
+            if is_int64:
+                lower_value = int(value & 0xFFFFFFFF)
+                upper_value = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
 
-            # Inline update for both parts to avoid recursion overhead.
-            self.set_value(index, lower_value, 'I')
-            self.set_value(index + 1, upper_value, 'I')
-        else:
-            self.set_value(index, value, value_type)
+                # Inline update for both parts to avoid recursion overhead.
+                self.set_value(index, lower_value, 'I')
+                self.set_value(index + 1, upper_value, 'I')
+            else:
+                self.set_value(index, value, value_type)
 
     def set_value(self, index, value, value_type):
-        pack_into(f'<{value_type}', self.update_values_bytes, index * 4, value)
-        self.update_mask.set_bit(index)
+        with self.lock:
+            pack_into(f'<{value_type}', self.update_values_bytes, index * 4, value)
+            self.update_mask.set_bit(index)
