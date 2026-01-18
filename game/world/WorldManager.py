@@ -23,6 +23,7 @@ STARTUP_TIME = time()
 WORLD_ON = True
 SERVER_SEED = os.urandom(4)
 MAX_PACKET_BYTES = 4096
+BUFFER_SIZE = 65536
 
 
 def get_seconds_since_startup():
@@ -34,12 +35,20 @@ class WorldServerSessionHandler:
         self.client_socket = client_socket
         self.client_address = client_address
 
+        # Optimize socket for low latency and throughput.
+        self.client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
+        self.client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, BUFFER_SIZE)
+
         self.account_mgr = None
         self.player_mgr: Optional[PlayerManager] = None
         self.keep_alive = False
 
         self.incoming_pending = _queue.SimpleQueue()
         self.outgoing_pending = _queue.SimpleQueue()
+
+        self._receive_buffer = bytearray(MAX_PACKET_BYTES)
+        self._receive_view = memoryview(self._receive_buffer)
 
     def handle(self):
         try:
@@ -200,32 +209,27 @@ class WorldServerSessionHandler:
         return reader
 
     def receive_all(self, sck, expected_size):
-        # Prevent wrong size because of malformed packets.
         if expected_size <= 0:
             return b''
 
-        # Try to fill at once.
-        received = sck.recv(expected_size)
-        if not received:
+        # Re-allocate if the requested size is larger than the pre-allocated buffer.
+        if expected_size > len(self._receive_buffer):
+            self._receive_buffer = bytearray(expected_size)
+            self._receive_view = memoryview(self._receive_buffer)
+
+        view = self._receive_view
+        bytes_received = 0
+
+        try:
+            while bytes_received < expected_size:
+                received = sck.recv_into(view[bytes_received:expected_size], expected_size - bytes_received)
+                if not received:
+                    return b''
+                bytes_received += received
+
+            return self._receive_buffer[:expected_size]
+        except OSError:
             return b''
-
-        # We got what we expect, return buffer.
-        if received == expected_size:
-            return received
-
-        # If we got incomplete data, request missing payload.
-        buffer = bytearray(received)
-        current_buffer_size = len(buffer)
-        while current_buffer_size < expected_size:
-            received = sck.recv(expected_size - current_buffer_size)
-            if not received:
-                return b''
-            buffer.extend(received)  # Keep appending to our buffer until we're done.
-            current_buffer_size = len(buffer)
-            # Avoid handling any packet that's above the maximum packet size.
-            if current_buffer_size > MAX_PACKET_BYTES:
-                return b''
-        return buffer
 
     @staticmethod
     def start_chat_logger():
