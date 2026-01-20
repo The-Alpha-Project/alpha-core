@@ -76,6 +76,7 @@ class GameObjectManager(ObjectManager):
         # Check if this game object should be updated yet or not.
         if self.has_pending_updates():
             self.get_map().update_object(self, has_changes=True)
+            self.reset_update_fields()
 
         self.last_tick = now
 
@@ -337,7 +338,7 @@ class GameObjectManager(ObjectManager):
     def _get_fields_update(self, is_create, requester, update_data=None):
         # Make sure we work on a copy of the current mask and values.
         if not update_data:
-            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
+            update_data = self.update_packet_factory.generate_update_data()
 
         mask = update_data.update_bit_mask.copy()
 

@@ -677,6 +677,9 @@ class CreatureManager(UnitManager):
             self.get_map().update_object(self, has_changes=has_changes)
             self.set_has_moved(False, False, flush=True)
 
+        if has_changes:
+            self.reset_update_fields()
+
         self.last_tick = now
 
     # override

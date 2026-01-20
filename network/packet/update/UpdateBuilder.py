@@ -1,5 +1,6 @@
 from enum import IntEnum
 from struct import pack
+from threading import RLock
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter
@@ -22,111 +23,121 @@ class UpdateBuilder:
         self._destroy_known_items = set()  # Items from players no longer visible.
         self._active_objects = set()  # Objects which are active to the player (visible).
         self._packets = dict()
+        self._lock = RLock()
 
     def has_active_guid(self, guid):
-        return guid in self._active_objects
+        with self._lock:
+            return guid in self._active_objects
 
     def clear_active_objects(self):
-        self._active_objects.clear()
+        with self._lock:
+            self._active_objects.clear()
 
     def add_active_object(self, world_object):
-        self._active_objects.add(world_object.guid)
+        with self._lock:
+            self._active_objects.add(world_object.guid)
 
     def pop_active_object(self, world_object):
-        self._active_objects.discard(world_object.guid)
+        with self._lock:
+            self._active_objects.discard(world_object.guid)
 
     def process_update(self):
-        # Query detail, destroy, movement and SMSG_UPDATE_OBJECT packets.
-        if self._has_pending_update_packets():
-            self._player_mgr.enqueue_packets(self._get_build_all_packets())
+        with self._lock:
+            # Query detail, destroy, movement and SMSG_UPDATE_OBJECT packets.
+            if self._has_pending_update_packets():
+                self._player_mgr.enqueue_packets(self._get_build_all_packets())
 
-        # Relation between objects after creation.
-        if self._has_create_known_objects_updates():
-            self._process_known_objects_updates()
+            # Relation between objects after creation.
+            if self._has_create_known_objects_updates():
+                self._process_known_objects_updates()
 
-        # Relation between objects after destruction.
-        if self._has_destroy_known_objects_updates():
-            self._process_destroy_known_objects_updates()
+            # Relation between objects after destruction.
+            if self._has_destroy_known_objects_updates():
+                self._process_destroy_known_objects_updates()
 
-        # Player known items after owner destruction.
-        if self._has_destroy_known_items_updates():
-            self._process_destroy_known_items_updates()
+            # Player known items after owner destruction.
+            if self._has_destroy_known_items_updates():
+                self._process_destroy_known_items_updates()
 
     def add_create_update_from_object(self, world_object):
-        self._create_guids.add(world_object.guid)
-        obj_type = world_object.get_type_id()
+        with self._lock:
+            self._create_guids.add(world_object.guid)
+            obj_type = world_object.get_type_id()
 
-        # Specific query details given the object type.
-        if obj_type in self._implements_query_details:
-            self._add_world_object_detail_query_from_object(world_object)
-            # Send units virtual items detail queries.
-            if obj_type == ObjectTypeIds.ID_UNIT:
-                item_entries = world_object.get_virtual_equipment_entries(filtered=True)
-                for entry in item_entries:
-                    self._add_virtual_item_detail_query_from_entry(world_object, entry)
+            # Specific query details given the object type.
+            if obj_type in self._implements_query_details:
+                self._add_world_object_detail_query_from_object(world_object)
+                # Send units virtual items detail queries.
+                if obj_type == ObjectTypeIds.ID_UNIT:
+                    item_entries = world_object.get_virtual_equipment_entries(filtered=True)
+                    for entry in item_entries:
+                        self._add_virtual_item_detail_query_from_entry(world_object, entry)
 
-        # Player inventory updates.
-        if obj_type == ObjectTypeIds.ID_PLAYER:
-            self._add_inventory_updates_from_player(world_object)
+            # Player inventory updates.
+            if obj_type == ObjectTypeIds.ID_PLAYER:
+                self._add_inventory_updates_from_player(world_object)
 
-        # Create packet bytes.
-        self._add_packet(world_object.get_create_update_bytes(requester=self._player_mgr), PacketType.CREATE)
+            # Create packet bytes.
+            self._add_packet(world_object.get_create_update_bytes(requester=self._player_mgr), PacketType.CREATE)
 
-        # Movement packets.
-        if world_object.is_unit(by_mask=True):
-            self._add_movement_update_from_unit(world_object)
+            # Movement packets.
+            if world_object.is_unit(by_mask=True):
+                self._add_movement_update_from_unit(world_object)
 
-        # Handle special doors case in which the real state is sent after create packet in order to remove collision.
-        if world_object.is_gameobject():
-            door_deferred_state_update = world_object.get_door_state_update_bytes()
-            if door_deferred_state_update:
-                self._add_packet(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
+            # Handle special doors case in which the real state is sent after create packet in order to remove collision.
+            if world_object.is_gameobject():
+                door_deferred_state_update = world_object.get_door_state_update_bytes()
+                if door_deferred_state_update:
+                    self._add_packet(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 
-        # Handle special Units bytes_1 field in which the real sheath state is sent after create.
-        if world_object.is_unit():
-            bytes_1_deferred_state_update = world_object.get_bytes_1_state_update_bytes()
-            self._add_packet(bytes_1_deferred_state_update, PacketType.PARTIAL_DEFERRED)
+            # Handle special Units bytes_1 field in which the real sheath state is sent after create.
+            if world_object.is_unit():
+                bytes_1_deferred_state_update = world_object.get_bytes_1_state_update_bytes()
+                self._add_packet(bytes_1_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 
-        # Player <-> Objects linked as known.
-        if obj_type in self._implements_known_players:
-            self._create_linked_known_objects_updates.add(world_object)
-        # Only players need to know the object.
-        else:
-            self._create_owner_known_objects_updates.add(world_object)
+            # Player <-> Objects linked as known.
+            if obj_type in self._implements_known_players:
+                self._create_linked_known_objects_updates.add(world_object)
+            # Only players need to know the object.
+            else:
+                self._create_owner_known_objects_updates.add(world_object)
 
     def add_partial_update_from_bytes(self, bytes_):
-        self._add_packet(bytes_, packet_type=PacketType.PARTIAL)
+        with self._lock:
+            self._add_packet(bytes_, packet_type=PacketType.PARTIAL)
 
     def add_partial_update_from_object(self, world_object, update_data=None):
-        # If create packet already exists for the object, defer to next tick.
-        packet_type = PacketType.PARTIAL if world_object.guid not in self._create_guids else PacketType.PARTIAL_DEFERRED
-        self._add_packet(world_object.get_partial_update_bytes(requester=self._player_mgr,
-                                                               update_data=update_data), packet_type)
+        with self._lock:
+            # If create packet already exists for the object, defer to next tick.
+            packet_type = PacketType.PARTIAL if world_object.guid not in self._create_guids else PacketType.PARTIAL_DEFERRED
+            self._add_packet(world_object.get_partial_update_bytes(requester=self._player_mgr,
+                                                                   update_data=update_data), packet_type)
 
     def add_destroy_update_from_object(self, world_object):
-        object_type = world_object.get_type_id()
-        is_player = object_type == ObjectTypeIds.ID_PLAYER
+        with self._lock:
+            object_type = world_object.get_type_id()
+            is_player = object_type == ObjectTypeIds.ID_PLAYER
 
-        if object_type in self._implements_known_players:
-            self._destroy_linked_known_objects_updates.add(world_object)
-        else:
-            self._destroy_owner_known_objects_updates.add(world_object)
+            if object_type in self._implements_known_players:
+                self._destroy_linked_known_objects_updates.add(world_object)
+            else:
+                self._destroy_owner_known_objects_updates.add(world_object)
 
-        # Destroy other player items for self.
-        if is_player:
-            destroy_packets = world_object.get_inventory_destroy_packets(requester=self._player_mgr)
-            for guid in destroy_packets.keys():
-                self._destroy_known_items.add(guid)
-            self._add_packet(list(destroy_packets.values()), PacketType.DESTROY)
+            # Destroy other player items for self.
+            if is_player:
+                destroy_packets = world_object.get_inventory_destroy_packets(requester=self._player_mgr)
+                for guid in destroy_packets.keys():
+                    self._destroy_known_items.add(guid)
+                self._add_packet(list(destroy_packets.values()), PacketType.DESTROY)
 
-        # Destroy world object from self.
-        self._add_packet(world_object.get_destroy_packet(), PacketType.DESTROY)
+            # Destroy world object from self.
+            self._add_packet(world_object.get_destroy_packet(), PacketType.DESTROY)
 
-        # Destroyed a player which is in our party, update party stats.
-        # We do this here because we need to make sure client no longer knows the player object if it went offline.
-        if (is_player and self._player_mgr.group_manager
-                and self._player_mgr.group_manager.is_party_member(world_object.guid)):
-            self._player_mgr.group_manager.send_update()
+            # Destroyed a player which is in our party, update party stats.
+            # We do this here because we need to make sure client no longer knows the player object if it went offline.
+            if (is_player and self._player_mgr.group_manager
+                    and self._player_mgr.group_manager.is_party_member(world_object.guid)):
+                self._player_mgr.group_manager.send_update()
 
     def _add_virtual_item_detail_query_from_entry(self, unit, entry):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)

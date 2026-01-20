@@ -88,12 +88,9 @@ class UpdatePacketFactory:
         Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{value}]")
 
     # Makes sure every single player gets the same mask and values.
-    def generate_update_data(self, flush_current=True):
+    def generate_update_data(self):
         with self.lock:
-            update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes[:])
-            if flush_current:
-                self.reset()
-            return update_object
+            return UpdateData(self.update_mask.copy(), self.update_values_bytes[:])
 
     def reset(self):
         with self.lock:

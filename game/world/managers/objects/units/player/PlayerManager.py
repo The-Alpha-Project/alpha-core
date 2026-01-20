@@ -1590,6 +1590,8 @@ class PlayerManager(UnitManager):
         # Update system, propagate player changes to surrounding units.
         if self.online and (has_changes or has_inventory_changes):
             self.get_map().update_object(self, has_changes, has_inventory_changes)
+            if has_changes:
+                self.reset_update_fields()
         # Not dirty, has a pending teleport and a teleport is not ongoing.
         elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
             self.trigger_teleport()
