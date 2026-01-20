@@ -303,22 +303,25 @@ class ObjectManager:
             data = bytearray()
             for field_index in range(self.update_packet_factory.update_mask.field_count):
                 # Partial packets only care for fields that had changes.
-                if not is_create and mask[field_index] == 0:
+                if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(field_index):
                     continue
                 # Check for encapsulation, turn off the bit if the requester has no read access.
                 if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
                     mask[field_index] = 0
                     continue
-                # Defer bytes_1 sheath update, this is similar to the doors collision issue (But for sheath state)
-                # in which the client needs to see the doors as ready first and then receive their actual state after creation.
-                elif is_create and self.is_unit() and field_index == UnitFields.UNIT_FIELD_BYTES_1:
-                    data.extend(pack('<I', self.get_bytes_1(is_create=True)))
-                    mask[field_index] = 1
-                    continue
+
                 # Append field value and turn on the bit on mask.
-                data.extend(update_data.get_field_bytes(field_index))
+                data.extend(self._get_field_value_for_update(field_index, is_create, requester, update_data))
                 mask[field_index] = 1
             return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
+
+    def _get_field_value_for_update(self, index, is_create, requester, update_data):
+        # Defer bytes_1 sheath update, this is similar to the doors collision issue (But for sheath state)
+        # in which the client needs to see the doors as ready first and then receive their actual state after creation.
+        if is_create and self.is_unit() and index == UnitFields.UNIT_FIELD_BYTES_1:
+            return pack('<I', self.get_bytes_1(is_create=True))
+
+        return update_data.get_field_bytes(index)
 
     # noinspection PyMethodMayBeStatic
     def is_aura_field(self, index):

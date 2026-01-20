@@ -335,36 +335,16 @@ class GameObjectManager(ObjectManager):
         return self.get_single_field_update_bytes(GameObjectFields.GAMEOBJECT_DYN_FLAGS, dyn_flag_value)
 
     # override
-    def _get_fields_update(self, is_create, requester, update_data=None):
-        # Make sure we work on a copy of the current mask and values.
-        if not update_data:
-            update_data = self.update_packet_factory.generate_update_data()
+    def _get_field_value_for_update(self, index, is_create, requester, update_data):
+        if self.update_packet_factory.is_dynamic_field(index):
+            return pack('<I', self.generate_dynamic_field_value(requester))
+        elif is_create and \
+                index == GameObjectFields.GAMEOBJECT_STATE and \
+                self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
+            # Client doesn't remove collision for doors sent with active state - always send as ready.
+            return pack('<I', GameObjectStates.GO_STATE_READY)
 
-        mask = update_data.update_bit_mask.copy()
-
-        data = bytearray()
-        for index in range(self.update_packet_factory.update_mask.field_count):
-            # Partial packets only care for fields that had changes.
-            if not is_create and mask[index] == 0 and not self.update_packet_factory.is_dynamic_field(index):
-                continue
-            # Check for encapsulation, turn off the bit if the requester has no read access.
-            if not self.update_packet_factory.has_read_rights_for_field(index, requester):
-                mask[index] = 0
-                continue
-
-            if self.update_packet_factory.is_dynamic_field(index):
-                value = pack('<I', self.generate_dynamic_field_value(requester))
-            elif is_create and \
-                    index == GameObjectFields.GAMEOBJECT_STATE and \
-                    self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
-                # Client doesn't remove collision for doors sent with active state - always send as ready.
-                value = pack('<I', GameObjectStates.GO_STATE_READY)
-            else:
-                value = update_data.get_field_bytes(index)
-
-            data.extend(value)
-            mask[index] = 1
-        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
+        return super()._get_field_value_for_update(index, is_create, requester, update_data)
 
     def _check_time_to_live(self, elapsed):
         if self.time_to_live and self.time_to_live_timer < self.time_to_live:
