@@ -136,16 +136,23 @@ class EnchantmentManager:
         if should_save:
             item.save()
 
-    # TODO: Need to figure how to display the expiration message and also display the log to surrounding players,
-    #  currently, only the caster sees this.
+    # TODO: Need to figure how to display the expiration message.
     def send_enchantment_log(self, caster, item, enchantment_id, show_affiliation=False):
         data = pack('<IQ', show_affiliation, self.unit_mgr.guid)
         if not show_affiliation:
             data += pack('<Q', caster.guid)
+        else:
+            data += pack('<Q', self.unit_mgr.guid)
+
         data += pack('<2I', enchantment_id, item.entry)
         packet = PacketWriter.get_packet(OpCode.SMSG_ENCHANTMENTLOG, data)
         if not show_affiliation:
             self.unit_mgr.enqueue_packet(packet)
+
+            # Caster needs the log too if it's not the recipient.
+            if caster.is_player() and caster.guid != self.unit_mgr.guid:
+                caster.enqueue_packet(packet)
+
             self.send_enchantment_log(caster, item, enchantment_id, show_affiliation=True)
         else:
             self.unit_mgr.get_map().send_surrounding(packet, self.unit_mgr, include_self=False)
