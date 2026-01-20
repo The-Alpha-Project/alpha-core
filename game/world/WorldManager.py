@@ -7,6 +7,7 @@ from typing import Any
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from game.world.WorldServerTicker import WorldServerTicker
 from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -240,21 +241,27 @@ class WorldServerSessionHandler:
             logging_thread.start()
 
     @staticmethod
+    def build_get_ticker():
+        ticker = WorldServerTicker()
+        ticker.add_task('Realm Saving', WorldSessionStateHandler.save_characters,
+                        config.Server.Settings.realm_saving_interval_seconds)
+        ticker.add_task('Player', WorldSessionStateHandler.update_players, 0.1)
+        ticker.add_task('Creature', MapManager.update_creatures, 0.2)
+        ticker.add_task('Gameobject', MapManager.update_gameobjects, 1.0)
+        ticker.add_task('Transport', MapManager.update_transports, 0.1)
+        ticker.add_task('DynObject', MapManager.update_dynobjects, 1.0)
+        ticker.add_task('Spawn', MapManager.update_spawns, 1.0)
+        ticker.add_task('Corpse', MapManager.update_corpses, 10.0)
+        ticker.add_task('Script/Event', MapManager.update_map_scripts_and_events, 1.0)
+        ticker.add_task('Detection', MapManager.update_detection_range_collision, 1.0)
+        ticker.add_task('Tile Unloading', MapManager.deactivate_cells, 300.0)
+        return ticker
+
+    @staticmethod
     def build_get_schedulers():
+        # Heavier tasks that benefit from multiple instances or being separate from the main world tick.
         return [
-            WorldServerSessionHandler.build_scheduler('Realm Saving', WorldSessionStateHandler.save_characters,
-                                                      config.Server.Settings.realm_saving_interval_seconds, 1),
-            WorldServerSessionHandler.build_scheduler('Player', WorldSessionStateHandler.update_players, 0.1, 1),
-            WorldServerSessionHandler.build_scheduler('Creature', MapManager.update_creatures, 0.2, 1),
-            WorldServerSessionHandler.build_scheduler('Gameobject', MapManager.update_gameobjects, 1.0, 1),
-            WorldServerSessionHandler.build_scheduler('Transport', MapManager.update_transports, 0.1, 1),
-            WorldServerSessionHandler.build_scheduler('DynObject', MapManager.update_dynobjects, 1.0, 1),
-            WorldServerSessionHandler.build_scheduler('Spawn', MapManager.update_spawns, 1.0, 1),
-            WorldServerSessionHandler.build_scheduler('Corpse', MapManager.update_corpses, 10.0, 1),
-            WorldServerSessionHandler.build_scheduler('Script/Event', MapManager.update_map_scripts_and_events, 1.0, 1),
-            WorldServerSessionHandler.build_scheduler('Detection', MapManager.update_detection_range_collision, 1.0, 1),
-            WorldServerSessionHandler.build_scheduler('Tile Loading', MapManager.initialize_pending_tiles, 0.2, 4),
-            WorldServerSessionHandler.build_scheduler('Tile Unloading', MapManager.deactivate_cells, 300.0, 1)]
+            WorldServerSessionHandler.build_scheduler('Tile Loading', MapManager.initialize_pending_tiles, 0.2, 4)]
 
     @staticmethod
     def build_scheduler(name, target, seconds, instances, daemon=True):
@@ -286,6 +293,13 @@ class WorldServerSessionHandler:
         # Start background tasks.
         schedulers = WorldServerSessionHandler.build_get_schedulers()
         WorldServerSessionHandler.start_schedulers(schedulers)
+
+        # Start world ticker.
+        ticker = WorldServerSessionHandler.build_get_ticker()
+        ticker.start_tasks()
+        ticker_thread = threading.Thread(target=ticker.run, args=(shared_state,))
+        ticker_thread.daemon = True
+        ticker_thread.start()
 
         # Chat logger.
         WorldServerSessionHandler.start_chat_logger()
@@ -327,3 +341,4 @@ class WorldServerSessionHandler:
         WorldServerSessionHandler.save_characters()
         WorldServerSessionHandler.disconnect_sessions()
         WorldServerSessionHandler.stop_schedulers(schedulers)
+        ticker.stop()
