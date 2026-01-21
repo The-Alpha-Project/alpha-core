@@ -152,6 +152,9 @@ class SpellEffect:
             return
 
         if power_type == PowerTypes.TYPE_HEALTH:
+            if caster.health <= new_power:
+                caster.die()
+                return
             caster.set_health(new_power)
         else:
             caster.set_power_value(new_power, power_type)

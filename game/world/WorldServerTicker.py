@@ -36,7 +36,9 @@ class WorldServerTicker:
                     try:
                         task.target()
                     except Exception as e:
+                        import traceback
                         Logger.error(f"Error executing ticker task '{task.name}': {e}")
+                        Logger.error(traceback.format_exc())
                     
                     end_time = time.time()
                     execution_time = end_time - start_time

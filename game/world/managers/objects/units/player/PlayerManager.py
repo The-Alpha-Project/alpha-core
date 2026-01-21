@@ -639,7 +639,7 @@ class PlayerManager(UnitManager):
             self.stat_manager.apply_bonuses()
 
         # Get us in a new cell.
-        self.get_map().update_object(self, has_changes=True)
+        self.get_map().update_object(self)
 
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)

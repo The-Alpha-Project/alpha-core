@@ -1,4 +1,4 @@
-from struct import  unpack_from, pack_into
+from struct import  unpack_from, pack_into, pack
 from threading import RLock
 from network.packet.update.UpdateData import UpdateData
 from network.packet.update.UpdateMask import UpdateMask
@@ -58,9 +58,9 @@ class UpdatePacketFactory:
                 for offset in range(update_field.size):
                     field_index = update_field.value + offset
                     # Store debugging info for each field.
-                    DEBUG_INFORMATION[fields_type][field_index] = (
-                        f"[{field_index}] {update_field.name}_{offset} - [{update_field.flags.name}]"
-                    )
+                    field_name = update_field.name
+                    field_flags_name = update_field.flags.name
+                    DEBUG_INFORMATION[fields_type][field_index] = f"[{field_index}] {field_name}_{offset} - [{field_flags_name}]"
                     # Store the encapsulation flags for the field.
                     FIELDS_ENCAPSULATION[fields_type][field_index] = update_field.flags
 
@@ -74,7 +74,7 @@ class UpdatePacketFactory:
             # self._debug_field_acquisition(requester, index, was_protected=True)
             return False
 
-        # self._debug_field_acquisition(requester, index, was_protected=False)
+        self._debug_field_acquisition(requester, index, was_protected=False)
         return True
 
     def _validate_field_existence(self, index):
@@ -84,7 +84,7 @@ class UpdatePacketFactory:
     def _debug_field_acquisition(self, requester, index, was_protected):
         update_field_info = DEBUG_INFORMATION[self.fields_type][index]
         result = '[PROTECTED]' if was_protected else '[ACCESSED]'
-        value = self.get_value(index, 'I', False)
+        value = self.get_value(index, 'I')
         Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{value}]")
 
     # Makes sure every single player gets the same mask and values.
@@ -100,30 +100,29 @@ class UpdatePacketFactory:
         with self.lock:
             return not self.update_mask.is_empty()
 
-    def get_value(self, index, value_type, is_int64):
+    def get_value(self, index, value_type):
         with self.lock:
-            if not is_int64:
-                return unpack_from(f'<{value_type}', self.update_values_bytes, index * 4)[0]
-
-            # Unpack from two field bytes.
             return unpack_from(f'<{value_type}', self.update_values_bytes, index * 4)[0]
 
     # Check if the new value is different from the field known value.
-    def should_update(self, index, value, is_int64):
+    def should_update(self, index, value, value_type, is_int64):
         with self.lock:
-            if not is_int64:
-                return self.get_value(index, 'I', False) != value
-
-            # Check both lower and upper parts for 64-bit values.
-            return (self.get_value(index, 'I', False) != int(value & 0xFFFFFFFF) or
-                    self.get_value(index + 1, 'I', False) != int((value >> 32) & 0xFFFFFFFF))
+            # Bit-level comparison to avoid redundant updates.
+            size = 8 if is_int64 else 4
+            new_value_bytes = bytearray(size)
+            pack_into(f'<{value_type}', new_value_bytes, 0, value)
+            return self.update_values_bytes[index * 4:index * 4 + size] != new_value_bytes
 
     def update(self, index, value, value_type, is_int64):
         with self.lock:
-            # Handle 64-bit 'q' type by splitting into two 32-bit updates.
+            # Handle the 64-bit types by splitting into two 32-bit updates.
             if is_int64:
-                lower_value = int(value & 0xFFFFFFFF)
-                upper_value = int((value >> 32) & 0xFFFFFFFF)  # Ensures only 32 bits are used after shifting.
+                # Use pack_into/unpack_from for correctly splitting 64-bit values into two 32-bit fields.
+                temp_bytes = bytearray(8)
+                pack_into(f'<{value_type}', temp_bytes, 0, value)
+
+                lower_value = unpack_from('<I', temp_bytes, 0)[0]
+                upper_value = unpack_from('<I', temp_bytes, 4)[0]
 
                 # Inline update for both parts to avoid recursion overhead.
                 self.set_value(index, lower_value, 'I')
@@ -132,6 +131,5 @@ class UpdatePacketFactory:
                 self.set_value(index, value, value_type)
 
     def set_value(self, index, value, value_type):
-        with self.lock:
-            pack_into(f'<{value_type}', self.update_values_bytes, index * 4, value)
-            self.update_mask.set_bit(index)
+        pack_into(f'<{value_type}', self.update_values_bytes, index * 4, value)
+        self.update_mask.set_bit(index)

@@ -781,9 +781,8 @@ class SpellManager:
                 result = SpellCheckCastResult.SPELL_NO_ERROR
 
             # "Passive" casts like active area auras and delayed spells.
-            if not casting_spell.is_channeled() and \
-                    casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
-                    casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+            if not casting_spell.is_channeled() and (casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or
+                    casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED):
                 if not remove_active:
                     continue
                 result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells
@@ -1789,6 +1788,9 @@ class SpellManager:
             new_power = current_power - cost
 
         if power_type == PowerTypes.TYPE_HEALTH:
+            if self.caster.health <= new_power:
+                self.caster.die()
+                return
             self.caster.set_health(new_power)
         else:
             self.caster.set_power_value(new_power, power_type)

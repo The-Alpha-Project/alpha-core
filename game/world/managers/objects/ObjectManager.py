@@ -328,19 +328,19 @@ class ObjectManager:
         return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
     def set_int32(self, index, value, force=False):
-        return self._set_value(index, value, 'i', False, force)
+        return self._set_value(index, int(value), 'i', False, force)
 
     def set_uint32(self, index, value, force=False):
-        return self._set_value(index, value, 'I', False, force)
+        return self._set_value(index, int(value), 'I', False, force)
 
     def set_int64(self, index, value, force=False):
-        return self._set_value(index, value, 'q', True, force)
+        return self._set_value(index, int(value), 'q', True, force)
 
     def set_uint64(self, index, value, force=False):
-        return self._set_value(index, value, 'Q', True, force)
+        return self._set_value(index, int(value), 'Q', True, force)
 
     def set_float(self, index, value, force=False):
-        return self._set_value(index, value, 'f', False, force)
+        return self._set_value(index, float(value), 'f', False, force)
 
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index, False)
@@ -358,12 +358,12 @@ class ObjectManager:
         return self._get_value_by_type_at('f', index, False)
 
     def _get_value_by_type_at(self, value_type, index, is_int64):
-        return self.update_packet_factory.get_value(index, value_type, is_int64)
+        return self.update_packet_factory.get_value(index, value_type)
 
     def _set_value(self, index, value, value_type, is_int64, force=False):
         force = force and self.is_player()
         with self.update_packet_factory.lock:
-            if force or self.update_packet_factory.should_update(index, value, is_int64):
+            if force or self.update_packet_factory.should_update(index, value, value_type, is_int64):
                 self.update_packet_factory.update(index, value, value_type, is_int64)
                 if force and self.is_in_world():  # Changes should apply immediately.
                     self.get_map().update_object(self, has_changes=True)

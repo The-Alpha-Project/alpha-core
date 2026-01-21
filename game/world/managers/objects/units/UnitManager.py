@@ -737,6 +737,12 @@ class UnitManager(ObjectManager):
                 regen_per_5 *= 0.5
 
         regen_per_tick = regen_per_5 * 0.4  # Regen per 5 -> regen per 2 (per tick).
+
+        # TODO: Resurrection Sickness will cause negative regen rates, ultimately killing the player.
+        #  Also need to investigate how this affects rage decay.
+        if power_type == PowerTypes.TYPE_HEALTH and regen_per_tick < 0:
+            regen_per_tick = 0
+
         if 0 < regen_per_tick < 1:
             regen_per_tick = 1  # Round up to 1, but account for decay/zero regen.
 
@@ -1081,8 +1087,8 @@ class UnitManager(ObjectManager):
         # Reset aura states.
         self.aura_manager.reset_aura_states()
 
-        # Remove casts.
-        self.spell_manager.remove_casts()
+        # Remove casts, active for dead units, not active for alive units.
+        self.spell_manager.remove_casts(remove_active=not self.is_alive)
 
         # Reset threat table.
         self.threat_manager.reset()
@@ -1738,9 +1744,11 @@ class UnitManager(ObjectManager):
     def set_health(self, health):
         if health < 0:
             health = 0
+
         self.health = min(health, self.max_health)
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
         self.hp_percent = (self.health / self.max_health) * 100 if self.max_health else 0
+
         # Aura state health <= 20%.
         if self.health:
             self.aura_manager.modify_aura_state(AuraState.AURA_STATE_HEALTH_20_PERCENT, apply=self.hp_percent <= 20)
@@ -1896,10 +1904,6 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
-        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
-        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
-        self.set_health(0)
-
         self.set_has_moved(False, False, True)
         self.call_for_help_timer = 0
         self.swim_checks_enabled = False
@@ -1944,6 +1948,10 @@ class UnitManager(ObjectManager):
 
         # Reset unit state flags.
         self.unit_state = UnitStates.NONE
+
+        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
+        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
+        self.set_health(0)
 
         return True
 
