@@ -74,7 +74,7 @@ class UpdatePacketFactory:
             # self._debug_field_acquisition(requester, index, was_protected=True)
             return False
 
-        self._debug_field_acquisition(requester, index, was_protected=False)
+        # self._debug_field_acquisition(requester, index, was_protected=False)
         return True
 
     def _validate_field_existence(self, index):
