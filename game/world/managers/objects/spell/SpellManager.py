@@ -1788,7 +1788,7 @@ class SpellManager:
             new_power = current_power - cost
 
         if power_type == PowerTypes.TYPE_HEALTH:
-            if self.caster.health <= new_power:
+            if new_power <= 0:
                 self.caster.die()
                 return
             self.caster.set_health(new_power)
