@@ -80,7 +80,7 @@ class UpdatePacketFactory:
     def _validate_field_existence(self, index):
         return self.fields_type in FIELDS_ENCAPSULATION and index in FIELDS_ENCAPSULATION[self.fields_type]
 
-    # Debug what UpdateFields players sees from self, other player, units, items, gameobjects, etc.
+    # Debug what UpdateFields players see from self, other players, units, items, gameobjects, etc.
     def _debug_field_acquisition(self, requester, index, was_protected):
         update_field_info = DEBUG_INFORMATION[self.fields_type][index]
         result = '[PROTECTED]' if was_protected else '[ACCESSED]'
