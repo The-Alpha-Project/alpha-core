@@ -1,4 +1,5 @@
 import _queue
+import signal
 import socket
 import threading
 import traceback
@@ -288,7 +289,10 @@ class WorldServerSessionHandler:
 
     @staticmethod
     def start_world(shared_state: Any):
-        WorldLoader.load_data()
+        signal.signal(signal.SIGINT, lambda signum, frame: setattr(shared_state, 'RUNNING', False))
+        if not WorldLoader.load_data(shared_state=shared_state):
+            Logger.info("World server turned off.")
+            return
 
         # Start background tasks.
         schedulers = WorldServerSessionHandler.build_get_schedulers()
