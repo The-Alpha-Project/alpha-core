@@ -3,7 +3,8 @@ import time
 
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, DispelType, SpellAttributesEx, SpellAttributes
+from utils.constants.MiscCodes import ProcFlags
+from utils.constants.SpellCodes import SpellEffects, DispelType, SpellAttributesEx, SpellAttributes, AuraTypes
 
 
 class AppliedAura:
@@ -18,6 +19,12 @@ class AppliedAura:
 
         self.proc_charges = casting_spell.spell_entry.ProcCharges if casting_spell.spell_entry.ProcCharges != 0 else -1
         self.proc_flags = casting_spell.spell_entry.ProcFlags
+
+        # Damage shields don't have proc flags assigned to them,
+        # possibly because proc flags are not effect-specific in spell data.
+        # Add proc flag for this aura here.
+        if self.spell_effect.aura_type == AuraTypes.SPELL_AURA_DAMAGE_SHIELD:
+            self.proc_flags |= ProcFlags.TAKE_COMBAT_DMG
 
         self.applied_stacks = 1
         self.can_stack = ExtendedSpellData.AuraDoseInfo.aura_can_stack(self.spell_id)
