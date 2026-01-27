@@ -66,7 +66,7 @@ class MovementManager:
 
     # Broadcast a new spline from an active movement behavior.
     def spline_callback(self, spline, movement_behavior=None):
-        # Update to latest position if necessary.
+        # Update to the latest position if necessary.
         current_spline = self.unit.movement_spline
         if current_spline and current_spline is not spline and not current_spline.is_complete():
             current_spline.update_to_now()
