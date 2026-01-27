@@ -32,6 +32,7 @@ class Spline:
         self.total_waypoint_timer = 0
         self.extra_time_seconds = extra_time_seconds  # After real time ends, wait n secs.
         self.initialized = False
+        self.last_updated_at = time.time()
 
     def initialize(self):
         self.waypoints_bytes = b''
@@ -83,6 +84,7 @@ class Spline:
             # Movement behaviors handle end orientation upon waypoint finish.
             if not is_complete:
                 new_position.face_point(current_waypoint.location)
+        self.last_updated_at = time.time()
 
         # Position changed, vector, waypoint completed (Not guessed).
         return new_position is not None, new_position, is_complete
@@ -149,9 +151,13 @@ class Spline:
 
     # Update spline to the current time when someone requests a movement update.
     def update_to_now(self):
-        elapsed = time.time() - self.unit.last_tick
-        if elapsed:
-            self.update(elapsed)
+        elapsed = time.time() - self.last_updated_at
+        if elapsed <= 0:
+            return
+        position_changed, new_position, _ = self.update(elapsed)
+        if position_changed and new_position:
+            self.unit.location = new_position.copy()
+            self.unit.set_has_moved(has_moved=True, has_turned=False)
 
     def try_build_movement_packet(self):
         # Initialize if needed.
