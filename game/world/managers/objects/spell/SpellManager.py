@@ -976,21 +976,20 @@ class SpellManager:
         chr_race = DbcDatabaseManager.chr_races_get_by_race(self.caster.race)
         self.handle_cast_attempt(chr_race.LoginEffectSpellID, self.caster, SpellTargetMask.SELF, validate=False)
 
-    # TODO: This is a workaround for not being able to properly display resists.
     def send_spell_resist_result(self, casting_spell, damage_info):
         if casting_spell.spell_caster == damage_info.target:
             return
-
-        hit_count = 0
-        miss_count = SpellManager.MAX_TARGETS
-        signature = '<2QIH3BQBQBQBQBQHQ'
-        data = [damage_info.attacker.guid, damage_info.attacker.guid, casting_spell.spell_entry.ID,
-                casting_spell.cast_flags | SpellCastFlags.CAST_FLAG_PROC, hit_count, miss_count,
-                SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, 0, 0, 0, 0, 0, 0, 0, 0,
-                SpellTargetMask.UNIT, damage_info.target.guid]
-        is_player = self.caster.is_player()
-        packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
-        self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
+        caster_level = casting_spell.caster_effective_level if self.caster.is_unit(by_mask=True) else 0
+        data = pack('<2QI2f2I',
+                    damage_info.attacker.guid,
+                    damage_info.target.guid,
+                    casting_spell.spell_entry.ID,
+                    0.0,  # resistRollNeeded
+                    0.0,  # resistRoll
+                    0,  # flags 0x1 → chooses "damage" vs. "heartbeat", 0x2 → chooses "resists" vs. "fails to resist".
+                    caster_level)
+        packet = PacketWriter.get_packet(OpCode.SMSG_RESISTLOG, data)
+        self.caster.get_map().send_surrounding(packet, self.caster, include_self=self.caster.is_player())
 
     def send_spell_go(self, casting_spell):
         source_guid = self.caster.guid
@@ -1011,15 +1010,12 @@ class SpellManager:
 
         # Only include the primary effect targets.
         targets = casting_spell.get_effects()[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
-        for index in range(SpellManager.MAX_TARGETS):
-            if index >= len(targets):
-                misses.append((0, 0))
+        for target in targets:
+            miss_info = casting_spell.object_target_results.get(target.guid)
+            if not miss_info or miss_info.result == SpellMissReason.MISS_REASON_NONE:
+                hits.append(target.guid)
             else:
-                miss_info = casting_spell.object_target_results[targets[index].guid]
-                if miss_info.result == SpellMissReason.MISS_REASON_NONE:
-                    hits.append(targets[index].guid)
-                else:
-                    misses.append((miss_info.result, targets[index].guid))
+                misses.append((miss_info.result, target.guid))
 
         # Write hits.
         hit_count = len(hits)
@@ -1030,7 +1026,7 @@ class SpellManager:
 
         # Write misses.
         signature += 'B'
-        data.append(SpellManager.MAX_TARGETS - hit_count)
+        data.append(len(misses))
         for result, target_guid in misses:
             signature += 'BQ'
             data.append(result)

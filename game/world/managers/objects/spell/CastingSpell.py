@@ -159,9 +159,42 @@ class CastingSpell:
         return isinstance(self.initial_target, Vector)
 
     def get_initial_target_info(self):  # ([values], len)
-        is_terrain = self.initial_target_is_terrain()
-        return ([self.initial_target.x, self.initial_target.y, self.initial_target.z] if is_terrain
-                else [self.initial_target.guid]), ('3f' if is_terrain else 'Q')
+        data = []
+        signature = ''
+        target_mask = self.spell_target_mask
+
+        if target_mask & SpellTargetMask.UNIT_TARGET_MASK:
+            if self.initial_target_is_unit_or_player():
+                data.append(self.initial_target.guid)
+            else:
+                data.append(self.spell_caster.guid)
+            signature += 'Q'
+
+        if target_mask & SpellTargetMask.ITEM_TARGET_MASK:
+            data.append(self.initial_target.guid if self.initial_target_is_item() else 0)
+            signature += 'Q'
+
+        if target_mask & SpellTargetMask.SOURCE_LOCATION:
+            if self.initial_target_is_terrain():
+                data.extend([self.initial_target.x, self.initial_target.y, self.initial_target.z])
+            else:
+                data.extend([self.spell_caster.location.x, self.spell_caster.location.y, self.spell_caster.location.z])
+            signature += '3f'
+
+        if target_mask & SpellTargetMask.DEST_LOCATION:
+            # If only one terrain vector is available, use it for destination as well.
+            if self.initial_target_is_terrain():
+                data.extend([self.initial_target.x, self.initial_target.y, self.initial_target.z])
+            else:
+                data.extend([self.spell_caster.location.x, self.spell_caster.location.y, self.spell_caster.location.z])
+            signature += '3f'
+
+        # Not used by spells.
+        if target_mask & SpellTargetMask.TARGET_STRING:
+            data.append(b'')
+            signature += '128s'
+
+        return data, signature
 
     def resolve_target_info_for_effects(self):
         for effect in self.get_effects():
@@ -220,12 +253,14 @@ class CastingSpell:
             return None
 
         if not self.spell_caster.is_player():
+            # If the caster is not a player, it skips the inventory-type check and calls ThrownMissileReleased unconditionally.
+            # Client forces creature ammo through the thrown release path (CGUnit_C::CheckPendingMissileRelease),
+            # so avoid ammo visuals for thrown/wand subclasses to prevent incorrect visuals.
+
             ranged_items = {
                 1 << ItemSubClasses.ITEM_SUBCLASS_BOW: 2512,  # Rough Arrow
                 1 << ItemSubClasses.ITEM_SUBCLASS_GUN: 2516,  # Light Shot
-                1 << ItemSubClasses.ITEM_SUBCLASS_THROWN: 2947,  # Small Throwing Knife
                 1 << ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: 2512,
-                1 << ItemSubClasses.ITEM_SUBCLASS_WAND: 6230   # Monster - Wand, Basic
             }
 
             weapon_mask = 0
@@ -247,7 +282,6 @@ class CastingSpell:
             if not item_entries:
                 return None
 
-            # TODO client doesn't seem to recognize thrown weapons or wands as ammo for creature casts.
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entries[0])
             return ItemManager(item_template)
 

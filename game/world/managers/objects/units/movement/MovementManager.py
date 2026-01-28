@@ -137,6 +137,7 @@ class MovementManager:
 
     def move_distracted(self, duration_seconds, angle=0):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
+        self.face_angle(angle)
 
     def move_chase(self):
         # Evade upon die (leave_combat) should not set a behavior.

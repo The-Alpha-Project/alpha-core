@@ -43,15 +43,15 @@ class DamageInfoHolder:
         self.spell_school = spell_school
         self.spell_miss_reason = spell_miss_reason
 
-    # TODO: Need better understanding of how the client is handling this opcode in order to produce
-    #  the right packet structure.
     def get_damage_done_packet(self):
         flags = WorldTextFlags.NORMAL_DAMAGE
 
-        if self.hit_info & SpellHitFlags.CRIT:
+        if self.hit_info & (SpellHitFlags.CRIT | HitInfo.CRITICAL_HIT):
             flags |= WorldTextFlags.CRIT
-        if self.absorb:
+        if self.total_damage == 0 and self.absorb:
             flags |= WorldTextFlags.MISS_ABSORBED
+        if self.hit_info & HitInfo.DEFERRED_LOGGING:
+            flags |= WorldTextFlags.DEFERRED
 
         data = pack('<Q2IiIQ', self.target.guid, self.total_damage, self.base_damage, flags, self.spell_id, self.attacker.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, data)

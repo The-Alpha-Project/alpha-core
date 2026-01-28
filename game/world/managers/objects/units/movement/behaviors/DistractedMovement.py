@@ -17,7 +17,6 @@ class DistractedMovement(BaseMovement):
     def initialize(self, unit):
         super().initialize(unit)
         self.unit.set_unit_state(UnitStates.DISTRACTED, active=True)
-        self.unit.movement_manager.face_angle(self.angle)
         return True
 
     # override
