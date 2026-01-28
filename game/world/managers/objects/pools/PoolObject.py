@@ -50,20 +50,13 @@ class PoolObject:
                                        if not chanced_entry.spawn.is_spawned()]
 
         if available_to_spawn_explicit:
-            # Pair each entry with its chance.
-            entry_weight_pairs = [(entry, entry.chance) for entry in available_to_spawn_explicit]
+            # Select without replacement to avoid duplicate spawns in a single pass.
+            count = min(len(available_to_spawn_explicit), max_limit)
+            choices = self._weighted_sample_without_replacement(available_to_spawn_explicit, count)
 
-            # Extract weights for selection.
-            weights = [pair[1] for pair in entry_weight_pairs]
-
-            # Select based on weights.
-            count = min(len(entry_weight_pairs), max_limit)
-            choices = random.choices(entry_weight_pairs, weights=weights, k=count)
-
-            # Choices and their specific weights (chance).
-            for choice, weight in choices:
+            for choice in choices:
                 roll = random.random()
-                if roll > weight / 100:
+                if roll > choice.chance / 100:
                     continue
                 spawned += 1
                 max_limit -= 1
@@ -73,7 +66,8 @@ class PoolObject:
 
         if available_to_spawn_equal:
             count = min(len(available_to_spawn_equal), max_limit)
-            choices = random.choices(available_to_spawn_equal, k=count)
+            # Sample without replacement to prevent selecting the same entry twice.
+            choices = random.sample(available_to_spawn_equal, k=count)
             for choice in choices:
                 spawned += 1
                 choice.spawn.spawn(from_pool=True)
@@ -93,7 +87,8 @@ class PoolObject:
 
         spawned = 0
 
-        child_pools = random.choices(can_spawn_pools, k=count)
+        # Sample without replacement so a child pool is spawned at most once per pass.
+        child_pools = random.sample(can_spawn_pools, k=count)
         limit = self.max_limit - self.get_spawned_count()
         for pool in child_pools:
             count = pool.spawn()
@@ -121,3 +116,23 @@ class PoolObject:
     def can_spawn(self):
         spawned_count = self.get_spawned_count()
         return spawned_count < self.max_limit
+
+    @staticmethod
+    def _weighted_sample_without_replacement(entries, count):
+        remaining = list(entries)
+        selected = []
+        count = min(count, len(remaining))
+        for _ in range(count):
+            total_weight = sum(max(0, entry.chance) for entry in remaining)
+            if total_weight <= 0:
+                selected.extend(random.sample(remaining, k=count - len(selected)))
+                break
+            roll = random.uniform(0, total_weight)
+            upto = 0.0
+            for idx, entry in enumerate(remaining):
+                upto += max(0, entry.chance)
+                if roll <= upto:
+                    selected.append(entry)
+                    del remaining[idx]
+                    break
+        return selected
