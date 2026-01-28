@@ -665,11 +665,11 @@ class PlayerManager(UnitManager):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT))
 
     # override
-    def set_stunned(self, active=True, index=-1) -> bool:
+    def set_stunned(self, active=True, index=-1, allow_interrupt=True) -> bool:
         if active and self.pending_taxi_destination:
             return False  # Ignore on flight path.
 
-        is_stunned = super().set_stunned(active, index)
+        is_stunned = super().set_stunned(active, index, allow_interrupt)
         if is_stunned:
             # Release loot if any.
             self.interrupt_looting()
@@ -689,7 +689,8 @@ class PlayerManager(UnitManager):
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
 
-        self.enqueue_packet(PacketWriter.get_packet(opcode))
+        data = pack('<QI', self.guid, 0)
+        self.enqueue_packet(PacketWriter.get_packet(opcode, data))
 
     def set_tracked_creature_type(self, creature_type, active, index=-1):
         is_tracking = self._set_effect_flag_state(CreatureTypes, creature_type, active, index)

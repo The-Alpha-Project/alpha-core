@@ -297,7 +297,11 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
-        effect_target.set_stunned(not remove, aura.index)
+        allow_interrupt = True
+        if not remove and aura.source_spell and aura.source_spell.is_far_sight():
+            # Far Sight uses a stun aura but shouldn't interrupt the channel.
+            allow_interrupt = False
+        effect_target.set_stunned(not remove, aura.index, allow_interrupt=allow_interrupt)
 
     @staticmethod
     def handle_mod_pacify_silence(aura, effect_target, remove):

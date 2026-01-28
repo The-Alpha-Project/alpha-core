@@ -12,6 +12,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.managers.RitualManager import RitualManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.gameobjects.managers.SpellFocusManager import SpellFocusManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.locks.LockManager import LockManager
@@ -660,12 +661,19 @@ class SpellManager:
             if casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
                 channel_flags = casting_spell.spell_entry.ChannelInterruptFlags
                 interrupt = False
+                effective_moved = moved
+                effective_turned = turned
+
+                if casting_spell.is_far_sight():
+                    # Far Sight stuns the caster; ignore movement/turn interrupts from client movement noise.
+                    effective_moved = False
+                    effective_turned = False
 
                 if (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE) and received_damage:
                     interrupt = True
-                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and moved:
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and effective_moved:
                     interrupt = True
-                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING) and turned:
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING) and effective_turned:
                     interrupt = True
 
                 if interrupt:
@@ -728,6 +736,12 @@ class SpellManager:
         except ValueError:
             return False
 
+        if casting_spell.dynamic_object and casting_spell.is_far_sight():
+            # Remove Far Sight camera before despawning the dynamic object.
+            FarSightManager.remove_camera(casting_spell.dynamic_object)
+            if self.caster.is_player():
+                self.caster.set_far_sight(0)
+
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.despawn()
         [effect.area_aura_holder.destroy() for effect in casting_spell.get_effects() if effect.area_aura_holder]
@@ -768,13 +782,6 @@ class SpellManager:
     def remove_casts(self, remove_active=True):
         for casting_spell in list(self.casting_spells):
             result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
-
-            if not remove_active:
-                if casting_spell.is_far_sight():
-                    # Far Sight stuns the caster, but shouldn't interrupt the channel.
-                    # TODO this is kind of a hack...
-                    #  SPELL_ATTR_EX_FARSIGHT doesn't relate to the stun and is used by other perspective change spells.
-                    continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:
                 # Cast finished normally, but this was called before update removed the cast.

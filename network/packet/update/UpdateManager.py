@@ -117,8 +117,8 @@ class UpdateManager:
                     self.update_builder.add_partial_update_from_object(world_object, update_data=update_data)
             elif (world_object.guid not in self.player_mgr.known_objects and can_detect and has_changes
                   and world_object.is_spawned and world_object.guid not in self.player_mgr.known_stealth_units):
-                # Temporary summons, pet or guardian, update immediately.
-                if world_object.is_temp_summon_or_pet_or_guardian():
+                # Dynamic objects or temporary summons, pet or guardian, update immediately.
+                if world_object.is_temp_summon_or_pet_or_guardian() or world_object.is_dyn_object():
                     self.update_world_object_creation_now(world_object)
                 else:
                     self.enqueue_object_update(world_object.get_type_id())  # Update known objects for type.

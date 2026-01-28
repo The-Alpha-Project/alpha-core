@@ -1303,7 +1303,7 @@ class UnitManager(ObjectManager):
         is_rooted |= self.set_unit_state(UnitStates.ROOTED, active, index)
         return is_rooted
 
-    def set_stunned(self, active=True, index=-1) -> bool:
+    def set_stunned(self, active=True, index=-1, allow_interrupt=True) -> bool:
         self.set_rooted(active, index)
 
         was_stunned = bool(self.unit_state & UnitStates.STUNNED)
@@ -1312,7 +1312,8 @@ class UnitManager(ObjectManager):
         if not was_stunned and is_stunned:
             # Force move behavior stop.
             self.movement_manager.stop(force=True)
-            self.spell_manager.remove_casts(remove_active=False)
+            if allow_interrupt:
+                self.spell_manager.remove_casts(remove_active=False)
             self.set_current_target(0)
         elif was_stunned and not is_stunned:
             # Restore combat target on stun remove.
