@@ -1190,6 +1190,12 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
                 return False
 
+            # Cannot be used in combat.
+            if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_USED_IN_COMBAT and \
+                    self.caster.in_combat and not casting_spell.triggered:
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_AFFECTING_COMBAT)
+                return False
+
             # Stunned, spell source is not item and cast is not triggered.
             if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and \
                     not casting_spell.triggered:
@@ -1215,10 +1221,34 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
                 return False
 
+            # Mounted.
+            if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_MOUNTED and \
+                    self.caster.mount_display_id > 0 and not casting_spell.triggered:
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_MOUNTED)
+                return False
+
             # Not stealthed but the spell requires it.
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
+                return False
+
+            # Shapeshift form checks.
+            shapeshift_form = self.caster.shapeshift_form
+            shapeshift_mask = casting_spell.spell_entry.ShapeshiftMask
+            if shapeshift_form:
+                in_mask = shapeshift_mask & (1 << (shapeshift_form - 1))
+                if not in_mask:
+                    # Client allows casts for some forms (non-stance) even if the mask doesn't include them.
+                    form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(shapeshift_form)
+                    if not form_entry or (form_entry.Flags & 1):
+                        self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_SHAPESHIFT)
+                        return False
+                if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_NOT_SHAPESHIFT and not in_mask:
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_SHAPESHIFT)
+                    return False
+            elif shapeshift_mask:
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_SHAPESHIFT)
                 return False
 
         # Required nearby spell focus GO.
@@ -1274,6 +1304,12 @@ class SpellManager:
 
         # Unit target checks.
         if casting_spell.initial_target_is_unit_or_player():
+            # Target must not be in combat for this spell.
+            if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET and \
+                    validation_target.in_combat:
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_AFFECTING_COMBAT)
+                return False
+
             # Basic effect harmfulness/attackability check.
             # The client checks this for player casts, but not pet casts.
             # Skip for self-targeted AoE and explicitly self-targeting spells.
