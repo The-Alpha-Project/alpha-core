@@ -23,11 +23,11 @@ class ChairManager(GameObjectManager):
     # override
     def use(self, unit=None, target=None, from_script=False):
         if self.slots:
-            target = self._get_target_location(unit)
+            target_location = self._get_target_location(unit)
             if config.World.Gameplay.use_spline_for_chairs:
-                self._move_to_chair_by_spline(unit, target)
+                self._move_to_chair_by_spline(unit, target_location)
             else:
-                unit.teleport(unit.map_id, target)
+                unit.teleport(unit.map_id, target_location)
             unit.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + self.height)
 
         super().use(unit, target, from_script)
@@ -50,7 +50,7 @@ class ChairManager(GameObjectManager):
 
         return Vector(x_lowest, y_lowest, self.location.z, self.location.o)
 
-    def _move_to_chair_by_spline(self, unit, target):
+    def _move_to_chair_by_spline(self, unit, target_location):
         speed = max(unit.running_speed * 20, 1000.0)
         spline = Spline(
             unit=unit,
@@ -60,9 +60,9 @@ class ChairManager(GameObjectManager):
                     | SplineFlags.SPLINEFLAG_FLYING
                     | SplineFlags.SPLINEFLAG_RUNMODE
             ),
-            facing=target.o,
+            facing=target_location.o,
             speed=speed,
-            points=[target],
+            points=[target_location],
         )
         unit.movement_manager.stop(force=True)
         unit.movement_manager.spline_callback(spline)
