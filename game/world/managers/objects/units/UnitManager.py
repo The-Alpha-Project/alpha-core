@@ -737,6 +737,12 @@ class UnitManager(ObjectManager):
                 regen_per_5 *= 0.5
 
         regen_per_tick = regen_per_5 * 0.4  # Regen per 5 -> regen per 2 (per tick).
+
+        # TODO: Resurrection Sickness will cause negative regen rates, ultimately killing the player.
+        #  Also need to investigate how this affects rage decay.
+        if power_type == PowerTypes.TYPE_HEALTH and regen_per_tick < 0:
+            regen_per_tick = 0
+
         if 0 < regen_per_tick < 1:
             regen_per_tick = 1  # Round up to 1, but account for decay/zero regen.
 
@@ -1081,8 +1087,8 @@ class UnitManager(ObjectManager):
         # Reset aura states.
         self.aura_manager.reset_aura_states()
 
-        # Remove casts.
-        self.spell_manager.remove_casts()
+        # Remove casts, active for dead units, not active for alive units.
+        self.spell_manager.remove_casts(remove_active=not self.is_alive)
 
         # Reset threat table.
         self.threat_manager.reset()
@@ -1297,7 +1303,7 @@ class UnitManager(ObjectManager):
         is_rooted |= self.set_unit_state(UnitStates.ROOTED, active, index)
         return is_rooted
 
-    def set_stunned(self, active=True, index=-1) -> bool:
+    def set_stunned(self, active=True, index=-1, allow_interrupt=True) -> bool:
         self.set_rooted(active, index)
 
         was_stunned = bool(self.unit_state & UnitStates.STUNNED)
@@ -1306,7 +1312,8 @@ class UnitManager(ObjectManager):
         if not was_stunned and is_stunned:
             # Force move behavior stop.
             self.movement_manager.stop(force=True)
-            self.spell_manager.remove_casts(remove_active=False)
+            if allow_interrupt:
+                self.spell_manager.remove_casts(remove_active=False)
             self.set_current_target(0)
         elif was_stunned and not is_stunned:
             # Restore combat target on stun remove.
@@ -1738,9 +1745,11 @@ class UnitManager(ObjectManager):
     def set_health(self, health):
         if health < 0:
             health = 0
+
         self.health = min(health, self.max_health)
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
         self.hp_percent = (self.health / self.max_health) * 100 if self.max_health else 0
+
         # Aura state health <= 20%.
         if self.health:
             self.aura_manager.modify_aura_state(AuraState.AURA_STATE_HEALTH_20_PERCENT, apply=self.hp_percent <= 20)
@@ -1924,11 +1933,6 @@ class UnitManager(ObjectManager):
         if charmer:
             charmer.pet_manager.handle_pet_death(self)
 
-        self.set_health(0)
-
-        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
-        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
-
         if killer and killer.is_player():
             if killer.current_selection == self.guid:
                 killer.set_current_selection(killer.guid)
@@ -1945,6 +1949,10 @@ class UnitManager(ObjectManager):
 
         # Reset unit state flags.
         self.unit_state = UnitStates.NONE
+
+        self.set_unit_flag(UnitFlags.UNIT_MASK_DEAD, active=True)
+        self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_DEAD, active=True)
+        self.set_health(0)
 
         return True
 

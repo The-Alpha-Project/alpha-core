@@ -482,9 +482,9 @@ class AuraManager:
             self.unit_mgr.set_uint32(field_index, 0, force=True)
 
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
-        self._write_aura_flag_to_unit(aura, clear=clear, is_refresh=is_refresh)
+        self._write_aura_flag_to_unit(aura, clear=clear)
 
-    def _write_aura_flag_to_unit(self, aura, clear=False, is_refresh=False):
+    def _write_aura_flag_to_unit(self, aura, clear=False):
         if not aura:
             return
 

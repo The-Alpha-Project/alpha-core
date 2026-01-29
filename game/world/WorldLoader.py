@@ -7,107 +7,143 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
-from utils.Logger import Logger
+from utils.Logger import Logger, AbortLoading
 from utils.constants.ConditionCodes import ConditionType
 
 
 class WorldLoader:
+    _shared_state = None
 
     @staticmethod
-    def load_data():
+    def _should_abort():
+        return WorldLoader._shared_state is not None and not WorldLoader._shared_state.RUNNING
+
+    @staticmethod
+    def load_data(shared_state=None):
+        WorldLoader._shared_state = shared_state
+        Logger.set_abort_check(WorldLoader._should_abort)
+        completed = False
         # Below order matters.
-        WorldLoader.load_creature_templates()
-        WorldLoader.load_gameobject_templates()
+        try:
+            WorldLoader.load_creature_templates()
+            WorldLoader.load_gameobject_templates()
 
-        # Loot related, even if not loading creatures or gameobjects, loot might be referenced.
-        WorldLoader.load_gameobject_loot_templates()
-        WorldLoader.load_fishing_loot_templates()
-        WorldLoader.load_creature_loot_templates()
-        WorldLoader.load_skinning_loot_templates()
-        WorldLoader.load_item_templates()
-        WorldLoader.load_reference_loot_templates()
-        WorldLoader.load_pickpocketing_loot_templates()
-        WorldLoader.load_item_loot_templates()
+            # Loot related, even if not loading creatures or gameobjects, loot might be referenced.
+            WorldLoader.load_gameobject_loot_templates()
+            WorldLoader.load_fishing_loot_templates()
+            WorldLoader.load_creature_loot_templates()
+            WorldLoader.load_skinning_loot_templates()
+            WorldLoader.load_item_templates()
+            WorldLoader.load_reference_loot_templates()
+            WorldLoader.load_pickpocketing_loot_templates()
+            WorldLoader.load_item_loot_templates()
+            if WorldLoader._should_abort():
+                return False
 
-        # Unit class level stats.
-        WorldLoader.load_player_class_level_stats()
-        WorldLoader.load_creature_class_level_stats()
+            # Unit class level stats.
+            WorldLoader.load_player_class_level_stats()
+            WorldLoader.load_creature_class_level_stats()
+            if WorldLoader._should_abort():
+                return False
 
-        # Spells.
-        WorldLoader.load_spells()
-        WorldLoader.load_spell_script_targets()
-        WorldLoader.load_creature_spells()
+            # Spells.
+            WorldLoader.load_spells()
+            WorldLoader.load_spell_script_targets()
+            WorldLoader.load_creature_spells()
+            if WorldLoader._should_abort():
+                return False
 
-        #  Scripts.
-        WorldLoader.load_event_scripts()
-        WorldLoader.load_generic_scripts()
+            #  Scripts.
+            WorldLoader.load_event_scripts()
+            WorldLoader.load_generic_scripts()
+            if WorldLoader._should_abort():
+                return False
 
-        # Gameobject spawns
-        if config.Server.Settings.load_gameobjects:
-            WorldLoader.load_transport_animations()
-            WorldLoader.load_gameobject_quest_starters()
-            WorldLoader.load_gameobject_quest_finishers()
-            WorldLoader.load_gameobject_scripts()
-        else:
-            Logger.info('Skipped game object loading.')
+            # Gameobject spawns
+            if config.Server.Settings.load_gameobjects:
+                WorldLoader.load_transport_animations()
+                WorldLoader.load_gameobject_quest_starters()
+                WorldLoader.load_gameobject_quest_finishers()
+                WorldLoader.load_gameobject_scripts()
+            else:
+                Logger.info('Skipped game object loading.')
+            if WorldLoader._should_abort():
+                return False
 
-        # Creature spawns
-        if config.Server.Settings.load_creatures:
-            WorldLoader.load_creature_movement_scripts()
-            WorldLoader.load_creature_ai_events()
-            WorldLoader.load_creature_ai_scripts()
-            WorldLoader.load_creature_movement()
-            WorldLoader.load_creature_movement_templates()
-            WorldLoader.load_creature_movement_special()
-            WorldLoader.load_creature_groups()
-            WorldLoader.load_creature_equip_templates()
-            WorldLoader.load_creature_on_kill_reputation()
-            WorldLoader.load_creature_quest_starters()
-            WorldLoader.load_creature_quest_finishers()
-            WorldLoader.load_creature_model_info()
-            WorldLoader.load_creature_families()
-        else:
-            Logger.info('Skipped creature loading.')
+            # Creature spawns
+            if config.Server.Settings.load_creatures:
+                WorldLoader.load_creature_movement_scripts()
+                WorldLoader.load_creature_ai_events()
+                WorldLoader.load_creature_ai_scripts()
+                WorldLoader.load_creature_movement()
+                WorldLoader.load_creature_movement_templates()
+                WorldLoader.load_creature_movement_special()
+                WorldLoader.load_creature_groups()
+                WorldLoader.load_creature_equip_templates()
+                WorldLoader.load_creature_on_kill_reputation()
+                WorldLoader.load_creature_quest_starters()
+                WorldLoader.load_creature_quest_finishers()
+                WorldLoader.load_creature_model_info()
+                WorldLoader.load_creature_families()
+            else:
+                Logger.info('Skipped creature loading.')
+            if WorldLoader._should_abort():
+                return False
 
-        # Pools.
-        WorldLoader.load_pool_pool()
-        WorldLoader.load_pool_templates()
-        WorldLoader.load_pool_creatures()
-        WorldLoader.load_pool_creature_templates()
-        WorldLoader.load_pool_gameobjects()
-        WorldLoader.load_pool_gameobject_templates()
+            # Pools.
+            WorldLoader.load_pool_pool()
+            WorldLoader.load_pool_templates()
+            WorldLoader.load_pool_creatures()
+            WorldLoader.load_pool_creature_templates()
+            WorldLoader.load_pool_gameobjects()
+            WorldLoader.load_pool_gameobject_templates()
+            if WorldLoader._should_abort():
+                return False
 
-        # Gossip/Text related.
-        WorldLoader.load_gossip_menus()
-        WorldLoader.load_npc_gossip()
-        WorldLoader.load_npc_text()
-        WorldLoader.load_broadcast_text()
+            # Gossip/Text related.
+            WorldLoader.load_gossip_menus()
+            WorldLoader.load_npc_gossip()
+            WorldLoader.load_npc_text()
+            WorldLoader.load_broadcast_text()
+            if WorldLoader._should_abort():
+                return False
 
-        WorldLoader.load_area_trigger_quest_relations()
-        WorldLoader.load_quests()
-        WorldLoader.load_spell_chains()
-        WorldLoader.load_default_profession_spells()
-        WorldLoader.load_trainer_spells()
-        WorldLoader.load_skills()
-        WorldLoader.load_skill_line_abilities()
-        WorldLoader.load_char_base_infos()
-        WorldLoader.load_taxi_nodes()
-        WorldLoader.load_taxi_path_nodes()
-        WorldLoader.load_factions()
-        WorldLoader.load_faction_templates()
-        WorldLoader.load_locks()
-        WorldLoader.load_conditions()
-        WorldLoader.load_quest_conditions_items()
-        WorldLoader.load_mdx_models_data()
-        WorldLoader.load_creature_display_info()
+            WorldLoader.load_area_trigger_quest_relations()
+            WorldLoader.load_quests()
+            WorldLoader.load_spell_chains()
+            WorldLoader.load_default_profession_spells()
+            WorldLoader.load_trainer_spells()
+            WorldLoader.load_skills()
+            WorldLoader.load_skill_line_abilities()
+            WorldLoader.load_char_base_infos()
+            WorldLoader.load_taxi_nodes()
+            WorldLoader.load_taxi_path_nodes()
+            WorldLoader.load_factions()
+            WorldLoader.load_faction_templates()
+            WorldLoader.load_locks()
+            WorldLoader.load_conditions()
+            WorldLoader.load_quest_conditions_items()
+            WorldLoader.load_mdx_models_data()
+            WorldLoader.load_creature_display_info()
+            if WorldLoader._should_abort():
+                return False
 
-        # Character related data
-        WorldLoader.load_groups()
-        WorldLoader.load_guilds()
+            # Character related data
+            WorldLoader.load_groups()
+            WorldLoader.load_guilds()
+            if WorldLoader._should_abort():
+                return False
 
-        # Maps.
-        MapManager.initialize_world_and_pvp_maps()
-        MapManager.initialize_area_tables()
+            # Maps.
+            MapManager.initialize_world_and_pvp_maps()
+            MapManager.initialize_area_tables()
+            completed = True
+        except AbortLoading:
+            Logger.info('World loading aborted.')
+            return False
+        finally:
+            Logger.set_abort_check(None)
+        return completed
 
     # World data holders
     @staticmethod

@@ -37,6 +37,21 @@ class MovementHandler:
                     unit_mover.teleport(unit_mover.map_id, unit_mover.location)
                     return 0
 
+                is_force_ack = reader.opcode in {
+                    OpCode.CMSG_FORCE_MOVE_ROOT_ACK,
+                    OpCode.CMSG_FORCE_MOVE_UNROOT_ACK,
+                    OpCode.CMSG_FORCE_SPEED_CHANGE_ACK,
+                    OpCode.CMSG_FORCE_SWIM_SPEED_CHANGE_ACK
+                }
+
+                if is_force_ack:
+                    # Force-move ACKs should not count as player movement or broadcast updates.
+                    unit_mover.set_has_moved(False, False, flush=True)
+                    move_info.moved = False
+                    move_info.turned = False
+                    move_info.jumped = False
+                    return 0
+
                 # If the player is not controlling another unit.
                 if not player_mgr.possessed_unit:
                     # Cancel looting if x,y,z changed.

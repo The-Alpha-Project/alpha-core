@@ -110,6 +110,7 @@ World:
     Gameplay:
         game_speed: 0.016666668
         enable_call_for_help: False  # Until 0.5.4, creatures didn't call for help when fleeing.
+        use_spline_for_chairs: True  # Avoids player nudge upon using chairs/benches.
         enable_slime_lava_damage: False
         enable_slime_fishing: False  # Until 0.5.4, slime was not fishable.
 
