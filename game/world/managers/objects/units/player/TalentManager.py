@@ -110,5 +110,9 @@ class TalentManager:
                                             preceded_spell, training_spell.req_spell_2, training_spell.req_spell_3))
             talent_count += 1
 
-        data = pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count) + talent_bytes
+        data = (
+            pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count)
+            + talent_bytes
+            + b'\x00' # Client always expects a greeting string after the list.
+        )
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
