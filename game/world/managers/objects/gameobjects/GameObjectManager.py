@@ -9,7 +9,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
-    GameObjectStates, ScriptTypes
+    GameObjectStates, GameObjectCustomAnim, ScriptTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason
@@ -242,9 +242,8 @@ class GameObjectManager(ObjectManager):
         # TODO: https://github.com/cmangos/mangos-tbc/blob/master/src/game/Entities/GameObject.cpp#L2438
         return self.location.distance(victim.location) <= 6.0
 
-    # There are only 3 possible animations that can be used here.
-    # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber does its animation by sending 0.
-    # TODO: See if we can retrieve the animation names.
+    # Client only accepts anim values 0-3 and labels them Custom0-3.
+    # The effect might depend on the gameobject type, apparently. e.g., Fishing bobber does its animation by sending 0.
     def send_custom_animation(self, animation):
         data = pack('<QI', self.guid, animation)
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
