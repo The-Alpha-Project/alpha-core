@@ -318,7 +318,7 @@ class ThreatManager:
             return False
         return True
 
-    # TODO Melee/outside of melee range reach. What does this mean?
+    # Hysteresis check to avoid threat "ping-pong": require 110% of current threat before swapping targets.
     def _is_exceeded_current_threat_melee_range(self, threat: float):
         current_threat = 0.0 if not self.current_holder else self.current_holder.get_total_threat()
         return threat >= current_threat * 1.1

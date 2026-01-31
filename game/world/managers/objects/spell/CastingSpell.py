@@ -541,6 +541,19 @@ class CastingSpell:
             level = self.spell_entry.BaseLevel
         return max(level - self.spell_entry.SpellLevel, 0)
 
+    def get_spell_rank_value(self):
+        if self.spell_caster.is_player():
+            spell_rank = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
+            if not spell_rank:
+                return 0
+        else:
+            spell_rank = self.spell_caster.level
+
+        if self.spell_entry.MaxLevel > 0 and spell_rank >= self.spell_entry.MaxLevel * 5:
+            spell_rank = self.spell_entry.MaxLevel * 5
+
+        return spell_rank
+
     def get_cast_time_secs(self):
         return int(self.get_cast_time_ms() / 1000)
 
@@ -581,10 +594,18 @@ class CastingSpell:
                 base_mana = self.spell_caster.stat_manager.get_base_stat(UnitStats.MANA)
                 mana_cost = base_mana * self.spell_entry.ManaCostPct / 100
 
+        if self.spell_entry.ManaCostPerLevel:
+            spell_rank = self.get_spell_rank_value()
+            rank_level = int(spell_rank / 5)
+            mana_cost += self.spell_entry.ManaCostPerLevel * (
+                rank_level - self.spell_entry.BaseLevel
+            )
+
+        if self.spell_caster.is_player():
             mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SPELL_SCHOOL_POWER_COST,
                                                                                misc_value=self.spell_entry.School)
-        # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
 
+        mana_cost = max(0, mana_cost)
         return mana_cost + power_cost_mod
 
     def get_duration(self, apply_mods=True):
