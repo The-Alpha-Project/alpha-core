@@ -53,6 +53,10 @@ class TradeData:
                                                              self.proposed_enchantment.duration,
                                                              self.proposed_enchantment.charges)
 
+        # Enchantment log.
+        self.player.enchantment_manager.send_enchantment_log(self.other_player, item,
+                                                             self.proposed_enchantment.enchantment_entry)
+
         self.player.equipment_proc_manager.handle_equipment_change(item)
         self.player.skill_manager.handle_profession_skill_gain(self.proposed_enchantment.spell_id)
 

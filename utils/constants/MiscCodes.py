@@ -388,6 +388,13 @@ class GameObjectStates(IntEnum):
     GO_STATE_ACTIVE_ALTERNATIVE = 2  # show in world as used in alt way and not reset (closed door open by cannon fire)
 
 
+class GameObjectCustomAnim(IntEnum):
+    CUSTOM_0 = 0
+    CUSTOM_1 = 1
+    CUSTOM_2 = 2
+    CUSTOM_3 = 3
+
+
 class Emotes(IntEnum):
     NONE = 0
     AGREE = 1

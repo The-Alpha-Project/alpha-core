@@ -455,6 +455,7 @@ class CreatureManager(UnitManager):
         self.tmp_home_position = None
         self.apply_default_auras()
         if not self.is_controlled():
+            self.movement_manager.stop()
             self.movement_manager.face_angle(self.spawn_position.o)
         if self.temp_faction_flags & TemporaryFactionFlags.TEMPFACTION_RESTORE_REACH_HOME:
             self.reset_faction()
@@ -676,6 +677,9 @@ class CreatureManager(UnitManager):
         if has_changes or self.has_moved:
             self.get_map().update_object(self, has_changes=has_changes)
             self.set_has_moved(False, False, flush=True)
+
+        if has_changes:
+            self.reset_update_fields()
 
         self.last_tick = now
 

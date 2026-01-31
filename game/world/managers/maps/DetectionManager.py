@@ -111,5 +111,5 @@ class DetectionManager:
         if unit.guid not in self.units:
             return False
         del self.units[unit.guid]
-        self.quadtree.remove_unit(unit)
+        self.quadtree.remove_unit(unit.guid)
         return True

@@ -238,6 +238,14 @@ class DbcDatabaseManager:
 
     @staticmethod
     @lru_cache
+    def spell_shapeshift_form_get_by_id(form_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellShapeshiftForm).filter_by(ID=form_id).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    @lru_cache
     def spell_radius_get_by_id(radius_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellRadius).filter_by(ID=radius_index).first()

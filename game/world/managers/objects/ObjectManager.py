@@ -295,48 +295,52 @@ class ObjectManager:
     def _get_fields_update(self, is_create, requester, update_data=None):
         # Make sure we work on a copy of the current mask and values.
         if not update_data:
-            update_data = self.update_packet_factory.generate_update_data(flush_current=True)
+            update_data = self.update_packet_factory.generate_update_data()
 
-        mask = update_data.update_bit_mask
+        with self.update_packet_factory.lock:
+            mask = update_data.update_bit_mask.copy()
 
-        data = bytearray()
-        for field_index in range(self.update_packet_factory.update_mask.field_count):
-            # Partial packets only care for fields that had changes.
-            if not is_create and mask[field_index] == 0:
-                continue
-            # Check for encapsulation, turn off the bit if the requester has no read access.
-            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
-                mask[field_index] = 0
-                continue
-            # Defer bytes_1 sheath update, this is similar to the doors collision issue (But for sheath state)
-            # in which the client needs to see the doors as ready first and then receive their actual state after creation.
-            elif is_create and self.is_unit() and field_index == UnitFields.UNIT_FIELD_BYTES_1:
-                data.extend(pack('<I', self.get_bytes_1(is_create=True)))
+            data = bytearray()
+            for field_index in range(self.update_packet_factory.update_mask.field_count):
+                # Partial packets only care for fields that had changes.
+                if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(field_index):
+                    continue
+                # Check for encapsulation, turn off the bit if the requester has no read access.
+                if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
+                    mask[field_index] = 0
+                    continue
+
+                # Append field value and turn on the bit on mask.
+                data.extend(self._get_field_value_for_update(field_index, is_create, requester, update_data))
                 mask[field_index] = 1
-                continue
-            # Append field value and turn on the bit on mask.
-            data.extend(update_data.get_field_bytes(field_index))
-            mask[field_index] = 1
-        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
+            return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
+
+    def _get_field_value_for_update(self, index, is_create, requester, update_data):
+        # Defer bytes_1 sheath update, this is similar to the doors collision issue (But for sheath state)
+        # in which the client needs to see the doors as ready first and then receive their actual state after creation.
+        if is_create and self.is_unit() and index == UnitFields.UNIT_FIELD_BYTES_1:
+            return pack('<I', self.get_bytes_1(is_create=True))
+
+        return update_data.get_field_bytes(index)
 
     # noinspection PyMethodMayBeStatic
     def is_aura_field(self, index):
         return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
     def set_int32(self, index, value, force=False):
-        return self._set_value(index, value, 'i', False, force)
+        return self._set_value(index, int(value), 'i', False, force)
 
     def set_uint32(self, index, value, force=False):
-        return self._set_value(index, value, 'I', False, force)
+        return self._set_value(index, int(value), 'I', False, force)
 
     def set_int64(self, index, value, force=False):
-        return self._set_value(index, value, 'q', True, force)
+        return self._set_value(index, int(value), 'q', True, force)
 
     def set_uint64(self, index, value, force=False):
-        return self._set_value(index, value, 'Q', True, force)
+        return self._set_value(index, int(value), 'Q', True, force)
 
     def set_float(self, index, value, force=False):
-        return self._set_value(index, value, 'f', False, force)
+        return self._set_value(index, float(value), 'f', False, force)
 
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index, False)
@@ -354,15 +358,16 @@ class ObjectManager:
         return self._get_value_by_type_at('f', index, False)
 
     def _get_value_by_type_at(self, value_type, index, is_int64):
-        return self.update_packet_factory.get_value(index, value_type, is_int64)
+        return self.update_packet_factory.get_value(index, value_type)
 
     def _set_value(self, index, value, value_type, is_int64, force=False):
         force = force and self.is_player()
-        if force or self.update_packet_factory.should_update(index, value, is_int64):
-            self.update_packet_factory.update(index, value, value_type, is_int64)
-            if force and self.is_in_world():  # Changes should apply immediately.
-                self.get_map().update_object(self, has_changes=True)
-            return True, force
+        with self.update_packet_factory.lock:
+            if force or self.update_packet_factory.should_update(index, value, value_type, is_int64):
+                self.update_packet_factory.update(index, value, value_type, is_int64)
+                if force and self.is_in_world():  # Changes should apply immediately.
+                    self.get_map().update_object(self, has_changes=True)
+                return True, force
         return False, force
 
     # override
