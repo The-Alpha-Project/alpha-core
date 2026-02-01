@@ -24,6 +24,7 @@ class ReadItemHandler:
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_OK, data))
             else:
                 world_session.player_mgr.inventory.send_equip_error(result)
+                # More info about SMSG_READ_ITEM_FAILED here: https://github.com/vmangos/core/issues/3216
                 data = pack('<QIQ', item.guid, 0, item.guid)
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_FAILED, data))
 
