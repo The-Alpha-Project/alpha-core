@@ -1274,6 +1274,29 @@ class CommandManager:
         return 0, f'<GM> tag {"enabled" if enable else "disabled"}.'
 
     @staticmethod
+    def faceme(world_session, args):
+        unit = CommandManager._target_or_self(world_session)
+        if unit == world_session.player_mgr:
+            return -1, 'invalid unit selection.'
+        unit.movement_manager.face_target(world_session.player_mgr)
+        return 0, ''
+
+    @staticmethod
+    def face_angle(world_session, args):
+        unit = CommandManager._target_or_self(world_session)
+        if unit == world_session.player_mgr:
+            return -1, 'invalid unit selection.'
+        if not args:
+            angle = unit.location.get_angle_towards_vector(world_session.player_mgr.location)
+        else:
+            try:
+                angle = float(args)
+            except ValueError:
+                return -1, 'please use it like: .faceangle <orientation>'
+        unit.movement_manager.face_angle(angle)
+        return 0, ''
+
+    @staticmethod
     def create_account(args):
         args = str(args).strip().split()
         if len(args) != 2:
@@ -1355,7 +1378,9 @@ GM_COMMAND_DEFINITIONS = {
     'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log'],
     'qdel': [CommandManager.qdel, 'delete active or completed quest'],
-    'gmtag': [CommandManager.gmtag, 'enable or disable the <GM> tag']
+    'gmtag': [CommandManager.gmtag, 'enable or disable the <GM> tag'],
+    'faceme': [CommandManager.faceme, 'have the targeted unit face you using target spline'],
+    'faceangle': [CommandManager.face_angle, 'have the targeted unit face you or a given angle using angle spline']
 }
 
 DEV_COMMAND_DEFINITIONS = {

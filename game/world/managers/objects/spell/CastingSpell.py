@@ -159,9 +159,42 @@ class CastingSpell:
         return isinstance(self.initial_target, Vector)
 
     def get_initial_target_info(self):  # ([values], len)
-        is_terrain = self.initial_target_is_terrain()
-        return ([self.initial_target.x, self.initial_target.y, self.initial_target.z] if is_terrain
-                else [self.initial_target.guid]), ('3f' if is_terrain else 'Q')
+        data = []
+        signature = ''
+        target_mask = self.spell_target_mask
+
+        if target_mask & SpellTargetMask.UNIT_TARGET_MASK:
+            if self.initial_target_is_unit_or_player():
+                data.append(self.initial_target.guid)
+            else:
+                data.append(self.spell_caster.guid)
+            signature += 'Q'
+
+        if target_mask & SpellTargetMask.ITEM_TARGET_MASK:
+            data.append(self.initial_target.guid if self.initial_target_is_item() else 0)
+            signature += 'Q'
+
+        if target_mask & SpellTargetMask.SOURCE_LOCATION:
+            if self.initial_target_is_terrain():
+                data.extend([self.initial_target.x, self.initial_target.y, self.initial_target.z])
+            else:
+                data.extend([self.spell_caster.location.x, self.spell_caster.location.y, self.spell_caster.location.z])
+            signature += '3f'
+
+        if target_mask & SpellTargetMask.DEST_LOCATION:
+            # If only one terrain vector is available, use it for destination as well.
+            if self.initial_target_is_terrain():
+                data.extend([self.initial_target.x, self.initial_target.y, self.initial_target.z])
+            else:
+                data.extend([self.spell_caster.location.x, self.spell_caster.location.y, self.spell_caster.location.z])
+            signature += '3f'
+
+        # Not used by spells.
+        if target_mask & SpellTargetMask.TARGET_STRING:
+            data.append(b'')
+            signature += '128s'
+
+        return data, signature
 
     def resolve_target_info_for_effects(self):
         for effect in self.get_effects():
@@ -206,11 +239,10 @@ class CastingSpell:
         return school_mask
 
     def can_reflect(self):
-        return (self.spell_entry.School  # Not physical.
+        return (self.spell_entry.School != SpellSchools.SPELL_SCHOOL_NORMAL
                 and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY
                 and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY
-                and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE
-                and not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE)
+                and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE)
 
     def is_mining_spell(self):
         return self.spell_entry.Totem_1 == 2901  # Mining pick.
@@ -220,12 +252,14 @@ class CastingSpell:
             return None
 
         if not self.spell_caster.is_player():
+            # If the caster is not a player, it skips the inventory-type check and calls ThrownMissileReleased unconditionally.
+            # Client forces creature ammo through the thrown release path (CGUnit_C::CheckPendingMissileRelease),
+            # so avoid ammo visuals for thrown/wand subclasses to prevent incorrect visuals.
+
             ranged_items = {
                 1 << ItemSubClasses.ITEM_SUBCLASS_BOW: 2512,  # Rough Arrow
                 1 << ItemSubClasses.ITEM_SUBCLASS_GUN: 2516,  # Light Shot
-                1 << ItemSubClasses.ITEM_SUBCLASS_THROWN: 2947,  # Small Throwing Knife
                 1 << ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: 2512,
-                1 << ItemSubClasses.ITEM_SUBCLASS_WAND: 6230   # Monster - Wand, Basic
             }
 
             weapon_mask = 0
@@ -247,7 +281,6 @@ class CastingSpell:
             if not item_entries:
                 return None
 
-            # TODO client doesn't seem to recognize thrown weapons or wands as ammo for creature casts.
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entries[0])
             return ItemManager(item_template)
 
@@ -298,7 +331,9 @@ class CastingSpell:
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED
 
     def is_far_sight(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT
+        if self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT:
+            return True
+        return any(effect.effect_type == SpellEffects.SPELL_EFFECT_ADD_FARSIGHT for effect in self.get_effects())
 
     def generates_threat(self):
         return (not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
@@ -505,6 +540,19 @@ class CastingSpell:
             level = self.spell_entry.BaseLevel
         return max(level - self.spell_entry.SpellLevel, 0)
 
+    def get_spell_rank_value(self):
+        if self.spell_caster.is_player():
+            spell_rank = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
+            if not spell_rank:
+                return 0
+        else:
+            spell_rank = self.spell_caster.level
+
+        if self.spell_entry.MaxLevel > 0 and spell_rank >= self.spell_entry.MaxLevel * 5:
+            spell_rank = self.spell_entry.MaxLevel * 5
+
+        return spell_rank
+
     def get_cast_time_secs(self):
         return int(self.get_cast_time_ms() / 1000)
 
@@ -545,10 +593,18 @@ class CastingSpell:
                 base_mana = self.spell_caster.stat_manager.get_base_stat(UnitStats.MANA)
                 mana_cost = base_mana * self.spell_entry.ManaCostPct / 100
 
+        if self.spell_entry.ManaCostPerLevel:
+            spell_rank = self.get_spell_rank_value()
+            rank_level = int(spell_rank / 5)
+            mana_cost += self.spell_entry.ManaCostPerLevel * (
+                rank_level - self.spell_entry.BaseLevel
+            )
+
+        if self.spell_caster.is_player():
             mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SPELL_SCHOOL_POWER_COST,
                                                                                misc_value=self.spell_entry.School)
-        # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
 
+        mana_cost = max(0, mana_cost)
         return mana_cost + power_cost_mod
 
     def get_duration(self, apply_mods=True):

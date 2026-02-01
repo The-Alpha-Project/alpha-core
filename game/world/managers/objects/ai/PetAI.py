@@ -38,7 +38,9 @@ class PetAI(CreatureAI):
 
         if owner.is_player():
             if self.creature.combat_target and not self.creature.combat_target.is_alive:
-                self.creature.combat_target = self.select_next_target()
+                new_target = self.select_next_target()
+                if new_target:
+                    self.creature.attack(new_target)
             if not self.creature.combat_target and self.creature.in_combat:
                 self.creature.leave_combat()
 
@@ -71,7 +73,6 @@ class PetAI(CreatureAI):
     def attacked_by(self, target):
         if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
             return
-        # Combat target was set by _select_next_target, but we did not initialize attack or no current combat target.
         if (target is self.creature.combat_target and not self.creature.in_combat) or not self.creature.combat_target:
             self.creature.attack(target)
 

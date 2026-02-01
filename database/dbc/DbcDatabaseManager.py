@@ -112,6 +112,17 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return [area_id[0] for area_id in res]
 
+    @staticmethod
+    def dispose():
+        try:
+            SessionHolder.remove()
+        except Exception:
+            pass
+        try:
+            dbc_db_engine.dispose()
+        except Exception:
+            pass
+
     class AreaInformationHolder:
         # AreaInformation is used by the exploration feature, it gets filled by MapTiles.
         BY_ZONE_AND_AREA = {}
@@ -233,6 +244,14 @@ class DbcDatabaseManager:
     def spell_duration_get_by_id(duration_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellDuration).filter_by(ID=duration_index).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    @lru_cache
+    def spell_shapeshift_form_get_by_id(form_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellShapeshiftForm).filter_by(ID=form_id).first()
         dbc_db_session.close()
         return res
 

@@ -28,9 +28,14 @@ class DebugLevel(IntEnum):
     SCRIPT = 0x40
 
 
+class AbortLoading(Exception):
+    pass
+
+
 class Logger:
     # Initialize colorama.
     init()
+    _abort_check = None
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
@@ -79,7 +84,13 @@ class Logger:
     # Additional methods
 
     @staticmethod
+    def set_abort_check(check):
+        Logger._abort_check = check
+
+    @staticmethod
     def progress(msg, current, total, divisions=20):
+        if Logger._abort_check and Logger._abort_check():
+            raise AbortLoading('Shutdown requested during load.')
         msg = f'{msg} [{current}/{total}] ({int(current * 100 / total)}%)'
         if current != total and divisions > 0:
             if divisions == 1 or int(current % (total / divisions)) == 0:

@@ -66,6 +66,10 @@ class MovementManager:
 
     # Broadcast a new spline from an active movement behavior.
     def spline_callback(self, spline, movement_behavior=None):
+        # Update to the latest position if necessary.
+        current_spline = self.unit.movement_spline
+        if current_spline and current_spline is not spline and not current_spline.is_complete():
+            current_spline.update_to_now()
         spline.initialize()
         self.unit.movement_spline = spline
         movement_packet = spline.try_build_movement_packet()
@@ -133,6 +137,7 @@ class MovementManager:
 
     def move_distracted(self, duration_seconds, angle=0):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
+        self.face_angle(angle)
 
     def move_chase(self):
         # Evade upon die (leave_combat) should not set a behavior.

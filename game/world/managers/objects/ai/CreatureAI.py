@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from random import randint
 from struct import pack
 from typing import TYPE_CHECKING, Optional
@@ -297,7 +296,7 @@ class CreatureAI:
                     # Stop if ranged spell or movement interrupt flag.
                     if casting_spell.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT \
                             or cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
-                        self.creature.movement_manager.stop()
+                        self.creature.movement_manager.stop(force=True)
 
                     # Trigger the cast.
                     self.creature.spell_manager.start_spell_cast(initialized_spell=casting_spell)
@@ -448,10 +447,11 @@ class CreatureAI:
         self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=pause_seconds)
 
     def is_ready_for_new_attack(self):
+        target = self.creature.combat_target
         return (self.creature.is_alive and not self.creature.is_evading
                 and not self.creature.unit_state & UnitStates.STUNNED
                 and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
-                and not self.creature.combat_target
+                and (not target or not target.is_alive)
                 and not self.get_react_state() == CreatureReactStates.REACT_PASSIVE)
 
     def assist_unit(self, target):

@@ -2,8 +2,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
-from utils.ConfigManager import config
-from utils.constants.MiscCodes import Emotes, EmoteUnitState
+from utils.constants.MiscCodes import EmoteUnitState
 from utils.constants.UnitCodes import StandState
 
 

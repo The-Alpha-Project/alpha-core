@@ -48,6 +48,7 @@ class TalentManager:
             if not spell:
                 continue
 
+            skill_line_ability = None
             if DbcDatabaseManager.SkillLineAbilityHolder.spell_has_skill_line_ability(spell.ID):
                 skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
                     spell.ID, self.player_mgr.race, self.player_mgr.class_)
@@ -83,7 +84,7 @@ class TalentManager:
                                                                  )
 
             # Get succeeded spell (Next spell in chain).
-            succeeded_spell = skill_line_ability.SupercededBySpell
+            succeeded_spell = skill_line_ability.SupercededBySpell if skill_line_ability else 0
 
             # If this spell is excluded (previous rank not available), hide.
             # (We only want to show the first unavailable spell in a chain).
@@ -109,5 +110,9 @@ class TalentManager:
                                             preceded_spell, training_spell.req_spell_2, training_spell.req_spell_3))
             talent_count += 1
 
-        data = pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count) + talent_bytes
+        data = (
+            pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count)
+            + talent_bytes
+            + b'\x00' # Client always expects a greeting string after the list.
+        )
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))

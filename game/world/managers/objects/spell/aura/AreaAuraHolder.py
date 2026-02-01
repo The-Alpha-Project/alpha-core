@@ -24,7 +24,8 @@ class AreaAuraHolder:
             if not aura:
                 self.current_targets.pop(target.guid)
                 continue
-            AuraEffectHandler.handle_aura_effect_change(aura, target, remove=remove)
+            if remove or aura.is_periodic():
+                AuraEffectHandler.handle_aura_effect_change(aura, target, remove=remove)
 
     def add_target(self, target):
         new_aura = AppliedAura(self.effect.casting_spell.spell_caster, self.effect.casting_spell, self.effect, target)

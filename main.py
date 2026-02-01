@@ -17,6 +17,16 @@ if __name__ == '__main__':
 import argparse
 import signal
 from time import sleep
+from utils.ConfigManager import config, ConfigManager
+from utils.Logger import Logger
+from utils.constants import EnvVars
+
+# Configure SQLAlchemy C extensions before importing modules that may load SQLAlchemy.
+if config.Server.Settings.disable_sqlalchemy_cext:
+    os.environ['DISABLE_SQLALCHEMY_CEXT_RUNTIME'] = '1'
+else:
+    os.environ.pop('DISABLE_SQLALCHEMY_CEXT_RUNTIME', None)
+
 from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
 from game.update.UpdateManager import UpdateManager
@@ -25,9 +35,6 @@ from game.world.managers.CommandManager import CommandManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
 from tools.extractors.Extractor import Extractor
-from utils.ConfigManager import config, ConfigManager
-from utils.Logger import Logger
-from utils.constants import EnvVars
 
 
 # Initialize argument parser.
@@ -108,36 +115,37 @@ def handler_stop_signals(signum, frame):
         raise KeyboardInterrupt
 
 
-def wait_world_server():
-    if not launch_world:
-        return
-    # Wait for world start before starting realm/proxy sockets if needed.
-    while not SHARED_STATE.WORLD_SERVER_READY and SHARED_STATE.RUNNING:
+def _wait_for_ready(active_process, ready_check, name, should_wait=True):
+    if not should_wait:
+        return True
+    # Wait for readiness, but stop if the process dies to avoid hanging startup.
+    while not ready_check() and SHARED_STATE.RUNNING:
+        if not active_process.is_alive():
+            Logger.error(f'{name} exited before ready (exit code {active_process.exitcode}).')
+            SHARED_STATE.RUNNING = False
+            return False
         sleep(0.1)
+    return True
 
 
-def wait_realm_server():
-    if not launch_realm:
-        return
-    while not SHARED_STATE.REALM_SERVER_READY and SHARED_STATE.RUNNING:
-        sleep(0.1)
+def wait_world_server(active_process):
+    return _wait_for_ready(active_process, lambda: SHARED_STATE.WORLD_SERVER_READY, 'World process', launch_world)
 
 
-def wait_proxy_server():
-    if not launch_realm:
-        return
-    while not SHARED_STATE.PROXY_SERVER_READY and SHARED_STATE.RUNNING:
-        sleep(0.1)
+def wait_realm_server(active_process):
+    return _wait_for_ready(active_process, lambda: SHARED_STATE.REALM_SERVER_READY, 'Realm process', launch_realm)
 
 
-def wait_login_server():
-    while not SHARED_STATE.LOGIN_SERVER_READY and SHARED_STATE.RUNNING:
-        sleep(0.1)
+def wait_proxy_server(active_process):
+    return _wait_for_ready(active_process, lambda: SHARED_STATE.PROXY_SERVER_READY, 'Proxy process', launch_realm)
 
 
-def wait_update_server():
-    while not SHARED_STATE.UPDATE_SERVER_READY and SHARED_STATE.RUNNING:
-        sleep(0.1)
+def wait_login_server(active_process):
+    return _wait_for_ready(active_process, lambda: SHARED_STATE.LOGIN_SERVER_READY, 'Login process')
+
+
+def wait_update_server(active_process):
+    return _wait_for_ready(active_process, lambda: SHARED_STATE.UPDATE_SERVER_READY, 'Update process')
 
 SHARED_STATE = None
 ACTIVE_PROCESSES = []
@@ -238,33 +246,55 @@ if __name__ == '__main__':
     # Start processes.
     for process, wait_call in ACTIVE_PROCESSES:
         process.start()
-        wait_call()
+        wait_call(process)
+        if not SHARED_STATE.RUNNING:
+            break
 
-    # Print active env vars.
-    for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
-        env_var = os.getenv(env_var_name, '')
-        if env_var:
-            Logger.info(f'Environment variable {env_var_name}: {env_var}')
+    if SHARED_STATE.RUNNING:
+        # Print active env vars.
+        for env_var_name in EnvVars.EnvironmentalVariables.ACTIVE_ENV_VARS:
+            env_var = os.getenv(env_var_name, '')
+            if env_var:
+                Logger.info(f'Environment variable {env_var_name}: {env_var}')
 
-    # Bell sound character.
-    Logger.info('Alpha Core is now running.\a')
+        # Bell sound character.
+        Logger.info('Alpha Core is now running.\a')
 
-    # Handle console mode.
-    if console_mode and SHARED_STATE.RUNNING:
-        SHARED_STATE.CONSOLE_LISTENING = True
-        handle_console_commands()
-    else:
-        # Wait on main thread for stop signal or 'exit' command.
-        while SHARED_STATE.RUNNING:
-            sleep(2)
+        # Handle console mode.
+        if console_mode:
+            SHARED_STATE.CONSOLE_LISTENING = True
+            handle_console_commands()
+        else:
+            # Wait on main thread for stop signal or 'exit' command.
+            while SHARED_STATE.RUNNING:
+                sleep(2)
 
     # Exit.
     Logger.info('Shutting down the core, please wait...')
 
-    # Make sure all process finish gracefully (Exit their listening loops).
+    # Make sure all processes finish gracefully (Exit their listening loops).
     [release_process(process) for process, wait_call in ACTIVE_PROCESSES]
 
     ACTIVE_PROCESSES.clear()
+
+    # Dispose database engines and clear sessions in the main process.
+    try:
+        from database.auth.AuthDatabaseManager import AuthDatabaseManager
+        from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+        from database.realm.RealmDatabaseManager import RealmDatabaseManager
+        from database.world.WorldDatabaseManager import WorldDatabaseManager
+
+        AuthDatabaseManager.dispose()
+        Logger.info('Auth database released.')
+        DbcDatabaseManager.dispose()
+        Logger.info('DBC database released')
+        RealmDatabaseManager.dispose()
+        Logger.info('Realm database released.')
+        WorldDatabaseManager.dispose()
+        Logger.info('World database released.')
+    except Exception:
+        pass
+
     manager.shutdown()
     Logger.success('Core gracefully shut down.')
     exit()

@@ -24,6 +24,7 @@ class UpdateManager:
                 while shared_state.RUNNING:
                     try:
                         client_socket, client_address = server_socket.accept()
+                        Logger.debug(f'Update server accepted {client_address}')
                         server_handler = UpdateSessionStateHandler(client_socket, client_address)
                         update_session_thread = threading.Thread(target=server_handler.handle)
                         update_session_thread.daemon = True

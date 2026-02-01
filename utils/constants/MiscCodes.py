@@ -46,6 +46,9 @@ class DynamicObjectTypes(IntEnum):
 
 
 class UpdateTypes(IntEnum):
+    # Client treats FAR/NEAR as in-range toggles only:
+    # FAR_OBJECTS -> UpdateOutOfRangeObjects (moves known objects out of range, not destroy).
+    # NEAR_OBJECTS -> UpdateInRangeObjects (marks cached objects in range, does not create).
     PARTIAL = 0
     MOVEMENT = 1
     CREATE_OBJECT = 2
@@ -352,6 +355,11 @@ class QuestFailedReasons(IntEnum):
     QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
 
 
+class QuestCantTakeReason(IntEnum):
+    QUEST_CANT_TAKE_LOW_LEVEL = 1
+    QUEST_CANT_TAKE_MISSING_ITEMS = 15
+
+
 class SkillCategories(IntEnum):
     MAX_SKILL = 1  # These are always max when added i.e. language/riding
     COMBAT_SKILL = 2
@@ -386,6 +394,13 @@ class GameObjectStates(IntEnum):
     GO_STATE_ACTIVE = 0  # show in world as used and not reset (closed door open)
     GO_STATE_READY = 1  # show in world as ready (closed door close)
     GO_STATE_ACTIVE_ALTERNATIVE = 2  # show in world as used in alt way and not reset (closed door open by cannon fire)
+
+
+class GameObjectCustomAnim(IntEnum):
+    CUSTOM_0 = 0
+    CUSTOM_1 = 1
+    CUSTOM_2 = 2
+    CUSTOM_3 = 3
 
 
 class Emotes(IntEnum):

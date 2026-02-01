@@ -83,6 +83,8 @@ class LootManager:
         if group_id > 0:
             equal_chance_entries_length = 0
             for loot_item in group_loot_items:
+                if self.skip_quest_item(loot_item, requester):
+                    continue
                 if loot_item.ChanceOrQuestChance == 0:
                     equal_chance_entries_length += 1
             if equal_chance_entries_length > 0:

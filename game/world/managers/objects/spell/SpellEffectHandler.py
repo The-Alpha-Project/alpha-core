@@ -26,7 +26,7 @@ from utils.constants.MiscCodes import AttackTypes, GameObjectStates, DynamicObje
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
-from utils.constants.UnitCodes import UnitFlags, UnitStates, CreatureTypes
+from utils.constants.UnitCodes import UnitFlags, UnitStates
 
 
 class SpellEffectHandler:

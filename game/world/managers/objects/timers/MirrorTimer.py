@@ -151,12 +151,13 @@ class MirrorTimer:
         
         damage = int(self.owner.max_health * dmg_multiplier)
         self.send_mirror_timer_damage(damage)
+        new_health = self.owner.health - damage
 
-        if self.owner.health <= damage:
+        if new_health <= 0:
             self.owner.die()
             return
 
-        self.owner.set_health(self.owner.health - damage)
+        self.owner.set_health(new_health)
 
     def send_mirror_timer_damage(self, damage):
         if self.uses_visual_timer:

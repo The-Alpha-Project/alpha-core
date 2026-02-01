@@ -149,6 +149,8 @@ class SpellEffect:
         # Interrupt cast if the caster has insufficient resources.
         if new_power < 0 or (new_power == 0 and power_type == PowerTypes.TYPE_HEALTH):
             caster.spell_manager.remove_cast(self.casting_spell, interrupted=True)
+            if power_type == PowerTypes.TYPE_HEALTH:
+                caster.die()
             return
 
         if power_type == PowerTypes.TYPE_HEALTH:

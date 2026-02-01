@@ -1591,3 +1591,14 @@ class WorldDatabaseManager:
         res = world_db_session.query(BroadcastText).all()
         world_db_session.close()
         return res
+
+    @staticmethod
+    def dispose():
+        try:
+            SessionHolder.remove()
+        except Exception:
+            pass
+        try:
+            world_db_engine.dispose()
+        except Exception:
+            pass

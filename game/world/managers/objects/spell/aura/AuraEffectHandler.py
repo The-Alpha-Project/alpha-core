@@ -5,9 +5,8 @@ from game.world.managers.objects.spell.aura import AuraEffectDummyHandler
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants import ItemCodes
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses
-from utils.constants.MiscCodes import UnitDynamicTypes, ProcFlags
+from utils.constants.MiscCodes import UnitDynamicTypes
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
@@ -28,9 +27,7 @@ class AuraEffectHandler:
 
         is_proc_effect = aura_type in PROC_AURA_EFFECTS
         if not remove and not is_proc and is_proc_effect or \
-                is_proc and not is_proc_effect and aura_type != AuraTypes.SPELL_AURA_DAMAGE_SHIELD:
-            #  TODO: Better fix for damage shield triggers. The trigger is handled through the proc system,
-            #   but the handler also needs to be called on application to set the proc flag.
+                is_proc and not is_proc_effect:
             return  # Only call proc effects on procs.
 
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
@@ -299,7 +296,11 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
-        effect_target.set_stunned(not remove, aura.index)
+        allow_interrupt = True
+        if not remove and aura.source_spell and aura.source_spell.is_far_sight():
+            # Far Sight uses a stun aura but shouldn't interrupt the channel.
+            allow_interrupt = False
+        effect_target.set_stunned(not remove, aura.index, allow_interrupt=allow_interrupt)
 
     @staticmethod
     def handle_mod_pacify_silence(aura, effect_target, remove):
@@ -397,13 +398,6 @@ class AuraEffectHandler:
     @staticmethod
     def handle_damage_shield(aura, effect_target, remove):
         if remove:
-            return
-
-        # Damage shields don't have proc flags assigned to them,
-        # possibly because proc flags are not effect-specific in spell data.
-        # Add proc flag for this aura when it's applied.
-        if effect_target is aura.target:
-            aura.proc_flags |= ProcFlags.TAKE_COMBAT_DMG
             return
 
         damage = aura.get_effect_points()
@@ -967,7 +961,8 @@ AURA_EFFECTS = {
 
 PROC_AURA_EFFECTS = [
     AuraTypes.SPELL_AURA_PROC_TRIGGER_SPELL,
-    AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE
+    AuraTypes.SPELL_AURA_PROC_TRIGGER_DAMAGE,
+    AuraTypes.SPELL_AURA_DAMAGE_SHIELD
 ]
 
 PERIODIC_AURA_EFFECTS = [

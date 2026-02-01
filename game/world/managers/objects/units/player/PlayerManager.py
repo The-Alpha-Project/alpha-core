@@ -37,7 +37,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes, \
+from utils.constants.MiscCodes import ChatFlags, LootTypes, MountResults, DismountResults, LockTypes, \
     SpeedType
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
@@ -639,7 +639,7 @@ class PlayerManager(UnitManager):
             self.stat_manager.apply_bonuses()
 
         # Get us in a new cell.
-        self.get_map().update_object(self, has_changes=True)
+        self.get_map().update_object(self)
 
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)
@@ -665,11 +665,11 @@ class PlayerManager(UnitManager):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT))
 
     # override
-    def set_stunned(self, active=True, index=-1) -> bool:
+    def set_stunned(self, active=True, index=-1, allow_interrupt=True) -> bool:
         if active and self.pending_taxi_destination:
             return False  # Ignore on flight path.
 
-        is_stunned = super().set_stunned(active, index)
+        is_stunned = super().set_stunned(active, index, allow_interrupt)
         if is_stunned:
             # Release loot if any.
             self.interrupt_looting()
@@ -689,7 +689,8 @@ class PlayerManager(UnitManager):
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
 
-        self.enqueue_packet(PacketWriter.get_packet(opcode))
+        data = pack('<QI', self.guid, 0)
+        self.enqueue_packet(PacketWriter.get_packet(opcode, data))
 
     def set_tracked_creature_type(self, creature_type, active, index=-1):
         is_tracking = self._set_effect_flag_state(CreatureTypes, creature_type, active, index)
@@ -729,7 +730,7 @@ class PlayerManager(UnitManager):
     def mount(self, mount_display_id):
         # TODO: validate mount. Check MountResults.
         if not super().mount(mount_display_id):
-            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_INVALID_MOUNTEE)
+            data = pack('<I', MountResults.MOUNTRESULT_INVALID_MOUNTEE)
             packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
             self.enqueue_packet(packet)
 
@@ -737,7 +738,7 @@ class PlayerManager(UnitManager):
     def unmount(self):
         # TODO: validate unmount. Check DismountResults.
         if not super().unmount():
-            data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
+            data = pack('<I', DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
             packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
             self.enqueue_packet(packet)
 
@@ -1590,6 +1591,8 @@ class PlayerManager(UnitManager):
         # Update system, propagate player changes to surrounding units.
         if self.online and (has_changes or has_inventory_changes):
             self.get_map().update_object(self, has_changes, has_inventory_changes)
+            if has_changes:
+                self.reset_update_fields()
         # Not dirty, has a pending teleport and a teleport is not ongoing.
         elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
             self.trigger_teleport()

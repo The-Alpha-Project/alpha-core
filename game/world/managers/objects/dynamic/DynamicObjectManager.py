@@ -70,6 +70,10 @@ class DynamicObjectManager(ObjectManager):
             if self.ttl == 0:
                 self.despawn()
 
+        if self.has_pending_updates():
+            self.get_map().update_object(self, has_changes=True)
+            self.reset_update_fields()
+
         self.last_tick = now
 
     @classmethod
