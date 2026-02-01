@@ -18,6 +18,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
+from game.world.managers.objects.spell.EffectTargets import TargetMissInfo
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
@@ -133,7 +134,7 @@ class SpellManager:
 
         # It's not preceded by a known spell, should learn as new.
         if should_learn:
-            data = pack('<H', spell_id)
+            data = pack('<HH', spell_id, 0)
             self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
 
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
@@ -514,14 +515,14 @@ class SpellManager:
                 spell_target = target
                 spell_caster = casting_spell.spell_caster
                 # Swap target/caster on reflect.
-                # TODO: Proper handling of reflect if possible, we don't have MISS_REASON_REFLECTED from vanilla.
-                #  Reflect is not handled as a miss in alpha, instead, its probably handled through SMSG_SPELL_GO or
-                #  SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL.
-                #  So for now, the damage will be reflected but combat log will display as if the reflector
-                #  casted the spell and the victim states will be wrong.
+                # Client uses SPELLLOG (SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL) flag 0x8 to display
+                # "reflected damage to", so we keep the REFLECTED flag on the redirected target.
                 if info.flags & SpellHitFlags.REFLECTED:
                     spell_target = casting_spell.spell_caster
                     spell_caster = target
+                    reflected_info = TargetMissInfo(spell_target, SpellMissReason.MISS_REASON_NONE,
+                                                    info.flags | SpellHitFlags.REFLECTED)
+                    casting_spell.object_target_results[spell_target.guid] = reflected_info
 
                 if info.result == SpellMissReason.MISS_REASON_NONE:
                     SpellEffectHandler.apply_effect(casting_spell, effect, spell_caster, spell_target)
@@ -1019,6 +1020,10 @@ class SpellManager:
         targets = casting_spell.get_effects()[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
         for target in targets:
             miss_info = casting_spell.object_target_results.get(target.guid)
+            if miss_info and miss_info.flags & SpellHitFlags.REFLECTED:
+                if casting_spell.spell_caster.guid not in hits:
+                    hits.append(casting_spell.spell_caster.guid)
+                continue
             if not miss_info or miss_info.result == SpellMissReason.MISS_REASON_NONE:
                 hits.append(target.guid)
             else:
@@ -1244,9 +1249,10 @@ class SpellManager:
                 if not in_mask:
                     # Client allows casts for some forms (non-stance) even if the mask doesn't include them.
                     form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(shapeshift_form)
-                    if not form_entry or (form_entry.Flags & 1):
-                        self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_SHAPESHIFT)
-                        return False
+                    if not (shapeshift_mask == 0 and form_entry and (form_entry.Flags & 1)):
+                        if not form_entry or (form_entry.Flags & 1):
+                            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_SHAPESHIFT)
+                            return False
                 if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_NOT_SHAPESHIFT and not in_mask:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_SHAPESHIFT)
                     return False

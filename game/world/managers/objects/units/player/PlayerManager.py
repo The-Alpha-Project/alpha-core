@@ -37,8 +37,8 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes, \
-    SpeedType, UnitDynamicTypes
+from utils.constants.MiscCodes import ChatFlags, LootTypes, MountResults, DismountResults, LockTypes, \
+    SpeedType
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
@@ -730,7 +730,7 @@ class PlayerManager(UnitManager):
     def mount(self, mount_display_id):
         # TODO: validate mount. Check MountResults.
         if not super().mount(mount_display_id):
-            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_INVALID_MOUNTEE)
+            data = pack('<I', MountResults.MOUNTRESULT_INVALID_MOUNTEE)
             packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
             self.enqueue_packet(packet)
 
@@ -738,7 +738,7 @@ class PlayerManager(UnitManager):
     def unmount(self):
         # TODO: validate unmount. Check DismountResults.
         if not super().unmount():
-            data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
+            data = pack('<I', DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
             packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
             self.enqueue_packet(packet)
 

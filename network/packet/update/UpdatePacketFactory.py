@@ -1,4 +1,4 @@
-from struct import  unpack_from, pack_into, pack
+from struct import  unpack_from, pack_into
 from threading import RLock
 from network.packet.update.UpdateData import UpdateData
 from network.packet.update.UpdateMask import UpdateMask

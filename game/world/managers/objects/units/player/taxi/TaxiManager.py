@@ -133,15 +133,28 @@ class TaxiManager:
         return False
 
     def handle_query_node(self, node, flight_master_guid):
-        # TODO: Find out how 'Destination Nodes' and 'Known Nodes' fields correlate,
-        #  Client does an OR operation between the two, 'destNodesa = knownNodes | destNodes'
+        # Destination nodes are reachable from the current node; known nodes are the full discovered mask.
+        # Client ORs them for display, but expects them as separate masks.
+        dest_nodes_mask = bitarray(len(self.available_taxi_nodes))
+        dest_nodes_mask.setall(0)
+        for taxi_node_id, _node in DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_id(
+                self.owner.map_id):
+            if taxi_node_id - 1 >= len(dest_nodes_mask):
+                continue
+            if not self.available_taxi_nodes[taxi_node_id - 1]:
+                continue
+            if (DbcDatabaseManager.taxi_path_get(node, taxi_node_id)
+                    or DbcDatabaseManager.taxi_path_get(taxi_node_id, node)):
+                dest_nodes_mask[taxi_node_id - 1] = True
+
+        dest_nodes = unpack('<Q', dest_nodes_mask.tobytes())[0]
         known_nodes = unpack('<Q', self.available_taxi_nodes.tobytes())[0]
         data = pack(
             '<IQI2Q',
             1,  # Show map.
             flight_master_guid,  # NPC taxi guid.
             node,  # Current node.
-            known_nodes,  # Destination nodes.
+            dest_nodes,  # Destination nodes.
             known_nodes  # Known nodes.
         )
 

@@ -9,7 +9,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
-    GameObjectStates, GameObjectCustomAnim, ScriptTypes
+    GameObjectStates, ScriptTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason

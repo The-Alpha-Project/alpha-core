@@ -10,6 +10,8 @@ class Srp6Operation(IntEnum):
 class Srp6ResponseType(IntEnum):
     AuthChallenge = 0
     AuthProof = 1
+    AuthRecode = 2
+    AuthRecodeProof = 3
 
 
 class AuthCode(IntEnum):

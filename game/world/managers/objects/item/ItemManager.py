@@ -225,7 +225,6 @@ class ItemManager(ObjectManager):
     def initialize_field_values(self):
         # Initial field values, after this, fields must be modified by setters or directly writing values to them.
         if not self.initialized and self.item_template and self.item_instance:
-            from game.world.managers.objects.item.ContainerManager import ContainerManager
 
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)

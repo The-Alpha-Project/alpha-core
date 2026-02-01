@@ -833,7 +833,7 @@ class UnitManager(ObjectManager):
         damage_info.absorb = target.get_school_absorb_for_damage(damage_info)
         damage_info.total_damage = max(0, damage_info.base_damage - damage_info.absorb)
 
-        # TODO: We never reach this even when set over get_spell_miss_result_against_self.
+        # Reflected hits should set the reflect proc flag for combat log handling.
         if damage_info.hit_info & SpellHitFlags.REFLECTED:
             damage_info.proc_ex = ProcFlagsExLegacy.REFLECT
 
@@ -1484,6 +1484,8 @@ class UnitManager(ObjectManager):
 
     def unmount(self):
         self.mount_display_id = 0
+        packet = PacketWriter.get_packet(OpCode.SMSG_PUREMOUNT_CANCELLED, data=pack(f'<Q', self.guid))
+        self.get_map().send_surrounding(packet, self, include_self=self.is_player())
         self.set_unit_flag(UnitFlags.UNIT_MASK_MOUNTED, active=False)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         return True

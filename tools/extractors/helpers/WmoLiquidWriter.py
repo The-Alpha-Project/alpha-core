@@ -1,6 +1,5 @@
 from struct import pack
 from tools.extractors.helpers.Constants import Constants
-from tools.extractors.definitions.enums.LiquidFlags import LiquidFlags
 from utils.ConfigManager import config
 from utils.Float16 import Float16
 

@@ -112,6 +112,17 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return [area_id[0] for area_id in res]
 
+    @staticmethod
+    def dispose():
+        try:
+            SessionHolder.remove()
+        except Exception:
+            pass
+        try:
+            dbc_db_engine.dispose()
+        except Exception:
+            pass
+
     class AreaInformationHolder:
         # AreaInformation is used by the exploration feature, it gets filled by MapTiles.
         BY_ZONE_AND_AREA = {}

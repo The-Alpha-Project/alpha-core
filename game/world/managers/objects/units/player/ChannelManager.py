@@ -107,8 +107,12 @@ class Channel:
 
     def get_channel_list_packet(self):
         name_bytes = PacketWriter.string_to_bytes(self.name)
-        # TODO '0x3' Unknown 'channelflags', seems unused by client.
-        data = pack(f'<{len(name_bytes)}sBI', name_bytes, 0x3, self.members_count())
+        channel_flags = 0
+        if not self.is_default:
+            channel_flags |= 0x1  # Custom channel flag..
+        if self.moderated:
+            channel_flags |= 0x2  # Moderated channels show '#' for members without VOICE in /list.
+        data = pack(f'<{len(name_bytes)}sBI', name_bytes, channel_flags, self.members_count())
 
         for member in list(self.members):
             data += pack('<Q', member.guid)
@@ -130,7 +134,7 @@ class Channel:
 
 
 class ChannelManager:
-    # General and Trade channels weren't zone specific until Patch 0.5.5.
+    # General and Trade channels weren't zone-specific until Patch 0.5.5.
     DEFAULT_GENERAL = 'General'
     DEFAULT_TRADE = 'Trade'
 

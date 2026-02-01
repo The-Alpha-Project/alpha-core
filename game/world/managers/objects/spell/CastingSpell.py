@@ -239,11 +239,10 @@ class CastingSpell:
         return school_mask
 
     def can_reflect(self):
-        return (self.spell_entry.School  # Not physical.
+        return (self.spell_entry.School != SpellSchools.SPELL_SCHOOL_NORMAL
                 and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY
                 and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY
-                and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE
-                and not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NEGATIVE)
+                and not self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE)
 
     def is_mining_spell(self):
         return self.spell_entry.Totem_1 == 2901  # Mining pick.

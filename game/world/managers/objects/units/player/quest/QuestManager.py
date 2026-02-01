@@ -17,7 +17,7 @@ from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
+from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestCantTakeReason, QuestMethod, \
     QuestFlags, GameObjectTypes, HighGuid, ScriptTypes, ObjectTypeIds
 from utils.constants.UpdateFields import PlayerFields
 
@@ -545,7 +545,12 @@ class QuestManager:
         return item_data
 
     def send_cant_take_quest_response(self, reason_code):
-        data = pack('<I', reason_code)
+        client_reason = reason_code
+        if reason_code == QuestFailedReasons.QUEST_FAILED_LOW_LEVEL:
+            client_reason = QuestCantTakeReason.QUEST_CANT_TAKE_LOW_LEVEL
+        elif reason_code == QuestFailedReasons.QUEST_FAILED_MISSING_ITEMS:
+            client_reason = QuestCantTakeReason.QUEST_CANT_TAKE_MISSING_ITEMS
+        data = pack('<I', client_reason)
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_INVALID, data))
 
     def send_quest_giver_status(self, quest_giver_guid, quest_status):
@@ -560,8 +565,7 @@ class QuestManager:
     def send_quest_giver_quest_list(self, message, emote, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
 
-        # TODO: Many texts from Vanilla don't fit. Find what should happen in 0.5.3? Maybe texts were simply different?
-        # Client has a 256 characters limitation, truncate.
+        # Client limits this greeting string to 256 bytes.
         if len(message_bytes) > 256:
             message_bytes = message_bytes[:255] + b'\x00'
 
@@ -569,7 +573,7 @@ class QuestManager:
             f'<Q{len(message_bytes)}s2iB',
             quest_giver_guid,
             message_bytes,
-            0,
+            0,  # Emote Delay.
             emote,
             len(quests)
         ))
@@ -740,9 +744,9 @@ class QuestManager:
 
         data.extend(pack(
             '<3I',
-            0x02,  # MaskMatch
-            0x03 if is_completable else 0x00,  # Completable = Player has items?
-            0x04,  # HasFaction
+            1,  # Meets (level, race/class, skill, etc.)
+            1 if is_completable else 0,  # Completable has items.
+            1,  # Meets reputation requirements.
         ))
 
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_REQUEST_ITEMS, data)
@@ -780,7 +784,7 @@ class QuestManager:
         for i in range(1, 5):
             offer_emote = getattr(quest, f'OfferRewardEmote{i}')
             offer_emote_delay = getattr(quest, f'OfferRewardEmoteDelay{i}')
-            data.extend(pack('<2I', offer_emote, offer_emote_delay))
+            data.extend(pack('<2I', offer_emote_delay, offer_emote))
 
         if QuestHelpers.has_pick_reward(quest):
             # Reward choices
@@ -1013,7 +1017,7 @@ class QuestManager:
         data = bytearray(pack(
             '<4I',
             quest_id,
-            3,  # Investigate
+            0,  # status/flags, unused by client.
             int(given_xp * config.Server.Settings.xp_rate),
             given_gold
         ))

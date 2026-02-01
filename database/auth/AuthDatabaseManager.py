@@ -120,6 +120,17 @@ class AuthDatabaseManager:
         return True
 
     @staticmethod
+    def dispose():
+        try:
+            SessionHolder.remove()
+        except Exception:
+            pass
+        try:
+            auth_db_engine.dispose()
+        except Exception:
+            pass
+
+    @staticmethod
     def account_try_update_password(username, old_password, new_password):
         auth_db_session = SessionHolder()
         try:

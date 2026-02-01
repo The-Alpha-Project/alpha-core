@@ -46,6 +46,9 @@ class DynamicObjectTypes(IntEnum):
 
 
 class UpdateTypes(IntEnum):
+    # Client treats FAR/NEAR as in-range toggles only:
+    # FAR_OBJECTS -> UpdateOutOfRangeObjects (moves known objects out of range, not destroy).
+    # NEAR_OBJECTS -> UpdateInRangeObjects (marks cached objects in range, does not create).
     PARTIAL = 0
     MOVEMENT = 1
     CREATE_OBJECT = 2
@@ -350,6 +353,11 @@ class QuestFailedReasons(IntEnum):
     QUEST_ALREADY_ON = 13  # You are already on that quest
     QUEST_FAILED_MISSING_ITEMS = 21  # You don't have the required items with you. Check storage.
     QUEST_FAILED_NOT_ENOUGH_MONEY = 23  # You don't have enough money for that quest.
+
+
+class QuestCantTakeReason(IntEnum):
+    QUEST_CANT_TAKE_LOW_LEVEL = 1
+    QUEST_CANT_TAKE_MISSING_ITEMS = 15
 
 
 class SkillCategories(IntEnum):

@@ -81,6 +81,9 @@ Server:
 
         debug_movement: False  # Moving NPCs will leave a trail of temporary gameobjects.
         debug_transport: False  # Elevators will leave a trail of temporary gameobjects.
+        advanced_spell_logging: False  # Use advanced spell logs (verbose client output on console).
+        srp6_reconnect_enabled: False  # If True, allow SRP6 reconnect within a short time frame after a successful login.
+        disable_sqlalchemy_cext: False  # Disable SQLAlchemy C extensions to avoid native segfaults in some environments.
 
     Logging:
         # Debug level values (you can combine them as a mask):
@@ -105,6 +108,9 @@ Server:
         enable_addons_chat_api: False  # CUSTOM: Allow addons to use the chat system for data requests.
         disabled_race_mask: 0  # Blizzlike 0.5.3: 239
         disabled_class_mask: 0  # Blizzlike 0.5.3: 1102
+
+Patcher:
+    patch_client_realmlist: ''  # If set, UpdateServer writes this content to realmlist.wtf.
 
 World:
     Gameplay:

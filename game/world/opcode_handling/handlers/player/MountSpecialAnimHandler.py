@@ -12,9 +12,8 @@ class MountSpecialAnimHandler:
         if not player_mgr:
             return res
 
-        # TODO Not working, wrong packet data, or animation not implemented client side?
-        player_guid = unpack('<Q', reader.data[:8])[0]
-        data = pack('<Q', player_guid)
+        # Animation is not implemented client side.
+        data = pack('<Q', player_mgr.guid)
         mount_anim_packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTSPECIAL_ANIM, data)
         player_mgr.get_map().send_surrounding(mount_anim_packet, player_mgr)
 

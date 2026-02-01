@@ -17,6 +17,16 @@ if __name__ == '__main__':
 import argparse
 import signal
 from time import sleep
+from utils.ConfigManager import config, ConfigManager
+from utils.Logger import Logger
+from utils.constants import EnvVars
+
+# Configure SQLAlchemy C extensions before importing modules that may load SQLAlchemy.
+if config.Server.Settings.disable_sqlalchemy_cext:
+    os.environ['DISABLE_SQLALCHEMY_CEXT_RUNTIME'] = '1'
+else:
+    os.environ.pop('DISABLE_SQLALCHEMY_CEXT_RUNTIME', None)
+
 from game.login.LoginManager import LoginManager
 from game.realm.RealmManager import RealmManager
 from game.update.UpdateManager import UpdateManager
@@ -25,9 +35,6 @@ from game.world.managers.CommandManager import CommandManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
 from tools.extractors.Extractor import Extractor
-from utils.ConfigManager import config, ConfigManager
-from utils.Logger import Logger
-from utils.constants import EnvVars
 
 
 # Initialize argument parser.
@@ -265,10 +272,29 @@ if __name__ == '__main__':
     # Exit.
     Logger.info('Shutting down the core, please wait...')
 
-    # Make sure all process finish gracefully (Exit their listening loops).
+    # Make sure all processes finish gracefully (Exit their listening loops).
     [release_process(process) for process, wait_call in ACTIVE_PROCESSES]
 
     ACTIVE_PROCESSES.clear()
+
+    # Dispose database engines and clear sessions in the main process.
+    try:
+        from database.auth.AuthDatabaseManager import AuthDatabaseManager
+        from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+        from database.realm.RealmDatabaseManager import RealmDatabaseManager
+        from database.world.WorldDatabaseManager import WorldDatabaseManager
+
+        AuthDatabaseManager.dispose()
+        Logger.info('Auth database released.')
+        DbcDatabaseManager.dispose()
+        Logger.info('DBC database released')
+        RealmDatabaseManager.dispose()
+        Logger.info('Realm database released.')
+        WorldDatabaseManager.dispose()
+        Logger.info('World database released.')
+    except Exception:
+        pass
+
     manager.shutdown()
     Logger.success('Core gracefully shut down.')
     exit()

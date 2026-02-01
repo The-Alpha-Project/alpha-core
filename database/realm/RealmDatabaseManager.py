@@ -122,6 +122,17 @@ class RealmDatabaseManager:
         realm_db_session.close()
 
     @staticmethod
+    def dispose():
+        try:
+            SessionHolder.remove()
+        except Exception:
+            pass
+        try:
+            realm_db_engine.dispose()
+        except Exception:
+            pass
+
+    @staticmethod
     def character_delete(guid):
         realm_db_session = SessionHolder()
         char_to_delete = RealmDatabaseManager.character_get_by_guid(guid)

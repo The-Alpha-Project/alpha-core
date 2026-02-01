@@ -5,9 +5,8 @@ from game.world.managers.objects.spell.aura import AuraEffectDummyHandler
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants import ItemCodes
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses
-from utils.constants.MiscCodes import UnitDynamicTypes, ProcFlags
+from utils.constants.MiscCodes import UnitDynamicTypes
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes

@@ -1,6 +1,7 @@
 from struct import pack
 
 from network.packet.PacketWriter import PacketWriter
+from utils.ConfigManager import config
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ProcFlags, ProcFlagsExLegacy
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, WorldTextFlags
@@ -57,6 +58,11 @@ class DamageInfoHolder:
         return PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, data)
 
     def get_attacker_state_update_spell_info_packet(self):
+        advanced_spell_logging = config.Server.Settings.advanced_spell_logging
+        if self.proc_ex & ProcFlagsExLegacy.REFLECT:
+            self.hit_info |= SpellHitFlags.REFLECTED
+        if advanced_spell_logging:
+            self.hit_info |= SpellHitFlags.ADVANCED_SPELL_LOGGING
         data = self._get_debug_spell_header()
         # Spell cast not successful.
         if self.spell_miss_reason > SpellMissReason.MISS_REASON_NONE:
@@ -65,8 +71,25 @@ class DamageInfoHolder:
         # Spell cast did damage or healed.
         elif not self.hit_info & SpellHitFlags.NON_DAMAGE_SPELL and not self.hit_info & SpellHitFlags.NONE:
             data += pack('<If3I', self.total_damage, self.base_damage, self.spell_school, self.base_damage, self.absorb)
+            if advanced_spell_logging:
+                data += self._get_advanced_logging_bytes()
 
         return PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
+
+    def _get_advanced_logging_bytes(self):
+        return pack('<2I6fI2fIf',
+                             int(self.base_damage), int(self.base_damage),
+                             1.0,  # netDamageMultiplier
+                             float(self.base_damage),  # scaledDamage
+                             0.0,  # critRollNeededFloat
+                             0.0,  # critRollFloat
+                             0.0,  # maxDamageReduction
+                             0.0,  # scaledArmorReduction
+                             0,  # auraEffectID
+                             0.0,  # hitRollNeededFloat
+                             0.0,  # hitRollFloat
+                             int(self.spell_school),  # damageType
+                             0.0)  # resistanceCoefficient
 
     def get_attacker_state_update_packet(self):
         data = pack('<I2QIBIf7I',

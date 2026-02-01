@@ -59,6 +59,9 @@ class AccountManager:
         data += pack('<I', 0)
         return PacketWriter.get_srp6_packet(data)
 
+    def get_srp6_server_proof(self) -> bytes:
+        return Srp6.calculate_server_proof(self._client_public_key, self._client_server_proof, self._session_key)
+
     def get_srp6_logon_challenge_packet(self) -> bytes:
         data = pack('<2B', AuthCode.AUTH_OK, Srp6ResponseType.AuthChallenge)
         data += pack('<B', len(Srp6.g_bytes)) + Srp6.g_bytes
@@ -70,3 +73,11 @@ class AccountManager:
     def save_session_key(self):
         from database.auth.AuthDatabaseManager import AuthDatabaseManager
         return AuthDatabaseManager.account_try_update_session_key(self.account.name, self._session_key.hex())
+
+    def get_session_key_bytes(self) -> bytes:
+        if not self.account.sessionkey:
+            return b''
+        try:
+            return bytes.fromhex(self.account.sessionkey)
+        except ValueError:
+            return b''
