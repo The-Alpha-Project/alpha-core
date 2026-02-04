@@ -90,7 +90,7 @@ class UpdateSessionStateHandler:
         if size == 0:
             Logger.debug(f'UpdateServer: connection closed by {self.client_address}')
             return b''
-        if size <= 0:
+        if size <= 0 or size > MAX_PACKET_BYTES:
             return b''
         payload = self._recv_exact(size)
         if payload is None:
@@ -111,12 +111,12 @@ class UpdateSessionStateHandler:
         while len(data) < size:
             try:
                 chunk = self.client_socket.recv(size - len(data))
-            except socket.timeout:
+            except (socket.timeout, ConnectionResetError, OSError):
                 return None
             if not chunk:
                 if data:
                     Logger.debug(f'UpdateServer: connection closed mid-packet by {self.client_address}')
-                break
+                return None  # Don't return partial packets.
             data.extend(chunk)
         return bytes(data)
 
