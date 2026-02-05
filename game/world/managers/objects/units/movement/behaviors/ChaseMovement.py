@@ -165,7 +165,8 @@ class ChaseMovement(BaseMovement):
         self.stop()
 
     def stop(self):
-        self.waypoints.clear()
+        if self.waypoints:
+            self.waypoints.clear()
         self.unit.movement_manager.stop()
         # Restore current target.
         if self.combat_target and not self.unit.current_target:
