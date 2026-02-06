@@ -1,0 +1,2 @@
+UPDATE `trainer_template` SET `reqlevel` = 25 WHERE `spell` IN (827, 6743, 6744, 6745, 6746);
+UPDATE `item_template` SET `required_level` = 25, `buy_price` = 300000, `sell_price` = 75000 WHERE `required_skill` IN (0x94, 0x95, 0x96, 0x97, 0x98);

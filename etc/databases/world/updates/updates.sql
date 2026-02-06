@@ -13985,5 +13985,15 @@ begin not atomic
         insert into applied_updates values ('231220251');
     end if;
 
+    -- 06/02/2026 1
+    if (select count(*) from applied_updates where id='060220261') = 0 then
+        -- Fix icon for "Harness: Blue Ram".
+        UPDATE `item_template` SET `display_id` = 9201 WHERE `entry` = 5875;
+        -- Set required level for mount skills back to 40.
+        UPDATE `trainer_template` SET `reqlevel` = 40 WHERE `spell` IN (827, 6743, 6744, 6745, 6746);
+
+        insert into applied_updates values ('060220261');
+    end if;
+
 end $
 delimiter ;
