@@ -322,7 +322,7 @@ class StatManager:
         total = (base_stats + item_stats + bonus_stats) * self.get_aura_stat_bonus(
             stat_type,
             percentual=True,
-            misc_value=misc_value,
+            misc_value=misc_value
         )
 
         return int(total - base_stats - item_stats)

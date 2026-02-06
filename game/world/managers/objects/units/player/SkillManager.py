@@ -1,5 +1,6 @@
 import random
 from enum import IntEnum
+from functools import lru_cache
 from struct import pack
 from typing import Optional
 
@@ -171,24 +172,18 @@ RIDING_SKILLS = {
     SkillTypes.WOLFRIDING,
     SkillTypes.TIGERRIDING,
     SkillTypes.NIGHTMARERIDING,
-    SkillTypes.RAMRIDING,
+    SkillTypes.RAMRIDING
 }
 
-_RIDING_SPELL_IDS = None
 
-
+@lru_cache
 def get_riding_spell_ids():
-    global _RIDING_SPELL_IDS
-    if _RIDING_SPELL_IDS is not None:
-        return _RIDING_SPELL_IDS
-
     riding_spell_ids = set()
     for skill_id in RIDING_SKILLS:
         spell_ids = DbcDatabaseManager.SkillLineAbilityHolder.spells_get_by_skill_id(skill_id)
         if spell_ids:
             riding_spell_ids.update(spell_ids)
 
-    _RIDING_SPELL_IDS = riding_spell_ids
     return riding_spell_ids
 
 

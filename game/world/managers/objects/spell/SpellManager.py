@@ -588,12 +588,12 @@ class SpellManager:
             SpellMissReason.MISS_REASON_PARRIED,
             SpellMissReason.MISS_REASON_IMMUNE,
             SpellMissReason.MISS_REASON_TEMPIMMUNE,
-            SpellMissReason.MISS_REASON_DEFLECTED,
+            SpellMissReason.MISS_REASON_DEFLECTED
         }
 
         refund_miss_rage = {
             SpellMissReason.MISS_REASON_DODGED,
-            SpellMissReason.MISS_REASON_PARRIED,
+            SpellMissReason.MISS_REASON_PARRIED
         }
 
         power_type = casting_spell.spell_entry.PowerType
@@ -1322,7 +1322,7 @@ class SpellManager:
                 self.send_cast_result(
                     casting_spell,
                     SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS,
-                    misc_data=spell_focus_type,
+                    misc_data=spell_focus_type
                 )
                 return False
             if isinstance(spell_focus_object[0], SpellFocusManager):
@@ -1800,7 +1800,7 @@ class SpellManager:
                     self.send_cast_result(
                         casting_spell,
                         SpellCheckCastResult.SPELL_FAILED_REAGENTS,
-                        misc_data=reagent_info,
+                        misc_data=reagent_info
                     )
                     return False
 
@@ -1818,8 +1818,8 @@ class SpellManager:
                         SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM_CLASS,
                         misc_data=(
                             casting_spell.spell_entry.EquippedItemClass,
-                            casting_spell.spell_entry.EquippedItemSubclass,
-                        ),
+                            casting_spell.spell_entry.EquippedItemSubclass
+                        )
                     )
                     return False
 
@@ -1865,7 +1865,7 @@ class SpellManager:
                     self.send_cast_result(
                         casting_spell,
                         SpellCheckCastResult.SPELL_FAILED_TOTEMS,
-                        misc_data=tool,
+                        misc_data=tool
                     )
                     return False
 

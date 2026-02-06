@@ -234,7 +234,7 @@ class UpdateSessionStateHandler:
 
         file_list = bytearray()
         file_list.append(UpdateServerOpCode.SERVER_FILELIST)
-        file_list += pack('<I', len(full_files) + len(flagged_files))  # total file count
+        file_list += pack('<I', len(full_files) + len(flagged_files))  # total file count.
         file_list += self._pack_cstring(PATCH_FILESET)
         file_list += pack('<I', len(full_files))  # full files.
         for path, content in full_files:
