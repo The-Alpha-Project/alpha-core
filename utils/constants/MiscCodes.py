@@ -151,7 +151,7 @@ class VictimStates(IntEnum):
     VS_DODGE = 2
     VS_PARRY = 3
     VS_INTERRUPT = 4
-    VS_BLOCK = 5  # unused? not set when blocked even on full block
+    VS_BLOCK = 5
     VS_EVADE = 6
     VS_IMMUNE = 7
     VS_DEFLECT = 8
