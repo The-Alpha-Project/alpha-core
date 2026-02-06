@@ -40,7 +40,6 @@ class DuelArbiterManager(GameObjectManager):
 
     def update(self, now):
         if now <= self.last_tick or self.last_tick <= 0:
-            self.last_tick = now
             super().update(now)
             return
 
@@ -54,7 +53,6 @@ class DuelArbiterManager(GameObjectManager):
         elif self._start_duel_check():
             self._start_duel()
 
-        self.last_tick = now
         super().update(now)
 
     def request_duel(self, requester, target):

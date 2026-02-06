@@ -55,7 +55,7 @@ class MpqArchive:
 
         mpq_entry: MpqEntry = self.mpq_entries[hash_entry.block_index]
         if not mpq_entry:
-            return
+            return False
 
         if not mpq_entry.is_encrypted():
             return False

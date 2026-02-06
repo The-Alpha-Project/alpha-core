@@ -34,7 +34,6 @@ class FishingNodeManager(GameObjectManager):
             elapsed = now - self.last_tick
             self._update(elapsed)
 
-        self.last_tick = now
         super().update(now)
 
     def _update(self, elapsed):
@@ -43,9 +42,9 @@ class FishingNodeManager(GameObjectManager):
         self.fishing_timer = max(0, self.fishing_timer - elapsed)
         if self.fishing_timer:
             return
-        # Became active this tick, activate fishing node.
+        # Became active this tick, activate the fishing node.
         self.became_active_time = time.time()
-        self.set_active(force=True)  # Since hook is time-sensitive, force the update immediately.
+        self.set_active(force=True)  # Hook is time-sensitive, ensure the state update is seen.
         self.send_custom_animation(0)
 
     # override

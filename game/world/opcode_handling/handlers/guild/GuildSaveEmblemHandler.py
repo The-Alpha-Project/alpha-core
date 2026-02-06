@@ -10,7 +10,9 @@ class GuildSaveEmblemHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        # TODO: TabardVendor wont allow you to define a new emblem after you have already one. Intended?
+        # Tabard can only be set once.
+        # Client CGPlayer_C::SaveTabard only sends this when all emblem fields are -1; otherwise it
+        #  shows GERR_GUILDEMBLEM_COLORSPRESENT and never submits a new emblem.
         if len(reader.data) >= 20:  # Avoid handling empty guild save emblem packet.
             style, color, border_style, border_color, background_color = unpack('<5I', reader.data[:20])
 

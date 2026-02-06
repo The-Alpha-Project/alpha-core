@@ -14,7 +14,7 @@ from utils.constants.UnitCodes import SplineFlags, SplineType
 
 class Spline:
     def __init__(self, unit, spline_type=0, spline_flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0,
-                 total_time=0, points=None, extra_time_seconds=0):
+                 total_time=0, points=None, extra_time_seconds=0, use_packed_deltas=False):
         self.unit = unit
         self.is_player = self.unit.is_player()
         self.spline_type = spline_type
@@ -27,6 +27,7 @@ class Spline:
         self.elapsed_since_last_location = 0  # Elapsed since we were able to update unit location on this spline.
         self.total_time = total_time  # Milliseconds.
         self.points = points
+        self.use_packed_deltas = use_packed_deltas
         self.pending_waypoints: list[PendingWaypoint] = []
         self.waypoints_bytes = b''
         self.total_waypoint_timer = 0
@@ -80,9 +81,9 @@ class Spline:
             self.elapsed_since_last_location = 0
             if config.Server.Settings.debug_movement:
                 self._debug_position(new_position)
-            # While in movement (guessed position) always face the target destination.
+            # While in movement (guessed position) update server-side facing if necessary.
             # Movement behaviors handle end orientation upon waypoint finish.
-            if not is_complete:
+            if not is_complete and not self.unit.location.has_in_arc(current_waypoint.location):
                 new_position.face_point(current_waypoint.location)
         self.last_updated_at = time.time()
 
@@ -144,6 +145,12 @@ class Spline:
     def is_flight(self):
         return self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
 
+    def get_speed(self):
+        # No waypoints left means movement is done, extra_time_seconds is just a wait window.
+        if not self.pending_waypoints:
+            return 0
+        return self.speed
+
     def get_waypoint_location(self):
         if not self.pending_waypoints:
             return self.unit.location
@@ -188,9 +195,6 @@ class Spline:
 
         # Handle specific spline types.
         match self.spline_type:
-            case SplineType.SPLINE_TYPE_FACING_SPOT:
-                spot_bytes = self.spot.to_bytes(include_orientation=False)
-                data += pack(f'<{len(spot_bytes)}s', spot_bytes)
             case SplineType.SPLINE_TYPE_FACING_TARGET:
                 data += pack('<Q', self.guid)
             case SplineType.SPLINE_TYPE_FACING_ANGLE:
@@ -202,12 +206,24 @@ class Spline:
 
     def _get_payload_bytes(self):
         total_time_remaining = max(int(self.total_time - self.elapsed), 0)
+        payload_bytes = self.waypoints_bytes
+        num_points = len(self.points)
+        if (self.use_packed_deltas
+                and not self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
+                and num_points > 1):
+            packed_bytes = self._get_packed_delta_bytes()
+            if packed_bytes is not None:
+                payload_bytes = packed_bytes
+            else:
+                # Fallback to a single endpoint to avoid invalid packed data.
+                num_points = 1
+                payload_bytes = self.points[-1].to_bytes(include_orientation=False)
         return pack(
-            f'<3I{len(self.waypoints_bytes)}s',
+            f'<3I{len(payload_bytes)}s',
             self.spline_flags,
             total_time_remaining,
-            len(self.points),
-            self.waypoints_bytes
+            num_points,
+            payload_bytes
         )
 
     @staticmethod
@@ -266,3 +282,31 @@ class Spline:
             data += self.points[point].to_bytes(include_orientation=False)
 
         return data
+
+    def can_pack_deltas(self):
+        if self.spline_flags & SplineFlags.SPLINEFLAG_FLYING:
+            return False
+        if not self.points or len(self.points) <= 1:
+            return False
+        return self._get_packed_delta_bytes() is not None
+
+    def _get_packed_delta_bytes(self):
+        # Client expects: endpoint (x,y,z) then packed deltas to each previous point.
+        # Each delta is relative to the endpoint and scaled by 1/8 (0.125).
+        # Format: x:12-bit, y:12-bit, z:8-bit signed values.
+        end_point = self.points[-1]
+        payload = pack('<3f', end_point.x, end_point.y, end_point.z)
+        for point in self.points[:-1]:
+            dx = int(round((end_point.x - point.x) * 8.0))
+            dy = int(round((end_point.y - point.y) * 8.0))
+            dz = int(round((end_point.z - point.z) * 8.0))
+            # Enforce client limits to avoid malformed packed deltas.
+            if dx < -2048 or dx > 2047:
+                return None
+            if dy < -2048 or dy > 2047:
+                return None
+            if dz < -128 or dz > 127:
+                return None
+            packed = (dx & 0xFFF) | ((dy & 0xFFF) << 12) | ((dz & 0xFF) << 24)
+            payload += pack('<I', packed)
+        return payload

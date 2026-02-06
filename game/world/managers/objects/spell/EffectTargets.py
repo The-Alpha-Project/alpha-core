@@ -11,6 +11,7 @@ from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHand
 from utils.Logger import Logger
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, SpellTargetMask, \
     SpellHitFlags
+from game.world.managers.objects.units.SpellAdvancedLogging import SpellAdvancedLogging
 
 
 @dataclass
@@ -18,6 +19,7 @@ class TargetMissInfo:
     target: ObjectManager
     result: SpellMissReason
     flags: SpellHitFlags
+    advanced_logging: Optional[SpellAdvancedLogging] = None
 
 
 class EffectTargets:
@@ -149,8 +151,9 @@ class EffectTargets:
         target_info = {}
         for target in targets:
             if target.is_unit(by_mask=True) and self.effect_source.is_unit(by_mask=True):
-                result = target.stat_manager.get_spell_miss_result_against_self(self.casting_spell)
-                target_info[target.guid] = TargetMissInfo(target, *result)
+                logging = SpellAdvancedLogging()
+                result = target.stat_manager.get_spell_miss_result_against_self(self.casting_spell, logging)
+                target_info[target.guid] = TargetMissInfo(target, result[0], result[1], logging)
             else:
                 target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE, SpellHitFlags.NONE)
         return target_info
@@ -407,6 +410,7 @@ class EffectTargets:
             return [casting_spell.spell_caster.location]
 
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        return []
 
     @staticmethod
     def resolve_party_around_caster(casting_spell, target_effect):

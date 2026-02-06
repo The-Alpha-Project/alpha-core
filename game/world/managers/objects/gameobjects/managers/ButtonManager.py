@@ -32,7 +32,6 @@ class ButtonManager(GameObjectManager):
             if self.is_active() and super().check_cooldown(now):
                 self.reset_button_state()
 
-        self.last_tick = now
         super().update(now)
 
     # override

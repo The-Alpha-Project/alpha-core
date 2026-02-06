@@ -30,6 +30,7 @@ from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
+from utils.constants.MiscCodes import UpdateFlags
 
 
 # noinspection PyCallByClass
@@ -68,6 +69,7 @@ class CreatureManager(UnitManager):
         self.dmg_max = 0
         self.just_died = False
         self.virtual_item_info = {}
+        self.default_sheath_state = self.sheath_state
         self.wander_distance = 0
         self.movement_type = MovementTypes.IDLE
         self.fully_loaded = False
@@ -109,6 +111,7 @@ class CreatureManager(UnitManager):
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
         self.sheath_state = WeaponMode.NORMALMODE
+        self.default_sheath_state = self.sheath_state
         self.subtype = subtype
         self.summon_type = summon_type
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
@@ -161,7 +164,7 @@ class CreatureManager(UnitManager):
         if is_morph:
             self.aura_manager.remove_all_auras()
             self.initialize_field_values()
-            self.get_map().update_object(self, has_changes=True)
+            self.get_map().update_object(self, update_flags=UpdateFlags.CHANGES)
 
     # override
     def initialize_field_values(self):
@@ -295,6 +298,8 @@ class CreatureManager(UnitManager):
             # Mount this creature if defined (will override template mount).
             if self.addon.mount_display_id > 0:
                 self.mount(self.addon.mount_display_id)
+
+        self.default_sheath_state = self.sheath_state
 
         # Stats.
         self.stat_manager.init_stats()
@@ -511,19 +516,30 @@ class CreatureManager(UnitManager):
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, True)
         self.object_ai.enter_combat(source)
         self.swim_checks_enabled = True
+
+        if self.has_virtual_equipment():
+            if self.has_mainhand_weapon() or self.has_offhand_weapon():
+                self.set_weapon_mode(WeaponMode.NORMALMODE)
+            elif self.has_ranged_weapon():
+                self.set_weapon_mode(WeaponMode.RANGEDMODE)
         return True
 
     # override
     def leave_combat(self):
         was_in_combat = super().leave_combat()
 
-        if not self.is_player_controlled_pet() and not self.is_guardian():
+        if not self.is_controlled() and not self.is_guardian():
             self.evade()
             if self.object_ai and was_in_combat and self.is_alive:
                 self.object_ai.on_combat_stop()
                 self.object_ai.on_leave_combat()
         else:
-            self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
+            if self.is_player_controlled_pet() or self.is_guardian():
+                self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
+
+        if was_in_combat and self.has_virtual_equipment():
+            if self.sheath_state != self.default_sheath_state:
+                self.set_weapon_mode(self.default_sheath_state)
 
         if self.creature_group and self.is_evading and self.is_alive and was_in_combat:
             self.creature_group.on_leave_combat(self)
@@ -675,11 +691,9 @@ class CreatureManager(UnitManager):
         has_changes = self.has_pending_updates()
         # Check if this creature object should be updated.
         if has_changes or self.has_moved:
-            self.get_map().update_object(self, has_changes=has_changes)
+            update_flags = UpdateFlags.CHANGES if has_changes else UpdateFlags.NONE
+            self.get_map().update_object(self, update_flags=update_flags)
             self.set_has_moved(False, False, flush=True)
-
-        if has_changes:
-            self.reset_update_fields()
 
         self.last_tick = now
 
@@ -972,6 +986,10 @@ class CreatureManager(UnitManager):
         elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=False)
             self.movement_manager.set_speed_dirty()
+
+    def has_virtual_equipment(self):
+        equipment_entries = self.get_virtual_equipment_entries()
+        return any(entry > 0 for entry in equipment_entries)
 
     # override
     def has_mainhand_weapon(self):

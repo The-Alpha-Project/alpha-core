@@ -148,13 +148,24 @@ class CreatureGroupManager:
         leader = self.get_leader()
         if not leader or not self.leader:
             return None
+        leader_creature = leader.creature
+        return self.compute_relative_position_from(group_member, leader_creature, leader_creature.location,
+                                                   distance=distance)
+
+    def compute_relative_position_from(self, group_member, leader_creature, leader_location, distance=0.0):
         distance = distance if distance else group_member.distance_leader
-        off_x = (math.cos(group_member.angle + leader.angle) * distance) + self.leader.location.x
-        off_y = (math.sin(group_member.angle + leader.angle) * distance) + self.leader.location.y
-        off_z = self.leader.location.z + (group_member.creature.location.z - self.leader.location.z) * 0.5
+        angle = group_member.angle
+        # Database values are often in degrees; normalize to radians if needed.
+        if abs(angle) > (math.pi * 2):
+            angle = math.radians(angle)
+        leader_angle = leader_location.o
+        off_angle = angle + leader_angle
+        off_x = (math.cos(off_angle) * distance) + leader_location.x
+        off_y = (math.sin(off_angle) * distance) + leader_location.y
+        off_z = leader_location.z + (group_member.creature.location.z - leader_location.z) * 0.5
 
         # Try to find precise Z.
-        z, z_locked = self.leader.get_map().calculate_z(off_x, off_y, off_z, is_rand_point=True)
+        z, z_locked = leader_creature.get_map().calculate_z(off_x, off_y, off_z, is_rand_point=True)
         if not z_locked:
             off_z = z
         return Vector(off_x, off_y, off_z)

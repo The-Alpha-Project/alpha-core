@@ -98,6 +98,7 @@ from game.world.opcode_handling.handlers.npc.TaxiQueryNodesHandler import TaxiQu
 from game.world.opcode_handling.handlers.npc.TrainerListHandler import TrainerListHandler
 from game.world.opcode_handling.handlers.npc.TrainerBuySpellHandler import TrainerBuySpellHandler
 from game.world.opcode_handling.handlers.player.DebugAIStateHandler import DebugAIStateHandler
+from game.world.opcode_handling.handlers.player.DebugCombatLogHandler import DebugCombatLogHandler
 from game.world.opcode_handling.handlers.player.DuelAcceptHandler import DuelAcceptHandler
 from game.world.opcode_handling.handlers.player.DuelCanceledHandler import DuelCanceledHandler
 from game.world.opcode_handling.handlers.player.InspectHandler import InspectHandler
@@ -166,6 +167,7 @@ from game.world.opcode_handling.handlers.unit.SetTargetHandler import SetTargetH
 from game.world.opcode_handling.handlers.world.AreaTriggerHandler import AreaTriggerHandler
 from game.world.opcode_handling.handlers.world.TimeQueryHandler import TimeQueryHandler
 from game.world.opcode_handling.handlers.world.WorldTeleportHandler import WorldTeleportHandler
+from game.world.opcode_handling.handlers.world.ZoneMapHandler import ZoneMapHandler
 from game.world.opcode_handling.handlers.world.ZoneUpdateHandler import ZoneUpdateHandler
 from game.world.opcode_handling.handlers.NullHandler import NullHandler
 
@@ -194,6 +196,7 @@ HANDLER_DEFINITIONS = {
     OpCode.MSG_MOVE_TELEPORT_ACK: WorldTeleportHandler.handle_ack,
     OpCode.MSG_MOVE_WORLDPORT_ACK: WorldTeleportHandler.handle_ack,
     OpCode.CMSG_AREATRIGGER: AreaTriggerHandler.handle,
+    OpCode.CMSG_ZONE_MAP: ZoneMapHandler.handle,
     OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT: SpeedCheatHandler.handle,
     OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT: SpeedCheatHandler.handle,
     OpCode.MSG_MOVE_SET_ALL_SPEED_CHEAT: SpeedCheatHandler.handle,
@@ -342,6 +345,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_COOLDOWN_CHEAT: CooldownCheatHandler.handle,
     OpCode.CMSG_CREATEITEM: CreateItemHandler.handle,
     OpCode.CMSG_RECHARGE: RechargeHandler.handle,
+    OpCode.CMSG_ENABLEDEBUGCOMBATLOGGING: DebugCombatLogHandler.handle,
     OpCode.CMSG_DEBUG_AISTATE: DebugAIStateHandler.handle,
     OpCode.CMSG_BANKER_ACTIVATE: BankerActivateHandler.handle,
     OpCode.CMSG_BUY_BANK_SLOT: BuyBankSlotHandler.handle,

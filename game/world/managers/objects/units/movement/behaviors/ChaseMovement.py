@@ -5,6 +5,7 @@ from utils.Formulas import UnitFormulas, Distances
 from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import SplineFlags
+from utils.constants.CustomCodes import RelativeChaseState
 
 
 # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
@@ -20,41 +21,106 @@ class ChaseMovement(BaseMovement):
         self.unit = None
         self.combat_target = None
         self.waypoints = []
+        self._last_path_endpoint = None
+        self._last_target_guid = 0
+        self._last_target_distance = None
+        self._relative_speed = 0.0
+        self._relative_state = RelativeChaseState.NEUTRAL
 
     # override
     def update(self, now, elapsed):
         super().update(now, elapsed)
         self.combat_target = self.unit.combat_target
 
-        if not self.combat_target or not self.combat_target.is_alive:
+        can_process = self.combat_target and self.combat_target.is_alive
+        if not can_process:
+            self._last_target_distance = None
+            self._relative_speed = 0.0
+            self._relative_state = RelativeChaseState.NEUTRAL
+            self._last_target_guid = 0
             return
+
+        if self.combat_target.guid != self._last_target_guid:
+            self._last_target_guid = self.combat_target.guid
+            self._last_target_distance = None
+            self._relative_speed = 0.0
+            self._relative_state = RelativeChaseState.NEUTRAL
+
+        current_distance = self.unit.location.distance(self.combat_target.location)
+        if elapsed > 0:
+            if self._last_target_distance is not None:
+                self._relative_speed = (current_distance - self._last_target_distance) / elapsed
+            self._last_target_distance = current_distance
+            self._relative_state = self._resolve_relative_state(self._relative_speed)
 
         if self._is_within_combat_distance():
             if self.spline:
                 self.stop()
             # Face the target if necessary.
-            elif not self.unit.location.has_in_arc(self.combat_target.location):
+            if not self.unit.location.has_in_arc(self.combat_target.location, arc=math.pi / 2):
                 self.unit.movement_manager.face_target(self.combat_target)
-            return
+        else:
+            # Avoid units trying to turn and face the target as they run.
+            if self.unit.current_target:
+                self.unit.set_current_target(0)
 
-        if self._should_regenerate_path():
-            self.waypoints = self._regenerate_path()
+            if self._should_regenerate_path():
+                self.waypoints = self._regenerate_path()
+                if self.waypoints:
+                    self._last_path_endpoint = self.waypoints[-1]
 
-        if self._can_chase():
-            self.speed_dirty = False
-            self._perform_waypoint()
+            if self._can_chase():
+                self.speed_dirty = False
+                self._perform_waypoint()
 
     def _perform_waypoint(self):
-        # Avoid units trying to turn and face the target as they run.
-        if self.unit.current_target:
-            self.unit.set_current_target(0)
+        spline = self._build_chase_spline()
+        if not spline:
+            return
+        self.spline_callback(spline, movement_behavior=self)
 
-        waypoint = self._get_waypoint()
+    def _build_chase_spline(self):
+        if not self.waypoints:
+            return None
+        speed, spline_flags = self._get_chase_spline_params()
+        full_path = self.waypoints.copy()
+        if len(full_path) > 1:
+            packed_spline = self._build_packed_spline(full_path, speed, spline_flags)
+            if packed_spline:
+                self._last_path_endpoint = full_path[-1]
+                self.waypoints.clear()
+                return packed_spline
+        return self._build_single_point_spline(speed, spline_flags)
+
+    def _get_chase_spline_params(self):
         swimming = self.unit.is_swimming()
         speed = self.unit.running_speed if not swimming else self.unit.swim_speed
         spline_flags = SplineFlags.SPLINEFLAG_RUNMODE if not swimming else SplineFlags.SPLINEFLAG_NONE
-        spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint], speed=speed, spline_flags=spline_flags)
-        self.spline_callback(spline, movement_behavior=self)
+        return speed, spline_flags
+
+    def _build_packed_spline(self, points, speed, spline_flags):
+        # Client packed-delta format caps x/y to +/-255.875 and z to +/-15.875 from the endpoint.
+        # Only non-flying splines can use packed deltas.
+        spline = SplineBuilder.build_normal_spline(
+            self.unit,
+            points=points,
+            speed=speed,
+            spline_flags=spline_flags,
+            use_packed_deltas=True,
+        )
+        return spline if spline.can_pack_deltas() else None
+
+    def _build_single_point_spline(self, speed, spline_flags):
+        waypoint = self._get_waypoint()
+        if not waypoint:
+            return None
+        self._last_path_endpoint = waypoint
+        return SplineBuilder.build_normal_spline(
+            self.unit,
+            points=[waypoint],
+            speed=speed,
+            spline_flags=spline_flags,
+        )
 
     def _regenerate_path(self):
         if not self.combat_target:
@@ -94,10 +160,20 @@ class ChaseMovement(BaseMovement):
         if self._is_within_combat_distance():
             return None
 
-        final_path = [self.combat_target.location]
+        target_location = self.combat_target.location
+        if not self.unit.is_player() and not self.combat_target.is_player():
+            distance = self.unit.location.distance(target_location) - self._get_combat_stop_distance()
+            distance = max(distance, 0.0)
+            target_location = self.unit.location.get_point_in_between(self.unit,
+                                                                      distance,
+                                                                      target_location,
+                                                                      map_id=self.unit.map_id)
+
+        final_path = [target_location]
         # Use direct combat location if target is over water.
         if not target_swimming:
-            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, final_path[0])
+            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, final_path[0],
+                                                                        smooth=True, clamp_endpoint=True)
             if not failed and not in_place:
                 final_path = path
             elif in_place:
@@ -109,10 +185,7 @@ class ChaseMovement(BaseMovement):
         if not self.combat_target:
             return False
 
-        combat_distance = UnitFormulas.combat_distance(self.unit, self.combat_target)
-        if self.combat_target.is_moving():
-            # Use less distance if target is moving.
-            combat_distance = combat_distance / 1.1
+        combat_distance = self._get_combat_stop_distance()
 
         # From a given point.
         if source_vector:
@@ -121,6 +194,75 @@ class ChaseMovement(BaseMovement):
         #  From self-unit to combat target.
         return self.unit.location.distance(self.combat_target.location) < combat_distance
 
+    def _get_combat_stop_distance(self):
+        base_distance = UnitFormulas.combat_distance(self.unit, self.combat_target)
+        # Add a small buffer to reduce overlaps during chase.
+        base_distance += 0.3
+        moving_away = self._relative_state == RelativeChaseState.AWAY
+        moving_towards = self._relative_state == RelativeChaseState.CLASH
+        # If both are moving fast, add a bit more space to avoid overshooting.
+        if not moving_away:
+            self_speed = self.unit.movement_manager.get_speed()
+            target_speed = self.combat_target.movement_manager.get_speed() if self.combat_target.is_unit() else 0
+            base_distance += min(1.0, (self_speed + target_speed) * 0.05)
+        # Both units running towards each other, use a bit more distance to avoid overlap.
+        if moving_towards and self.combat_target.is_moving() and self.combat_target.is_unit():
+            base_distance = base_distance * 1.3
+        return base_distance
+
+    def _resolve_relative_state(self, relative_speed):
+        dir_state = self._resolve_directional_state()
+        if dir_state:
+            return dir_state
+
+        # Hysteresis to avoid rapid state flipping on small oscillations.
+        if self._relative_state == RelativeChaseState.AWAY:
+            return RelativeChaseState.AWAY if relative_speed > 0.05 else RelativeChaseState.NEUTRAL
+        if self._relative_state == RelativeChaseState.CLASH:
+            return RelativeChaseState.CLASH if relative_speed < -0.05 else RelativeChaseState.NEUTRAL
+
+        if relative_speed > 0.2:
+            return RelativeChaseState.AWAY
+        if relative_speed < -0.2:
+            return RelativeChaseState.CLASH
+        return RelativeChaseState.NEUTRAL
+
+    def _resolve_directional_state(self):
+        if not self.combat_target or not self.combat_target.is_moving():
+            return None
+
+        dir_vector = self._get_target_move_dir()
+        if not dir_vector:
+            return None
+
+        to_chaser_x = self.unit.location.x - self.combat_target.location.x
+        to_chaser_y = self.unit.location.y - self.combat_target.location.y
+        to_chaser_len = math.hypot(to_chaser_x, to_chaser_y)
+        if to_chaser_len == 0:
+            return None
+
+        to_chaser_x /= to_chaser_len
+        to_chaser_y /= to_chaser_len
+
+        dot = (dir_vector[0] * to_chaser_x) + (dir_vector[1] * to_chaser_y)
+        if dot > 0.3:
+            return RelativeChaseState.CLASH
+        if dot < -0.3:
+            return RelativeChaseState.AWAY
+        return RelativeChaseState.NEUTRAL
+
+    def _get_target_move_dir(self):
+        waypoint = self.combat_target.movement_manager.get_waypoint_location()
+        if waypoint and waypoint != self.combat_target.location:
+            dx = waypoint.x - self.combat_target.location.x
+            dy = waypoint.y - self.combat_target.location.y
+            length = math.hypot(dx, dy)
+            if length > 0:
+                return dx / length, dy / length
+
+        # Fallback to orientation if moving but no spline waypoint.
+        orientation = self.combat_target.location.o
+        return math.sin(orientation), math.cos(orientation)
 
     def _should_regenerate_path(self):
         if not self.combat_target:
@@ -131,11 +273,12 @@ class ChaseMovement(BaseMovement):
         if self.unit.object_ai and not self.unit.object_ai.is_combat_movement_enabled():
             return False
         if self.speed_dirty or not self.waypoints:
-            return True
-        if self.combat_target.is_moving():
-            return True
-        # The last known waypoint is beyond combat distance, regenerate.
-        return not self._is_within_combat_distance(source_vector=self.waypoints[-1])
+            return self.speed_dirty or not self.spline
+        # The last known endpoint is beyond combat distance, regenerate.
+        last_endpoint = self.waypoints[-1] if self.waypoints else self._last_path_endpoint
+        if not last_endpoint:
+            return False
+        return not self._is_within_combat_distance(source_vector=last_endpoint)
 
     def _can_chase(self):
         if not self.waypoints:
@@ -168,9 +311,16 @@ class ChaseMovement(BaseMovement):
         if self.waypoints:
             self.waypoints.clear()
         self.unit.movement_manager.stop()
+        self._last_path_endpoint = None
         # Restore current target.
         if self.combat_target and not self.unit.current_target:
             self.unit.set_current_target(self.combat_target.guid)
+
+    def on_movement_paused(self):
+        if self.waypoints:
+            self.waypoints.clear()
+        self.speed_dirty = True
+        self._last_path_endpoint = None
 
     # override
     def on_removed(self):
@@ -178,7 +328,7 @@ class ChaseMovement(BaseMovement):
 
     # override
     def can_remove(self):
-        return (not self.unit.combat_target and not self.unit.in_combat) \
+        return (not self.unit.combat_target and not self.unit.in_combat and not self.unit.threat_manager.has_aggro()) \
             or self.unit.is_evading or not self.unit.is_alive
 
     # override

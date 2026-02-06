@@ -9,6 +9,7 @@ from utils.constants.AuthCodes import Srp6ResponseType, AuthCode
 
 
 class AccountManager:
+    EXPECTED_SRP_KEY_SIZE = 32
 
     def __init__(self, account):
         self.account = account
@@ -33,8 +34,25 @@ class AccountManager:
     # Srp6 - AuthSession.
 
     def update_server_public_private_keys(self):
-        self._server_private_key = os.urandom(32)
+        self._server_private_key = os.urandom(self.EXPECTED_SRP_KEY_SIZE)
         self._server_public_key = Srp6.calculate_server_public_key(self.get_verifier_bytes(), self._server_private_key)
+
+    def _ensure_server_keys(self):
+        if len(self._server_private_key) != self.EXPECTED_SRP_KEY_SIZE \
+                or len(self._server_public_key) != self.EXPECTED_SRP_KEY_SIZE:
+            self.update_server_public_private_keys()
+
+    def _is_valid_client_public_key(self, client_public_key: bytes) -> bool:
+        if len(client_public_key) != self.EXPECTED_SRP_KEY_SIZE:
+            return False
+        return int.from_bytes(client_public_key, byteorder='little') % Srp6.N != 0
+
+    def clear_srp_state(self):
+        self._server_public_key = b''
+        self._server_private_key = b''
+        self._client_public_key = b''
+        self._session_key = b''
+        self._client_server_proof = b''
 
     def get_salt_bytes(self) -> bytes:
         return bytes.fromhex(self.account.salt)
@@ -43,8 +61,13 @@ class AccountManager:
         return bytes.fromhex(self.account.verifier)
 
     def calculate_client_server_proof(self, client_public_key):
+        if not self._is_valid_client_public_key(client_public_key):
+            return b''
+        self._ensure_server_keys()
         self._client_public_key = client_public_key
         u = Srp6.calculate_u(client_public_key, self._server_public_key)
+        if int.from_bytes(u, byteorder='little') == 0:
+            return b''
         s_key = Srp6.calculate_server_s_key(client_public_key, self.get_verifier_bytes(), u, self._server_private_key)
         self._session_key = Srp6.calculate_interleaved(s_key)
         self._client_server_proof = Srp6.calculate_client_proof(Srp6.xorNg, self.account.name, self._session_key,
@@ -57,7 +80,9 @@ class AccountManager:
         data = pack('<2B', AuthCode.AUTH_OK, Srp6ResponseType.AuthProof)
         data += s_m2
         data += pack('<I', 0)
-        return PacketWriter.get_srp6_packet(data)
+        packet = PacketWriter.get_srp6_packet(data)
+        self.clear_srp_state()
+        return packet
 
     def get_srp6_server_proof(self) -> bytes:
         return Srp6.calculate_server_proof(self._client_public_key, self._client_server_proof, self._session_key)

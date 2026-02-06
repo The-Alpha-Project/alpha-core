@@ -15,6 +15,9 @@ class PathManager:
 
     # Navs.
     NAVS_RELATIVE_PATH = 'etc/navs/'
+    # Patches.
+    PATCHES_RELATIVE_PATH = 'etc/patches/'
+    PATCHES_RSYNC_RELATIVE_PATH = 'etc/patches/rsync_basis/'
 
     # Git.
     GIT_RELATIVE_PATH = '.git/'
@@ -54,6 +57,14 @@ class PathManager:
     @staticmethod
     def get_nav_map_path(map_name):
         return path.join(path.join(PathManager.get_navs_path(), 'Nav'), map_name)
+
+    @staticmethod
+    def get_patches_path():
+        return path.join(PathManager.ROOT_PATH, PathManager.PATCHES_RELATIVE_PATH)
+
+    @staticmethod
+    def get_patches_rsync_basis_path():
+        return path.join(PathManager.ROOT_PATH, PathManager.PATCHES_RSYNC_RELATIVE_PATH)
 
     @staticmethod
     def get_maps_path():

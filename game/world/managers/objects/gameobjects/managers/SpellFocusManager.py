@@ -24,7 +24,6 @@ class SpellFocusManager(GameObjectManager):
         if self.is_active_object():
             self._check_linked_trap()
 
-        self.last_tick = now
         super().update(now)
 
     # override

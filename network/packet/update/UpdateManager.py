@@ -1,6 +1,7 @@
 from threading import RLock
 from network.packet.update.UpdateBuilder import UpdateBuilder
 from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import UpdateFlags
 
 
 class UpdateManager:
@@ -83,8 +84,10 @@ class UpdateManager:
             self.update_builder.process_update()  # Notify instantly.
 
     # Player update, packets are sent immediately.
-    def _update_self(self, has_changes, inventory_changes, update_data):
+    def _update_self(self, update_flags, update_data):
         with self._lock:
+            has_changes = update_flags & UpdateFlags.CHANGES
+            inventory_changes = update_flags & UpdateFlags.INVENTORY
             # Inventory.
             if inventory_changes:
                 item_queries, item_create_packets, item_partial_packets = self.player_mgr.get_inventory_update_packets(
@@ -102,13 +105,14 @@ class UpdateManager:
 
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
-    def update_world_object_on_self(self, world_object, has_changes=False, has_inventory_changes=False, update_data=None):
+    def update_world_object_on_self(self, world_object, update_flags=UpdateFlags.NONE, update_data=None):
         with self._lock:
-            # Self updates, send directly.
+            # Self-updates, send directly.
             if world_object.guid == self.player_mgr.guid:
-                self._update_self(has_changes, has_inventory_changes, update_data)
+                self._update_self(update_flags, update_data)
                 return
 
+            has_changes = update_flags & UpdateFlags.CHANGES
             can_detect = self.player_mgr.can_detect_target(world_object)[0]
             if world_object.guid in self.player_mgr.known_objects and can_detect and has_changes:
                 if not world_object.is_spawned:

@@ -34,7 +34,7 @@ class AuraManager:
                 aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and not \
                 self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED):
             AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)
-            return
+            return -1
 
         if not self.can_apply_aura(aura):
             return -1

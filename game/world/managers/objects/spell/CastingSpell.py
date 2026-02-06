@@ -13,11 +13,12 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
 from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers, SpellThreatInfo
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
+from game.world.managers.objects.units.SpellAdvancedLogging import SpellAdvancedLogging
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
-from utils.constants.MiscCodes import  AttackTypes, HitInfo
+from utils.constants.MiscCodes import  AttackTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags, \
@@ -636,7 +637,13 @@ class CastingSpell:
                                        base_damage=damage, damage_school_mask=self.get_damage_school_mask(),
                                        spell_id=self.spell_entry.ID, spell_school=self.get_damage_school(),
                                        total_damage=max(0, damage - absorb), absorb=absorb,
-                                       hit_info=HitInfo.DAMAGE if not healing else SpellHitFlags.HEALED)
+                                       spell_hit_flags=SpellHitFlags.DAMAGE if not healing else SpellHitFlags.HEALED)
+        logging = SpellAdvancedLogging()
+        logging.min_damage = int(damage_info.base_damage)
+        logging.max_damage = int(damage_info.base_damage)
+        logging.scaled_damage = float(damage_info.base_damage)
+        logging.damage_type = int(damage_info.spell_school)
+        damage_info.spell_advanced_logging = logging
         return damage_info
 
     def load_effects(self):

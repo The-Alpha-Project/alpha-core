@@ -17,14 +17,14 @@ class UpdateManager:
         with SocketBuilder.build_socket(update_host, update_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
-            Logger.success(f'Update server started, listening on {real_binding[0]}:{real_binding[1]}')
+            Logger.success(f'[UpdateServer] Started, listening on {real_binding[0]}:{real_binding[1]}')
             shared_state.UPDATE_SERVER_READY = True
 
             try:
                 while shared_state.RUNNING:
                     try:
                         client_socket, client_address = server_socket.accept()
-                        Logger.debug(f'Update server accepted {client_address}')
+                        Logger.debug(f'[UpdateServer] Accepted {client_address}')
                         server_handler = UpdateSessionStateHandler(client_socket, client_address)
                         update_session_thread = threading.Thread(target=server_handler.handle)
                         update_session_thread.daemon = True
@@ -36,4 +36,4 @@ class UpdateManager:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("Update server turned off.")
+        Logger.info('[UpdateServer] Turned off.')

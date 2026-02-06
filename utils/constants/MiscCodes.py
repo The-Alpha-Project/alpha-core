@@ -56,6 +56,12 @@ class UpdateTypes(IntEnum):
     NEAR_OBJECTS = 4
 
 
+class UpdateFlags(IntFlag):
+    NONE = 0
+    CHANGES = 1 << 0
+    INVENTORY = 1 << 1
+
+
 # Some might be unused on Alpha
 class HighGuid(IntEnum):
 
@@ -100,13 +106,13 @@ class HitInfo(IntFlag):
     DAMAGE = 0x00000000
     MISS = 0x00000001
     SUCCESS = 0x00000002
-    UNIT_DEAD = 0x00000004  # unit died because of this attack
+    UNIT_DEAD = 0x00000004  # Unit died because of this attack (victim animation hint).
     CRITICAL_HIT = 0x00000008
-    STUN = 0x00000010
+    STUN = 0x00000010  # Advanced logging flag (stun roll info).
     PARRY = 0x00000020
     DODGE = 0x00000040
     BLOCK = 0x00000080
-    COOLDOWN = 0x00000100  # ?
+    COOLDOWN = 0x00000100  # Advanced logging flag (stun cooldown).
     OFFHAND = 0x00000200
     CRUSHING = 0x0000400
     UNKNOWN1 = 0x0000800
@@ -145,7 +151,7 @@ class VictimStates(IntEnum):
     VS_DODGE = 2
     VS_PARRY = 3
     VS_INTERRUPT = 4
-    VS_BLOCK = 5  # unused? not set when blocked even on full block
+    VS_BLOCK = 5
     VS_EVADE = 6
     VS_IMMUNE = 7
     VS_DEFLECT = 8
@@ -916,11 +922,7 @@ class GuildEvents(IntEnum):
     GUILD_EVENT_LEADER_IS = 0x6
     GUILD_EVENT_LEADER_CHANGED = 0x7
     GUILD_EVENT_DISBANDED = 0x8
-    GUILD_EVENT_TABARDCHANGE = 0x9
-    GUILD_EVENT_UNK1 = 0xA
-    GUILD_EVENT_UNK2 = 0xB
-    GUILD_EVENT_HASCOMEONLINE = 0xC
-    GUILD_EVENT_HASGONEOFFLINE = 0xD
+    GUILD_EVENT_TABARDCHANGE = 0x9  # Not implemented client-side.
 
 
 class GuildChatMessageTypes(IntEnum):

@@ -10,6 +10,9 @@ from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.aura.AuraManager import AuraManager
+from game.world.managers.objects.units.AttackRollInfo import AttackRollInfo
+from game.world.managers.objects.units.AttackRoundAdvancedLogging import AttackRoundAdvancedLogging
+from game.world.managers.objects.units.SpellAdvancedLogging import SpellAdvancedLogging
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.movement.MovementInfo import MovementInfo
 from game.world.managers.objects.units.movement.MovementManager import MovementManager
@@ -177,6 +180,10 @@ class UnitManager(ObjectManager):
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
+        # Milliseconds since last swing per attack type (used for attack round advanced logging).
+        self.attack_swing_elapsed = {AttackTypes.BASE_ATTACK: 0,
+                                     AttackTypes.OFFHAND_ATTACK: 0,
+                                     AttackTypes.RANGED_ATTACK: 0}
 
         # Used to determine the current state of the unit (internal usage).
         self.unit_state = UnitStates.NONE
@@ -371,9 +378,12 @@ class UnitManager(ObjectManager):
         return self.update_melee_attacking_state()
 
     def update_attack_timers(self, elapsed):
-        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
+        elapsed_ms = elapsed * 1000.0
+        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed_ms)
+        self.attack_swing_elapsed[AttackTypes.BASE_ATTACK] += elapsed_ms
         if self.has_offhand_weapon():
-            self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
+            self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed_ms)
+            self.attack_swing_elapsed[AttackTypes.OFFHAND_ATTACK] += elapsed_ms
 
     def update_melee_attacking_state(self):
         main_attack_ready = self.is_attack_ready(AttackTypes.BASE_ATTACK)
@@ -418,6 +428,7 @@ class UnitManager(ObjectManager):
                 main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK)
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
+                self.attack_swing_elapsed[AttackTypes.BASE_ATTACK] = 0
 
             # Offhand attack.
             if off_hand_attack_ready:
@@ -428,6 +439,7 @@ class UnitManager(ObjectManager):
                 off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK)
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
+                self.attack_swing_elapsed[AttackTypes.OFFHAND_ATTACK] = 0
 
         if swing_error != AttackSwingError.NONE:
             if self.is_player():
@@ -456,18 +468,24 @@ class UnitManager(ObjectManager):
             if melee_spell and self.spell_manager.cast_queued_melee_ability(attack_type):
                 # Send attack update with deferred logging to display the cast in combat log/floating text.
                 damage_info = DamageInfoHolder(attacker=self, target=victim,
-                                               spell_id=melee_spell.spell_entry.ID, hit_info=HitInfo.DEFERRED_LOGGING)
+                                               spell_id=melee_spell.spell_entry.ID,
+                                               attack_round_hit_info=HitInfo.DEFERRED_LOGGING)
                 self.send_attack_state_update(damage_info)
                 return
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
 
         if damage_info.total_damage > 0:
-            victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
+            interrupted = victim.spell_manager.check_spell_interrupts(
+                received_auto_attack=True,
+                hit_info=damage_info.attack_round_hit_info,
+            )
+            if interrupted and damage_info.target_state == VictimStates.VS_WOUND:
+                damage_info.target_state = VictimStates.VS_INTERRUPT
 
         self.handle_melee_attack_procs(damage_info)
 
-        if damage_info.hit_info & HitInfo.UNIT_DEAD:
+        if damage_info.attack_round_hit_info & HitInfo.UNIT_DEAD:
             self.extra_attacks = 0
 
         self.send_attack_state_update(damage_info)
@@ -517,66 +535,157 @@ class UnitManager(ObjectManager):
                                        attack_type=attack_type,
                                        damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
 
-        damage_info.hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
-                                                                                  dual_wield_penalty=dual_wield_penalty)
+        roll_info = AttackRollInfo()
+        damage_info.attack_round_hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
+                                                                                  dual_wield_penalty=dual_wield_penalty,
+                                                                                  roll_info=roll_info)
+        damage_info.advanced_logging = AttackRoundAdvancedLogging(roll_info=roll_info)
+        if attack_type == AttackTypes.OFFHAND_ATTACK:
+            damage_info.dual_wield_hit_roll = roll_info.miss_roll
+            damage_info.dual_wield_hit_roll_needed = roll_info.miss_roll_needed
 
-        damage_info.base_damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
+        min_damage, max_damage = self.calculate_min_max_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
+        if min_damage > max_damage:
+            min_damage, max_damage = max_damage, min_damage
+
+        rolled_damage = random.randint(min_damage, max_damage)
+        damage_info.raw_damage = rolled_damage
+
+        equipped_weapon = self.get_current_weapon_for_attack_type(attack_type)
+        subclass = equipped_weapon.item_template.subclass if equipped_weapon else -1
+        weapon_type = 1 << subclass if subclass != -1 else 0
+        attack_school = SpellSchools.SPELL_SCHOOL_NORMAL
+        spell_school_mask = 1 << attack_school
+        target_creature_type = victim.creature_type
+
+        flat_done = (
+            self.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, False, spell_school_mask, True) +
+            self.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, False, weapon_type, True) +
+            self.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, False, target_creature_type)
+        )
+
+        pct_done = (
+            self.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, True, spell_school_mask, True) *
+            self.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, True, weapon_type, True) *
+            self.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_CREATURE_TYPE, True, target_creature_type)
+        )
+
+        flat_taken = victim.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_TAKEN_SCHOOL, False, spell_school_mask, True)
+        pct_taken = victim.stat_manager.get_aura_stat_bonus(UnitStats.DAMAGE_TAKEN_SCHOOL, True, spell_school_mask, True)
+
+        damage_after_done = (rolled_damage + flat_done) * pct_done
+        damage_after_taken = (damage_after_done + flat_taken) * pct_taken
+
+        min_after_done = (min_damage + flat_done) * pct_done
+        min_after_taken = (min_after_done + flat_taken) * pct_taken
+        max_after_done = (max_damage + flat_done) * pct_done
+        max_after_taken = (max_after_done + flat_taken) * pct_taken
+
+        reduction = 0.0
+        if attack_school == SpellSchools.SPELL_SCHOOL_NORMAL:
+            total_armor = victim.stat_manager.get_total_stat(UnitStats.RESISTANCE_PHYSICAL)
+            reduction = (0.3 * (total_armor - 1)) / (10 * self.level + 89)
+            reduction = max(0.0, min(0.75, reduction))
+
+        armor_reduction = max(0.0, damage_after_taken * reduction)
+        max_damage_reduction = max(0.0, max_after_taken * reduction)
+        damage_after_armor = max(0.0, damage_after_taken * (1 - reduction))
+
+        damage_info.base_damage = max(1, int(damage_after_armor))
+        damage_info.advanced_logging.min_damage = max(0, int(min_after_taken))
+        damage_info.advanced_logging.max_damage = max(0, int(max_after_taken))
+        damage_info.advanced_logging.armor_reduction = int(round(armor_reduction))
+        damage_info.advanced_logging.scaled_damage = max(0.0, float(damage_after_taken))
+        damage_info.advanced_logging.scaled_armor_reduction = max(0.0, float(armor_reduction))
+        damage_info.advanced_logging.max_damage_reduction = max(0.0, float(max_damage_reduction))
+        damage_info.advanced_logging.net_damage_multiplier = pct_done * pct_taken
+        damage_info.advanced_logging.mod_damage_done = pct_done
+        damage_info.advanced_logging.mod_damage_taken = pct_taken
+
+        if attack_type == AttackTypes.OFFHAND_ATTACK:
+            delay_time = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
+        elif attack_type == AttackTypes.RANGED_ATTACK:
+            delay_time = self.stat_manager.get_total_stat(UnitStats.RANGED_DELAY)
+        else:
+            delay_time = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
+        damage_info.advanced_logging.delay_time = int(delay_time)
+        damage_info.advanced_logging.since_last_swing = int(self.attack_swing_elapsed.get(attack_type, 0))
         damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.
 
         # Apply crit damage modifier if necessary.
-        if damage_info.hit_info & HitInfo.CRITICAL_HIT:
+        if damage_info.attack_round_hit_info & HitInfo.CRITICAL_HIT:
             damage_info.base_damage *= 2
+            damage_info.advanced_logging.scaled_damage *= 2.0
+            damage_info.advanced_logging.min_damage = int(damage_info.advanced_logging.min_damage * 2.0)
+            damage_info.advanced_logging.max_damage = int(damage_info.advanced_logging.max_damage * 2.0)
+            damage_info.advanced_logging.armor_reduction = int(round(damage_info.advanced_logging.armor_reduction * 2.0))
+            damage_info.advanced_logging.scaled_armor_reduction *= 2.0
+            damage_info.advanced_logging.max_damage_reduction *= 2.0
 
         # Apply crushing blow damage modifier if necessary.
-        if damage_info.hit_info & HitInfo.CRUSHING:
+        if damage_info.attack_round_hit_info & HitInfo.CRUSHING:
             damage_info.base_damage += int(damage_info.base_damage / 2)
+            damage_info.advanced_logging.scaled_damage *= 1.5
+            damage_info.advanced_logging.min_damage = int(damage_info.advanced_logging.min_damage * 1.5)
+            damage_info.advanced_logging.max_damage = int(damage_info.advanced_logging.max_damage * 1.5)
+            damage_info.advanced_logging.armor_reduction = int(round(damage_info.advanced_logging.armor_reduction * 1.5))
+            damage_info.advanced_logging.scaled_armor_reduction *= 1.5
+            damage_info.advanced_logging.max_damage_reduction *= 1.5
 
         # Handle school absorb.
         damage_info.absorb = victim.get_school_absorb_for_damage(damage_info)
         if damage_info.absorb:
-            damage_info.hit_info |= HitInfo.ABSORBED
+            damage_info.attack_round_hit_info |= HitInfo.ABSORBED
 
         # Handle the case in which we did not really miss but damage was 0, which should display as miss.
-        if (not damage_info.base_damage and damage_info.hit_info & HitInfo.SUCCESS and
-                not damage_info.hit_info & (HitInfo.DODGE | HitInfo.PARRY | HitInfo.BLOCK | HitInfo.ABSORBED)):
-            damage_info.hit_info = HitInfo.MISS
+        if (not damage_info.base_damage and damage_info.attack_round_hit_info & HitInfo.SUCCESS and
+                not damage_info.attack_round_hit_info & (HitInfo.DODGE | HitInfo.PARRY | HitInfo.BLOCK | HitInfo.ABSORBED)):
+            damage_info.attack_round_hit_info = HitInfo.MISS
 
         # Check evade, there is no HitInfo flag for this.
         if victim.is_evading:
             damage_info.target_state = VictimStates.VS_EVADE
-        elif damage_info.hit_info & HitInfo.MISS:
-            damage_info.hit_info &= ~HitInfo.SUCCESS
+            damage_info.base_damage = damage_info.total_damage = 0
+            damage_info.proc_ex |= ProcFlagsExLegacy.EVADE
+        elif damage_info.attack_round_hit_info & HitInfo.MISS:
+            damage_info.attack_round_hit_info &= ~HitInfo.SUCCESS
             damage_info.base_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_NONE
-        elif damage_info.hit_info & HitInfo.ABSORBED:
+            damage_info.proc_ex |= ProcFlagsExLegacy.MISS
+        elif damage_info.attack_round_hit_info & HitInfo.ABSORBED:
             # Immune.
             if not damage_info.absorb:
-                damage_info.hit_info &= ~HitInfo.SUCCESS
+                damage_info.attack_round_hit_info &= ~HitInfo.SUCCESS
                 damage_info.base_damage = damage_info.total_damage = 0
                 damage_info.target_state = VictimStates.VS_IMMUNE
+                damage_info.proc_ex |= ProcFlagsExLegacy.IMMUNE
             # Absorb.
             else:
+                damage_info.proc_ex |= ProcFlagsExLegacy.ABSORB
                 # Complete absorb.
                 if damage_info.base_damage == damage_info.absorb:
-                    damage_info.hit_info &= ~HitInfo.SUCCESS
+                    damage_info.attack_round_hit_info &= ~HitInfo.SUCCESS
                 damage_info.total_damage = max(0, damage_info.base_damage - damage_info.absorb)
-        elif damage_info.hit_info & HitInfo.DODGE:
+        elif damage_info.attack_round_hit_info & HitInfo.DODGE:
             damage_info.base_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_DODGE
             damage_info.proc_victim |= ProcFlags.DODGE
-        elif damage_info.hit_info & HitInfo.PARRY:
+            damage_info.proc_ex |= ProcFlagsExLegacy.DODGE
+        elif damage_info.attack_round_hit_info & HitInfo.PARRY:
             damage_info.base_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_PARRY
             damage_info.proc_victim |= ProcFlags.PARRY
-        elif damage_info.hit_info & HitInfo.BLOCK:
+            damage_info.proc_ex |= ProcFlagsExLegacy.PARRY
+        elif damage_info.attack_round_hit_info & HitInfo.BLOCK:
             # 0.6 patch notes: "Blocking an attack no longer avoids all of the damage of an attack."
             # Completely mitigate damage on block.
             damage_info.base_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_BLOCK
             damage_info.proc_victim |= ProcFlags.BLOCK
+            damage_info.proc_ex |= ProcFlagsExLegacy.BLOCK | ProcFlagsExLegacy.FULL_BLOCK
         else:  # Successful attack.
-            if damage_info.hit_info & HitInfo.CRITICAL_HIT:
-                damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
+            if damage_info.attack_round_hit_info & HitInfo.CRITICAL_HIT:
+                damage_info.proc_ex |= ProcFlagsExLegacy.CRITICAL_HIT
 
             damage_info.proc_ex |= ProcFlagsExLegacy.NORMAL_HIT
             damage_info.target_state = VictimStates.VS_WOUND  # Normal hit.
@@ -605,19 +714,48 @@ class UnitManager(ObjectManager):
             damage_info.proc_attacker |= ProcFlags.SWING
         elif attack_type == AttackTypes.OFFHAND_ATTACK:
             damage_info.proc_attacker |= ProcFlags.SWING
-            damage_info.hit_info |= HitInfo.OFFHAND
+            damage_info.attack_round_hit_info |= HitInfo.OFFHAND
 
         # If the victim is going to die due this attack.
         if victim.health - damage_info.total_damage <= 0:
-            damage_info.hit_info |= HitInfo.UNIT_DEAD
+            damage_info.attack_round_hit_info |= HitInfo.UNIT_DEAD
             damage_info.proc_attacker |= ProcFlags.KILL
 
         return damage_info
 
+    def is_combat_log_debug_enabled(self) -> bool:
+        return self.is_player() and bool(self.unit_flags & UnitFlags.UNIT_FLAG_DEBUG_COMBAT_LOGGING)
+
+    def _get_debug_combat_log_players(self, include_self=True):
+        debug_players = []
+        map_ = self.get_map()
+        if map_:
+            for player in map_.get_surrounding_players(self).values():
+                if not player.online:
+                    continue
+                if not include_self and player.guid == self.guid:
+                    continue
+                if not player.is_combat_log_debug_enabled():
+                    continue
+                if player.guid != self.guid and self.guid not in player.known_objects:
+                    continue
+                debug_players.append(player)
+
+        if include_self and self.is_combat_log_debug_enabled() and self.guid not in {p.guid for p in debug_players}:
+            debug_players.append(self)
+
+        return debug_players
+
     def send_attack_state_update(self, damage_info):
         is_player = self.is_player()
-        attack_state_packet = damage_info.get_attacker_state_update_packet()
-        self.get_map().send_surrounding(attack_state_packet, self, include_self=is_player)
+        debug_players = self._get_debug_combat_log_players(include_self=is_player)
+        debug_guids = {player.guid for player in debug_players}
+        if debug_players:
+            debug_packet = damage_info.get_attacker_state_update_packet(include_advanced_logging=True)
+            for player in debug_players:
+                player.enqueue_packet(debug_packet)
+        attack_state_packet = damage_info.get_attacker_state_update_packet(include_advanced_logging=False)
+        self.get_map().send_surrounding(attack_state_packet, self, include_self=is_player, exclude=debug_guids or None)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
                                      used_ammo: Optional[ItemManager] = None, apply_bonuses=True):
@@ -776,29 +914,67 @@ class UnitManager(ObjectManager):
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-    def calculate_spell_damage(self, base_damage, miss_reason, hit_flags, spell_effect, target):
+    def calculate_spell_damage(self, base_damage, miss_reason, hit_flags, spell_effect, target,
+                               spell_logging: SpellAdvancedLogging = None):
         spell = spell_effect.casting_spell
+        base_damage_input = base_damage
         damage_info = DamageInfoHolder(attacker=self, target=target,
                                        damage_school_mask=spell.get_damage_school_mask(),
                                        spell_id=spell.spell_entry.ID,
                                        spell_school=spell.get_damage_school(),
-                                       spell_miss_reason=miss_reason, hit_info=hit_flags)
+                                       spell_miss_reason=miss_reason, spell_hit_flags=hit_flags)
+        logging = spell_logging or SpellAdvancedLogging()
+        damage_info.spell_advanced_logging = logging
+        # Track periodic ticks so floating text doesn't get deferred as a melee swing.
+        damage_info.is_periodic = spell_effect.is_periodic()
 
-        if spell.is_weapon_attack():
+        cast_on_swing = spell.casts_on_swing() and not spell_effect.is_periodic()
+        is_weapon_attack = spell.is_weapon_attack()
+
+        if is_weapon_attack:
             damage_info.attack_type = spell.get_attack_type()
+            if damage_info.attack_type == AttackTypes.OFFHAND_ATTACK:
+                damage_info.attack_round_hit_info |= HitInfo.OFFHAND
 
-        if spell.casts_on_swing():
-            damage_info.hit_info |= HitInfo.DEFERRED_LOGGING
-
-        if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
-            damage_info.target_state = VictimStates.VS_IMMUNE
+        if cast_on_swing:
+            damage_info.attack_round_hit_info |= HitInfo.DEFERRED_LOGGING
 
         if miss_reason == SpellMissReason.MISS_REASON_RESIST:
-            damage_info.proc_ex = ProcFlagsExLegacy.RESIST
+            damage_info.proc_ex |= ProcFlagsExLegacy.RESIST
             damage_info.base_damage = base_damage
             damage_info.resist = base_damage
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
+            if miss_reason == SpellMissReason.MISS_REASON_PHYSICAL:
+                damage_info.attack_round_hit_info |= HitInfo.MISS
+                damage_info.proc_ex |= ProcFlagsExLegacy.MISS
+                damage_info.target_state = VictimStates.VS_NONE
+            elif miss_reason == SpellMissReason.MISS_REASON_EVADED:
+                damage_info.attack_round_hit_info |= HitInfo.SUCCESS
+                damage_info.target_state = VictimStates.VS_EVADE
+                damage_info.proc_ex |= ProcFlagsExLegacy.EVADE
+            elif miss_reason in {SpellMissReason.MISS_REASON_IMMUNE, SpellMissReason.MISS_REASON_TEMPIMMUNE}:
+                damage_info.target_state = VictimStates.VS_IMMUNE
+                damage_info.proc_ex |= ProcFlagsExLegacy.IMMUNE
+            elif miss_reason == SpellMissReason.MISS_REASON_DEFLECTED:
+                damage_info.attack_round_hit_info |= HitInfo.DEFLECT | HitInfo.SUCCESS
+                damage_info.target_state = VictimStates.VS_DEFLECT
+                damage_info.proc_ex |= ProcFlagsExLegacy.DEFLECT
+            elif miss_reason == SpellMissReason.MISS_REASON_DODGED:
+                damage_info.attack_round_hit_info |= HitInfo.DODGE | HitInfo.SUCCESS
+                damage_info.target_state = VictimStates.VS_DODGE
+                damage_info.proc_victim |= ProcFlags.DODGE
+                damage_info.proc_ex |= ProcFlagsExLegacy.DODGE
+            elif miss_reason == SpellMissReason.MISS_REASON_PARRIED:
+                damage_info.attack_round_hit_info |= HitInfo.PARRY | HitInfo.SUCCESS
+                damage_info.target_state = VictimStates.VS_PARRY
+                damage_info.proc_victim |= ProcFlags.PARRY
+                damage_info.proc_ex |= ProcFlagsExLegacy.PARRY
+            elif miss_reason == SpellMissReason.MISS_REASON_BLOCKED:
+                damage_info.attack_round_hit_info |= HitInfo.BLOCK | HitInfo.SUCCESS
+                damage_info.target_state = VictimStates.VS_BLOCK
+                damage_info.proc_victim |= ProcFlags.BLOCK
+                damage_info.proc_ex |= ProcFlagsExLegacy.BLOCK | ProcFlagsExLegacy.FULL_BLOCK
             return damage_info
 
         subclass = -1
@@ -820,26 +996,43 @@ class UnitManager(ObjectManager):
             damage_info.base_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
                                                                                  target, subclass)
 
+        logging.min_damage = int(damage_info.base_damage)
+        logging.max_damage = int(damage_info.base_damage)
+        logging.scaled_damage = float(damage_info.base_damage)
+        logging.damage_type = int(damage_info.spell_school)
+        logging.aura_effect_id = int(getattr(spell_effect, 'aura_type', 0))
+        if base_damage_input:
+            logging.net_damage_multiplier = float(damage_info.base_damage) / float(base_damage_input)
+
         # From 0.5.5 patch notes:
         #     "Critical hits with ranged weapons now do 100% extra damage."
         # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
         # 50% sounds more logical.
-        if damage_info.hit_info & SpellHitFlags.CRIT and not spell_effect.is_periodic():
+        if damage_info.spell_hit_flags & SpellHitFlags.CRIT and not spell_effect.is_periodic():
             is_ranged = damage_info.attack_type == AttackTypes.RANGED_ATTACK
             crit_multiplier = 1.50 if is_ranged else 2.0
-            damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
+            damage_info.proc_ex |= ProcFlagsExLegacy.CRITICAL_HIT
+            if cast_on_swing or is_weapon_attack:
+                damage_info.attack_round_hit_info |= HitInfo.CRITICAL_HIT
             damage_info.base_damage = int(damage_info.base_damage * crit_multiplier)
 
         damage_info.absorb = target.get_school_absorb_for_damage(damage_info)
+        if damage_info.absorb:
+            damage_info.attack_round_hit_info |= HitInfo.ABSORBED
+            damage_info.proc_ex |= ProcFlagsExLegacy.ABSORB
         damage_info.total_damage = max(0, damage_info.base_damage - damage_info.absorb)
 
         # Reflected hits should set the reflect proc flag for combat log handling.
-        if damage_info.hit_info & SpellHitFlags.REFLECTED:
-            damage_info.proc_ex = ProcFlagsExLegacy.REFLECT
+        if damage_info.spell_hit_flags & SpellHitFlags.REFLECTED:
+            damage_info.proc_ex |= ProcFlagsExLegacy.REFLECT
+
+        if cast_on_swing or is_weapon_attack:
+            damage_info.proc_ex |= ProcFlagsExLegacy.NORMAL_HIT
+            damage_info.attack_round_hit_info |= HitInfo.SUCCESS
 
         # Target will die because of this attack.
         if target.health - damage_info.total_damage <= 0:
-            damage_info.hit_info |= HitInfo.UNIT_DEAD
+            damage_info.attack_round_hit_info |= HitInfo.UNIT_DEAD
 
         return damage_info
 
@@ -864,7 +1057,9 @@ class UnitManager(ObjectManager):
         if source is not self and damage_info.total_damage > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             if not is_periodic:
-                self.spell_manager.check_spell_interrupts(received_damage=True)
+                interrupted = self.spell_manager.check_spell_interrupts(received_damage=True)
+                if interrupted and damage_info.target_state == VictimStates.VS_WOUND:
+                    damage_info.target_state = VictimStates.VS_INTERRUPT
 
         new_health = self.health - damage_info.total_damage
         if new_health <= 0:
@@ -924,14 +1119,19 @@ class UnitManager(ObjectManager):
         target_result = spell.object_target_results.get(target.guid, None)
         if target_result:
             miss_reason, hit_flags = target_result.result, target_result.flags
+            spell_logging = target_result.advanced_logging
         elif target.is_unit(by_mask=True):
             # Proc auras (PROC_TRIGGER_DAMAGE/DAMAGE_SHIELD) have no persistent target results.
             # Roll miss reason here if the target is missing.
-            miss_reason, hit_flags = target.stat_manager.get_spell_miss_result_against_self(spell_effect.casting_spell)
+            spell_logging = SpellAdvancedLogging()
+            miss_reason, hit_flags = target.stat_manager.get_spell_miss_result_against_self(
+                spell_effect.casting_spell, spell_logging)
         else:
             miss_reason, hit_flags = SpellMissReason.MISS_REASON_NONE, SpellHitFlags.NONE
+            spell_logging = None
 
-        damage_info = self.calculate_spell_damage(damage, miss_reason, hit_flags, spell_effect, target)
+        damage_info = self.calculate_spell_damage(damage, miss_reason, hit_flags, spell_effect, target,
+                                                  spell_logging=spell_logging)
 
         cast_on_swing = spell.casts_on_swing() and not spell_effect.aura_type
 
@@ -943,7 +1143,7 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        if damage_info.hit_info & HitInfo.DEFERRED_LOGGING and self.is_alive:
+        if damage_info.attack_round_hit_info & HitInfo.DEFERRED_LOGGING and self.is_alive:
             # Spells with deferred logging aren't logged until an attack state update is sent with this flag.
             self.send_attack_state_update(damage_info)
 
@@ -980,15 +1180,30 @@ class UnitManager(ObjectManager):
 
     def send_spell_cast_debug_info(self, damage_info, casting_spell):
         is_player = self.is_player()
-        spell_debug_packet = damage_info.get_attacker_state_update_spell_info_packet()
+        is_miss = damage_info.spell_miss_reason > SpellMissReason.MISS_REASON_NONE
+        if is_miss:
+            spell_debug_packet = damage_info.get_attacker_state_update_spell_miss_packet()
+            debug_packet = None
+        else:
+            spell_debug_packet = damage_info.get_attacker_state_update_spell_hit_packet(include_advanced_logging=False)
+            debug_packet = damage_info.get_attacker_state_update_spell_hit_packet(include_advanced_logging=True)
         target_is_player = damage_info.target.is_player()
-        if not damage_info.hit_info & SpellHitFlags.HEALED:
-            self.get_map().send_surrounding(spell_debug_packet, self, include_self=is_player)
+        if not damage_info.spell_hit_flags & SpellHitFlags.HEALED:
+            debug_players = self._get_debug_combat_log_players(include_self=is_player)
+            debug_guids = {player.guid for player in debug_players} if debug_packet and debug_players else set()
+            if debug_packet and debug_players:
+                for player in debug_players:
+                    player.enqueue_packet(debug_packet)
+            self.get_map().send_surrounding(spell_debug_packet, self, include_self=is_player, exclude=debug_guids or None)
             damage_done_packet = damage_info.get_damage_done_packet()
             self.get_map().send_surrounding(damage_done_packet, self, include_self=is_player)
         # Healing effects are displayed to the affected player only.
         elif casting_spell.initial_target_is_player() and target_is_player:
-            damage_info.target.enqueue_packet(spell_debug_packet)
+            target = damage_info.target
+            if debug_packet and target.is_combat_log_debug_enabled():
+                target.enqueue_packet(debug_packet)
+            else:
+                target.enqueue_packet(spell_debug_packet)
 
         if damage_info.resist:
             self.spell_manager.send_spell_resist_result(casting_spell, damage_info)
@@ -1167,7 +1382,7 @@ class UnitManager(ObjectManager):
         return None
 
     # override
-    def change_speed(self, speed_type=SpeedType.RUN, speed=0):
+    def change_speed(self, speed_type: SpeedType = SpeedType.RUN, speed: float = 0.0):
         stat_type = UnitStats.SPEED_RUNNING
         default_speed = config.Unit.Defaults.run_speed
 
@@ -1188,6 +1403,15 @@ class UnitManager(ObjectManager):
             speed = self.stat_manager.get_total_stat(stat_type, accept_float=True)
         elif speed <= 0:
             speed = default_speed
+
+        if speed_type == SpeedType.RUN and self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            # Apply mounted speed bonuses without affecting walk/swim/turn speeds.
+            from game.world.managers.objects.units.player.PlayerManager import PlayerManager
+            speed *= self.stat_manager.get_aura_stat_bonus(UnitStats.SPEED_MOUNTED, percentual=True)
+            if isinstance(self, PlayerManager) and self.skill_manager:
+                riding_bonus = self.skill_manager.get_riding_speed_bonus_percent()
+                if riding_bonus:
+                    speed *= riding_bonus / 100 + 1
 
         # Limit to 0-56.
         if speed > 56:
@@ -1476,9 +1700,12 @@ class UnitManager(ObjectManager):
     def mount(self, mount_display_id):
         if mount_display_id > 0 and \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
+            self.pet_manager.detach_active_pets()
             self.mount_display_id = mount_display_id
             self.set_unit_flag(UnitFlags.UNIT_MASK_MOUNTED, active=True)
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+            # Recalculate run speed to include mounted bonuses.
+            self.change_speed(SpeedType.RUN, self.stat_manager.get_base_stat(UnitStats.SPEED_RUNNING))
             return True
         return False
 
@@ -1488,6 +1715,8 @@ class UnitManager(ObjectManager):
         self.get_map().send_surrounding(packet, self, include_self=self.is_player())
         self.set_unit_flag(UnitFlags.UNIT_MASK_MOUNTED, active=False)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+        # Recalculate run speed to remove mounted bonuses.
+        self.change_speed(SpeedType.RUN, self.stat_manager.get_base_stat(UnitStats.SPEED_RUNNING))
         return True
 
     def is_moving(self):

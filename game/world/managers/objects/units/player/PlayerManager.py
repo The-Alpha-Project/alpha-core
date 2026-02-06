@@ -46,6 +46,7 @@ from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, \
     RegenStatsFlags, CreatureTypes, UnitStates
 from utils.constants.UpdateFields import *
+from utils.constants.MiscCodes import UpdateFlags
 
 MAX_ACTION_BUTTONS = 120
 MAX_EXPLORED_AREAS = 488
@@ -743,7 +744,7 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(packet)
 
     # override
-    def change_speed(self, speed_type=SpeedType.RUN, speed=0):
+    def change_speed(self, speed_type: SpeedType = SpeedType.RUN, speed: float = 0.0):
         if super().change_speed(speed_type, speed):
             if speed_type == SpeedType.RUN:
                 opcode = OpCode.SMSG_FORCE_SPEED_CHANGE
@@ -1065,7 +1066,7 @@ class PlayerManager(UnitManager):
         else:
             self.coinage += amount
 
-        self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
+        self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage, force=True)
 
     def on_zone_change(self, new_zone):
         is_new_zone = new_zone != self.zone
@@ -1590,9 +1591,12 @@ class PlayerManager(UnitManager):
 
         # Update system, propagate player changes to surrounding units.
         if self.online and (has_changes or has_inventory_changes):
-            self.get_map().update_object(self, has_changes, has_inventory_changes)
+            update_flags = UpdateFlags.NONE
             if has_changes:
-                self.reset_update_fields()
+                update_flags |= UpdateFlags.CHANGES
+            if has_inventory_changes:
+                update_flags |= UpdateFlags.INVENTORY
+            self.get_map().update_object(self, update_flags)
         # Not dirty, has a pending teleport and a teleport is not ongoing.
         elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
             self.trigger_teleport()

@@ -15,15 +15,15 @@
    ```bash
    cp env.dist .env
    ```
-1. Create `config.yml`:
+2. Create `config.yml`:
    ```bash
    make config
    ```
-2. Ensure local DB is selected:
+3. Ensure local DB is selected:
    ```bash
    make internal_db
    ```
-3. Build and start everything:
+4. Build and start everything:
    ```bash
    make setup-all
    ```

@@ -14,6 +14,7 @@ from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields
+from utils.constants.MiscCodes import UpdateFlags
 
 
 class GameObjectManager(ObjectManager):
@@ -75,8 +76,7 @@ class GameObjectManager(ObjectManager):
 
         # Check if this game object should be updated yet or not.
         if self.has_pending_updates():
-            self.get_map().update_object(self, has_changes=True)
-            self.reset_update_fields()
+            self.get_map().update_object(self, update_flags=UpdateFlags.CHANGES)
 
         self.last_tick = now
 
@@ -169,7 +169,7 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, spell)
         target.receive_damage(damage_info, self, casting_spell=spell, is_periodic=is_periodic)
 
-        # Send environmental damage log packet to the affected player.
+        # Send an environmental damage log packet to the affected player.
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP and target.is_player():
             data = pack(
                 '<Q2I',
@@ -337,12 +337,6 @@ class GameObjectManager(ObjectManager):
     def _get_field_value_for_update(self, index, is_create, requester, update_data):
         if self.update_packet_factory.is_dynamic_field(index):
             return pack('<I', self.generate_dynamic_field_value(requester))
-        elif is_create and \
-                index == GameObjectFields.GAMEOBJECT_STATE and \
-                self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
-            # Client doesn't remove collision for doors sent with active state - always send as ready.
-            return pack('<I', GameObjectStates.GO_STATE_READY)
-
         return super()._get_field_value_for_update(index, is_create, requester, update_data)
 
     def _check_time_to_live(self, elapsed):
@@ -384,6 +378,9 @@ class GameObjectManager(ObjectManager):
     # override
     def on_cell_change(self):
         pass
+
+    def is_in_world(self):
+        return self.is_spawned and self.get_map()
 
     # override
     def get_debug_messages(self, requester=None):

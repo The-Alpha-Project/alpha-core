@@ -41,7 +41,6 @@ class GooberManager(GameObjectManager):
             if self.is_active() and super().check_cooldown(now):
                 self.reset_goober_state()
 
-        self.last_tick = now
         super().update(now)
 
     def reset_goober_state(self):

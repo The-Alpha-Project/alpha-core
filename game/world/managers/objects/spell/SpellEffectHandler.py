@@ -99,7 +99,7 @@ class SpellEffectHandler:
                                                             apply_bonuses=False)  # Bonuses are applied on spell damage.
         damage_bonus = effect.get_effect_points()
 
-        # Overpower also uses combo points, but shouldn't scale.
+        # Overpower also uses combo points but shouldn't scale.
         if caster.is_player() and not casting_spell.is_overpower() and casting_spell.requires_combo_points():
             damage_bonus *= casting_spell.spent_combo_points
 
@@ -628,8 +628,8 @@ class SpellEffectHandler:
                                                       summon_type=summon_type,
                                                       is_guardian=True)
 
-            caster.get_map().spawn_object(instance=creature_manager)
             caster.pet_manager.add_guardian_from_spell(creature_manager, casting_spell)
+            caster.get_map().spawn_object(instance=creature_manager)
             if caster.object_ai:
                 caster.object_ai.just_summoned(creature_manager)
 

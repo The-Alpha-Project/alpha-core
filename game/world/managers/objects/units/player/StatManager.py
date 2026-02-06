@@ -9,7 +9,9 @@ from utils.Formulas import UnitFormulas, CreatureFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, SkillCategories, SpeedType
-from utils.constants.SpellCodes import SpellSchools, SpellHitFlags, SpellMissReason
+from utils.constants.SpellCodes import SpellSchools, SpellHitFlags, SpellMissReason, SpellAttributes
+from game.world.managers.objects.units.AttackRollInfo import AttackRollInfo
+from game.world.managers.objects.units.SpellAdvancedLogging import SpellAdvancedLogging
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields
 
@@ -317,11 +319,15 @@ class StatManager:
         item_stats = self.get_item_stat(stat_type)
         bonus_stats = self.get_aura_stat_bonus(stat_type, misc_value=misc_value)
 
-        total = int((base_stats + item_stats + bonus_stats) * self.get_aura_stat_bonus(stat_type, percentual=True, misc_value=misc_value))
+        total = (base_stats + item_stats + bonus_stats) * self.get_aura_stat_bonus(
+            stat_type,
+            percentual=True,
+            misc_value=misc_value,
+        )
 
-        return total - base_stats - item_stats
+        return int(total - base_stats - item_stats)
 
-    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False,
+    def get_total_stat(self, stat_type: Union[int, UnitStats], misc_value=-1, accept_negative=False,
                        accept_float=False, misc_value_is_mask=False) -> int:
         base_stats = self.get_base_stat(stat_type)
         bonus_stats = self.item_stats.get(stat_type, 0) + \
@@ -825,7 +831,7 @@ class StatManager:
 
     def get_attack_result_against_self(self, attacker, attack_type,
                                        dual_wield_penalty=0.0, invalid_result_mask: HitInfo = 0,
-                                       combat_rating=-1) -> HitInfo:
+                                       combat_rating=-1, roll_info: AttackRollInfo = None) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading/Sanctuary.
         if self.unit_mgr.is_evading or self.unit_mgr.unit_state & UnitStates.SANCTUARY:
@@ -861,21 +867,36 @@ class StatManager:
         # regardless of how much +hit% gear was equipped.
         miss_chance = max(dual_wield_penalty, miss_chance)
 
-        if not (HitInfo.MISS & invalid_result_mask) and random.random() < miss_chance:
-            return HitInfo.MISS
+        if not (HitInfo.MISS & invalid_result_mask):
+            hit_roll = random.random()
+            if roll_info is not None:
+                roll_info.miss_roll = hit_roll * 100.0
+                roll_info.miss_roll_needed = miss_chance * 100.0
+            if hit_roll < miss_chance:
+                return HitInfo.MISS
 
         hit_info = HitInfo.SUCCESS
 
         # Dodge/parry/block receive a 0.04% bonus/penalty for each skill point difference.
         dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
         can_dodge = not (invalid_result_mask & HitInfo.DODGE) and self.unit_mgr.can_dodge(attacker.location, in_combat=True)
-        if can_dodge and random.random() < dodge_chance:
-            return hit_info | HitInfo.DODGE
+        if can_dodge:
+            dodge_roll = random.random()
+            if roll_info is not None:
+                roll_info.dodge_roll = dodge_roll * 100.0
+                roll_info.dodge_roll_needed = dodge_chance * 100.0
+            if dodge_roll < dodge_chance:
+                return hit_info | HitInfo.DODGE
 
         parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
         can_parry = not (invalid_result_mask & HitInfo.PARRY) and self.unit_mgr.can_parry(attacker.location, in_combat=True)
-        if can_parry and random.random() < parry_chance:
-            return hit_info | HitInfo.PARRY
+        if can_parry:
+            parry_roll = random.random()
+            if roll_info is not None:
+                roll_info.parry_roll = parry_roll * 100.0
+                roll_info.parry_roll_needed = parry_chance * 100.0
+            if parry_roll < parry_chance:
+                return hit_info | HitInfo.PARRY
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, combat_rating,
                                                                      use_block=self.unit_mgr.can_block(in_combat=True))
@@ -891,8 +912,13 @@ class StatManager:
         block_chance += rating_difference_block * 0.0004
 
         can_block = not (invalid_result_mask & HitInfo.BLOCK) and self.unit_mgr.can_block(attacker.location, in_combat=True)
-        if can_block and random.random() < block_chance:
-            return hit_info | HitInfo.BLOCK
+        if can_block:
+            block_roll = random.random()
+            if roll_info is not None:
+                roll_info.block_roll = block_roll * 100.0
+                roll_info.block_roll_needed = block_chance * 100.0
+            if block_roll < block_chance:
+                return hit_info | HitInfo.BLOCK
 
         if not (invalid_result_mask & HitInfo.CRITICAL_HIT):
             critical_chance = self._get_base_crit_chance_against_self(attacker, attack_type)
@@ -901,7 +927,11 @@ class StatManager:
 
         if attack_type == AttackTypes.OFFHAND_ATTACK:
             hit_info |= HitInfo.OFFHAND
-        if random.random() < critical_chance:
+        crit_roll = random.random()
+        if roll_info is not None:
+            roll_info.crit_roll = crit_roll * 100.0
+            roll_info.crit_roll_needed = critical_chance * 100.0
+        if crit_roll < critical_chance:
             hit_info |= HitInfo.CRITICAL_HIT
             return hit_info
 
@@ -986,7 +1016,8 @@ class StatManager:
             multiplier = 0.002 if rating_difference > 0 else 0.0004
             return attacker_critical_chance - rating_difference * multiplier
 
-    def get_spell_miss_result_against_self(self, casting_spell) -> Tuple[SpellMissReason, SpellHitFlags]:
+    def get_spell_miss_result_against_self(self, casting_spell,
+                                           spell_logging: SpellAdvancedLogging = None) -> Tuple[SpellMissReason, SpellHitFlags]:
         hit_flags = SpellHitFlags.NONE
 
         # Evading.
@@ -1043,14 +1074,25 @@ class StatManager:
             else:
                 invalid_results |= HitInfo.DAMAGE
 
+            # Cannot be dodged/parried/blocked.
+            if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IMPOSSIBLE_DODGE_PARRY_BLOCK:
+                invalid_results |= HitInfo.DODGE | HitInfo.PARRY | HitInfo.BLOCK
+
             if is_special_damage:
                 invalid_results |= HitInfo.CRITICAL_HIT
             else:
                 invalid_results |= HitInfo.DAMAGE
 
+            attack_roll_info = AttackRollInfo() if spell_logging is not None else None
             result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type(),
                                                               invalid_result_mask=invalid_results,
-                                                              combat_rating=attacker_combat_rating)
+                                                              combat_rating=attacker_combat_rating,
+                                                              roll_info=attack_roll_info)
+            if spell_logging and attack_roll_info:
+                spell_logging.hit_roll = attack_roll_info.miss_roll
+                spell_logging.hit_roll_needed = attack_roll_info.miss_roll_needed
+                spell_logging.crit_roll = attack_roll_info.crit_roll
+                spell_logging.crit_roll_needed = attack_roll_info.crit_roll_needed
             if result_info & HitInfo.CRITICAL_HIT:
                 hit_flags |= SpellHitFlags.CRIT
 
@@ -1075,12 +1117,21 @@ class StatManager:
         spell_crit_chance += caster.stat_manager.get_total_stat(UnitStats.SPELL_CRITICAL, accept_float=True)
         spell_crit_chance += caster.stat_manager.get_total_stat(UnitStats.SPELL_SCHOOL_CRITICAL,
                                                                 misc_value=spell_school, accept_float=True)
-        if random.random() < spell_crit_chance:
+        crit_roll = random.random()
+        if spell_logging:
+            spell_logging.crit_roll = crit_roll * 100.0
+            spell_logging.crit_roll_needed = spell_crit_chance * 100.0
+        if crit_roll < spell_crit_chance:
             hit_flags |= SpellHitFlags.CRIT
 
         miss_chance = self.get_spell_resist_chance_against_self(casting_spell)
 
-        if random.random() < miss_chance:
+        miss_roll = random.random()
+        if spell_logging:
+            spell_logging.hit_roll = miss_roll * 100.0
+            spell_logging.hit_roll_needed = miss_chance * 100.0
+            spell_logging.resistance_coefficient = miss_chance
+        if miss_roll < miss_chance:
             return SpellMissReason.MISS_REASON_RESIST, hit_flags
 
         return SpellMissReason.MISS_REASON_NONE, hit_flags
@@ -1479,5 +1530,6 @@ INVENTORY_STAT_TO_UNIT_STAT = {
 }
 
 NON_STACKING_STATS = {
-    UnitStats.SPELL_CASTING_SPEED
+    UnitStats.SPELL_CASTING_SPEED,
+    UnitStats.SPEED_MOUNTED
 }

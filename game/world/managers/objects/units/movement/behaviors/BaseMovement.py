@@ -41,6 +41,9 @@ class BaseMovement:
     def on_spline_finished(self):
         pass
 
+    def on_movement_paused(self):
+        pass
+
     def can_remove(self):
         pass
 

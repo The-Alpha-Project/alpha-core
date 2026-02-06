@@ -446,14 +446,15 @@ class ChannelManager:
             packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.PLAYER_NOT_FOUND,
                                                         player_name=target_player.get_name())
             ChannelManager.send_to_player(sender, packet)
-        elif target_player and target_player == sender:  # Avoid self ban / kick
             return False
-        else:
-            return True
+        elif target_player and target_player == sender:  # Avoid self-ban / kick
+            return False
+
+        return True
 
     @staticmethod
     def check_if_remove(channel, player_mgr):
-        # Pop channel if it's left with 0 players, and it's not a default channel.
+        # Pop the channel if it's left with 0 players, and it's not a default channel.
         if channel.is_default:
             return
         if channel.members_count() == 0:
