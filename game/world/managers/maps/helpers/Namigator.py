@@ -13,6 +13,10 @@ class Namigator:
     def find_path(self, start_x, start_y, start_z, end_x, end_y, end_z):
         pass
 
+    # TODO.
+    def find_smooth_path(self, start_x, start_y, start_z, end_x, end_y, end_z, smooth, clamp_endpoint):
+        pass
+
     def has_adts(self):
         pass
 

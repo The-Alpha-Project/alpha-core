@@ -84,7 +84,7 @@ class ConfusedMovement(BaseMovement):
             return False, start_point
 
         # Validate a path to the random point.
-        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
+        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True, clamp_endpoint=True)
         if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
             return False, start_point
 

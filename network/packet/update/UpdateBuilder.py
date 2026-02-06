@@ -1,13 +1,14 @@
 from enum import IntEnum
-from struct import pack
+from struct import pack, pack_into
 from threading import RLock
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates
 from utils.constants.OpCodes import OpCode
+from utils.constants.UpdateFields import GameObjectFields
 
 
 class UpdateBuilder:
@@ -77,21 +78,44 @@ class UpdateBuilder:
             if obj_type == ObjectTypeIds.ID_PLAYER:
                 self._add_inventory_updates_from_player(world_object)
 
+            update_data = None
+            defer_bytes_1 = False
+            defer_door_state = False
+            door_deferred_state_update = None
+
+            # Doors: send as ready on create, then send the real state.
+            if world_object.is_gameobject():
+                door_deferred_state_update = world_object.get_door_state_update_bytes()
+                if door_deferred_state_update:
+                    if not world_object.initialized:
+                        world_object.initialize_field_values()
+                    update_data = world_object.update_packet_factory.generate_update_data()
+                    pack_into('<I', update_data.update_field_values,
+                              GameObjectFields.GAMEOBJECT_STATE * 4,
+                              GameObjectStates.GO_STATE_READY)
+                    defer_door_state = True
+
+            # Units: send a deferred bytes_1 update after create to refresh sheath state.
+            if world_object.is_unit():
+                if world_object.has_virtual_equipment():
+                    defer_bytes_1 = True
+
             # Create packet bytes.
-            self._add_packet(world_object.get_create_update_bytes(requester=self._player_mgr), PacketType.CREATE)
+            self._add_packet(
+                world_object.get_create_update_bytes(requester=self._player_mgr, update_data=update_data),
+                PacketType.CREATE
+            )
 
             # Movement packets.
             if world_object.is_unit(by_mask=True):
                 self._add_movement_update_from_unit(world_object)
 
             # Handle special doors case in which the real state is sent after create packet in order to remove collision.
-            if world_object.is_gameobject():
-                door_deferred_state_update = world_object.get_door_state_update_bytes()
-                if door_deferred_state_update:
-                    self._add_packet(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
+            if defer_door_state and door_deferred_state_update:
+                self._add_packet(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 
             # Handle special Units bytes_1 field in which the real sheath state is sent after create.
-            if world_object.is_unit():
+            if defer_bytes_1:
                 bytes_1_deferred_state_update = world_object.get_bytes_1_state_update_bytes()
                 self._add_packet(bytes_1_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 

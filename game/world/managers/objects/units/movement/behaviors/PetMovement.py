@@ -19,6 +19,7 @@ class PetMovement(BaseMovement):
         self.home_position = None
         self.stay_position = None
         self.pet_range_move = None
+        self._clear_range_move_next_tick = False
         self._is_lagging = False
         self.follow_angle = math.pi / 2
 
@@ -42,6 +43,10 @@ class PetMovement(BaseMovement):
 
         super().update(now, elapsed)
 
+        if self._clear_range_move_next_tick:
+            self.pet_range_move = None
+            self._clear_range_move_next_tick = False
+
     # override
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
@@ -52,7 +57,10 @@ class PetMovement(BaseMovement):
     def on_spline_finished(self):
         # Spline finished after reaching point and cast time ending.
         if self.follow_state == PetMoveState.AT_RANGE:
-            self.pet_range_move = None
+            from game.world.managers.objects.ai.PetAI import PetAI
+            pending_spell_cast = self.unit.object_ai.pending_spell_cast if isinstance(self.unit.object_ai, PetAI) else None
+            if (not pending_spell_cast or not pending_spell_cast.spell) and not self._clear_range_move_next_tick:
+                self.pet_range_move = None
         # Always update tmp home position.
         self.unit.tmp_home_position = self.home_position
 
@@ -90,6 +98,9 @@ class PetMovement(BaseMovement):
             self.unit.object_ai.set_combat_movement(enabled=not state)
         self.stay_position = None if not state else self.unit.location.copy()
 
+    def request_clear_range_move_next_tick(self):
+        self._clear_range_move_next_tick = True
+
     def get_move_state_for_position(self, new_position):
         if self.pet_range_move:
             return PetMoveState.MOVE_RANGE if new_position != self.pet_range_move.location else PetMoveState.AT_RANGE
@@ -118,14 +129,29 @@ class PetMovement(BaseMovement):
     def _should_move_range(self):
         if not self.pet_range_move:
             return False, None
+        if not self.pet_range_move.target or not self.pet_range_move.target.is_alive:
+            self.pet_range_move = None
+            return False, None
+
+        distance = self.unit.location.distance(self.pet_range_move.target.location)
+        if distance <= self.pet_range_move.range_:
+            if self.spline:
+                self.unit.movement_manager.stop()
+                self.spline = None
+            if self.follow_state != PetMoveState.AT_RANGE:
+                self.follow_state = PetMoveState.AT_RANGE
+                if self.unit.object_ai:
+                    self.unit.object_ai.movement_inform(data=self.follow_state)
+            return False, None
 
         # Should not probably use RangeMax, but RangeMin can be 0. Ideas?.
         target_location = self.pet_range_move.target.location.get_point_in_between(self.unit,
                                                                                    self.pet_range_move.range_,
                                                                                    vector=self.unit.location)
-        # At position or heading in that direction.
-        if self.unit.location == self.pet_range_move.location \
+        # At position or already heading in that direction.
+        if self.unit.location == target_location \
                 or (self.spline and self.spline.get_waypoint_location() == target_location):
+            self.pet_range_move.location = target_location
             return False, None
 
         # get_point_in_between can return None.

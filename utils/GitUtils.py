@@ -60,7 +60,7 @@ class GitUtils:
 
     @staticmethod
     def get_head_path():
-        # Returns the HEAD ref path (e.g. refs/heads/master) or a commit hash (detached HEAD).
+        # Returns the HEAD ref path (e.g., refs/heads/master) or a commit hash (detached HEAD).
         try:
             head_file_path = path.join(PathManager.get_git_path(), GitUtils.HEAD_FILE_NAME)
             with open(head_file_path, 'r') as git_head_file:
@@ -94,7 +94,7 @@ class GitUtils:
                 ref_file_path = path.join(PathManager.get_git_path(), head_path)
                 try:
                     with open(ref_file_path, 'r') as ref_file:
-                        # Return current commit hash id.
+                        # Return the current commit hash id.
                         return ref_file.read().strip()
                 except FileNotFoundError:
                     return None
@@ -109,12 +109,12 @@ class GitUtils:
     def get_current_commit_date():
         """Get the commit date of the current commit using git files only."""
         try:
-            # Get commit hash first.
+            # Get the commit hash first.
             commit_hash = GitUtils.get_current_commit_hash()
             if not commit_hash:
                 return None
             
-            # Try to read commit date from git objects.
+            # Try to read the commit date from git objects.
             # Git stores commit objects in .git/objects/{first_2_chars}/{remaining_38_chars}
             git_path = PathManager.get_git_path()
             if not git_path or not os.path.exists(git_path):

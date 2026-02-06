@@ -17,7 +17,7 @@ class LoginManager:
         with SocketBuilder.build_socket(login_host, login_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
-            Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}')
+            Logger.success(f'[LoginServer] Started, listening on {real_binding[0]}:{real_binding[1]}')
             shared_state.LOGIN_SERVER_READY = True
 
             try:
@@ -35,4 +35,4 @@ class LoginManager:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("Login server turned off.")
+        Logger.info('[LoginServer] Turned off.')

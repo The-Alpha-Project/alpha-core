@@ -58,7 +58,7 @@ class ChatManager:
         if not channel:
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
-            return 0
+            return False
 
         if channel.is_addon():
             ChatAddonManager.process_addon_request(channel, sender, message)
@@ -67,6 +67,7 @@ class ChatManager:
                                                      lang, channel=channel_name)
             channel.broadcast_to_channel(sender, packet)
             ChatLogManager.log_channel(sender, message, channel)
+        return True
 
     @staticmethod
     def send_party(sender, message, lang):

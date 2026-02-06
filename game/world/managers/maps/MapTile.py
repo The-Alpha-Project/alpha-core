@@ -2,9 +2,11 @@ import math
 import os
 from os import path
 from struct import unpack
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.helpers.Constants import RESOLUTION_ZMAP, RESOLUTION_LIQUIDS, RESOLUTION_AREA_INFO
+from game.world.managers.maps.helpers.AreaInformation import AreaInformation
 from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from network.packet.PacketReader import PacketReader
 from utils.ConfigManager import config
@@ -25,9 +27,9 @@ class MapTile:
         self.has_navigation = False
         self.adt_x = adt_x
         self.adt_y = adt_y
-        self.area_information = None
-        self.liquid_information = None
-        self.z_height_map = None
+        self.area_information: list[list[Optional[AreaInformation]]] = []
+        self.liquid_information: list[list[Optional[LiquidInformation]]] = []
+        self.z_height_map: list[list[float]] = []
 
     def can_use(self):
         return self.initialized and self.ready and (self.has_maps or self.has_navigation)
@@ -43,8 +45,10 @@ class MapTile:
         return self.area_information[cell_x][cell_y]
 
     def get_z_at(self, cell_x, cell_y):
+        if not self.z_height_map:
+            return 0.0
         if config.Server.Settings.use_float_16:
-            return Float16.decompress(self.z_height_map[cell_x][cell_y])
+            return Float16.decompress(int(self.z_height_map[cell_x][cell_y]))
         return self.z_height_map[cell_x][cell_y]
 
     def is_initialized(self):
@@ -70,9 +74,9 @@ class MapTile:
         self.has_maps = False
         self.has_navigation = False
         self.ready = False
-        self.area_information = None
-        self.liquid_information = None
-        self.z_height_map = None
+        self.area_information = []
+        self.liquid_information = []
+        self.z_height_map = []
 
     def load_namigator_data(self, namigator):
         if not config.Server.Settings.use_nav_tiles or not namigator:
@@ -108,8 +112,11 @@ class MapTile:
         else:
             self.area_information = [[None for _ in range(RESOLUTION_AREA_INFO)] for _ in range(RESOLUTION_AREA_INFO)]
             self.liquid_information = [[None for _ in range(RESOLUTION_LIQUIDS)] for _ in range(RESOLUTION_LIQUIDS)]
-            self.z_height_map = [[0 for _ in range(RESOLUTION_ZMAP)] for _ in range(RESOLUTION_ZMAP)]
+            self.z_height_map = [[0.0 for _ in range(RESOLUTION_ZMAP)] for _ in range(RESOLUTION_ZMAP)]
             use_f16 = config.Server.Settings.use_float_16
+            area_information = self.area_information
+            liquid_information = self.liquid_information
+            z_height_map = self.z_height_map
 
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string_from_stream(map_tiles)
@@ -121,9 +128,9 @@ class MapTile:
                 for x in range(RESOLUTION_ZMAP):
                     for y in range(RESOLUTION_ZMAP):
                         if use_f16:
-                            self.z_height_map[x][y] = unpack('>h', map_tiles.read(2))[0]
+                            z_height_map[x][y] = unpack('>h', map_tiles.read(2))[0]
                             continue
-                        self.z_height_map[x][y] = unpack('<f', map_tiles.read(4))[0]
+                        z_height_map[x][y] = unpack('<f', map_tiles.read(4))[0]
 
                 # ZoneID, AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit).
                 for x in range(RESOLUTION_AREA_INFO):
@@ -136,7 +143,7 @@ class MapTile:
                         # Create or use cached information.
                         area_info = self._get_area_information(self.map_id, zone_id, area, flag, lvl, explore)
                         # noinspection PyTypeChecker
-                        self.area_information[x][y] = area_info
+                        area_information[x][y] = area_info
 
                 # Liquids
                 for x in range(RESOLUTION_LIQUIDS):
@@ -150,11 +157,16 @@ class MapTile:
                             l_max = unpack('<f', map_tiles.read(4))[0]
 
                         xh, yh = self._map_liquid_to_height(x, y)
-                        l_min = math.floor(self.z_height_map[xh][yh] - 3.0)
+                        l_min = math.floor(z_height_map[xh][yh] - 3.0)
                         if l_max > l_min:
                             # noinspection PyTypeChecker
-                            self.liquid_information[x][y] = self.map_.get_liquid_or_create(liq_type, l_min,
-                                                                                           l_max, use_f16, is_wmo=False)
+                            liquid_information[x][y] = self.map_.get_liquid_or_create(
+                                liq_type,
+                                l_min,
+                                l_max,
+                                use_f16,
+                                is_wmo=False,
+                            )
 
                 has_wmo_liquids = unpack('<b', map_tiles.read(1))[0]
                 if not has_wmo_liquids:
@@ -182,7 +194,7 @@ class MapTile:
                             # First liquid.
                             if not l:
                                 liq_info = self.map_.get_liquid_or_create(liq_type, l_min, l_max, use_f16, is_wmo=True)
-                                self.liquid_information[x][y] = liq_info
+                                liquid_information[x][y] = liq_info
                             # Nested liquid.
                             elif isinstance(liq_info, LiquidInformation):
                                 n_liq_info = self.map_.get_liquid_or_create(liq_type, l_min, l_max, use_f16, is_wmo=True)

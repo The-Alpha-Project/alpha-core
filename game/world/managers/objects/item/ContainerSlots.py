@@ -1,4 +1,5 @@
 from utils.constants.UpdateFields import ContainerFields, PlayerFields
+from utils.constants.MiscCodes import UpdateFlags
 
 
 class ContainerSlots(dict):
@@ -28,12 +29,8 @@ class ContainerSlots(dict):
         item_guid = item_mgr.guid if item_mgr and not delete_item else 0
         self.update_entity.set_uint64(self.update_field_slot + slot * 2, item_guid)
         # Notify changed update fields to owner.
-        if self.unit and self.unit.is_in_world():
-            # Update fields belong to a Container (Item)
-            has_inventory_changes = not self.container.is_backpack
-            # Update fields belong to PlayerFields.
-            has_changes = not has_inventory_changes
-            self.unit.update_manager.update_world_object_on_self(self.unit,
-                                                                 has_changes=has_changes,
-                                                                 has_inventory_changes=has_inventory_changes,
-                                                                 update_data=None)
+        if not self.unit or not self.unit.is_in_world():
+            return
+        # Update fields belong to a Container (Item)
+        update_flags = UpdateFlags.INVENTORY if not self.container.is_backpack else UpdateFlags.CHANGES
+        self.unit.update_manager.update_world_object_on_self(self.unit, update_flags, None)

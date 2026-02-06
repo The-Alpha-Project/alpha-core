@@ -44,7 +44,7 @@ class RealmManager:
                 online_count
             )
 
-        Logger.debug(f'[{sck.getpeername()[0]}] Sending realmlist...')
+        Logger.debug(f'[RealmServer] {sck.getpeername()[0]} Sending realmlist')
         sck.sendall(realmlist_bytes)
 
     @staticmethod
@@ -58,7 +58,7 @@ class RealmManager:
             world_bytes
         )
 
-        Logger.debug(f'[{sck.getpeername()[0]}] Redirecting to world server...')
+        Logger.debug(f'[ProxyServer] {sck.getpeername()[0]} Redirecting to world server')
         sck.sendall(packet)
 
     @staticmethod
@@ -70,7 +70,7 @@ class RealmManager:
             # Make sure all characters have online = 0 on realm start.
             RealmDatabaseManager.character_set_all_offline()
             AuthDatabaseManager.realm_clear_online_count()
-            Logger.success(f'Realm server started, listening on {real_binding[0]}:{real_binding[1]}')
+            Logger.success(f'[RealmServer] Started, listening on {real_binding[0]}:{real_binding[1]}')
             shared_state.REALM_SERVER_READY = True
 
             try:
@@ -87,7 +87,7 @@ class RealmManager:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("Realm server turned off.")
+        Logger.info('[RealmServer] Turned off.')
 
     @staticmethod
     def start_proxy(shared_state: Any):
@@ -95,7 +95,7 @@ class RealmManager:
         with SocketBuilder.build_socket(local_realm.proxy_address, local_realm.proxy_port, timeout=2) as server_socket:
             server_socket.listen()
             real_binding = server_socket.getsockname()
-            Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}')
+            Logger.success(f'[ProxyServer] Started, listening on {real_binding[0]}:{real_binding[1]}')
             shared_state.PROXY_SERVER_READY = True
 
             try:
@@ -112,4 +112,4 @@ class RealmManager:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("Proxy server turned off.")
+        Logger.info('[ProxyServer] Turned off.')

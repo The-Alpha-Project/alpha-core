@@ -104,6 +104,12 @@ class MovementManager:
         if not self._can_move():
             if self._get_current_spline():
                 self.stop()
+            if not self.is_player and self.unit.is_casting():
+                current_behavior = self.get_current_behavior()
+                if current_behavior:
+                    current_behavior.on_movement_paused()
+                # Prevent immediate cast interrupts from movement noise after stopping.
+                self.unit.set_has_moved(False, False, flush=True)
             return
 
         # Check if we need to remove any movement.
@@ -213,6 +219,7 @@ class MovementManager:
             return [11]
         elif current_behavior.move_type == MoveType.GROUP:
             return [2, 15, 17]
+        return [0]
 
     # Instant.
     def stop(self, force=False):
@@ -233,10 +240,6 @@ class MovementManager:
     # Instant.
     def face_angle(self, angle):
         self.spline_callback(SplineBuilder.build_face_angle_spline(self.unit, angle))
-
-    # Instant.
-    def face_spot(self, spot):
-        self.spline_callback(SplineBuilder.build_face_spot_spline(self.unit, spot))
 
     def set_behavior(self, movement_behavior):
         if self.unit.is_sessile():
@@ -342,6 +345,16 @@ class MovementManager:
         if not self.active_behavior_type:
             return 'None'
         return MoveType(self.active_behavior_type).name
+
+    def get_speed(self):
+        spline = self._get_current_spline()
+        if not spline and self.is_player:
+            spline = self.unit.movement_spline
+        if spline:
+            return spline.get_speed()
+        if self.is_player:
+            return self.unit.running_speed
+        return 0
 
     def _get_default_behavior(self):
         if not self.default_behavior_type:

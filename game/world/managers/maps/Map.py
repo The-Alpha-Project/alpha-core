@@ -1,4 +1,5 @@
 from game.world.managers.maps.helpers.MapUtils import MapUtils
+from utils.constants.MiscCodes import UpdateFlags
 from game.world.managers.objects.pools.PoolManager import PoolManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -189,8 +190,8 @@ class Map:
     def can_reach_object(self, source_object, target_object):
         return self.map_manager.can_reach_object(source_object, target_object)
 
-    def can_reach_location(self, src_vector, dst_vector):
-        return self.map_manager.can_reach_location(self.map_id, src_vector, dst_vector)
+    def can_reach_location(self, src_vector, dst_vector, smooth=False, clamp_endpoint=False):
+        return self.map_manager.can_reach_location(self.map_id, src_vector, dst_vector, smooth, clamp_endpoint)
 
     def get_liquid_information(self, x, y, z, ignore_z=False):
         return self.map_manager.get_liquid_information(self.map_id, x, y, z, ignore_z=ignore_z)
@@ -202,8 +203,8 @@ class Map:
         map_id = self.map_id if map_id == -1 else map_id
         return self.map_manager.validate_teleport_destination(map_id, x, y)
 
-    def calculate_path(self, start_vector, end_vector, los=False) -> tuple:  # bool failed, in_place, path list.
-        return self.map_manager.calculate_path(self.map_id, start_vector, end_vector, los=los)
+    def calculate_path(self, start_vector, end_vector, los=False, smooth=False, clamp_endpoint=False) -> tuple:  # bool failed, in_place, path list.
+        return self.map_manager.calculate_path(self.map_id, start_vector, end_vector, los, smooth, clamp_endpoint)
 
     def find_random_point_around_circle(self, vector, radius):
         return self.map_manager.find_random_point_around_circle(self.map_id, vector, radius)
@@ -231,8 +232,8 @@ class Map:
     def spawn_object(self, owner=None, instance=None):
         self.grid_manager.spawn_object(owner, instance)
 
-    def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
-        self.grid_manager.update_object(world_object, has_changes, has_inventory_changes)
+    def update_object(self, world_object, update_flags=UpdateFlags.NONE):
+        self.grid_manager.update_object(world_object, update_flags)
 
     def remove_object(self, world_object, update_players=True):
         self.grid_manager.remove_object(world_object, update_players)

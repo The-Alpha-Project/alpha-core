@@ -62,7 +62,7 @@ class WorldServerSessionHandler:
             self.keep_alive = True
 
             if self.auth_challenge(self.client_socket):
-                self.client_socket.settimeout(120)  # 2 minutes timeout should be more than enough.
+                self.client_socket.settimeout(120)  # 2-minute timeout should be more than enough.
 
                 incoming_thread = threading.Thread(target=self.process_incoming)
                 incoming_thread.daemon = True
@@ -128,13 +128,13 @@ class WorldServerSessionHandler:
                 if handler:
                     res = handler(self, packet)
                     if res == 0:
-                        Logger.debug(f'[{self.client_address[0]}] Handling {packet.opcode_str()}')
+                        Logger.debug(f'[WorldServer] {self.client_address[0]} Handling {packet.opcode_str()}')
                     elif res == 1:
-                        Logger.debug(f'[{self.client_address[0]}] Ignoring {packet.opcode_str()}')
+                        Logger.debug(f'[WorldServer] {self.client_address[0]} Ignoring {packet.opcode_str()}')
                     elif res < 0:
                         break
                 elif not found:
-                    Logger.warning(f'[{self.client_address[0]}] Received unknown data: {packet.data}')
+                    Logger.warning(f'[WorldServer] {self.client_address[0]} Received unknown data: {packet.data}')
         except:
             # Can be multiple since it includes handlers execution.
             Logger.error(traceback.format_exc())
@@ -236,10 +236,11 @@ class WorldServerSessionHandler:
     @staticmethod
     def start_chat_logger():
         # Chat logging queue.
-        if config.Server.Logging.log_player_chat:
-            logging_thread = threading.Thread(target=ChatLogManager.process_logs)
-            logging_thread.daemon = True
-            logging_thread.start()
+        if not config.Server.Logging.log_player_chat:
+            return
+        logging_thread = threading.Thread(target=ChatLogManager.process_logs)
+        logging_thread.daemon = True
+        logging_thread.start()
 
     @staticmethod
     def build_get_ticker():
@@ -322,7 +323,7 @@ class WorldServerSessionHandler:
             server_socket.settimeout(2)
 
             real_binding = server_socket.getsockname()
-            Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}')
+            Logger.success(f'[WorldServer] Started, listening on {real_binding[0]}:{real_binding[1]}')
 
             try:
                 while WORLD_ON and shared_state.RUNNING:
@@ -339,7 +340,7 @@ class WorldServerSessionHandler:
             except KeyboardInterrupt:
                 pass
 
-        Logger.info("World server turned off.")
+        Logger.info('[WorldServer] Turned off.')
         ChatLogManager.exit()
         # Since only this process is able to see current world sessions, save characters and disconnect all sessions.
         WorldServerSessionHandler.save_characters()

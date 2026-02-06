@@ -17,7 +17,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
 from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects, SpellAttributesEx
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -164,6 +164,32 @@ class SkillTypes(IntEnum):
     DEMONMASTERY = 0x162
     CURSES = 0x163
     FISHING = 0x164
+
+
+RIDING_SKILLS = {
+    SkillTypes.HORSERIDING,
+    SkillTypes.WOLFRIDING,
+    SkillTypes.TIGERRIDING,
+    SkillTypes.NIGHTMARERIDING,
+    SkillTypes.RAMRIDING,
+}
+
+_RIDING_SPELL_IDS = None
+
+
+def get_riding_spell_ids():
+    global _RIDING_SPELL_IDS
+    if _RIDING_SPELL_IDS is not None:
+        return _RIDING_SPELL_IDS
+
+    riding_spell_ids = set()
+    for skill_id in RIDING_SKILLS:
+        spell_ids = DbcDatabaseManager.SkillLineAbilityHolder.spells_get_by_skill_id(skill_id)
+        if spell_ids:
+            riding_spell_ids.update(spell_ids)
+
+    _RIDING_SPELL_IDS = riding_spell_ids
+    return riding_spell_ids
 
 
 class SkillLineType(IntEnum):
@@ -393,6 +419,9 @@ class SkillManager:
 
     def handle_spell_cast_skill_gain(self, casting_spell):
         if not casting_spell:
+            return False
+
+        if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_SKILL_INCREASE:
             return False
 
         character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
@@ -722,6 +751,29 @@ class SkillManager:
             return 0
 
         return self.get_total_skill_value(skill.ID)
+
+    def get_riding_speed_bonus_percent(self) -> float:
+        best_bonus = 0.0
+        for skill_id in RIDING_SKILLS:
+            skill = self.skills.get(skill_id)
+            if not skill:
+                continue
+
+            max_rank = skill.max if skill.max else self.get_max_rank(skill_id)
+            if max_rank <= 0:
+                continue
+
+            value = self.get_total_skill_value(skill_id)
+            if value <= 0:
+                continue
+            if value > max_rank:
+                value = max_rank
+
+            bonus = (value / max_rank) * 100.0
+            if bonus > best_bonus:
+                best_bonus = bonus
+
+        return best_bonus
 
     def get_skill_id_for_weapon(self, item_template: Optional[ItemTemplate]):
         if not item_template:

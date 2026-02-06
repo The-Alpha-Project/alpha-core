@@ -30,6 +30,12 @@ class PetSelectTargetReason(IntEnum):
     SUCCESS_AGGRO_RANGE = 6
 
 
+class RelativeChaseState(IntEnum):
+    NEUTRAL = 0
+    AWAY = 1
+    CLASH = 2
+
+
 # TODO: Replace by UnitCodes.UnitSummonType?
 class CreatureSubtype(IntEnum):
     SUBTYPE_GENERIC = 0

@@ -51,7 +51,8 @@ class PetManager:
         [pet.save() for pet in self.permanent_pets]
 
     def set_creature_as_pet(self, creature: CreatureManager, summon_spell_id: int, pet_slot: PetSlot,
-                            pet_level=-1, pet_index=-1, is_permanent=False) -> Optional[ActivePet]:
+                            pet_level=-1, pet_index=-1, is_permanent=False,
+                            replenish_on_summon: bool = False) -> Optional[ActivePet]:
         if not self._try_detach_dead_pet(pet_slot):
             return None # Pet slot already occupied by alive creature.
 
@@ -88,7 +89,7 @@ class PetManager:
         self.send_pet_spell_info()
 
         # Set level and initialize pet stats.
-        active_pet.set_level(pet_level)
+        active_pet.set_level(pet_level, replenish=replenish_on_summon)
 
         # Apply passive effects.
         for spell in active_pet.get_pet_data().spells:
@@ -109,7 +110,8 @@ class PetManager:
             return None
 
         return self.set_creature_as_pet(totem_creature, totem_spell.spell_entry.ID,
-                                        PetSlot.PET_SLOT_TOTEM_START + totem_slot)
+                                        PetSlot.PET_SLOT_TOTEM_START + totem_slot,
+                                        replenish_on_summon=True)
 
     def get_guardian_count(self) -> int:
         return len([pet for pet in self.active_pets.values() if pet and pet.creature.is_guardian])
@@ -119,7 +121,8 @@ class PetManager:
         if not guardian_slot:
             return None
 
-        return self.set_creature_as_pet(creature, spell.spell_entry.ID, guardian_slot)
+        return self.set_creature_as_pet(creature, spell.spell_entry.ID, guardian_slot,
+                                        replenish_on_summon=True)
 
     def _add_pet(self, creature: CreatureManager, summon_spell_id: int, level: int, permanent: bool) -> PetData:
         pet_data = PetData(-1, creature.creature_template.name, 0,
@@ -168,7 +171,8 @@ class PetManager:
         # Match summoner level for creature summons. Otherwise, set to the level in PetData.
         pet_level = self.owner.level if not is_hunter_pet else -1
         active_pet = self.set_creature_as_pet(creature_manager, spell_id, PetSlot.PET_SLOT_PERMANENT,
-                                              pet_level=pet_level, pet_index=pet_index, is_permanent=True)
+                                              pet_level=pet_level, pet_index=pet_index, is_permanent=True,
+                                              replenish_on_summon=True)
 
         # On initial creature summon, teach available spells according to the summon spell's level.
         if active_pet and not is_hunter_pet and pet_index == -1:
@@ -327,12 +331,10 @@ class PetManager:
             if casting_spell.has_only_harmful_effects():
                 if target_unit is self.owner:
                     return
-                # Should pet enter combat here? We need this for delayed spell casting.
-                active_pet_unit.combat_target = target_unit
             elif active_pet_unit.can_attack_target(target_unit):
                 target_unit = self.owner
 
-            active_pet_unit.object_ai.pending_spell_cast = None
+            active_pet_unit.object_ai.pending_spell_cast.reset()
             active_pet_unit.object_ai.do_spell_cast(spell, target_unit)
 
         elif action & (0x01 << 24):

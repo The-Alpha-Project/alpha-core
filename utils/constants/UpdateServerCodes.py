@@ -18,5 +18,7 @@ class UpdateServerOpCode(IntEnum):
     CLIENT_REQUEST_FILE = 0x06
     CLIENT_SET_FILESET = 0x12
     CLIENT_HELLO = 0x14
+    CLIENT_SIGNATURE = 0xF0
+    CLIENT_SIGNATURE_LEGACY = 0x69
     SERVER_HELLO = 0x15
     SERVER_HELLO_ACK = 0x14  # Server reply to CLIENT_HELLO (single non-zero byte to accept).

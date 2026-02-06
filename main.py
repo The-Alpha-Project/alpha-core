@@ -287,7 +287,7 @@ if __name__ == '__main__':
         AuthDatabaseManager.dispose()
         Logger.info('Auth database released.')
         DbcDatabaseManager.dispose()
-        Logger.info('DBC database released')
+        Logger.info('DBC database released.')
         RealmDatabaseManager.dispose()
         Logger.info('Realm database released.')
         WorldDatabaseManager.dispose()

@@ -42,14 +42,14 @@ class LoginSessionStateHandler:
             if handler:
                 res = handler(self, reader)
                 if res == 0:
-                    Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
+                    Logger.debug(f'[LoginServer] Handling {reader.opcode_str()} client {self.client_address[0]}')
                 elif res == 1:
-                    Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
+                    Logger.debug(f'[LoginServer] Ignoring {reader.opcode_str()} client {self.client_address[0]}')
                 elif res < 0:
-                    Logger.warning(f'[{self.client_address[0]}] Handling {reader.opcode_str()} failed.')
+                    Logger.warning(f'[LoginServer] Handling {reader.opcode_str()} client {self.client_address[0]} failed.')
                     res = -1
             elif not found:
-                Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
+                Logger.warning(f'[LoginServer] Received unknown data: {reader.data} client {self.client_address[0]}')
         except:
             pass
 
@@ -57,20 +57,30 @@ class LoginSessionStateHandler:
 
     def receive_client_message(self, sck):
         header_bytes = self.receive_all(sck, 6)  # 6 = header size
-        if not header_bytes:
+        if not header_bytes or len(header_bytes) != 6:
             return None
 
-        reader = PacketReader(header_bytes)
+        try:
+            reader = PacketReader(header_bytes)
+        except (ValueError, OSError):
+            return None
+
+        if int(reader.size) <= 0 or int(reader.size) > MAX_PACKET_BYTES:
+            return None
+
         reader.data = self.receive_all(sck, int(reader.size))
         return reader
 
     def receive_all(self, sck, expected_size):
         # Prevent wrong size because of malformed packets.
-        if expected_size <= 0:
+        if expected_size <= 0 or expected_size > MAX_PACKET_BYTES:
             return b''
 
         # Try to fill at once.
-        received = sck.recv(expected_size)
+        try:
+            received = sck.recv(expected_size)
+        except (ConnectionResetError, OSError):
+            return b''
         if not received:
             return b''
 
@@ -82,7 +92,10 @@ class LoginSessionStateHandler:
         buffer = bytearray(received)
         current_buffer_size = len(buffer)
         while current_buffer_size < expected_size:
-            received = sck.recv(expected_size - current_buffer_size)
+            try:
+                received = sck.recv(expected_size - current_buffer_size)
+            except (ConnectionResetError, OSError):
+                return b''
             if not received:
                 return b''
             buffer.extend(received)  # Keep appending to our buffer until we're done.

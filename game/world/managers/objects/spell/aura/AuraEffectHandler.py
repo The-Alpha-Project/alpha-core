@@ -4,6 +4,7 @@ from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.aura import AuraEffectDummyHandler
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
+from game.world.managers.objects.units.player.SkillManager import get_riding_spell_ids
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses
 from utils.constants.MiscCodes import UnitDynamicTypes
@@ -642,6 +643,10 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_increase_speed(aura, effect_target, remove):
+        # Riding skill passives use placeholder base points (e.g. -1/0) and shouldn't affect run speed.
+        # Mounted speed is derived from the riding skill rank instead.
+        if aura.source_spell.spell_entry.ID in get_riding_spell_ids():
+            return
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
@@ -650,6 +655,10 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_increase_mounted_speed(aura, effect_target, remove):
+        # Riding skill passives use placeholder base points (e.g. -1/0) and shouldn't affect mounted speed.
+        # Mounted speed is derived from the riding skill rank instead.
+        if aura.source_spell.spell_entry.ID in get_riding_spell_ids():
+            return
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return

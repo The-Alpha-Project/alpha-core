@@ -69,7 +69,7 @@ class MapManager:
     def _build_map(map_id, instance_id):
         if map_id in MAPS and instance_id in MAPS[map_id]:
             Logger.warning(f'Tried to instantiate an existent map. Map {map_id}, Instance {instance_id}')
-            return
+            return MAPS[map_id][instance_id]
 
         # Initialize instances dictionary.
         if map_id not in MAPS:
@@ -301,7 +301,11 @@ class MapManager:
                 return calculated_z, False
             except:
                 tile = MAPS_TILES[map_id][adt_x][adt_y]
-                return tile.z_height_map[cell_x][cell_y], False
+                if tile:
+                    safe_cell_x = max(0, min(cell_x, RESOLUTION_ZMAP - 1))
+                    safe_cell_y = max(0, min(cell_y, RESOLUTION_ZMAP - 1))
+                    return tile.get_z_at(safe_cell_x, safe_cell_y), False
+                return current_z, False
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0, False
@@ -400,7 +404,7 @@ class MapManager:
         return vector.get_random_point_in_radius(radius)
 
     @staticmethod
-    def can_reach_location(map_id, src_vector, dst_vector):
+    def can_reach_location(map_id, src_vector, dst_vector, smooth=False, clamp_endpoint=False):
         # If nav tiles disabled or unable to load Namigator, return as True.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return True
@@ -408,7 +412,7 @@ class MapManager:
         if map_id not in MAPS_NAMIGATOR:
             return True
 
-        failed, in_place, path_ = MapManager.calculate_path(map_id, src_vector, dst_vector, True)
+        failed, in_place, path_ = MapManager.calculate_path(map_id, src_vector, dst_vector, True, smooth, clamp_endpoint)
         return failed, path_
 
     @staticmethod
@@ -442,7 +446,7 @@ class MapManager:
                                                        end_location.x, end_location.y, end_location.z)
 
     @staticmethod
-    def calculate_path(map_id, src_loc, dst_loc, los=False) -> tuple:  # bool failed, in_place, path list.
+    def calculate_path(map_id, src_loc, dst_loc, los=False, smooth=False, clamp_endpoint=False) -> tuple:  # bool failed, in_place, path list.
         # If nav tiles disabled or unable to load Namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return False, False, [dst_loc]
@@ -481,6 +485,7 @@ class MapManager:
             return True, False, [dst_loc]
 
         # Calculate path.
+        # TODO: Use smooth/clamp_endpoint.
         navigation_path = namigator.find_path(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
 
         if len(navigation_path) <= 1:
@@ -488,7 +493,7 @@ class MapManager:
                 Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
             return True, False, [dst_loc]
 
-        # Pop starting location, we already have that and WoW client seems to crash when sending
+        # Pop starting location, we already have that, and the client seems to crash when sending
         # movements with too short of a diff.
         del navigation_path[0]
 
@@ -519,21 +524,45 @@ class MapManager:
 
     @staticmethod
     def get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y):
-        if cell_x > RESOLUTION_ZMAP:
+        original_adt_x = adt_x
+        original_adt_y = adt_y
+        original_cell_x = cell_x
+        original_cell_y = cell_y
+
+        if cell_x >= RESOLUTION_ZMAP:
             adt_x = int(adt_x + 1)
             cell_x = int(cell_x - RESOLUTION_ZMAP)
         elif cell_x < 0:
             adt_x = int(adt_x - 1)
             cell_x = int(-cell_x - 1)
 
-        if cell_y > RESOLUTION_ZMAP:
+        if cell_y >= RESOLUTION_ZMAP:
             adt_y = int(adt_y + 1)
             cell_y = int(cell_y - RESOLUTION_ZMAP)
         elif cell_y < 0:
             adt_y = int(adt_y - 1)
             cell_y = int(-cell_y - 1)
 
-        return MAPS_TILES[map_id][adt_x][adt_y].get_z_at(cell_x, cell_y)
+        if map_id not in MAPS_TILES:
+            return 0.0
+
+        if adt_x < 0 or adt_x >= BLOCK_SIZE or adt_y < 0 or adt_y >= BLOCK_SIZE:
+            adt_x = original_adt_x
+            adt_y = original_adt_y
+            cell_x = max(0, min(original_cell_x, RESOLUTION_ZMAP - 1))
+            cell_y = max(0, min(original_cell_y, RESOLUTION_ZMAP - 1))
+
+        tile = MAPS_TILES[map_id][adt_x][adt_y]
+        if not tile or not tile.has_maps:
+            if adt_x != original_adt_x or adt_y != original_adt_y:
+                tile = MAPS_TILES[map_id][original_adt_x][original_adt_y]
+                if tile and tile.has_maps:
+                    cell_x = max(0, min(original_cell_x, RESOLUTION_ZMAP - 1))
+                    cell_y = max(0, min(original_cell_y, RESOLUTION_ZMAP - 1))
+                    return tile.get_z_at(cell_x, cell_y)
+            return 0.0
+
+        return tile.get_z_at(cell_x, cell_y)
 
     @staticmethod
     def get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y):

@@ -13,9 +13,10 @@ class PetitionBuyHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        if len(reader.data) >= 28:  # Avoid handling empty petition buy packet.
+        if len(reader.data) >= 8:  # Avoid handling empty petition buy packet.
             npc_guid = unpack('<Q', reader.data[:8])[0]
-            guild_name = PacketReader.read_string(reader.data, 20)
+            name_offset = 20 if len(reader.data) >= 20 else 8
+            guild_name = PacketReader.read_string(reader.data, name_offset)
 
             if npc_guid > 0:
                 player_mgr = world_session.player_mgr

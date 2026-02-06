@@ -14,6 +14,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellImmunity
 from utils.constants.UnitCodes import UnitReaction
 from utils.constants.UpdateFields import ObjectFields, UnitFields
+from utils.constants.MiscCodes import UpdateFlags
 
 
 class ObjectManager:
@@ -119,7 +120,7 @@ class ObjectManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
-    def get_create_update_bytes(self, requester):
+    def get_create_update_bytes(self, requester, update_data=None):
         if not self.initialized:
             self.initialize_field_values()
 
@@ -144,7 +145,7 @@ class ObjectManager:
         ))
 
         # Normal update fields.
-        data.extend(self._get_fields_update(True, requester))
+        data.extend(self._get_fields_update(True, requester, update_data=update_data))
 
         return data
 
@@ -316,11 +317,6 @@ class ObjectManager:
             return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     def _get_field_value_for_update(self, index, is_create, requester, update_data):
-        # Defer bytes_1 sheath update, this is similar to the doors collision issue (But for sheath state)
-        # in which the client needs to see the doors as ready first and then receive their actual state after creation.
-        if is_create and self.is_unit() and index == UnitFields.UNIT_FIELD_BYTES_1:
-            return pack('<I', self.get_bytes_1(is_create=True))
-
         return update_data.get_field_bytes(index)
 
     # noinspection PyMethodMayBeStatic
@@ -360,13 +356,19 @@ class ObjectManager:
     def _get_value_by_type_at(self, value_type, index, is_int64):
         return self.update_packet_factory.get_value(index, value_type)
 
+    # Some client UI/control updates (e.g., shapeshift, charm, farsight) only happen when the
+    # related UpdateField is received. Using force for the local player sends an immediate
+    # update packet, so the client reacts without waiting for the next update, causing the UI to glitch.
     def _set_value(self, index, value, value_type, is_int64, force=False):
-        force = force and self.is_player()
+        force = force and (self.is_player() or self.is_gameobject())
         with self.update_packet_factory.lock:
             if force or self.update_packet_factory.should_update(index, value, value_type, is_int64):
                 self.update_packet_factory.update(index, value, value_type, is_int64)
                 if force and self.is_in_world():  # Changes should apply immediately.
-                    self.get_map().update_object(self, has_changes=True)
+                    update_flags = UpdateFlags.CHANGES
+                    if self.is_player() and self.inventory.has_pending_updates():
+                        update_flags |= UpdateFlags.INVENTORY
+                    self.get_map().update_object(self, update_flags=update_flags)
                 return True, force
         return False, force
 
@@ -380,6 +382,10 @@ class ObjectManager:
 
     # override
     def on_cell_change(self):
+        pass
+
+    # override
+    def is_in_world(self):
         pass
 
     def get_low_guid(self):
@@ -468,12 +474,12 @@ class ObjectManager:
             self.get_map().remove_object(self)
             return
         # Despawn (De-activate)
-        self.get_map().update_object(self, has_changes=True)
+        self.get_map().update_object(self, update_flags=UpdateFlags.CHANGES)
 
     # override
     def respawn(self):
         self.is_spawned = True
-        self.get_map().update_object(world_object=self, has_changes=True)
+        self.get_map().update_object(world_object=self, update_flags=UpdateFlags.CHANGES)
 
     def get_map(self):
         from game.world.managers.maps.MapManager import MapManager
@@ -612,9 +618,6 @@ class ObjectManager:
 
     def is_hostile_to(self, target):
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_NEUTRAL
-
-    def is_in_world(self):
-        return False
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)

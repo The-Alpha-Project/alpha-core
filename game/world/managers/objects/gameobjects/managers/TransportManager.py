@@ -45,7 +45,6 @@ class TransportManager(GameObjectManager):
             self._calculate_progress()
             self._update_passengers()
 
-        self.last_tick = now
         super().update(now)
 
     def load_path_nodes(self):

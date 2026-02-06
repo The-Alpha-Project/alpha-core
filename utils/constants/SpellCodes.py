@@ -206,7 +206,7 @@ class SpellAttributesEx(IntEnum):
     SPELL_ATTR_EX_NO_SKILL_INCREASE = 0x00000010  # 4
     SPELL_ATTR_EX_NOT_BREAK_STEALTH = 0x00000020  # 5 Not break stealth
     SPELL_ATTR_EX_CHANNELED_2 = 0x00000040  # 6 channeled 2 - 0.5.3 only 1066 (aquatic form)?
-    SPELL_ATTR_EX_NEGATIVE = 0x00000080  # 7
+    SPELL_ATTR_EX_NEGATIVE = 0x00000080  # 7 used by benign/utility spells too; don't treat as always harmful
     SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET = 0x00000100  # 8 Spell req target not to be in combat state
     SPELL_ATTR_EX_MELEE_COMBAT_START = 0x00000200  # 9
     SPELL_ATTR_EX_NO_THREAT = 0x00000400  # 10 no generates threat on cast 100%
