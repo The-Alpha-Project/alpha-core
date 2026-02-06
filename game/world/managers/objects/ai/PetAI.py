@@ -144,15 +144,6 @@ class PetAI(CreatureAI):
     def do_attack(self, target, chase):
         pass
 
-    # override
-    def attack_start(self, victim, chase=True):
-        if chase and self.creature.has_melee():
-            self.creature.movement_manager.move_chase()
-        # Notify creature group.
-        if self.creature.creature_group:
-            self.creature.creature_group.on_members_attack_start(self.creature, victim)
-        self._initialize_spell_list_cooldowns()
-
     # Evaluates whether a pet can attack a specific target based on CommandState, ReactState and other flags.
     # IMPORTANT: The order in which things are checked is important, be careful if you add or remove checks.
     def can_attack(self, target):
