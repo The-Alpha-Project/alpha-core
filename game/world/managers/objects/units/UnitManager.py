@@ -476,7 +476,12 @@ class UnitManager(ObjectManager):
         damage_info = self.calculate_melee_damage(victim, attack_type)
 
         if damage_info.total_damage > 0:
-            victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.attack_round_hit_info)
+            interrupted = victim.spell_manager.check_spell_interrupts(
+                received_auto_attack=True,
+                hit_info=damage_info.attack_round_hit_info,
+            )
+            if interrupted and damage_info.target_state == VictimStates.VS_WOUND:
+                damage_info.target_state = VictimStates.VS_INTERRUPT
 
         self.handle_melee_attack_procs(damage_info)
 
@@ -1052,7 +1057,9 @@ class UnitManager(ObjectManager):
         if source is not self and damage_info.total_damage > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             if not is_periodic:
-                self.spell_manager.check_spell_interrupts(received_damage=True)
+                interrupted = self.spell_manager.check_spell_interrupts(received_damage=True)
+                if interrupted and damage_info.target_state == VictimStates.VS_WOUND:
+                    damage_info.target_state = VictimStates.VS_INTERRUPT
 
         new_health = self.health - damage_info.total_damage
         if new_health <= 0:

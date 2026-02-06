@@ -696,7 +696,8 @@ class SpellManager:
     def check_spell_interrupts(self, moved=False, turned=False, received_damage=False, hit_info=HitInfo.DAMAGE,
                                interrupted=False, received_auto_attack=False):
         if not self.casting_spells:
-            return
+            return False
+        interrupted_any = False
 
         for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -732,6 +733,7 @@ class SpellManager:
                             continue
 
                     self.remove_cast(casting_spell, interrupted=True)
+                    interrupted_any = True
                 continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
@@ -764,6 +766,8 @@ class SpellManager:
                         continue  # Skip auto attack for partial interrupts.
 
                 self.remove_cast(casting_spell, interrupted=True)
+                interrupted_any = True
+        return interrupted_any
 
     def interrupt_casting_spell(self, cooldown_penalty=0):
         casting_spell = self.get_casting_spell(ignore_melee=True)
