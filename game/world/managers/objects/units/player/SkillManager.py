@@ -16,10 +16,12 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes
+from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes, SpeedType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects, SpellAttributesEx
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import PlayerFields
+from game.world.managers.objects.units.player.StatManager import UnitStats
 
 
 class SkillTypes(IntEnum):
@@ -351,7 +353,15 @@ class SkillManager:
             skill.max = max_value
 
         RealmDatabaseManager.character_update_skill(skill)
+
+        self._refresh_riding_speed()
         return True
+
+    def _refresh_riding_speed(self):
+        if not self.player_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            return
+        base_speed = self.player_mgr.stat_manager.get_base_stat(UnitStats.SPEED_RUNNING)
+        self.player_mgr.change_speed(SpeedType.RUN, base_speed)
 
     def update_skills_max_value(self):
         for skill_id, skill in self.skills.items():

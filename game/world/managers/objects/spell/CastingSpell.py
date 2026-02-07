@@ -217,6 +217,9 @@ class CastingSpell:
     def get_attack_type(self):
         return self.spell_attack_type if self.spell_attack_type != -1 else 0
 
+    # TODO: vMaNGOS treats weapon-damage spells as a single spell school (no per-weapon-line split),
+    #  and only melee swings emit sub-damage entries per weapon damage line (dmg_type2+).
+    #  We currently only use dmg_type1.
     def get_damage_school(self):
         if not self.spell_caster.is_player() or not self.is_weapon_attack() or self.spell_attack_type == -1 or \
                 self.spell_entry.School != SpellSchools.SPELL_SCHOOL_NORMAL:
@@ -227,7 +230,7 @@ class CastingSpell:
         if not weapon:
             return self.spell_entry.School
 
-        return weapon.item_template.dmg_type1  # TODO How should weapons with mixed damage types behave with spells?
+        return weapon.item_template.dmg_type1
 
     def get_damage_school_mask(self):
         damage_school = self.get_damage_school()
