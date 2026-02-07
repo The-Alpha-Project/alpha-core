@@ -826,7 +826,7 @@ class SpellManager:
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell, cast_result)
 
-        if interrupted and casting_spell.forced_sheath_state is not None and self.caster.is_unit(by_mask=True):
+        if casting_spell.forced_sheath_state is not None and self.caster.is_unit(by_mask=True):
             self.caster.set_weapon_mode(casting_spell.forced_sheath_state, force=True)
 
         return True
