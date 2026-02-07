@@ -37,6 +37,7 @@ class CastingSpell:
     triggered_by_spell = None
     creature_spell = None
     hide_result: bool
+    forced_sheath_state: Optional[int]
 
     object_target_results: dict[int, TargetMissInfo] = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
@@ -72,6 +73,7 @@ class CastingSpell:
         self.triggered_by_spell = triggered_by_spell
         self.hide_result = hide_result
         self.creature_spell = creature_spell
+        self.forced_sheath_state = None
 
         self.dynamic_object = None
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)

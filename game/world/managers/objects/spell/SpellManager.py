@@ -385,19 +385,26 @@ class SpellManager:
 
         if self.caster.is_unit(by_mask=True):
             weapon_mode = self.caster.sheath_state
+
+            def _force_weapon_mode(mode, has_weapon):
+                if not has_weapon:
+                    return
+                if self.caster.sheath_state == mode:
+                    return
+                if casting_spell.forced_sheath_state is None:
+                    casting_spell.forced_sheath_state = self.caster.sheath_state
+                self.caster.set_weapon_mode(mode, force=True)
             # If the spell uses a ranged weapon, draw it if needed.
             if casting_spell.is_ranged_weapon_attack():
-                if self.caster.has_ranged_weapon():
-                    self.caster.set_weapon_mode(WeaponMode.RANGEDMODE, force=weapon_mode != WeaponMode.RANGEDMODE)
+                _force_weapon_mode(WeaponMode.RANGEDMODE, self.caster.has_ranged_weapon())
             # If the spell uses a melee weapon, draw it if needed.
             elif casting_spell.spell_attack_type == AttackTypes.BASE_ATTACK:
-                if self.caster.has_mainhand_weapon() or self.caster.has_offhand_weapon():
-                    self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
+                _force_weapon_mode(WeaponMode.NORMALMODE,
+                                   self.caster.has_mainhand_weapon() or self.caster.has_offhand_weapon())
 
             # If the spell uses a fishing pole, draw it if needed.
             if casting_spell.requires_fishing_pole():
-                if self.caster.has_mainhand_weapon():
-                    self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
+                _force_weapon_mode(WeaponMode.NORMALMODE, self.caster.has_mainhand_weapon())
 
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
@@ -818,6 +825,9 @@ class SpellManager:
 
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell, cast_result)
+
+        if interrupted and casting_spell.forced_sheath_state is not None and self.caster.is_unit(by_mask=True):
+            self.caster.set_weapon_mode(casting_spell.forced_sheath_state, force=True)
 
         return True
 
