@@ -98,7 +98,7 @@ class MirrorTimersManager:
         # If timer should be active and is not, start it.
         if timer_active and not self.timers[MirrorTimerTypes.FEIGNDEATH].active:
             feign_death_auras = self.owner.aura_manager.get_auras_by_type(AuraTypes.SPELL_AURA_FEIGN_DEATH)
-            if len(feign_death_auras) > 0:
+            if feign_death_auras:
                 self.timers[MirrorTimerTypes.FEIGNDEATH].start(elapsed, feign_death_auras[0].spell_id)
             else:  # Possible edge case where the player doesn't have any Feign Death aura anymore.
                 self.feign_death = False

@@ -32,7 +32,7 @@ class AuraManager:
         # If a mount aura is being applied, and it results in dismounting, don't apply the new mount aura.
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
                 aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and not \
-                self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED):
+                self.has_aura_by_type(AuraTypes.SPELL_AURA_MOUNTED):
             AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)
             return -1
 
@@ -116,7 +116,7 @@ class AuraManager:
     def are_spell_effects_applicable(self, casting_spell):
         for spell_effect in casting_spell.get_effects():
             if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_MOUNT and \
-                    len(self.get_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)):
+                    self.has_aura_by_type(AuraTypes.SPELL_AURA_MOUNTED):
                 # Special case of mounting via spell effect when the player already has a mount aura applied.
                 # This interaction does not currently work,
                 # as the mount aura is removed via aura interrupts on cast (fixable?).
@@ -307,6 +307,12 @@ class AuraManager:
                 continue
             auras.append(aura)
         return auras
+
+    def has_aura_by_type(self, aura_type) -> bool:
+        for aura in list(self.active_auras.values()):
+            if aura.spell_effect.aura_type == aura_type:
+                return True
+        return False
 
     def get_active_auras(self):
         return [self.active_auras[i] for i in
