@@ -684,51 +684,55 @@ class MapManager:
 
     @staticmethod
     def calculate_path(map_id, src_loc, dst_loc, los=False, smooth=False, clamp_endpoint=False) -> tuple:  # bool failed, in_place, path list.
+        # Freeze both vectors to avoid mutation.
+        src_pos = src_loc.copy()
+        dst_pos = dst_loc.copy()
+
         # If nav tiles disabled or unable to load Namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
-            return False, False, [dst_loc.copy()]
+            return False, False, [dst_pos]
 
         # We don't have navs loaded for a given map, return end vector.
         namigator = MAPS_NAMIGATOR.get(map_id, None)
         if not namigator:
-            return False, False, [dst_loc.copy()]
+            return False, False, [dst_pos]
 
         # At destination, return end vector.
-        if src_loc.approximately_equals(dst_loc):
-            return False, False, [dst_loc.copy()]
+        if src_pos.approximately_equals(dst_pos):
+            return False, False, [dst_pos]
 
         # Too short of a path, return end vector.
-        if src_loc.distance(dst_loc) < 1.0:
-            return False, False, [dst_loc.copy()]
+        if src_pos.distance(dst_pos) < 1.0:
+            return False, False, [dst_pos]
 
         # Calculate source adt coordinates for x,y.
-        src_adt_x, src_adt_y = MapUtils.get_tile(src_loc.x, src_loc.y)
+        src_adt_x, src_adt_y = MapUtils.get_tile(src_pos.x, src_pos.y)
 
         # Calculate destination adt coordinates for x,y.
-        dst_adt_x, dst_adt_y = MapUtils.get_tile(dst_loc.x, dst_loc.y)
+        dst_adt_x, dst_adt_y = MapUtils.get_tile(dst_pos.x, dst_pos.y)
 
         # Check if loaded or unable to load.
-        src_tile_state = MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y)
+        src_tile_state = MapManager._check_tile_load(map_id, src_pos.x, src_pos.y, src_adt_x, src_adt_y)
         if src_tile_state != MapTileStates.READY:
             if src_tile_state == MapTileStates.LOADING:
                 Logger.warning(f'[Namigator] Source tile was loading when path requested.')
-            return True, False, [dst_loc.copy()]
+            return True, False, [dst_pos]
 
         # Check if loaded or unable to load.
-        dst_tile_state = MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y)
+        dst_tile_state = MapManager._check_tile_load(map_id, dst_pos.x, dst_pos.y, dst_adt_x, dst_adt_y)
         if dst_tile_state != MapTileStates.READY:
             if dst_tile_state == MapTileStates.LOADING:
                 Logger.warning(f'[Namigator] Destination tile was loading when path requested.')
-            return True, False, [dst_loc.copy()]
+            return True, False, [dst_pos]
 
         # Calculate path.
         # TODO: Use smooth/clamp_endpoint.
-        navigation_path = namigator.find_path(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
+        navigation_path = namigator.find_path(src_pos.x, src_pos.y, src_pos.z, dst_pos.x, dst_pos.y, dst_pos.z)
 
         if len(navigation_path) <= 1:
             if not los:
-                Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
-            return True, False, [dst_loc.copy()]
+                Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_pos} end {dst_pos}')
+            return True, False, [dst_pos]
 
         # Pop starting location, we already have that, and the client seems to crash when sending
         # movements with too short of a diff.
