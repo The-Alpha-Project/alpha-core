@@ -4,11 +4,11 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'contrib/namigator'
+      - '.github/workflows/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'contrib/namigator'
+      - '.github/workflows/**'
 
 env:
   BUILD_TYPE: Release
