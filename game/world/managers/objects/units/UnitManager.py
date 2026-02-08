@@ -176,6 +176,8 @@ class UnitManager(ObjectManager):
         self.last_regen = 0
         self.mana_regen_timer = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
+        self._power_regen_remainder = {}
+        self._power_regen_negative_logged = set()
 
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
@@ -824,6 +826,7 @@ class UnitManager(ObjectManager):
             return
 
         if power_type == PowerTypes.TYPE_FOCUS and self.has_moved:
+            self._power_regen_remainder[power_type] = 0.0
             return  # Focus only generates when not moving.
 
         current_power = self.get_power_value(power_type)
@@ -876,15 +879,37 @@ class UnitManager(ObjectManager):
 
         regen_per_tick = regen_per_5 * 0.4  # Regen per 5 -> regen per 2 (per tick).
 
-        # TODO: Resurrection Sickness will cause negative regen rates, ultimately killing the player.
-        #  Also need to investigate how this affects rage decay.
-        if power_type == PowerTypes.TYPE_HEALTH and regen_per_tick < 0:
+        non_decaying_power_types = {
+            PowerTypes.TYPE_HEALTH,
+            PowerTypes.TYPE_MANA,
+            PowerTypes.TYPE_FOCUS,
+            PowerTypes.TYPE_ENERGY,
+        }
+        if power_type in non_decaying_power_types and regen_per_tick < 0:
+            if power_type not in self._power_regen_negative_logged:
+                self._power_regen_negative_logged.add(power_type)
             regen_per_tick = 0
+        else:
+            self._power_regen_negative_logged.discard(power_type)
 
-        if 0 < regen_per_tick < 1:
-            regen_per_tick = 1  # Round up to 1, but account for decay/zero regen.
+        # Don't bank fractional regen while combat rules suppress it.
+        reset_remainder = power_type in {PowerTypes.TYPE_HEALTH, PowerTypes.TYPE_RAGE} and self.in_combat
+        remainder = 0.0 if reset_remainder else self._power_regen_remainder.get(power_type, 0.0)
+        if power_type in non_decaying_power_types and remainder < 0:
+            remainder = 0.0
 
-        self.receive_power(int(regen_per_tick), power_type)
+        # Carry fractional regen between ticks so low rates don't round up to 1 every tick.
+        total_regen = regen_per_tick + remainder
+        if total_regen >= 1 or total_regen <= -1:
+            regen_amount = int(total_regen)
+            remainder = total_regen - regen_amount
+        else:
+            regen_amount = 0
+            remainder = total_regen
+
+        self._power_regen_remainder[power_type] = remainder
+        if regen_amount:
+            self.receive_power(regen_amount, power_type)
 
     # Warrior Stances and Bear Form.
     # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
@@ -2316,7 +2341,7 @@ class UnitManager(ObjectManager):
         node_bounds = self.quadtree_node.bounds
         return not node_bounds.contains_box(visibility_bounds)
 
-    def notify_move_in_line_of_sight(self, map_, unit, ooc_event=False, in_range=False):
+    def notify_move_in_line_of_sight(self, map_, unit, ooc_event=False, in_range=False, distance=None):
         los_check = None
 
         # Check ooc events for self (Which can have greater range than detection range).
@@ -2332,7 +2357,9 @@ class UnitManager(ObjectManager):
             return
 
         # Check for stealth/invisibility.
-        can_detect_unit, alert = self.can_detect_target(unit, self.location.distance(unit.location))
+        if distance is None:
+            distance = self.location.distance(unit.location)
+        can_detect_unit, alert = self.can_detect_target(unit, distance)
         if alert and unit.is_player() and not self.is_player():
             self.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
 

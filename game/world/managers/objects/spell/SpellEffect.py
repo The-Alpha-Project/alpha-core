@@ -1,3 +1,4 @@
+import math
 import random
 import time
 from typing import Optional
@@ -165,13 +166,24 @@ class SpellEffect:
         if self.effect_points:
             return self.effect_points
 
-        # Calculate min and max dice roll values.
-        min_roll = 1 if self.die_sides != 0 else 0
-        max_roll = self.die_sides + self.dice_per_level if self.die_sides != 0 else 0
+        # Match client Spell_C_GetMinMaxPoints (dice count + real-points-per-level with asymmetrical rounding).
+        level = self.caster_effective_level
+        dice_count = self.base_dice + (self.dice_per_level * level)
 
-        # Roll.
-        rolled_points = random.randint(min_roll, max_roll) if self.die_sides != 0 else 0
-        return self.base_points + int(self.real_points_per_level * self.caster_effective_level) + rolled_points
+        scaled_points = self.real_points_per_level * level
+        min_bonus = math.trunc(scaled_points)
+        max_bonus = math.ceil(scaled_points) if scaled_points >= 0 else math.floor(scaled_points)
+
+        min_points = self.base_points + min_bonus + dice_count
+        max_points = self.base_points + max_bonus + (self.die_sides * dice_count)
+
+        if self.die_sides == 0:
+            # Client treats dieSides=0 as a fixed value (min == max).
+            return min_points
+
+        low = min(min_points, max_points)
+        high = max(min_points, max_points)
+        return random.randint(low, high)
 
     def get_effect_simple_points(self) -> int:
         return self.base_points + self.base_dice
@@ -179,8 +191,10 @@ class SpellEffect:
     def get_radius(self) -> float:
         if not self.radius_entry:
             return 0
+        # Client scales radius by unit level, not spell level.
         return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel
-                   * self.caster_effective_level)
+                   * (self.casting_spell.spell_caster.level if self.casting_spell.spell_caster.is_unit(by_mask=True)
+                      else 0))
 
     def is_harmful(self):
         if self._harmful is None:

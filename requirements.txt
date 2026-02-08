@@ -3,5 +3,4 @@ PyYAML
 colorama
 SQLAlchemy
 pymysql
-apscheduler
 requests

@@ -16,10 +16,12 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes
+from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes, SpeedType
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects, SpellAttributesEx
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects, SpellAttributes, SpellAttributesEx
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import PlayerFields
+from game.world.managers.objects.units.player.StatManager import UnitStats
 
 
 class SkillTypes(IntEnum):
@@ -351,7 +353,15 @@ class SkillManager:
             skill.max = max_value
 
         RealmDatabaseManager.character_update_skill(skill)
+
+        self._refresh_riding_speed()
         return True
+
+    def _refresh_riding_speed(self):
+        if not self.player_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            return
+        base_speed = self.player_mgr.stat_manager.get_base_stat(UnitStats.SPEED_RUNNING)
+        self.player_mgr.change_speed(SpeedType.RUN, base_speed)
 
     def update_skills_max_value(self):
         for skill_id, skill in self.skills.items():
@@ -746,6 +756,53 @@ class SkillManager:
             return 0
 
         return self.get_total_skill_value(skill.ID)
+
+    def get_spell_rank_for_spell_id(self, spell_id):
+        # Mirror client spell-rank math (CGPlayer_C::GetSpellRank) for tooltip-aligned scaling.
+        spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+        if not spell_entry:
+            return 0
+
+        skill, _ = SkillManager.get_skill_and_skill_line_for_spell_id(
+            spell_id, self.player_mgr.race, self.player_mgr.class_, self.player_mgr.is_gm
+        )
+        if not skill:
+            return 0
+
+        # Client returns 0 if the spell has no related skill rank.
+        skill_rank = 0
+        if skill.ID in self.skills:
+            skill_rank = self.get_total_skill_value(skill.ID)
+            if skill_rank < 0:
+                skill_rank = 0
+
+        weapon_flags = (SpellAttributes.SPELL_ATTR_RANGED |
+                        SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 |
+                        SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_2)
+        if spell_entry.Attributes & weapon_flags:
+            # Client averages the spell skill with the current weapon skill for weapon-based spells.
+            if spell_entry.Attributes & SpellAttributes.SPELL_ATTR_RANGED:
+                weapon = self.player_mgr.get_current_weapon_for_attack_type(AttackTypes.RANGED_ATTACK)
+                if not weapon:
+                    weapon_skill_rank = None
+                else:
+                    weapon_skill_id = self.get_skill_id_for_weapon(weapon.item_template)
+                    weapon_skill_rank = self.get_total_skill_value(weapon_skill_id)
+            else:
+                weapon = self.player_mgr.get_current_weapon_for_attack_type(AttackTypes.BASE_ATTACK)
+                weapon_skill_id = self.get_skill_id_for_weapon(weapon.item_template if weapon else None)
+                weapon_skill_rank = self.get_total_skill_value(weapon_skill_id)
+
+            if weapon_skill_rank is not None:
+                if weapon_skill_rank < 0:
+                    weapon_skill_rank = 0
+                skill_rank = int((skill_rank + weapon_skill_rank) / 2)
+
+        # Client clamps spell rank by MaxLevel when set (converted to rank by *5).
+        if spell_entry.MaxLevel > 0:
+            skill_rank = min(skill_rank, spell_entry.MaxLevel * 5)
+
+        return max(skill_rank, 0)
 
     def get_riding_speed_bonus_percent(self) -> float:
         best_bonus = 0.0

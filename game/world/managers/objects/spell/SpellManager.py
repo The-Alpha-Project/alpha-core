@@ -385,19 +385,26 @@ class SpellManager:
 
         if self.caster.is_unit(by_mask=True):
             weapon_mode = self.caster.sheath_state
+
+            def _force_weapon_mode(mode, has_weapon):
+                if not has_weapon:
+                    return
+                if self.caster.sheath_state == mode:
+                    return
+                if casting_spell.forced_sheath_state is None:
+                    casting_spell.forced_sheath_state = self.caster.sheath_state
+                self.caster.set_weapon_mode(mode, force=True)
             # If the spell uses a ranged weapon, draw it if needed.
             if casting_spell.is_ranged_weapon_attack():
-                if self.caster.has_ranged_weapon():
-                    self.caster.set_weapon_mode(WeaponMode.RANGEDMODE, force=weapon_mode != WeaponMode.RANGEDMODE)
+                _force_weapon_mode(WeaponMode.RANGEDMODE, self.caster.has_ranged_weapon())
             # If the spell uses a melee weapon, draw it if needed.
             elif casting_spell.spell_attack_type == AttackTypes.BASE_ATTACK:
-                if self.caster.has_mainhand_weapon() or self.caster.has_offhand_weapon():
-                    self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
+                _force_weapon_mode(WeaponMode.NORMALMODE,
+                                   self.caster.has_mainhand_weapon() or self.caster.has_offhand_weapon())
 
             # If the spell uses a fishing pole, draw it if needed.
             if casting_spell.requires_fishing_pole():
-                if self.caster.has_mainhand_weapon():
-                    self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
+                _force_weapon_mode(WeaponMode.NORMALMODE, self.caster.has_mainhand_weapon())
 
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
@@ -819,6 +826,9 @@ class SpellManager:
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell, cast_result)
 
+        if casting_spell.forced_sheath_state is not None and self.caster.is_unit(by_mask=True):
+            self.caster.set_weapon_mode(casting_spell.forced_sheath_state, force=True)
+
         return True
 
     def remove_cast_by_id(self, spell_id, interrupted=False) -> bool:
@@ -1037,7 +1047,8 @@ class SpellManager:
     def send_spell_resist_result(self, casting_spell, damage_info):
         if casting_spell.spell_caster == damage_info.target:
             return
-        caster_level = casting_spell.caster_effective_level if self.caster.is_unit(by_mask=True) else 0
+        # Client log uses spell level (rank/5), not raw caster level.
+        caster_level = casting_spell.caster_spell_level if self.caster.is_unit(by_mask=True) else 0
         data = pack('<2QI2f2I',
                     damage_info.attacker.guid,
                     damage_info.target.guid,
@@ -1292,18 +1303,21 @@ class SpellManager:
                 return False
 
             # Shapeshift form checks.
+            # Stance forms (battle/defensive/berserker) are shapeshifts, but still allow switching between stances.
             shapeshift_form = self.caster.shapeshift_form
             shapeshift_mask = casting_spell.spell_entry.ShapeshiftMask
             if shapeshift_form:
+                form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(shapeshift_form)
+                is_stance_form = form_entry and (form_entry.Flags & 1)
                 in_mask = shapeshift_mask & (1 << (shapeshift_form - 1))
                 if not in_mask:
                     # Client allows casts for some forms (non-stance) even if the mask doesn't include them.
-                    form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(shapeshift_form)
-                    if not (shapeshift_mask == 0 and form_entry and (form_entry.Flags & 1)):
-                        if not form_entry or (form_entry.Flags & 1):
+                    if not (shapeshift_mask == 0 and is_stance_form):
+                        if not form_entry or is_stance_form:
                             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_SHAPESHIFT)
                             return False
-                if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_NOT_SHAPESHIFT and not in_mask:
+                if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_NOT_SHAPESHIFT \
+                        and not in_mask and not is_stance_form:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_SHAPESHIFT)
                     return False
             elif shapeshift_mask:
