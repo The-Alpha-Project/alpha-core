@@ -867,35 +867,44 @@ class StatManager:
         # regardless of how much +hit% gear was equipped.
         miss_chance = max(dual_wield_penalty, miss_chance)
 
-        if not (HitInfo.MISS & invalid_result_mask):
-            hit_roll = random.random()
-            if roll_info is not None:
-                roll_info.miss_roll = hit_roll * 100.0
-                roll_info.miss_roll_needed = miss_chance * 100.0
-            if hit_roll < miss_chance:
-                return HitInfo.MISS
-
         hit_info = HitInfo.SUCCESS
+
+        # Use one roll and add chances in order, so each outcome is a fixed slice (not conditional).
+        # roll_needed logs the running cutoff for that roll (e.g., miss=5, dodge=15 => roll < 15 dodges if miss failed).
+        roll = random.random()
+        roll_pct = roll * 100.0 if roll_info is not None else None
+        cumulative = 0.0
+
+        if not (HitInfo.MISS & invalid_result_mask):
+            miss_chance = max(0.0, miss_chance)
+            cumulative += miss_chance
+            if roll_info is not None:
+                roll_info.miss_roll = roll_pct
+                roll_info.miss_roll_needed = cumulative * 100.0
+            if roll < cumulative:
+                return HitInfo.MISS
 
         # Dodge/parry/block receive a 0.04% bonus/penalty for each skill point difference.
         dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
         can_dodge = not (invalid_result_mask & HitInfo.DODGE) and self.unit_mgr.can_dodge(attacker.location, in_combat=True)
         if can_dodge:
-            dodge_roll = random.random()
+            dodge_chance = max(0.0, dodge_chance)
+            cumulative += dodge_chance
             if roll_info is not None:
-                roll_info.dodge_roll = dodge_roll * 100.0
-                roll_info.dodge_roll_needed = dodge_chance * 100.0
-            if dodge_roll < dodge_chance:
+                roll_info.dodge_roll = roll_pct
+                roll_info.dodge_roll_needed = cumulative * 100.0
+            if roll < cumulative:
                 return hit_info | HitInfo.DODGE
 
         parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
         can_parry = not (invalid_result_mask & HitInfo.PARRY) and self.unit_mgr.can_parry(attacker.location, in_combat=True)
         if can_parry:
-            parry_roll = random.random()
+            parry_chance = max(0.0, parry_chance)
+            cumulative += parry_chance
             if roll_info is not None:
-                roll_info.parry_roll = parry_roll * 100.0
-                roll_info.parry_roll_needed = parry_chance * 100.0
-            if parry_roll < parry_chance:
+                roll_info.parry_roll = roll_pct
+                roll_info.parry_roll_needed = cumulative * 100.0
+            if roll < cumulative:
                 return hit_info | HitInfo.PARRY
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, combat_rating,
@@ -913,27 +922,31 @@ class StatManager:
 
         can_block = not (invalid_result_mask & HitInfo.BLOCK) and self.unit_mgr.can_block(attacker.location, in_combat=True)
         if can_block:
-            block_roll = random.random()
+            block_chance = max(0.0, block_chance)
+            cumulative += block_chance
             if roll_info is not None:
-                roll_info.block_roll = block_roll * 100.0
-                roll_info.block_roll_needed = block_chance * 100.0
-            if block_roll < block_chance:
+                roll_info.block_roll = roll_pct
+                roll_info.block_roll_needed = cumulative * 100.0
+            if roll < cumulative:
                 return hit_info | HitInfo.BLOCK
 
         if not (invalid_result_mask & HitInfo.CRITICAL_HIT):
             critical_chance = self._get_base_crit_chance_against_self(attacker, attack_type)
         else:
-            critical_chance = 0
+            critical_chance = 0.0
 
         if attack_type == AttackTypes.OFFHAND_ATTACK:
             hit_info |= HitInfo.OFFHAND
-        crit_roll = random.random()
+
+        critical_chance = max(0.0, critical_chance)
         if roll_info is not None:
-            roll_info.crit_roll = crit_roll * 100.0
-            roll_info.crit_roll_needed = critical_chance * 100.0
-        if crit_roll < critical_chance:
-            hit_info |= HitInfo.CRITICAL_HIT
-            return hit_info
+            roll_info.crit_roll = roll_pct
+            roll_info.crit_roll_needed = (cumulative + critical_chance) * 100.0
+        if critical_chance:
+            cumulative += critical_chance
+            if roll < cumulative:
+                hit_info |= HitInfo.CRITICAL_HIT
+                return hit_info
 
         # Crushing blows.
         can_crush = not (invalid_result_mask & HitInfo.CRUSHING) and attacker.can_crush()
@@ -949,8 +962,12 @@ class StatManager:
 
         # 15% + 2% * skill difference chance to crush when level difference >= 3.
         crush_chance = eff_difference * 0.02 - 0.15
-        if eff_difference >= 15 and random.random() < crush_chance:
-            return hit_info | HitInfo.CRUSHING
+        if eff_difference >= 15:
+            crush_chance = max(0.0, crush_chance)
+            if crush_chance:
+                cumulative += crush_chance
+                if roll < cumulative:
+                    return hit_info | HitInfo.CRUSHING
         
         return hit_info
 

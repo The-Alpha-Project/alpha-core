@@ -94,7 +94,7 @@ class AuraEffectHandler:
         effect_target.set_scale(model_info[1])
 
     @staticmethod
-    def handle_mounted(aura, effect_target, remove):  # TODO Summon Nightmare (5784) does not apply for other players ?
+    def handle_mounted(aura, effect_target, remove):
         if remove:
             if effect_target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
                 effect_target.unmount()

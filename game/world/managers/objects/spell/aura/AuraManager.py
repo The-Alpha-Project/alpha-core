@@ -28,11 +28,11 @@ class AuraManager:
         self.add_aura(aura)
 
     def add_aura(self, aura):
-        # Special case with SpellEffect mounting and mounting by aura.
-        # If a mount aura is being applied, and it results in dismounting, don't apply the new mount aura.
+        # Mount spells act as a toggle. If already mounted, dismount and skip applying a new mount aura.
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
-                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED and not \
-                self.has_aura_by_type(AuraTypes.SPELL_AURA_MOUNTED):
+                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
+            aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)
             AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)
             return -1
 
@@ -173,6 +173,18 @@ class AuraManager:
                      aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
                         cast_spell and not cast_spell.cast_breaks_stealth():
                     continue  # Skip cast interrupt for stealth spells for flagged spells.
+
+                # Mount casts must not interrupt existing mount auras; otherwise the aura is removed before
+                # mount-toggle logic runs, which re-applies the mount and stacks speed on repeated item use.
+                if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ACTION and \
+                        aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and cast_spell:
+                    has_mount_effect = cast_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_MOUNT)
+                    has_mount_aura = any(effect and effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED
+                                         for effect in cast_spell.get_effects())
+                    if has_mount_effect or has_mount_aura:
+                        # Let mount toggle logic handle dismount/remount without a premature interrupt.
+                        # Mount toggle happens in `AuraManager.add_aura` and `SpellEffectHandler.handle_summon_mount`.
+                        continue
 
                 if aura.interrupt_flags & flag and condition:
                     self.remove_aura(aura)

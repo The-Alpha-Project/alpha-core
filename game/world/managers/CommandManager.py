@@ -20,6 +20,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.Srp6 import Srp6
+from utils.StringUtils import find_closest_match, normalize_name, parse_bool
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, SpeedType
@@ -904,6 +905,32 @@ class CommandManager:
         return 0, result
 
     @staticmethod
+    def toggle_unit_flag(world_session, args):
+        split_args = str(args).strip().split(maxsplit=1)
+        if len(split_args) != 2:
+            return -1, 'please use it like: .toggleunitflag <true|false> <unit_flag>'
+
+        active = parse_bool(split_args[0])
+        if active is None:
+            return -1, 'invalid state. use true|false, on|off, enable|disable, or 1|0.'
+
+        match_name = find_closest_match(split_args[1], UnitFlags.__members__,
+                                        prefixes=('UNIT_FLAG_', 'UNIT_MASK_'))
+        if not match_name:
+            return -1, 'invalid unit flag.'
+
+        unit_flag = UnitFlags[match_name]
+        unit = CommandManager._target_or_self(world_session)
+        unit.set_unit_flag(unit_flag, active)
+
+        normalized = normalize_name(split_args[1])
+        if normalized != match_name and normalized not in (match_name.replace('UNIT_FLAG_', '', 1),
+                                                           match_name.replace('UNIT_MASK_', '', 1)):
+            return 0, f'Matched "{split_args[1]}" to {match_name}. {unit.get_name()}: {match_name} set to {active}.'
+
+        return 0, f'{unit.get_name()}: {match_name} set to {active}.'
+
+    @staticmethod
     def creature_info(world_session, args):
         player_mgr = world_session.player_mgr
         creature = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
@@ -1384,6 +1411,7 @@ GM_COMMAND_DEFINITIONS = {
 }
 
 DEV_COMMAND_DEFINITIONS = {
+    'toggleunitflag': [CommandManager.toggle_unit_flag, 'toggle a unit flag by name'],
     'scriptwp': [CommandManager.activate_script_waypoints, 'tries to activate the selected unit script waypoints'],
     'flushbags': [CommandManager.flushbags, 'flush all items from bags'],
     'los': [CommandManager.los, 'check unit line of sight'],

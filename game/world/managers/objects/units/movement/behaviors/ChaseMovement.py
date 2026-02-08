@@ -22,6 +22,8 @@ class ChaseMovement(BaseMovement):
         self.combat_target = None
         self.waypoints = []
         self._last_path_endpoint = None
+        self._last_path_target_location = None
+        self._force_repath = False
         self._last_target_guid = 0
         self._last_target_distance = None
         self._relative_speed = 0.0
@@ -45,6 +47,8 @@ class ChaseMovement(BaseMovement):
             self._last_target_distance = None
             self._relative_speed = 0.0
             self._relative_state = RelativeChaseState.NEUTRAL
+            self._last_path_target_location = None
+            self._force_repath = False
 
         current_distance = self.unit.location.distance(self.combat_target.location)
         if elapsed > 0:
@@ -68,6 +72,12 @@ class ChaseMovement(BaseMovement):
                 self.waypoints = self._regenerate_path()
                 if self.waypoints:
                     self._last_path_endpoint = self.waypoints[-1]
+                    # Track target location used for this path to refresh if the target moves significantly.
+                    self._last_path_target_location = self.combat_target.location.copy()
+                    # Override active spline so we can react to target direction changes immediately.
+                    self._force_repath = True
+                else:
+                    self._force_repath = False
 
             if self._can_chase():
                 self.speed_dirty = False
@@ -78,6 +88,7 @@ class ChaseMovement(BaseMovement):
         if not spline:
             return
         self.spline_callback(spline, movement_behavior=self)
+        self._force_repath = False
 
     def _build_chase_spline(self):
         if not self.waypoints:
@@ -122,6 +133,7 @@ class ChaseMovement(BaseMovement):
             spline_flags=spline_flags,
         )
 
+    # Build a fresh chase path with evade/swim checks and optional nav pathing.
     def _regenerate_path(self):
         if not self.combat_target:
             return None
@@ -160,7 +172,7 @@ class ChaseMovement(BaseMovement):
         if self._is_within_combat_distance():
             return None
 
-        target_location = self.combat_target.location
+        target_location = self.combat_target.location.copy()
         if not self.unit.is_player() and not self.combat_target.is_player():
             distance = self.unit.location.distance(target_location) - self._get_combat_stop_distance()
             distance = max(distance, 0.0)
@@ -210,6 +222,7 @@ class ChaseMovement(BaseMovement):
             base_distance = base_distance * 1.3
         return base_distance
 
+    # Track whether the target is moving away, towards, or neutral to adjust stop distance.
     def _resolve_relative_state(self, relative_speed):
         dir_state = self._resolve_directional_state()
         if dir_state:
@@ -227,6 +240,7 @@ class ChaseMovement(BaseMovement):
             return RelativeChaseState.CLASH
         return RelativeChaseState.NEUTRAL
 
+    # Resolve a directional state based on the target move direction relative to the chaser.
     def _resolve_directional_state(self):
         if not self.combat_target or not self.combat_target.is_moving():
             return None
@@ -251,6 +265,7 @@ class ChaseMovement(BaseMovement):
             return RelativeChaseState.AWAY
         return RelativeChaseState.NEUTRAL
 
+    # Use target spline waypoint direction when available; fall back to facing orientation.
     def _get_target_move_dir(self):
         waypoint = self.combat_target.movement_manager.get_waypoint_location()
         if waypoint and waypoint != self.combat_target.location:
@@ -264,6 +279,7 @@ class ChaseMovement(BaseMovement):
         orientation = self.combat_target.location.o
         return math.sin(orientation), math.cos(orientation)
 
+    # Decide if we should rebuild the chase path to avoid overshooting stale endpoints.
     def _should_regenerate_path(self):
         if not self.combat_target:
             return False
@@ -272,14 +288,77 @@ class ChaseMovement(BaseMovement):
             return False
         if self.unit.object_ai and not self.unit.object_ai.is_combat_movement_enabled():
             return False
-        if self.speed_dirty or not self.waypoints:
-            return self.speed_dirty or not self.spline
+        if self.speed_dirty:
+            return True
+        if not self.waypoints and not self.spline:
+            return True
         # The last known endpoint is beyond combat distance, regenerate.
         last_endpoint = self.waypoints[-1] if self.waypoints else self._last_path_endpoint
         if not last_endpoint:
             return False
+        if self._last_path_target_location:
+            target_moved = self._last_path_target_location.distance(self.combat_target.location)
+            if target_moved > self._get_path_refresh_distance():
+                return True
+            if self._has_target_direction_shifted():
+                return True
+            if self._has_target_heading_shifted_from_endpoint():
+                return True
         return not self._is_within_combat_distance(source_vector=last_endpoint)
 
+    # Minimum distance the target must drift before we force a repath.
+    def _get_path_refresh_distance(self):
+        # Refresh path sooner when the target drifts away from the original endpoint.
+        return max(0.5, self._get_combat_stop_distance() * 0.35)
+
+    # Detect a significant target direction swing relative to the original chase endpoint.
+    def _has_target_direction_shifted(self):
+        # If the target swings direction relative to the original endpoint, refresh the path early.
+        to_last = self._last_path_target_location
+        to_now = self.combat_target.location
+        dir_x = to_now.x - to_last.x
+        dir_y = to_now.y - to_last.y
+        dir_len = math.hypot(dir_x, dir_y)
+        if dir_len <= 0.001:
+            return False
+        dir_x /= dir_len
+        dir_y /= dir_len
+
+        to_chaser_x = self.unit.location.x - to_last.x
+        to_chaser_y = self.unit.location.y - to_last.y
+        to_chaser_len = math.hypot(to_chaser_x, to_chaser_y)
+        if to_chaser_len <= 0.001:
+            return False
+        to_chaser_x /= to_chaser_len
+        to_chaser_y /= to_chaser_len
+
+        dot = (dir_x * to_chaser_x) + (dir_y * to_chaser_y)
+        # Cosine threshold: ~18 degrees.
+        return dot < 0.95
+
+    # If the target is moving away from the last endpoint, refresh the path immediately.
+    def _has_target_heading_shifted_from_endpoint(self):
+        if not self._last_path_target_location or not self.combat_target.is_moving():
+            return False
+        dir_vector = self._get_target_move_dir()
+        if not dir_vector:
+            return False
+        to_endpoint_x = self._last_path_target_location.x - self.combat_target.location.x
+        to_endpoint_y = self._last_path_target_location.y - self.combat_target.location.y
+        to_endpoint_len = math.hypot(to_endpoint_x, to_endpoint_y)
+        if to_endpoint_len <= 0.001:
+            return False
+        to_endpoint_x /= to_endpoint_len
+        to_endpoint_y /= to_endpoint_len
+        dot = (dir_vector[0] * to_endpoint_x) + (dir_vector[1] * to_endpoint_y)
+        return dot < self._get_target_heading_refresh_dot()
+
+    # Dot threshold for heading change detection (higher = more sensitive).
+    def _get_target_heading_refresh_dot(self):
+        # Tight dot threshold to react quickly when the target veers away from the last endpoint.
+        return 0.98
+
+    # Gate chase spline generation; may override active spline when we need to repath quickly.
     def _can_chase(self):
         if not self.waypoints:
             return False
@@ -289,6 +368,8 @@ class ChaseMovement(BaseMovement):
             return False
         if self.unit.object_ai and not self.unit.object_ai.is_combat_movement_enabled():
             return False
+        if self._force_repath:
+            return True
         if self.speed_dirty:
             return True
         if self.spline:
