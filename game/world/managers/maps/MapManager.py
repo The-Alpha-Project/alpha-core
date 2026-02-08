@@ -1,5 +1,8 @@
 import traceback
 import math
+import os
+import signal
+from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache
 from multiprocessing import RLock
 from os import path
@@ -14,6 +17,7 @@ from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP
     RESOLUTION_LIQUIDS, BLOCK_SIZE
 from game.world.managers.maps.Map import Map, MapType
 from game.world.managers.maps.MapTile import MapTile
+from game.world.managers.maps.MapTileLoader import load_map_tile_data, MapTileLoadError
 from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.maps.helpers.Namigator import Namigator
@@ -40,10 +44,23 @@ PENDING_TILE_INITIALIZATION_QUEUE = _queue.SimpleQueue()
 QUEUE_LOCK = RLock()
 
 
+def _tile_loader_worker_init():
+    # Ignore Ctrl+C in worker processes so the main process handles shutdown cleanly.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
 # noinspection PyBroadException
 class MapManager:
     NAMIGATOR_LOADED = False
     NAMIGATOR_FAILED = False
+    TILE_LOADER_FAILED = False
+    TILE_LOAD_WORKERS = max(1, min(4, (os.cpu_count() or 2) - 1))  # Cap worker count to limit memory usage.
+    TILE_LOAD_MAX_INFLIGHT = TILE_LOAD_WORKERS * 2  # Max in-flight tile load jobs (queued + running).
+    TILE_LOAD_IDLE_TIMEOUT = 10.0  # Seconds, shutdown workers quickly when no tiles are loading.
+    _TILE_LOAD_POOL = None  # ProcessPoolExecutor instance for tile parsing.
+    _TILE_LOAD_FUTURES = {}  # Tile loading result futures.
+    _TILE_LOAD_INFLIGHT = {}  # Current loading tile data.
+    _TILE_LOAD_IDLE_SINCE = None  # Timestamp when the pool became idle.
 
     @staticmethod
     def initialize_world_and_pvp_maps():
@@ -143,11 +160,229 @@ class MapManager:
 
     @staticmethod
     def initialize_pending_tiles():
+        MapManager._collect_tile_load_results()
+        MapManager._dispatch_tile_loads()
+        MapManager._maybe_shutdown_tile_loader()
+
+    @staticmethod
+    def shutdown_tile_loader(wait=True):
+        pool = MapManager._TILE_LOAD_POOL
+        if not pool:
+            return
+        try:
+            pool.shutdown(wait=wait, cancel_futures=True)
+        except TypeError:
+            pool.shutdown(wait=wait)
+        MapManager._TILE_LOAD_POOL = None
+        MapManager._TILE_LOAD_FUTURES.clear()
+        MapManager._TILE_LOAD_INFLIGHT.clear()
+        MapManager._TILE_LOAD_IDLE_SINCE = None
+
+    @staticmethod
+    def _ensure_tile_loader():
+        if MapManager.TILE_LOADER_FAILED:
+            return False
+        if MapManager._TILE_LOAD_POOL:
+            MapManager._TILE_LOAD_IDLE_SINCE = None
+            return True
+        try:
+            MapManager._TILE_LOAD_POOL = ProcessPoolExecutor(
+                max_workers=MapManager.TILE_LOAD_WORKERS,
+                initializer=_tile_loader_worker_init,
+            )
+            MapManager._TILE_LOAD_IDLE_SINCE = None
+            return True
+        except Exception:
+            MapManager.TILE_LOADER_FAILED = True
+            Logger.error('[Maps] Unable to initialize tile loader process pool.')
+            Logger.error(traceback.format_exc())
+            return False
+
+    @staticmethod
+    def _dispatch_tile_loads():
         if PENDING_TILE_INITIALIZATION_QUEUE.empty():
             return
-        key = PENDING_TILE_INITIALIZATION_QUEUE.get()
+
+        if not config.Server.Settings.use_map_tiles:
+            MapManager._dispatch_nav_only_loads()
+            return
+
+        if not MapManager._ensure_tile_loader():
+            MapManager._dispatch_sync_tile_loads()
+            return
+
+        maps_path = PathManager.get_maps_path()
+        use_float_16 = config.Server.Settings.use_float_16
+        expected_version = MapTile.EXPECTED_VERSION
+
+        while len(MapManager._TILE_LOAD_INFLIGHT) < MapManager.TILE_LOAD_MAX_INFLIGHT:
+            try:
+                key = PENDING_TILE_INITIALIZATION_QUEUE.get_nowait()
+            except _queue.Empty:
+                break
+
+            if key in MapManager._TILE_LOAD_INFLIGHT:
+                continue
+
+            map_id, adt_x, adt_y = MapManager._split_tile_key(key)
+            if map_id not in MAP_LIST or map_id not in MAPS_TILES:
+                continue
+
+            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            if tile.is_initialized():
+                continue
+
+            tile.initialized = True
+            tile.ready = False
+
+            filename = f'{map_id:03}{adt_x:02}{adt_y:02}.map'
+            Logger.info(f'[Maps] Loading map tile, Map:{map_id} Tile:{adt_x},{adt_y}, File: {filename}')
+
+            future = MapManager._TILE_LOAD_POOL.submit(
+                load_map_tile_data,
+                maps_path,
+                map_id,
+                adt_x,
+                adt_y,
+                use_float_16,
+                expected_version,
+            )
+            MapManager._TILE_LOAD_FUTURES[future] = key
+            MapManager._TILE_LOAD_INFLIGHT[key] = future
+            MapManager._TILE_LOAD_IDLE_SINCE = None
+
+    @staticmethod
+    def _dispatch_nav_only_loads():
+        processed = 0
+        while processed < MapManager.TILE_LOAD_MAX_INFLIGHT:
+            try:
+                key = PENDING_TILE_INITIALIZATION_QUEUE.get_nowait()
+            except _queue.Empty:
+                break
+
+            map_id, adt_x, adt_y = MapManager._split_tile_key(key)
+            if map_id not in MAP_LIST or map_id not in MAPS_TILES:
+                continue
+
+            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            if tile.is_initialized():
+                continue
+
+            tile.initialized = True
+            tile.ready = False
+            MapManager._finalize_tile_load(map_id, adt_x, adt_y, None)
+            processed += 1
+            MapManager._TILE_LOAD_IDLE_SINCE = None
+
+    @staticmethod
+    def _dispatch_sync_tile_loads():
+        processed = 0
+        while processed < MapManager.TILE_LOAD_MAX_INFLIGHT:
+            try:
+                key = PENDING_TILE_INITIALIZATION_QUEUE.get_nowait()
+            except _queue.Empty:
+                break
+
+            map_id, adt_x, adt_y = MapManager._split_tile_key(key)
+            if map_id not in MAP_LIST:
+                continue
+            if MapManager.initialize_adt_tile(map_id, adt_x, adt_y):
+                processed += 1
+                MapManager._TILE_LOAD_IDLE_SINCE = None
+
+    @staticmethod
+    def _collect_tile_load_results():
+        if not MapManager._TILE_LOAD_FUTURES:
+            return
+
+        done_futures = [future for future in list(MapManager._TILE_LOAD_FUTURES.keys()) if future.done()]
+        for future in done_futures:
+            key = MapManager._TILE_LOAD_FUTURES.pop(future, None)
+            if key:
+                MapManager._TILE_LOAD_INFLIGHT.pop(key, None)
+
+            map_data = None
+            if not future.cancelled():
+                try:
+                    map_data = future.result()
+                except Exception:
+                    Logger.error('[Maps] Error while loading map tile data.')
+                    Logger.error(traceback.format_exc())
+
+            MapManager._apply_tile_load_result(key, map_data)
+
+    @staticmethod
+    def _maybe_shutdown_tile_loader():
+        if not MapManager._TILE_LOAD_POOL:
+            MapManager._TILE_LOAD_IDLE_SINCE = None
+            return
+        if MapManager._TILE_LOAD_INFLIGHT:
+            MapManager._TILE_LOAD_IDLE_SINCE = None
+            return
+        if not PENDING_TILE_INITIALIZATION_QUEUE.empty():
+            MapManager._TILE_LOAD_IDLE_SINCE = None
+            return
+
+        if MapManager._TILE_LOAD_IDLE_SINCE is None:
+            MapManager._TILE_LOAD_IDLE_SINCE = time.time()
+            return
+
+        if (time.time() - MapManager._TILE_LOAD_IDLE_SINCE) >= MapManager.TILE_LOAD_IDLE_TIMEOUT:
+            Logger.info('[Maps] Tile loader idle, shutting down worker pool.')
+            MapManager.shutdown_tile_loader(wait=False)
+
+    @staticmethod
+    def _apply_tile_load_result(key, map_data):
+        if not key:
+            return
+
+        map_id, adt_x, adt_y = MapManager._split_tile_key(key)
+        if map_id not in MAPS_TILES:
+            return
+
+        tile = MAPS_TILES[map_id][adt_x][adt_y]
+        if key not in PENDING_TILE_INITIALIZATION:
+            tile.unload()
+            return
+
+        if config.Server.Settings.use_map_tiles and map_data and map_data.error == MapTileLoadError.NONE:
+            MapManager._finalize_tile_load(map_id, adt_x, adt_y, map_data)
+            return
+
+        if config.Server.Settings.use_map_tiles:
+            if not map_data:
+                Logger.error(f'[Maps] Failed to load map tile, Map:{map_id} Tile:{adt_x},{adt_y}')
+            else:
+                filename = map_data.filename
+                if map_data.error == MapTileLoadError.MISSING:
+                    Logger.warning(f'[Maps] Unable to locate map file: {filename}, '
+                                   f'Map:{map_id} Tile:{adt_x},{adt_y}')
+                elif map_data.error == MapTileLoadError.VERSION:
+                    version = map_data.version
+                    Logger.error(
+                        f'[Maps] Unexpected map version. Expected "{MapTile.EXPECTED_VERSION}", found "{version}".'
+                    )
+                else:
+                    Logger.error(f'[Maps] Failed to load map tile: {filename}')
+
+        MapManager._finalize_tile_load(map_id, adt_x, adt_y, None)
+
+    @staticmethod
+    def _finalize_tile_load(map_id, adt_x, adt_y, map_data):
+        tile = MAPS_TILES[map_id][adt_x][adt_y]
+        tile.initialized = True
+        tile.ready = False
+        use_float_16 = config.Server.Settings.use_float_16
+        tile.apply_map_data(map_data, use_float_16)
+
+        namigator = MAPS_NAMIGATOR[map_id] if (map_id in MAPS_NAMIGATOR and MapManager.NAMIGATOR_LOADED) else None
+        tile.has_navigation = tile.load_namigator_data(namigator)
+        tile.ready = True
+
+    @staticmethod
+    def _split_tile_key(key):
         map_id, adt_x, adt_y = str(key).rsplit(',')
-        MapManager.initialize_adt_tile(int(map_id), int(adt_x), int(adt_y))
+        return int(map_id), int(adt_x), int(adt_y)
 
     @staticmethod
     def initialize_adt_tile(map_id, adt_x, adt_y):
@@ -219,6 +454,8 @@ class MapManager:
         tile = MAPS_TILES[map_id][adt_x][adt_y]
         if tile and tile.is_ready():
             Logger.info(f'[Map] Unloading map tile, Map:{map_id} Tile:{adt_x},{adt_y}')
+            tile.unload()
+        elif tile and tile.is_loading():
             tile.unload()
 
         # Namigator unload (.nav)

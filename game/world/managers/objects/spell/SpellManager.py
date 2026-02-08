@@ -1303,18 +1303,21 @@ class SpellManager:
                 return False
 
             # Shapeshift form checks.
+            # Stance forms (battle/defensive/berserker) are shapeshifts, but still allow switching between stances.
             shapeshift_form = self.caster.shapeshift_form
             shapeshift_mask = casting_spell.spell_entry.ShapeshiftMask
             if shapeshift_form:
+                form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(shapeshift_form)
+                is_stance_form = form_entry and (form_entry.Flags & 1)
                 in_mask = shapeshift_mask & (1 << (shapeshift_form - 1))
                 if not in_mask:
                     # Client allows casts for some forms (non-stance) even if the mask doesn't include them.
-                    form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(shapeshift_form)
-                    if not (shapeshift_mask == 0 and form_entry and (form_entry.Flags & 1)):
-                        if not form_entry or (form_entry.Flags & 1):
+                    if not (shapeshift_mask == 0 and is_stance_form):
+                        if not form_entry or is_stance_form:
                             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_SHAPESHIFT)
                             return False
-                if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_NOT_SHAPESHIFT and not in_mask:
+                if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_NOT_SHAPESHIFT \
+                        and not in_mask and not is_stance_form:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_SHAPESHIFT)
                     return False
             elif shapeshift_mask:

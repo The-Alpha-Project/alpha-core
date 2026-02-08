@@ -2341,7 +2341,7 @@ class UnitManager(ObjectManager):
         node_bounds = self.quadtree_node.bounds
         return not node_bounds.contains_box(visibility_bounds)
 
-    def notify_move_in_line_of_sight(self, map_, unit, ooc_event=False, in_range=False):
+    def notify_move_in_line_of_sight(self, map_, unit, ooc_event=False, in_range=False, distance=None):
         los_check = None
 
         # Check ooc events for self (Which can have greater range than detection range).
@@ -2357,7 +2357,9 @@ class UnitManager(ObjectManager):
             return
 
         # Check for stealth/invisibility.
-        can_detect_unit, alert = self.can_detect_target(unit, self.location.distance(unit.location))
+        if distance is None:
+            distance = self.location.distance(unit.location)
+        can_detect_unit, alert = self.can_detect_target(unit, distance)
         if alert and unit.is_player() and not self.is_player():
             self.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
 

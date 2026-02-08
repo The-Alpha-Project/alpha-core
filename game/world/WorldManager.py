@@ -6,8 +6,6 @@ import traceback
 from time import time
 from typing import Any
 
-from apscheduler.schedulers.background import BackgroundScheduler
-
 from game.world.WorldServerTicker import WorldServerTicker
 from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
@@ -256,37 +254,9 @@ class WorldServerSessionHandler:
         ticker.add_task('Corpse', MapManager.update_corpses, 10.0)
         ticker.add_task('Script/Event', MapManager.update_map_scripts_and_events, 1.0)
         ticker.add_task('Detection', MapManager.update_detection_range_collision, 1.0)
+        ticker.add_task('Tile Loading', MapManager.initialize_pending_tiles, 0.1)
         ticker.add_task('Tile Unloading', MapManager.deactivate_cells, 300.0)
         return ticker
-
-    @staticmethod
-    def build_get_schedulers():
-        # Heavier tasks that benefit from multiple instances or being separate from the main world tick.
-        return [
-            WorldServerSessionHandler.build_scheduler('Tile Loading', MapManager.initialize_pending_tiles, 0.2, 4)]
-
-    @staticmethod
-    def build_scheduler(name, target, seconds, instances, daemon=True):
-        scheduler = BackgroundScheduler()
-        scheduler.daemon = daemon
-        scheduler.add_job(target, 'interval', seconds=seconds, max_instances=instances)
-        return scheduler
-
-    @staticmethod
-    def start_schedulers(schedulers):
-        length = len(schedulers)
-        count = 0
-
-        for scheduler in schedulers:
-            scheduler.start()
-            count += 1
-            Logger.progress('Loading background schedulers...', count, length)
-
-    @staticmethod
-    def stop_schedulers(schedulers):
-        for scheduler in schedulers:
-            scheduler.shutdown()
-        Logger.info('Background schedulers stopped.')
 
     @staticmethod
     def start_world(shared_state: Any):
@@ -294,10 +264,6 @@ class WorldServerSessionHandler:
         if not WorldLoader.load_data(shared_state=shared_state):
             Logger.info("World server turned off.")
             return
-
-        # Start background tasks.
-        schedulers = WorldServerSessionHandler.build_get_schedulers()
-        WorldServerSessionHandler.start_schedulers(schedulers)
 
         # Start world ticker.
         ticker = WorldServerSessionHandler.build_get_ticker()
@@ -345,5 +311,5 @@ class WorldServerSessionHandler:
         # Since only this process is able to see current world sessions, save characters and disconnect all sessions.
         WorldServerSessionHandler.save_characters()
         WorldServerSessionHandler.disconnect_sessions()
-        WorldServerSessionHandler.stop_schedulers(schedulers)
         ticker.stop()
+        MapManager.shutdown_tile_loader()

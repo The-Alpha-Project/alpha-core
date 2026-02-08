@@ -4,6 +4,7 @@ from game.world.managers.maps.helpers.BoundingBox import BoundingBox
 from game.world.managers.maps.helpers.CellUtils import ORIGIN
 from game.world.managers.maps.helpers.QuadTree import QuadTree
 from game.world.managers.objects.units.UnitManager import UnitManager
+from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 
 
 class DetectionManager:
@@ -30,8 +31,12 @@ class DetectionManager:
             return
 
         all_units = list(self.units.values())
+        active_unit_guids = {unit.guid for unit in all_units if self.is_in_valid_cell(unit)}
         for unit_a in all_units:
-            if not self.is_in_valid_cell(unit_a):
+            if unit_a.guid not in active_unit_guids:
+                continue
+            # Players don't generate OOC LoS events.
+            if unit_a.is_player():
                 continue
             # Query potential targets within visibility range using spatial partitioning.
             unit_a.update_visibility_bounds(self.unit_visibility_bounds)
@@ -42,7 +47,7 @@ class DetectionManager:
                 unit_b = self.units.get(unit_b_guid, None)
                 if not unit_b or unit_b.guid == unit_a.guid:
                     continue
-                if not self.is_in_valid_cell(unit_b):
+                if unit_b_guid not in active_unit_guids:
                     continue
                 # Perform the precise distance check using unit_a's potentially dynamic
                 # detection range against unit_b.
@@ -50,7 +55,9 @@ class DetectionManager:
                 detection_range = unit_a.get_detection_range(unit_b)
                 in_range = dist <= detection_range
                 if in_range or ooc_events:
-                     unit_a.notify_move_in_line_of_sight(self.grid_manager.map_, unit_b, ooc_events, in_range)
+                    unit_a.notify_move_in_line_of_sight(
+                        self.grid_manager.map_, unit_b, ooc_events, in_range, distance=dist
+                    )
 
     def is_in_valid_cell(self, unit):
         # Check if unit's cell_key is valid and in active_cells.
@@ -60,6 +67,9 @@ class DetectionManager:
         self.pending_placement_updates[unit.guid] = unit
 
     def queue_add(self, unit):
+        # A unit can be removed and re-added in the same tick; keep the add.
+        if isinstance(unit, CreatureManager) and unit.guid in self.pending_removes:
+            del self.pending_removes[unit.guid]
         self.pending_adds[unit.guid] = unit
 
     def queue_remove(self, unit):
@@ -78,8 +88,12 @@ class DetectionManager:
             return
         batch = list(self.pending_removes.values())
         self.pending_removes.clear()
-        for unit_guid in batch:
-            self._remove(unit_guid)
+        for unit in batch:
+            # Don't remove creature LoS tracking if any player still knows it and still spawned.
+            if isinstance(unit, CreatureManager):
+                if unit.is_in_world() and unit.known_players:
+                    continue
+            self._remove(unit)
 
     def process_update_placement_batch(self):
         if not self.pending_placement_updates:
