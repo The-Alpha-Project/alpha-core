@@ -4,11 +4,11 @@ on:
   push:
     branches: [ master ]
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/NamigatorBindings.yml'
   pull_request:
     branches: [ master ]
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/NamigatorBindings.yml'
 
 env:
   BUILD_TYPE: Release
