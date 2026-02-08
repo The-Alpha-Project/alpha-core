@@ -1047,7 +1047,8 @@ class SpellManager:
     def send_spell_resist_result(self, casting_spell, damage_info):
         if casting_spell.spell_caster == damage_info.target:
             return
-        caster_level = casting_spell.caster_effective_level if self.caster.is_unit(by_mask=True) else 0
+        # Client log uses spell level (rank/5), not raw caster level.
+        caster_level = casting_spell.caster_spell_level if self.caster.is_unit(by_mask=True) else 0
         data = pack('<2QI2f2I',
                     damage_info.attacker.guid,
                     damage_info.target.guid,

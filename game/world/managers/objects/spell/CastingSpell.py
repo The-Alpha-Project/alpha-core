@@ -54,7 +54,10 @@ class CastingSpell:
     cast_start_timestamp: float
     cast_end_timestamp: float
     spell_impact_timestamps: dict[int, float]
+    # Spell rank/level/effective values mirror client tooltip math (rank is skill-based, level is rank/5).
     caster_effective_level: int
+    caster_spell_level: int
+    caster_spell_rank: int
     spent_combo_points: int
 
     spell_attack_type: int
@@ -75,19 +78,24 @@ class CastingSpell:
         self.creature_spell = creature_spell
         self.forced_sheath_state = None
 
+        self.caster_spell_rank = 0
+        self.caster_spell_level = 0
+        self.caster_effective_level = 0
+
         self.dynamic_object = None
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
 
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
 
+        if self.spell_caster.is_unit(by_mask=True):
+            # Match client spell rank/level semantics (Spell_C_GetSpellLevel and skill rank handling).
+            self.caster_spell_rank = self.calculate_spell_rank()
+            self.caster_spell_level = int(self.caster_spell_rank / 5) if self.caster_spell_rank > 0 else 0
+            self.caster_effective_level = self.calculate_effective_level()
+
         self.cast_end_timestamp = self.get_cast_time_ms() / 1000 + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
-
-        if self.spell_caster.is_unit(by_mask=True):
-            self.caster_effective_level = self.calculate_effective_level()
-        else:
-            self.caster_effective_level = 0
 
         self.spent_combo_points = 0
 
@@ -534,30 +542,28 @@ class CastingSpell:
     def requires_aura_state(self):
         return self.spell_entry.CasterAuraState != 0
 
-    def calculate_effective_level(self):
-        skill = 0
+    def calculate_spell_rank(self):
+        # Client uses skill rank (Averaged with weapon skill) for spell rank; units use level * 5.
         if self.spell_caster.is_player():
-            skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
+            return self.spell_caster.skill_manager.get_spell_rank_for_spell_id(self.spell_entry.ID)
 
-        level = self.spell_caster.level if not skill else int(skill / 5)
-        if level > self.spell_entry.MaxLevel > 0:
-            level = self.spell_entry.MaxLevel
-        elif level < self.spell_entry.BaseLevel:
-            level = self.spell_entry.BaseLevel
-        return max(level - self.spell_entry.SpellLevel, 0)
+        skill_rank = self.spell_caster.level * 5
+        max_level = self.spell_entry.MaxLevel
+        if max_level > 0:
+            skill_rank = min(skill_rank, max_level * 5)
+        return max(skill_rank, 0)
+
+    def calculate_effective_level(self):
+        # Client effect scaling subtracts BaseLevel before applying per-level formulas.
+        level = self.caster_spell_level
+        base_level = self.spell_entry.BaseLevel
+        if base_level > 0:
+            level -= base_level
+        return max(level, 0)
 
     def get_spell_rank_value(self):
-        if self.spell_caster.is_player():
-            spell_rank = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
-            if not spell_rank:
-                return 0
-        else:
-            spell_rank = self.spell_caster.level
-
-        if self.spell_entry.MaxLevel > 0 and spell_rank >= self.spell_entry.MaxLevel * 5:
-            spell_rank = self.spell_entry.MaxLevel * 5
-
-        return spell_rank
+        # Cached to keep spell cost/level calculations consistent across the cast.
+        return self.caster_spell_rank
 
     def get_cast_time_secs(self):
         return int(self.get_cast_time_ms() / 1000)
@@ -569,12 +575,9 @@ class CastingSpell:
         if self.is_instant_cast():
             return 0
 
-        skill = 0
-        if self.spell_caster.is_player():
-            skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
-
+        # Per-level cast time uses spell level (rank/5) on the client, not raw skill points.
         cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel *
-                            skill))
+                            self.caster_spell_level))
 
         caster_is_unit = self.spell_caster.is_unit(by_mask=True)
 
@@ -600,11 +603,8 @@ class CastingSpell:
                 mana_cost = base_mana * self.spell_entry.ManaCostPct / 100
 
         if self.spell_entry.ManaCostPerLevel:
-            spell_rank = self.get_spell_rank_value()
-            rank_level = int(spell_rank / 5)
-            mana_cost += self.spell_entry.ManaCostPerLevel * (
-                rank_level - self.spell_entry.BaseLevel
-            )
+            # Client scales mana per level by spell level (rank/5).
+            mana_cost += self.spell_entry.ManaCostPerLevel * self.caster_spell_level
 
         if self.spell_caster.is_player():
             mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SPELL_SCHOOL_POWER_COST,
@@ -624,7 +624,8 @@ class CastingSpell:
         if self.duration_ is not None and self.base_duration_ is not None:
             return (self.duration_ if apply_mods else self.base_duration_) + combo_gain
 
-        gain_per_level = self.duration_entry.DurationPerLevel * self.caster_effective_level
+        # Duration per level uses spell level (rank/5) on the client.
+        gain_per_level = self.duration_entry.DurationPerLevel * self.caster_spell_level
 
         base_duration = min(base_duration + gain_per_level, self.duration_entry.MaxDuration)
         if not self.spell_caster.is_unit(by_mask=True):
