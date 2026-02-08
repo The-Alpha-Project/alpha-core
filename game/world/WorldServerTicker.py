@@ -39,7 +39,6 @@ class WorldServerTicker:
 
             for task in self.tasks:
                 if batch_start >= task.next_run:
-                    start = _now()
                     try:
                         task.target()
                     except Exception as e:
@@ -47,27 +46,25 @@ class WorldServerTicker:
                         Logger.error(f'Error executing ticker task \'{task.name}\': {e}')
                         Logger.error(traceback.format_exc())
 
-                    end = _now()
-                    exec_time = end - start
+                    # Calculate next run based on the actual task start time.
+                    # For example, if the interval is 10s and the task took 4s to execute, the next_run will be
+                    # batch_start + 10s, making the remaining wait exactly 6s. This way, by taking into account the
+                    # execution time, we honor the intended interval time.
+                    task.next_run = batch_start + task.interval
 
-                    if exec_time > task.interval:
-                        Logger.warning(
-                            f'Ticker task \'{task.name}\' took {exec_time:.3f}s, '
-                            f'exceeding its interval of {task.interval}s!'
-                        )
+                    # Check if this task is lagging behind and throw a warning if so.
+                    now = _now()
+                    if task.next_run < now:
+                        delay = now - task.next_run
+                        Logger.warning(f'Ticker task \'{task.name}\' is lagging by \'{delay:.3f}\'s.')
 
-                    # After running, the next execution is after one interval.
-                    task.next_run = end + task.interval
-
-                # Time until this task needs to run again. Using `batch_start` ensures task execution time doesn't
-                # delay the sleep calculation, keeping each task on its fixed schedule.
-                time_until_next = task.next_run - batch_start
-
+                # Time until this task needs to run again.
+                time_until_next = task.next_run - _now()
                 if next_wake is None or time_until_next < next_wake:
                     next_wake = time_until_next
 
             # Yield some time, but only as much as needed for the next task.
-            if next_wake and next_wake > 0:
+            if next_wake is not None and next_wake > 0:
                 time.sleep(next_wake)
 
     def stop(self):
