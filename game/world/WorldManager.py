@@ -262,7 +262,7 @@ class WorldServerSessionHandler:
     def start_world(shared_state: Any):
         signal.signal(signal.SIGINT, lambda signum, frame: setattr(shared_state, 'RUNNING', False))
         if not WorldLoader.load_data(shared_state=shared_state):
-            Logger.info("World server turned off.")
+            Logger.info('World server turned off.')
             return
 
         # Start world ticker.
