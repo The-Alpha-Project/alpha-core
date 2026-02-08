@@ -185,9 +185,9 @@ docker-compose up --renew-anon-volumes sql
 
 ## Disclaimer
 
-The `Alpha Project` does **not** distribute a client. You will need to obtain a clean `0.5.3` client yourself.
+The `Alpha Project` **does not** distribute a client. You will need to obtain a clean `0.5.3` client yourself.
 
-The `Alpha Project` Team and Owners **do not** sponsor or support unofficial public servers. If you use these projects to run an unofficial public server rather than for testing and learning, it is your personal choice.
+The `Alpha Project` **does not** encourage unofficial public servers. If you use these projects to run an unofficial public server rather than for testing and learning, it is your personal choice.
 
 ---
 
