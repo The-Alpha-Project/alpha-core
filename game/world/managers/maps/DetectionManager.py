@@ -68,7 +68,7 @@ class DetectionManager:
 
     def queue_add(self, unit):
         # A unit can be removed and re-added in the same tick; keep the add.
-        if isinstance(unit, CreatureManager) and unit.guid in self.pending_removes:
+        if unit.guid in self.pending_removes:
             del self.pending_removes[unit.guid]
         self.pending_adds[unit.guid] = unit
 
