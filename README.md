@@ -134,7 +134,7 @@ docker-compose up --renew-anon-volumes sql
    ```
    pwdchange
    ```
-   Follow the on-screen instructions. If you run more than one realm, keep in mind that the username and password are **per realm**—there is no shared auth server currently.
+   Follow the on-screen instructions.
 
 ### Auth Options
 
@@ -187,7 +187,7 @@ docker-compose up --renew-anon-volumes sql
 
 The `Alpha Project` **does not** distribute a client. You will need to obtain a clean `0.5.3` client yourself.
 
-The `Alpha Project` **does not** encourage unofficial public servers. If you use these projects to run an unofficial public server rather than for testing and learning, it is your personal choice.
+The `Alpha Project` **does not** encourage unofficial public servers. If you use this project to run an unofficial public server rather than for testing and learning, it is your personal choice.
 
 ---
 
