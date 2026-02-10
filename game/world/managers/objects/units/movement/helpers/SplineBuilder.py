@@ -1,5 +1,6 @@
 from game.world.managers.objects.units.movement.helpers.Spline import Spline
 from utils.constants.UnitCodes import SplineType, SplineFlags
+from utils.constants.MiscCodes import ZSource
 
 
 class SplineBuilder:
@@ -27,8 +28,8 @@ class SplineBuilder:
     def build_stop_spline(unit, extra_time_seconds=0):
         # Only update Z if not swimming, to avoid setting Z to the water bottom.
         if not unit.is_swimming():
-            z, z_locked = unit.get_map().calculate_z_for_object(unit)
-            if not z_locked:
+            z, z_source = unit.get_map().calculate_z_for_object(unit)
+            if z_source != ZSource.CURRENT_Z:
                 unit.location.z = z
 
         return Spline(

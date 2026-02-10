@@ -1,6 +1,5 @@
 import os
 
-from tools.extractors.definitions.objects.Wmo import Wmo
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
@@ -95,17 +94,9 @@ class MapExtractor:
         if not os.path.exists(wmo_liquids_path):
             os.makedirs(wmo_liquids_path)
 
-        # Extract wmo liquid data.
-        wmo_files = [os.path.join(root, f) for root, _, fs in os.walk(world_path) for f in fs if f.endswith(".wmo.MPQ")]
-        current = 0
-        total = len(wmo_files)
-        for wmo_fime in wmo_files:
-            with Wmo(wmo_fime) as wmo:
-                current += 1
-                Logger.progress(f'Extracting wmo liquid data ...', current, total, divisions=1)
-                if not wmo.has_liquids:
-                    continue
-                wmo.save_liquid_data(wmo_liquids_path)
+        wmo_geometry_path = PathManager.get_wmo_geometry_path()
+        if not os.path.exists(wmo_geometry_path):
+            os.makedirs(wmo_geometry_path)
 
         # Extract models data.
         with MpqArchive(model_path) as archive:

@@ -17,6 +17,7 @@ from game.world.managers.objects.units.SpellAdvancedLogging import SpellAdvanced
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell.SpellEffect import SpellEffect
 from network.packet.PacketWriter import PacketWriter
+from utils.ConfigManager import config
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import  AttackTypes
 from utils.constants.OpCodes import OpCode
@@ -443,6 +444,17 @@ class CastingSpell:
 
     def is_fishing_spell(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
+
+    def is_indoors_spell(self):
+        if not config.Server.Settings.use_map_tiles:
+            return False
+        return bool(self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_INDOORS_ONLY)
+
+    def is_outdoors_spell(self):
+        if not config.Server.Settings.use_map_tiles:
+            return False
+        return bool(self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_OUTDOORS_ONLY)
+
 
     def has_pet_target(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_PET

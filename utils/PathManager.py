@@ -33,6 +33,7 @@ class PathManager:
 
     # Wmo.
     WMO_RELATIVE_PATH = 'etc/wmo_liquids/'
+    WMO_GEOMETRY_RELATIVE_PATH = 'etc/wmo_geometry/'
 
     @staticmethod
     def set_root_path(root_path):
@@ -81,6 +82,10 @@ class PathManager:
     @staticmethod
     def get_wmo_liquids_path():
         return path.join(PathManager.ROOT_PATH, PathManager.WMO_RELATIVE_PATH)
+
+    @staticmethod
+    def get_wmo_geometry_path():
+        return path.join(PathManager.ROOT_PATH, PathManager.WMO_GEOMETRY_RELATIVE_PATH)
 
     @staticmethod
     def get_git_path():

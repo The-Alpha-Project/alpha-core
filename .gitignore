@@ -12,6 +12,7 @@ etc/logs
 # Extractor
 etc/mdx
 etc/wmo_liquids
+etc/wmo_geometry
 
 # virtualenv folder
 venv

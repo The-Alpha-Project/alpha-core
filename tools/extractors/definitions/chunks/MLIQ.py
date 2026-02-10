@@ -31,49 +31,25 @@ class MLIQ:
 
         mliq.corner = Vector3.from_reader(reader)
 
-        tile_size = Constants.UNIT_SIZE
-
-        mliq.corner.X -= tile_size * mliq.y_tiles
-
-        tmp = mliq.x_tiles
-        mliq.x_tiles = mliq.y_tiles
-        mliq.y_tiles = tmp
-
-        tmp = mliq.x_vertex_count
-        mliq.x_vertex_count = mliq.y_vertex_count
-        mliq.y_vertex_count = tmp
-
         mliq.material_id = reader.read_uint16()
 
-        mliq.heights = [[None for _ in range(mliq.x_vertex_count)] for _ in range(mliq.y_vertex_count)]
-        for y in range(mliq.y_vertex_count):
-            for x in range(mliq.x_vertex_count):
-                reader.move_forward(4)  # Skip mins.
-                mliq.heights[y][x] = reader.read_float()
+        for _ in range(mliq.y_vertex_count):
+            for _ in range(mliq.x_vertex_count):
+                reader.move_forward(8)  # Skip mins and heights to avoid storing large grids.
 
-        l_flags = []
-        mliq.flags = [[None for _ in range(mliq.x_tiles)] for _ in range(mliq.y_tiles)]
-        for y in range(mliq.y_tiles):
-            for x in range(mliq.x_tiles):
-                mliq.flags[y][x] = reader.read_uint8()
-                l_flags.append(mliq.flags[y][x])
+        scan_limit = mliq.x_tiles
+        scan_index = 0
+        v4 = 15  # Default value indicating no specific liquid.
+        for _ in range(mliq.y_tiles):
+            for _ in range(mliq.x_tiles):
+                flag = reader.read_uint8()
+                if scan_index < scan_limit and v4 == 15 and (flag & 0xF) != 15:
+                    v4 = flag & 0xF
+                scan_index += 1
 
         # The below code is reversed directly from client:
         # void __thiscall CMapObj::RenderLiquid_0(CMapObj *this, CMapObjGroup *group)
         # Determine liquid type based on flags:
-        # Find the first value with a non-default liquid indicator
-        x = mliq.y_vertex_count  # x,y were previously swapped, use original x vertex count.
-        v3 = 0
-        v4 = 15  # Default value indicating no specific liquid.
-
-        if x > 0:
-            # Loop through flat flags to find first with a liquid flag.
-            while v3 < x and (l_flags[v3] & 0xF) == 15:
-                v3 += 1
-
-            if v3 < x:
-                v4 = l_flags[v3] & 0xF  # Extract lower 4 bits indicating liquid type.
-
         # If no liquid found, raise error
         if v4 == 15:
             raise ValueError

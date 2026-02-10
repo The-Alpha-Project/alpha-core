@@ -23,7 +23,7 @@ from utils.Srp6 import Srp6
 from utils.StringUtils import find_closest_match, normalize_name, parse_bool
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, SpeedType
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, SpeedType, ZSource
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureStaticFlags
 from utils.constants.UpdateFields import PlayerFields
@@ -156,8 +156,7 @@ class CommandManager:
         player_y = player_mgr.location.y
         player_z = player_mgr.location.z
         player_o = player_mgr.location.o
-        maps_z, z_locked = map_.calculate_z_for_object(player_mgr)
-        maps_z_str = f'{maps_z:.3f}' if not z_locked else 'Invalid'
+        maps_z, z_source = map_.calculate_z_for_object(player_mgr)
         liq = map_.get_liquid_information(player_x, player_y, player_z)
         liq_str = 'None'
         if liq:
@@ -169,7 +168,7 @@ class CommandManager:
                   f'Zone: {world_session.player_mgr.zone}\n' \
                   f'Adt X: {adt_tile[0]} Adt Y: {adt_tile[1]}\n' \
                   f'X: {player_x:.3f} Y: {player_y:.3f} Z: {player_z:.3f} O: {player_o:.3f}\n' \
-                  f'MapZ: {maps_z_str}\n' \
+                  f'Calculated Z: {maps_z:.3f} Source: {z_source.name.upper()}\n' \
                   f'Liquid: {liq_str}'
 
     @staticmethod

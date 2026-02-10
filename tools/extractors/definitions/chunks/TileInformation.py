@@ -33,12 +33,13 @@ class TileInformation:
             stream_reader.set_position(offs_mcrf + header_offset)
             # Move to next token.
             error, token, size = stream_reader.read_chunk_information('MCRF')
-            if error:
-                return
-            if doodad_count:
-                d_refs = [stream_reader.read_uint32() for _ in range(doodad_count)]
-            if wmo_count:
-                w_refs = [stream_reader.read_uint32() for _ in range(wmo_count)]
+            if not error:
+                if doodad_count:
+                    d_refs = [stream_reader.read_uint32() for _ in range(doodad_count)]
+                if wmo_count:
+                    w_refs = [stream_reader.read_uint32() for _ in range(wmo_count)]
+            else:
+                raise ValueError(f'{error}')
 
         # Read MCVT.
         stream_reader.set_position(offs_height + header_offset)

@@ -8,6 +8,8 @@ import struct
 import hashlib
 
 WMO_LIQ_FILES_HASH_MAP = {}
+WMO_FILE_PATHS_HASH_MAP = {}
+WMO_GEO_FILES_HASH_MAP = {}
 
 class Wmo:
     def __init__(self, file_path):
@@ -15,6 +17,7 @@ class Wmo:
         self.liquids_data = None
         self.has_liquids = False
         self.hash_name = Wmo.get_hash_filename(self.file_path)
+        WMO_FILE_PATHS_HASH_MAP[self.hash_name] = self.file_path
         self._read()
 
     def __enter__(self):
@@ -36,15 +39,14 @@ class Wmo:
         WMO_LIQ_FILES_HASH_MAP[self.hash_name] = file_name
 
         with open(file_name, 'wb') as f:
-            f.write(struct.pack('<i', len(self.liquids_data)))  # How many rows.
-            # Iterate over bounds and vertices together
-            for liq_type, vertices, liq_min_bound in self.liquids_data:
-                f.write(struct.pack('<Bfff', liq_type, liq_min_bound.X, liq_min_bound.Y, liq_min_bound.Z))
-                # Write the count of vertices for this bound.
-                f.write(struct.pack('<i', len(vertices)))
-                # Write each vertex.
-                for vertex in vertices:
-                    f.write(struct.pack('<fff', vertex.X, vertex.Y, vertex.Z))
+            # WLIQ v2: compact liquid tiles (no per-vertex sampling stored).
+            f.write(b'WLIQ')
+            f.write(struct.pack('<HHI', 2, 0, len(self.liquids_data)))
+            for liq_type, liq_min_bound, liq_corner, x_tiles, y_tiles in self.liquids_data:
+                f.write(struct.pack('<B', liq_type))
+                f.write(struct.pack('<fff', liq_min_bound.X, liq_min_bound.Y, liq_min_bound.Z))
+                f.write(struct.pack('<fff', liq_corner.X, liq_corner.Y, liq_corner.Z))
+                f.write(struct.pack('<HH', x_tiles, y_tiles))
 
     def _read(self):
         with MpqArchive(self.file_path) as archive:
@@ -153,13 +155,19 @@ class Wmo:
                     error, token, size = reader.read_chunk_information('MOGP')
                     if error:
                         raise ValueError(f'{error}')
-                    wmo_group_file = WmoGroupFile.from_reader(reader)
+                    wmo_group_file = WmoGroupFile.from_reader(reader, size=size, parse_geometry=False)
                     if not wmo_group_file.has_liquids():
                         continue
                     self.has_liquids = True
                     # Initialize liquids data holder.
                     if not self.liquids_data:
                         self.liquids_data = []
-                    # Iterate each available mliq and save vertices and min liq bounding box for each.
+                    # Store compact liquid tiles info for each chunk.
                     for mliq in wmo_group_file.mliqs:
-                        self.liquids_data.append((mliq.liquid_type, mliq.get_vertices(), mliq.min_bound))
+                        self.liquids_data.append((
+                            mliq.liquid_type,
+                            mliq.min_bound,
+                            mliq.corner,
+                            mliq.x_tiles,
+                            mliq.y_tiles,
+                        ))

@@ -28,7 +28,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     SpeedType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState
+    SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState, AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
     AIReactionStates
 from utils.constants.UpdateFields import UnitFields

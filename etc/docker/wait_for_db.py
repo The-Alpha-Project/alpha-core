@@ -18,9 +18,9 @@ def wait_for_db() -> int:
             with socket.create_connection((host, port), timeout=3):
                 pass
             return 0
-        except Exception as exc:
+        except Exception as e:
             if time.time() - start >= timeout:
-                print(f"DB wait timeout after {timeout}s: {exc}", file=sys.stderr)
+                print(f"DB wait timeout after {timeout}s: {e}", file=sys.stderr)
                 return 1
             time.sleep(interval)
 

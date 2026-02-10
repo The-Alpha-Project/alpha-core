@@ -168,6 +168,15 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
+            # Outdoors-only auras should be treated as movement-interruptible when mounted indoors.
+            if (moved and aura.source_spell.is_outdoors_spell()
+                and self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED):
+                if not self.unit_mgr.get_map().is_wmo_exterior(self.unit_mgr.location.x,
+                                                              self.unit_mgr.location.y,
+                                                              self.unit_mgr.location.z):
+                    self.remove_aura(aura)
+                    continue
+
             for flag, condition in flag_cases.items():
                 if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ACTION and \
                      aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \

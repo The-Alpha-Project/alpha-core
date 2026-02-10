@@ -292,7 +292,7 @@ if __name__ == '__main__':
         Logger.info('Realm database released.')
         WorldDatabaseManager.dispose()
         Logger.info('World database released.')
-    except Exception:
+    except:
         pass
 
     manager.shutdown()
