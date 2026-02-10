@@ -13,6 +13,7 @@ etc/logs
 etc/mdx
 etc/wmo_liquids
 etc/wmo_geometry
+etc/patches
 
 # virtualenv folder
 venv
