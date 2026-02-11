@@ -78,8 +78,9 @@ def release_process(active_process):
     while active_process.is_alive():
         try:
             # Give the process 2 seconds to shut down.
-            active_process.join(timeout=2)
+            active_process.join(timeout=5)
             if active_process.is_alive():
+                Logger.warning(f'{active_process.name} did not exit in time; terminating.')
                 active_process.terminate()
                 active_process.join()
                 break
