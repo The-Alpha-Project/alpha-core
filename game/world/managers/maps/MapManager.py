@@ -515,6 +515,17 @@ class MapManager:
     def calculate_z(map_id, x, y, current_z, is_rand_point=False) -> tuple:
         # float, ZSource
         def _debug_return(z, source):
+
+            # Try namigator if enabled and our Z search failed.
+            if config.Server.Settings.use_nav_tiles and source == ZSource.CURRENT_Z:
+                nav_z, z_source = MapManager.calculate_nav_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
+                if z_source != ZSource.CURRENT_Z:
+                    z = nav_z
+
+            # Always return WMO for dungeons.
+            if MapManager.is_dungeon_map_id(map_id):
+                source = ZSource.WMO
+
             return z, source
 
         if not config.Server.Settings.use_nav_tiles and not config.Server.Settings.use_map_tiles:
@@ -526,12 +537,6 @@ class MapManager:
             tile_state = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
             if tile_state != MapTileStates.READY:
                 return _debug_return(current_z, ZSource.CURRENT_Z)
-
-            # Always prioritize Namigator if enabled.
-            if config.Server.Settings.use_nav_tiles:
-                nav_z, z_locked = MapManager.calculate_nav_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
-                if not z_locked:
-                    return _debug_return(nav_z, ZSource.NAVS)
 
             # Check if we have .map data for this request.
             tile = MAPS_TILES[map_id][adt_x][adt_y]
@@ -560,21 +565,21 @@ class MapManager:
             return _debug_return(current_z if current_z else 0.0, ZSource.CURRENT_Z)
 
     @staticmethod
-    def calculate_nav_z(map_id, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, bool result negation
-        # If nav tiles disabled or unable to load Namigator, return current Z as locked.
+    def calculate_nav_z(map_id, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, ZSource
+        # If nav tiles disabled or unable to load Namigator, return current Z.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
-            return current_z, True
+            return current_z, ZSource.CURRENT_Z
 
         if map_id not in MAPS:
-            return current_z, True
+            return current_z, ZSource.CURRENT_Z
 
         if map_id not in MAPS_NAMIGATOR:
-            return current_z, True
+            return current_z, ZSource.CURRENT_Z
 
         adt_x, adt_y = MapUtils.get_tile(x, y)
         # Check if we need to load adt.
         if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
-            return current_z, True
+            return current_z, ZSource.CURRENT_Z
 
         # Query available heights.
         heights = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
@@ -587,12 +592,12 @@ class MapManager:
         if len(heights) == 0:
             if not is_rand_point:
                 Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] {x} {y} {current_z}')
-            return current_z, True
+            return current_z, ZSource.CURRENT_Z
 
         # We are only interested in the resulting Z near to the Z we know.
         heights = sorted(heights, key=lambda _z: abs(current_z - _z))
 
-        return heights[0], False
+        return heights[0], ZSource.NAVS
 
     @staticmethod
     def los_check(map_id, src_loc, dst_loc, doodads=False):

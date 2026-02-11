@@ -146,6 +146,8 @@ class Vector:
             result = Vector(point_in_between[0], point_in_between[1], point_in_between[2], z_source=ZSource.NAVS)
         else:
             general_distance = self.distance(vector)
+            if general_distance <= 0.0:
+                return vector
             # Location already in the given offset
             if general_distance <= offset:
                 return vector
