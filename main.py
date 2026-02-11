@@ -77,8 +77,8 @@ def release_process(active_process):
     Logger.info(f'Releasing {active_process.name}...')
     while active_process.is_alive():
         try:
-            # Give the process 2 seconds to shut down.
-            active_process.join(timeout=5)
+            # Give the process 10 seconds to shut down.
+            active_process.join(timeout=10)
             if active_process.is_alive():
                 Logger.warning(f'{active_process.name} did not exit in time; terminating.')
                 active_process.terminate()
