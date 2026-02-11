@@ -830,10 +830,6 @@ class MapManager:
         return tile.get_height_at_cell(cell_x, cell_y)
 
     @staticmethod
-    def get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y):
-        return MapManager.get_height_at_world(map_id, x, y)
-
-    @staticmethod
     def get_near_height(map_id, x, y, current_z, tolerance=1.0):
         cell_size = ADT_SIZE / (RESOLUTION_ZMAP - 1)
         for i in range(-2, 2):
