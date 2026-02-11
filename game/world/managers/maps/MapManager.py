@@ -524,6 +524,7 @@ class MapManager:
         if not config.Server.Settings.use_nav_tiles and not config.Server.Settings.use_map_tiles:
             return _debug_return(current_z, ZSource.CURRENT_Z)
         try:
+            navs_z = MapManager._get_navs_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
             adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(x, y)
 
             # No tile data available or busy loading.
@@ -534,10 +535,11 @@ class MapManager:
             # Check if we have .map data for this request.
             tile = MAPS_TILES[map_id][adt_x][adt_y]
             if not tile or not tile.has_maps:
+                if navs_z:
+                    return _debug_return(navs_z, ZSource.NAVS)
                 return _debug_return(current_z, ZSource.CURRENT_Z)
 
             try:
-                navs_z = MapManager._get_navs_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
                 calculated_z, height_source = tile.get_best_height_at_world(x, y, current_z, navs_z)
                 # Tolerance.
                 tol = 1.1 if not is_rand_point else 2
