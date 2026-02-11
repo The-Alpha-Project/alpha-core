@@ -63,7 +63,7 @@ class MapTile:
         local_z = (32.0 - (y / ADT_SIZE) - self.adt_y) * ADT_SIZE
         return self._calculate_height(local_x, local_z)
 
-    def get_best_height_at_world(self, x, y, current_z):
+    def get_best_height_at_world(self, x, y, current_z, navs_z=0.0):
         terrain_z = self.get_height_at_world(x, y)
         wmo_adt_x, wmo_adt_y, wmo_cell_x, wmo_cell_y = MapUtils.calculate_tile(x, y, RESOLUTION_ZMAP - 1)
         if wmo_adt_x != self.adt_x or wmo_adt_y != self.adt_y:
@@ -74,6 +74,11 @@ class MapTile:
             return terrain_z, ZSource.TERRAIN
 
         candidates = [terrain_z] + wmo_heights
+
+        # If we have navs z, append it to candidates.
+        if navs_z:
+            candidates.append(navs_z)
+
         best_z = min(candidates, key=lambda z: abs(current_z - z))
         if best_z == terrain_z:
             return best_z, ZSource.TERRAIN

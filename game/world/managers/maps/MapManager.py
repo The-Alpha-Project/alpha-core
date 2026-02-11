@@ -512,16 +512,9 @@ class MapManager:
 
     # noinspection PyBroadException
     @staticmethod
-    def calculate_z(map_id, x, y, current_z, is_rand_point=False) -> tuple:
-        # float, ZSource
+    def calculate_z(map_id, x, y, current_z, is_rand_point=False) -> tuple: # float, ZSource
+
         def _debug_return(z, source):
-
-            # Try namigator if enabled and our Z search failed.
-            if config.Server.Settings.use_nav_tiles and source == ZSource.CURRENT_Z:
-                nav_z, z_source = MapManager.calculate_nav_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
-                if z_source != ZSource.CURRENT_Z:
-                    z = nav_z
-
             # Always return WMO for dungeons.
             if MapManager.is_dungeon_map_id(map_id):
                 source = ZSource.WMO
@@ -544,7 +537,8 @@ class MapManager:
                 return _debug_return(current_z, ZSource.CURRENT_Z)
 
             try:
-                calculated_z, height_source = tile.get_best_height_at_world(x, y, current_z)
+                navs_z = MapManager._get_navs_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
+                calculated_z, height_source = tile.get_best_height_at_world(x, y, current_z, navs_z)
                 # Tolerance.
                 tol = 1.1 if not is_rand_point else 2
                 # If Z goes outside boundaries, expand our search.
@@ -563,6 +557,15 @@ class MapManager:
         except:
             Logger.error(traceback.format_exc())
             return _debug_return(current_z if current_z else 0.0, ZSource.CURRENT_Z)
+
+    @staticmethod
+    def _get_navs_z(map_id, x, y, current_z, is_rand_point=False):
+        if not config.Server.Settings.use_nav_tiles:
+            return 0.0
+        nav_z, z_source = MapManager.calculate_nav_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
+        if z_source == ZSource.CURRENT_Z:
+            return 0.0
+        return nav_z
 
     @staticmethod
     def calculate_nav_z(map_id, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, ZSource
