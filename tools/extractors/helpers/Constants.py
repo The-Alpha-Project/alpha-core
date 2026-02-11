@@ -1,5 +1,5 @@
 class Constants:
-    MAPS_VERSION: str = 'ACMAP_1.92'
+    MAPS_VERSION: str = 'ACMAP_1.76'
     WLIQ_MAGIC: bytes = b'WLIQ'
     WGEO_MAGIC: bytes = b'WGEO'
     WLIQ_EXPECTED_VERSION: int = 1
