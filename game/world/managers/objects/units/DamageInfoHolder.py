@@ -66,6 +66,22 @@ class DamageInfoHolder:
         self.spell_school = spell_school
         self.spell_miss_reason = spell_miss_reason
 
+    def cap_unkillable_damage(self, target) -> bool:
+        if not target.is_unkillable_target():
+            return False
+
+        max_damage = max(0, target.health - 1)
+        if self.total_damage <= max_damage:
+            return False
+
+        reduction = self.total_damage - max_damage
+        self.total_damage = max_damage
+        if self.base_damage:
+            self.base_damage = max(0, self.base_damage - reduction)
+        self.attack_round_hit_info &= ~HitInfo.UNIT_DEAD
+        self.proc_attacker &= ~ProcFlags.KILL
+        return True
+
     def get_damage_done_packet(self):
         flags = WorldTextFlags.NORMAL_DAMAGE
 

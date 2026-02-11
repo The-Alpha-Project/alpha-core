@@ -374,22 +374,25 @@ class CreatureManager(UnitManager):
                 or isinstance(self.object_ai, EscortAI))
 
     def is_guard(self):
-        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD) != 0
 
     def can_summon_guards(self):
-        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_SUMMON_GUARD
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_SUMMON_GUARD) != 0
 
     def can_assist_help_calls(self):
-        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_ASSIST
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_ASSIST) == 0
 
     def should_always_run_ooc(self):
-        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_ALWAYS_RUN
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_ALWAYS_RUN) != 0
 
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
     def has_melee(self):
-        return super().has_melee() and not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
+        return super().has_melee() and (self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE) == 0
+
+    def is_unkillable_target(self):
+        return (self.static_flags & CreatureStaticFlags.UNKILLABLE) != 0
 
     def is_pet(self):
         owner = self.get_charmer_or_summoner()
@@ -431,27 +434,27 @@ class CreatureManager(UnitManager):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
 
     def has_combat_ping(self):
-        return self.creature_template.static_flags & CreatureStaticFlags.COMBAT_PING
+        return (self.creature_template.static_flags & CreatureStaticFlags.COMBAT_PING) != 0
 
     def can_have_target(self):
-        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET) == 0
 
     def ignores_combat(self):
-        return self.creature_template.static_flags & CreatureStaticFlags.IGNORE_COMBAT
+        return (self.creature_template.static_flags & CreatureStaticFlags.IGNORE_COMBAT) != 0
 
     def is_quest_giver(self):
-        return self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER
+        return (self.npc_flags & NpcFlags.NPC_FLAG_QUESTGIVER) != 0
 
     def is_trainer(self):
-        return self.npc_flags & NpcFlags.NPC_FLAG_TRAINER
+        return (self.npc_flags & NpcFlags.NPC_FLAG_TRAINER) != 0
 
     # override
     def is_tameable(self):
-        return self.static_flags & CreatureStaticFlags.TAMEABLE
+        return (self.static_flags & CreatureStaticFlags.TAMEABLE) != 0
 
     # override
     def is_sessile(self):
-        return self.static_flags & CreatureStaticFlags.SESSILE
+        return (self.static_flags & CreatureStaticFlags.SESSILE) != 0
 
     def is_at_home(self):
         return self.location.approximately_equals(self.get_home_position())
@@ -501,11 +504,11 @@ class CreatureManager(UnitManager):
 
     # override
     def can_crush(self):
-        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_CRUSH
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_CRUSH) == 0
 
     # override
     def should_always_crush(self):
-        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_ALWAYS_CRUSH
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_ALWAYS_CRUSH) != 0
 
     # override
     def enter_combat(self, source=None):
@@ -733,7 +736,7 @@ class CreatureManager(UnitManager):
         return False
 
     # override
-    def attack(self, victim: UnitManager):
+    def attack(self, victim: UnitManager, from_script=False):
         had_target = self.combat_target and self.combat_target.is_alive
 
         # Can't have this check in can_attack_target else allegiance checks would fail for passive creatures.
@@ -744,7 +747,7 @@ class CreatureManager(UnitManager):
         if not self.can_have_target() or self.ignores_combat():
             return False
 
-        can_attack = super().attack(victim)
+        can_attack = super().attack(victim, from_script=from_script)
 
         if not can_attack:
             return False
@@ -850,7 +853,11 @@ class CreatureManager(UnitManager):
                 is_player_pet = True
 
         if not is_player_pet and not self.is_guardian() and killer and killer.is_player():
-            self.loot_manager.generate_loot(killer)
+            if self.static_flags & CreatureStaticFlags.NO_LOOT:
+                if self.loot_manager:
+                    self.loot_manager.clear()
+            elif self.loot_manager:
+                self.loot_manager.generate_loot(killer)
 
             self.reward_kill_xp(killer)
             self.killed_by = killer
@@ -864,10 +871,10 @@ class CreatureManager(UnitManager):
                 self.killed_by.quest_manager.reward_creature_or_go(self)
 
             # If the player is in a group, set the group as allowed looters if needed.
-            if self.killed_by.group_manager and self.loot_manager.has_loot():
+            if self.killed_by.group_manager and self.loot_manager and self.loot_manager.has_loot():
                 self.killed_by.group_manager.set_allowed_looters(self)
 
-            if self.loot_manager.has_loot():
+            if self.loot_manager and self.loot_manager.has_loot():
                 self.set_lootable(True)
 
         self.remove_all_unit_flags()
@@ -911,6 +918,8 @@ class CreatureManager(UnitManager):
 
         if self.is_at_home():
             self.on_at_home()
+
+        self.get_map().update_object(self, update_flags=UpdateFlags.CHANGES)
         return True
 
     def set_npc_flag(self, flag, enable=True):

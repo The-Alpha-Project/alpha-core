@@ -1,6 +1,5 @@
 import os
 
-from tools.extractors.definitions.objects.Wmo import Wmo
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
@@ -95,17 +94,11 @@ class MapExtractor:
         if not os.path.exists(wmo_liquids_path):
             os.makedirs(wmo_liquids_path)
 
-        # Extract wmo liquid data.
-        wmo_files = [os.path.join(root, f) for root, _, fs in os.walk(world_path) for f in fs if f.endswith(".wmo.MPQ")]
-        current = 0
-        total = len(wmo_files)
-        for wmo_fime in wmo_files:
-            with Wmo(wmo_fime) as wmo:
-                current += 1
-                Logger.progress(f'Extracting wmo liquid data ...', current, total, divisions=1)
-                if not wmo.has_liquids:
-                    continue
-                wmo.save_liquid_data(wmo_liquids_path)
+        wmo_geometry_path = PathManager.get_wmo_geometry_path()
+        if not os.path.exists(wmo_geometry_path):
+            os.makedirs(wmo_geometry_path)
+
+        MapExtractor._validate_wmo_cache_versions(wmo_liquids_path, wmo_geometry_path)
 
         # Extract models data.
         with MpqArchive(model_path) as archive:
@@ -139,3 +132,56 @@ class MapExtractor:
             Logger.success(f'Generated {len(filelist)} .map files.')
         else:
             Logger.error('Unable to extract map files.')
+
+    @staticmethod
+    def _validate_wmo_cache_versions(wmo_liquids_path, wmo_geometry_path):
+        invalid_reason = MapExtractor._find_invalid_cache_file(
+            wmo_liquids_path,
+            '.liq',
+            Wdt._has_expected_wliq,
+            'WLIQ',
+        )
+        if not invalid_reason:
+            invalid_reason = MapExtractor._find_invalid_cache_file(
+                wmo_geometry_path,
+                '.wgeo',
+                Wdt._has_expected_wgeo,
+                'WGEO',
+            )
+
+        if not invalid_reason:
+            return
+
+        Logger.warning(f'Invalid WMO cache version detected ({invalid_reason}). Clearing cache files.')
+        removed_liq = MapExtractor._purge_cache_dir(wmo_liquids_path, '.liq')
+        removed_geo = MapExtractor._purge_cache_dir(wmo_geometry_path, '.wgeo')
+        Logger.warning(
+            f'Removed {removed_liq} .liq files and {removed_geo} .wgeo files. Cache will be re-extracted.'
+        )
+
+    @staticmethod
+    def _find_invalid_cache_file(cache_path, extension, validator, label):
+        if not os.path.exists(cache_path):
+            return None
+        for filename in os.listdir(cache_path):
+            if not filename.endswith(extension):
+                continue
+            file_path = os.path.join(cache_path, filename)
+            try:
+                if not validator(file_path):
+                    return f'{label} cache file "{file_path}"'
+            except ValueError as exc:
+                return f'{label} cache file "{file_path}": {exc}'
+        return None
+
+    @staticmethod
+    def _purge_cache_dir(cache_path, extension):
+        if not os.path.exists(cache_path):
+            return 0
+        removed = 0
+        for filename in os.listdir(cache_path):
+            if not filename.endswith(extension):
+                continue
+            os.remove(os.path.join(cache_path, filename))
+            removed += 1
+        return removed

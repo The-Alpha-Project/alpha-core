@@ -1,5 +1,12 @@
 class Constants:
-    MAPS_VERSION = 'ACMAP_1.75'
+    MAPS_VERSION: str = 'ACMAP_1.76'
+    WLIQ_MAGIC: bytes = b'WLIQ'
+    WGEO_MAGIC: bytes = b'WGEO'
+    WLIQ_EXPECTED_VERSION: int = 1
+    WGEO_EXPECTED_VERSION: int = 1
+    HEIGHTMAP_MODE_UNIFORM = 0
+    HEIGHTMAP_MODE_V8V9 = 1
+    LIQUID_FLAG_IS_WMO = 0x1
     TILE_BLOCK_SIZE = 64
     TILE_SIZE = 16
     CELL_SIZE = 8

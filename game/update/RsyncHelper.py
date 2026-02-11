@@ -92,8 +92,8 @@ class RsyncHelper:
             import librsync  # type: ignore
             self._backend = (RsyncBackend.LIBRSYNC, librsync)
             return self._backend
-        except Exception as exc:
-            self._backend_error = exc
+        except Exception as e:
+            self._backend_error = e
             Logger.warning('[UpdateServer] Rsync enabled but python librsync module not available')
             return None
 

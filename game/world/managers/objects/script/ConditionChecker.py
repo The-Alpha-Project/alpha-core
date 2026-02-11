@@ -242,7 +242,7 @@ class ConditionChecker:
         # Condition_value2 = class mask.
         if not ConditionChecker.is_player(target):
             return False
-        return target.race_mask & condition.value1 and target.class_mask & condition.value2
+        return (target.race_mask & condition.value1) != 0 and (target.class_mask & condition.value2) != 0
 
     @staticmethod
     def check_condition_level(condition, _source, target):
@@ -634,7 +634,7 @@ class ConditionChecker:
         # Checks if the target is in combat.
         if not ConditionChecker.is_unit(target):
             return False
-        return target.unit_flags & UnitFlags.UNIT_FLAG_IN_COMBAT
+        return (target.unit_flags & UnitFlags.UNIT_FLAG_IN_COMBAT) != 0
 
     @staticmethod
     def check_condition_is_hostile_to(_condition, source, target):

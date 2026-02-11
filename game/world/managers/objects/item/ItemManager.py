@@ -302,7 +302,7 @@ class ItemManager(ObjectManager):
             self.save()
 
     def has_flag(self, flag: ItemDynFlags):
-        return self.item_instance.item_flags & flag
+        return (self.item_instance.item_flags & flag) != 0
 
     # Transform an item into the wrapped item using the same item instance.
     def set_wrapped(self, player_mgr, wrapper_item_entry):
@@ -365,7 +365,7 @@ class ItemManager(ObjectManager):
         return ByteUtils.shorts_to_int(self.item_instance.item_flags, self.item_template.flags)
 
     def is_player_cast(self):
-        return self._get_item_flags() & ItemFlags.ITEM_FLAG_PLAYERCAST
+        return (self._get_item_flags() & ItemFlags.ITEM_FLAG_PLAYERCAST) != 0
 
     # Enchantments.
 

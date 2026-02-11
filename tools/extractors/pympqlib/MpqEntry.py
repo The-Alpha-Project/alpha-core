@@ -29,16 +29,16 @@ class MpqEntry:
         self.filename = os.path.basename(n_path)
 
     def is_encrypted(self):
-        return self.flags & MpqFlags.Encrypted
+        return (self.flags & MpqFlags.Encrypted) != 0
 
     def is_compressed(self):
-        return self.flags & MpqFlags.Compressed
+        return (self.flags & MpqFlags.Compressed) != 0
 
     def is_compressed_multi(self):
-        return self.flags & MpqFlags.CompressedMulti
+        return (self.flags & MpqFlags.CompressedMulti) != 0
 
     def is_single_unit(self):
-        return self.flags & MpqFlags.SingleUnit
+        return (self.flags & MpqFlags.SingleUnit) != 0
 
     def calculate_encryption_seed(self):
         if not self.filename:

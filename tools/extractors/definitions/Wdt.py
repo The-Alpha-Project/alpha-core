@@ -1,4 +1,6 @@
 from io import BytesIO
+import os
+import struct
 
 from game.world.managers.maps.helpers.Constants import BLOCK_SIZE
 from tools.extractors.definitions.chunks.MDNM import MDMN
@@ -9,6 +11,9 @@ from tools.extractors.definitions.Adt import Adt
 from tools.extractors.helpers.Constants import Constants
 from tools.extractors.definitions.chunks.TileHeader import TileHeader
 from tools.extractors.definitions.reader.StreamReader import StreamReader
+from tools.extractors.definitions.objects.Wmo import Wmo, WMO_LIQ_FILES_HASH_MAP, WMO_GEO_FILES_HASH_MAP, WMO_FILE_PATHS_HASH_MAP
+from tools.extractors.helpers.WmoGeometryExtractor import WmoGeometryExtractor
+from utils.PathManager import PathManager
 
 
 class Wdt:
@@ -24,7 +29,9 @@ class Wdt:
         self.wow_data_path = wow_data_path
         self.mdx_data_path = mdx_data_path
         self.tile_information = [[type[TileHeader] for _ in range(64)] for _ in range(64)]
-        self.wmo_liquids = [[None for _ in range(64) for _ in range(64)] for _ in range(64) for _ in range(64)]
+        self.wmo_liquids = [[None for _ in range(64)] for _ in range(64)]
+        self.wmo_heights = [[None for _ in range(64)] for _ in range(64)]
+        self.map_liquids = [[None for _ in range(64)] for _ in range(64)]
         self.adt_x = adt_x
         self.adt_y = adt_y
 
@@ -41,6 +48,7 @@ class Wdt:
         self.tile_information.clear()
         self.tile_information = None
         self.wmo_liquids = None
+        self.wmo_heights = None
 
     def process(self):
         error, token, size = self.stream_reader.read_chunk_information('MVER')
@@ -91,6 +99,8 @@ class Wdt:
             for filename in chunk.wmo_filenames:
                 self.wmo_filenames.append(filename)
 
+        self._ensure_wmo_cache()
+
         # Move to next token. (Optional)
         error, token, size = self.stream_reader.read_chunk_information('MODF')
         if error and token != 'MHDR':
@@ -117,9 +127,19 @@ class Wdt:
 
                 self.stream_reader.set_position(tile_info.offset)
                 # Parse and write .map file for this adt.
-                with Adt.from_reader(self.dbc_map.id, x, y, self.wmo_filenames, self.wmo_liquids, self.stream_reader) as adt:
-                    adt.write_to_map_file()
+                with Adt.from_reader(
+                        self.dbc_map.id,
+                        x,
+                        y,
+                        self.wmo_filenames,
+                        self.wmo_liquids,
+                        self.wmo_heights,
+                        self.stream_reader,
+                ) as adt:
+                    self.map_liquids[x][y] = adt.write_to_map_file()
 
+        # Reset progress counter for the WMO liquid pass to avoid exceeding the total.
+        current = 0
         for x in range(Constants.TILE_BLOCK_SIZE):
             for y in range(Constants.TILE_BLOCK_SIZE):
                 current += 1
@@ -128,4 +148,72 @@ class Wdt:
                 if self.adt_x != -1 and x != self.adt_x or self.adt_y != -1 and y != self.adt_y:
                     continue
 
-                Adt.write_wmo_liquids(self.dbc_map.id, x, y, self.wmo_liquids)
+                Adt.write_liquids(self.dbc_map.id, x, y, self.map_liquids, self.wmo_liquids, self.wmo_heights)
+
+    def _ensure_wmo_cache(self):
+        if not self.wmo_filenames:
+            return
+
+        wmo_liquids_path = PathManager.get_wmo_liquids_path()
+        wmo_geometry_path = PathManager.get_wmo_geometry_path()
+        os.makedirs(wmo_liquids_path, exist_ok=True)
+        os.makedirs(wmo_geometry_path, exist_ok=True)
+
+        for filename in sorted({f for f in self.wmo_filenames if f}):
+            if not os.path.exists(filename):
+                continue
+            wmo_hash = Wmo.get_hash_filename(filename)
+            # Register every WMO path so height parsing can always resolve it.
+            WMO_FILE_PATHS_HASH_MAP[wmo_hash] = filename
+
+            liq_file = os.path.join(wmo_liquids_path, f'{wmo_hash}.liq')
+            if self._has_expected_wliq(liq_file):
+                WMO_LIQ_FILES_HASH_MAP[wmo_hash] = liq_file
+            else:
+                try:
+                    with Wmo(filename) as wmo:
+                        if wmo.has_liquids:
+                            wmo.save_liquid_data(wmo_liquids_path)
+                except Exception as e:
+                    Logger.error(f'Error extracting WMO liquids for {filename}: {e}')
+
+            wgeo_file = os.path.join(wmo_geometry_path, f'{wmo_hash}.wgeo')
+            if self._has_expected_wgeo(wgeo_file):
+                WMO_GEO_FILES_HASH_MAP[wmo_hash] = wgeo_file
+            else:
+                try:
+                    WmoGeometryExtractor.extract_to_file(filename, wmo_geometry_path)
+                except Exception as e:
+                    Logger.error(f'Error extracting WMO geometry for {filename}: {e}')
+
+    @staticmethod
+    def _has_expected_wliq(file_path):
+        try:
+            with open(file_path, 'rb') as f:
+                if f.read(4) != Constants.WLIQ_MAGIC:
+                    raise ValueError('Legacy WLIQ file missing version header.')
+                header = f.read(2)
+                if len(header) < 2:
+                    raise ValueError('Legacy WLIQ file missing version header.')
+                version = struct.unpack('<H', header)[0]
+                if version != Constants.WLIQ_EXPECTED_VERSION:
+                    raise ValueError(f'Unsupported WLIQ version {version}')
+                return True
+        except OSError:
+            return False
+
+    @staticmethod
+    def _has_expected_wgeo(file_path):
+        try:
+            with open(file_path, 'rb') as f:
+                if f.read(4) != Constants.WGEO_MAGIC:
+                    raise ValueError('Legacy WGEO file missing version header.')
+                header = f.read(4)
+                if len(header) < 4:
+                    raise ValueError('Legacy WGEO file missing version header.')
+                version = struct.unpack('<B', header[:1])[0]
+                if version != Constants.WGEO_EXPECTED_VERSION:
+                    raise ValueError(f'Unsupported WGEO version {version}')
+                return True
+        except OSError:
+            return False

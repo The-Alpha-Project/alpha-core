@@ -30,7 +30,7 @@ class LootHolder:
         return self.item.item_template.class_ == ItemClasses.ITEM_CLASS_QUEST
 
     def is_multi_drop(self):
-        return self.item.item_template.flags & ItemFlags.ITEM_FLAG_MULTI_DROP
+        return (self.item.item_template.flags & ItemFlags.ITEM_FLAG_MULTI_DROP) != 0
 
     def is_visible_to_player(self, requester):
         if not self.is_multi_drop():

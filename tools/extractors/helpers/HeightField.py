@@ -6,7 +6,6 @@ from utils.Float16 import Float16
 
 Z_RESOLUTION = 256
 
-
 class HeightField:
 
     def __init__(self, adt):
@@ -41,14 +40,21 @@ class HeightField:
         self.v9[128][128] = self.tiles[15][15].mcvt.get_v9(8, 8)
 
     def write_to_file(self, file_stream):
-        for cy in range(Z_RESOLUTION):
-            for cx in range(Z_RESOLUTION):
-                # 32 bit Full precision.
-                if not self.use_float_16:
-                    file_stream.write(pack('<f', self.calculate_z(cy, cx)))
-                    continue
-                # 16 bit Half precision.
-                file_stream.write(pack('>h', Float16.compress(self.calculate_z(cy, cx))))
+        # Store full V9 grid followed by V8 grid for on-the-fly height sampling.
+        for x in range(129):
+            for y in range(129):
+                self._write_value(file_stream, self.v9[x][y])
+        for x in range(128):
+            for y in range(128):
+                self._write_value(file_stream, self.v8[x][y])
+
+    def _write_value(self, file_stream, value):
+        # 32 bit full precision.
+        if not self.use_float_16:
+            file_stream.write(pack('<f', value))
+            return
+        # 16 bit half precision.
+        file_stream.write(pack('>h', Float16.compress(value)))
 
     def calculate_z(self, cy, cx):
         # Reuse vectors.

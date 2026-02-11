@@ -64,7 +64,8 @@ Server:
         console_mode: True  # Set it to False if you intend to run the server on background.
         # MapTiles:
         # Extract running main.py -e, files should be automatically placed over '/etc/maps/'
-        # Enables terrain Z calculations, improving npc units movement.
+        # Enables terrain/wmo Z calculations, improving npc units movement.
+        # Enables spell outdoor/indoor checks; Mounts, campfires, entangling roots, etc.
         # Enables liquid related features like fishing, underwater breathing, fatigue, slime/lava detection.
         # Enables zone exploration feature.
         use_map_tiles: False

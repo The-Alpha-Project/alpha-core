@@ -7,7 +7,7 @@ from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObject
 from game.world.managers.objects.units.movement.helpers.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import GameObjectStates, MoveFlags, MoveType
+from utils.constants.MiscCodes import GameObjectStates, MoveFlags, MoveType, ZSource
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
@@ -104,7 +104,7 @@ class Spline:
                                                                    map_id=self.unit.map_id)
 
         # For creatures, if Z calculation failed, try to adjust the position Z in case the unit is part of a group.
-        if not self.is_player and point_in_between.z_locked:
+        if not self.is_player and point_in_between.z_source == ZSource.CURRENT_Z:
             point_in_between = self._apply_creature_group_leader_z(point_in_between)
 
         return point_in_between
@@ -143,7 +143,7 @@ class Spline:
         return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()
 
     def is_flight(self):
-        return self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
+        return (self.spline_flags & SplineFlags.SPLINEFLAG_FLYING) != 0
 
     def get_speed(self):
         # No waypoints left means movement is done, extra_time_seconds is just a wait window.

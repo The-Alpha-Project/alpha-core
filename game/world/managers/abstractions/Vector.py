@@ -2,24 +2,25 @@ import math
 from random import random
 from struct import pack, unpack
 from utils.ConfigManager import config
+from utils.constants.MiscCodes import ZSource
 
 
 class Vector:
     """Class to represent points in a 3D space and utilities to work with them within the game."""
-    __slots__ = ('x', 'y', 'z', 'o', 'z_locked')
+    __slots__ = ('x', 'y', 'z', 'o', 'z_source')
 
-    def __init__(self, x=0.0, y=0.0, z=0.0, o=0.0, z_locked=False):
+    def __init__(self, x=0.0, y=0.0, z=0.0, o=0.0, z_source=ZSource.CURRENT_Z):
         self.x = x
         self.y = y
         self.z = z
         self.o = o
-        self.z_locked = z_locked
+        self.z_source = z_source
 
     def __add__(self, other):
-        return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+        return Vector(self.x + other.x, self.y + other.y, self.z + other.z, z_source=self.z_source)
 
     def __sub__(self, other):
-        return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+        return Vector(self.x - other.x, self.y - other.y, self.z - other.z, z_source=self.z_source)
 
     def __str__(self):
         return f'{self.x}, {self.y}, {self.z}, {self.o}'
@@ -40,13 +41,13 @@ class Vector:
         return vector
 
     @staticmethod
-    def calculate_z(x, y, map_id, default_z=0.0, is_rand_point=False) -> tuple:  # float, z_locked (Could not use map files Z)
+    def calculate_z(x, y, map_id, current_z, is_rand_point=False) -> tuple:  # float, ZSource
         if map_id == -1 or (not config.Server.Settings.use_map_tiles and not config.Server.Settings.use_nav_tiles):
-            return default_z, False
+            return current_z, ZSource.CURRENT_Z
         else:
             from game.world.managers.maps.MapManager import MapManager
             # Calculate destination Z, default Z if not possible.
-            return MapManager.calculate_z(map_id, x, y, default_z, is_rand_point=is_rand_point)
+            return MapManager.calculate_z(map_id, x, y, current_z, is_rand_point=is_rand_point)
 
     def set_orientation(self, orientation):
         self.o = orientation
@@ -63,7 +64,8 @@ class Vector:
         return Vector(
             self.x + (target.x - self.x) * t,
             self.y + (target.y - self.y) * t,
-            self.z + (target.z - self.z) * t
+            self.z + (target.z - self.z) * t,
+            z_source=self.z_source
         )
 
     def to_bytes(self, include_orientation=True):
@@ -72,10 +74,11 @@ class Vector:
         return pack('<3f', self.x, self.y, self.z)
 
     def copy(self):
-        return Vector(self.x, self.y, self.z, self.o)
+        return Vector(self.x, self.y, self.z, self.o, self.z_source)
 
     def flush(self):
         self.x = self.y = self.z = self.o = 0
+        self.z_source = ZSource.CURRENT_Z
 
     def distance(self, vector=None, x=0, y=0, z=0, decimals=3):
         return round(math.sqrt(self.distance_sqrd(vector) if vector else
@@ -140,9 +143,11 @@ class Vector:
         point_in_between = unit.get_map().find_point_in_between_vectors(offset, unit.location, vector)
         if point_in_between:
             # Convert Namigator tuple to Vector.
-            result = Vector(point_in_between[0], point_in_between[1], point_in_between[2], z_locked=False)
+            result = Vector(point_in_between[0], point_in_between[1], point_in_between[2], z_source=ZSource.NAVS)
         else:
             general_distance = self.distance(vector)
+            if general_distance <= 0.0:
+                return vector
             # Location already in the given offset
             if general_distance <= offset:
                 return vector
@@ -150,9 +155,9 @@ class Vector:
             factor = offset / general_distance
             x3 = self.x + factor * (vector.x - self.x)
             y3 = self.y + factor * (vector.y - self.y)
-            z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z), is_rand_point=True)
+            z3, z_source = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z), is_rand_point=True)
 
-            result = Vector(x3, y3, z3, z_locked=z_locked)
+            result = Vector(x3, y3, z3, z_source=z_source)
 
         orientation = self.o if self.o != 0 else self.get_angle_towards_vector(result)
         result.set_orientation(orientation)
@@ -170,25 +175,34 @@ class Vector:
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2
         y = (self.y + vector.y) / 2
-        z, z_locked = Vector.calculate_z(x, y, map_id, (self.z + vector.z) / 2, is_rand_point=True)
+        z, z_source = Vector.calculate_z(x, y, map_id, (self.z + vector.z) / 2, is_rand_point=True)
 
-        return Vector(x, y, z, z_locked=z_locked)
+        return Vector(x, y, z, z_source=z_source)
 
     # https://stackoverflow.com/a/50746409/4208583
-    def get_random_point_in_radius(self, radius, map_id=-1):
-        r = radius * math.sqrt(random())
+    def get_random_point_in_radius(self, radius, map_id=-1, min_distance=0.0):
+        if radius <= 0.0:
+            return self.copy()
+        if min_distance < 0.0:
+            min_distance = 0.0
+        if radius <= min_distance:
+            return self.copy()
+
+        min_r2 = min_distance * min_distance
+        max_r2 = radius * radius
+        r = math.sqrt(random() * (max_r2 - min_r2) + min_r2)
         theta = random() * 2 * math.pi
 
         x = self.x + (r * math.cos(theta))
         y = self.y + (r * math.sin(theta))
-        z, z_locked = Vector.calculate_z(x, y, map_id, self.z, is_rand_point=True)
+        z, z_source = Vector.calculate_z(x, y, map_id, self.z, is_rand_point=True)
 
-        return Vector(x, y, z, z_locked=z_locked)
+        return Vector(x, y, z, z_source=z_source)
 
     def get_point_in_radius_and_angle(self, radius, angle, final_orientation=-1, map_id=-1):
         x = self.x + (radius * math.cos(self.o + angle))
         y = self.y + (radius * math.sin(self.o + angle))
-        z, z_locked = Vector.calculate_z(x, y, map_id, self.z, is_rand_point=True)
+        z, z_source = Vector.calculate_z(x, y, map_id, self.z, is_rand_point=True)
         o = self.o if final_orientation == -1 else final_orientation
 
-        return Vector(x, y, z, o, z_locked=z_locked)
+        return Vector(x, y, z, o, z_source=z_source)

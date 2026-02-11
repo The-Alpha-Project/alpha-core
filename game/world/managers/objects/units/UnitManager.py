@@ -28,7 +28,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     SpeedType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState
+    SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState, AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
     AIReactionStates
 from utils.constants.UpdateFields import UnitFields
@@ -320,7 +320,7 @@ class UnitManager(ObjectManager):
         # Might be neutral, but was attacked by target.
         return target and has_aggro_from_target
 
-    def attack(self, victim: UnitManager):
+    def attack(self, victim: UnitManager, from_script=False):
         if not victim or victim == self:
             return False
 
@@ -333,7 +333,7 @@ class UnitManager(ObjectManager):
             return False
 
         # Invalid target.
-        if not self.can_attack_target(victim):
+        if not from_script and not self.can_attack_target(victim):
             return False
 
         self.set_current_target(victim.guid)
@@ -701,6 +701,9 @@ class UnitManager(ObjectManager):
             else:
                 damage_info.total_damage = int(victim.health - invincibility_hp_level)
 
+        # Check if the target is unkillable and cap damage.
+        damage_info.cap_unkillable_damage(victim)
+
         # Generate rage (if needed).
         self.generate_rage(damage_info, is_attacking=True)
 
@@ -726,7 +729,7 @@ class UnitManager(ObjectManager):
         return damage_info
 
     def is_combat_log_debug_enabled(self) -> bool:
-        return self.is_player() and bool(self.unit_flags & UnitFlags.UNIT_FLAG_DEBUG_COMBAT_LOGGING)
+        return self.is_player() and (self.unit_flags & UnitFlags.UNIT_FLAG_DEBUG_COMBAT_LOGGING) != 0
 
     def _get_debug_combat_log_players(self, include_self=True):
         debug_players = []
@@ -1055,6 +1058,8 @@ class UnitManager(ObjectManager):
             damage_info.proc_ex |= ProcFlagsExLegacy.NORMAL_HIT
             damage_info.attack_round_hit_info |= HitInfo.SUCCESS
 
+        damage_info.cap_unkillable_damage(target)
+
         # Target will die because of this attack.
         if target.health - damage_info.total_damage <= 0:
             damage_info.attack_round_hit_info |= HitInfo.UNIT_DEAD
@@ -1085,6 +1090,8 @@ class UnitManager(ObjectManager):
                 interrupted = self.spell_manager.check_spell_interrupts(received_damage=True)
                 if interrupted and damage_info.target_state == VictimStates.VS_WOUND:
                     damage_info.target_state = VictimStates.VS_INTERRUPT
+
+        damage_info.cap_unkillable_damage(self)
 
         new_health = self.health - damage_info.total_damage
         if new_health <= 0:
@@ -1403,7 +1410,7 @@ class UnitManager(ObjectManager):
         possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)
         if possessed_id:
             unit = self.get_map().get_surrounding_unit_by_guid(self, possessed_id, include_players=True)
-            return unit if unit and unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED else None
+            return unit if unit and (unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED) != 0 else None
         return None
 
     # override
@@ -2113,6 +2120,10 @@ class UnitManager(ObjectManager):
     def has_melee(self):
         return not self.melee_disabled
 
+    # Implemented by CreatureManager
+    def is_unkillable_target(self) -> bool:
+        return False
+
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form
 
@@ -2241,7 +2252,7 @@ class UnitManager(ObjectManager):
             charmer_or_summoner.pet_manager.detach_pet_by_guid(self.guid)
 
     def is_swimming(self):
-        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
+        return (self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING) != 0
 
     def is_above_water(self):
         return not self.is_swimming()

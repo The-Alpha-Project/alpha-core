@@ -6,6 +6,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.creature.groups.CreatureGroupMember import CreatureGroupMember
 from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
 from utils.Logger import Logger
+from utils.constants.MiscCodes import ZSource
 from utils.constants.MiscCodes import CreatureGroupFlags
 
 
@@ -142,7 +143,7 @@ class CreatureGroupManager:
         return alive
 
     def is_formation(self):
-        return self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE
+        return (self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE) != 0
 
     def compute_relative_position(self, group_member, distance=0.0):
         leader = self.get_leader()
@@ -165,8 +166,8 @@ class CreatureGroupManager:
         off_z = leader_location.z + (group_member.creature.location.z - leader_location.z) * 0.5
 
         # Try to find precise Z.
-        z, z_locked = leader_creature.get_map().calculate_z(off_x, off_y, off_z, is_rand_point=True)
-        if not z_locked:
+        z, z_source = leader_creature.get_map().calculate_z(off_x, off_y, off_z, is_rand_point=True)
+        if z_source != ZSource.CURRENT_Z:
             off_z = z
         return Vector(off_x, off_y, off_z)
 

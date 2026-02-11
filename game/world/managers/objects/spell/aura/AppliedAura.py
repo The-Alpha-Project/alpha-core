@@ -59,7 +59,8 @@ class AppliedAura:
         return self.passive
 
     def displays_in_aura_bar(self):
-        return not self.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_DONT_DISPLAY_IN_AURA_BAR
+        return (self.source_spell.spell_entry.AttributesEx &
+                SpellAttributesEx.SPELL_ATTR_EX_DONT_DISPLAY_IN_AURA_BAR) == 0
 
     def is_periodic(self) -> bool:
         return self.spell_effect.is_periodic()

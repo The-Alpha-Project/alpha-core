@@ -77,6 +77,7 @@ class PlayerManager(UnitManager):
         self.pending_teleport_data = []
         self.update_lock = False
         self.possessed_unit = None
+        self.after_teleport = False
         self.known_objects = KnownObjects(self)
         self.known_items = dict()
         self.known_stealth_units = dict()
@@ -245,7 +246,7 @@ class PlayerManager(UnitManager):
             self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.get_player_bytes_2())
 
     def is_afk(self):
-        return self.player.extra_flags & PlayerFlags.PLAYER_FLAGS_AFK
+        return (self.player.extra_flags & PlayerFlags.PLAYER_FLAGS_AFK) != 0
 
     def toggle_afk(self):
         if self.is_afk():
@@ -258,7 +259,7 @@ class PlayerManager(UnitManager):
         self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.get_player_bytes_2())
 
     def is_dnd(self):
-        return self.player.extra_flags & PlayerFlags.PLAYER_FLAGS_DND
+        return (self.player.extra_flags & PlayerFlags.PLAYER_FLAGS_DND) != 0
 
     def toggle_dnd(self):
         if self.is_dnd():
@@ -481,7 +482,7 @@ class PlayerManager(UnitManager):
 
         # End duel and detach pets if this is a long-distance teleport.
         if not is_instant:
-            # Set sanctuary, this will take care of leaving combat, removing casts, etc.
+            # Set sanctuary; this will take care of leaving combat, removing casts, etc.
             self.set_sanctuary(True, time_secs=1)
             self.pet_manager.detach_active_pets()
 
@@ -489,7 +490,7 @@ class PlayerManager(UnitManager):
             if duel_arbiter:
                 duel_arbiter.force_duel_end(self)
 
-        # If unit is being moved by a spline, stop it.
+        # If a spline is moving the unit, stop it.
         if self.movement_manager.unit_is_moving():
             self.movement_manager.reset()
 
@@ -580,7 +581,7 @@ class PlayerManager(UnitManager):
         # Pending teleport information.
         pending_teleport = self.pending_teleport_data[0]
 
-        # Check if player comes from a long teleport.
+        # Check if the player comes from a long teleport.
         from_long_teleport = pending_teleport.is_long_teleport()
 
         dbc_map = DbcDatabaseManager.map_get_by_id(pending_teleport.destination_map)
@@ -645,6 +646,7 @@ class PlayerManager(UnitManager):
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)
         if not from_long_teleport:
+            self.after_teleport = True
             self.movement_flags |= MoveFlags.MOVEFLAG_MOVED
             heart_beat_packet = self.get_heartbeat_packet()
             self.get_map().send_surrounding(heart_beat_packet, self, True)
@@ -1608,6 +1610,13 @@ class PlayerManager(UnitManager):
         # If not teleporting, notify self movement to surrounding units for proximity aggro.
         if not self.update_lock:
             self.update_manager.process_tick_updates()
+
+            if self.after_teleport:
+                self.after_teleport = False
+                # Bring guardians/pet to our location if needed (Destroyed because of teleport distance).
+                for pet_or_guardian in self.pet_manager.get_pet_and_guardians():
+                    if pet_or_guardian.is_in_world() and pet_or_guardian.guid not in self.known_objects:
+                        pet_or_guardian.near_teleport(self.location)
 
         self.last_tick = now
 

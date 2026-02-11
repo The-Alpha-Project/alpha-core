@@ -1296,7 +1296,24 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_MOUNTED)
                 return False
 
-            # Not stealthed but the spell requires it.
+            # Outdoors / Indoors.
+            if self.caster.is_player():
+                if casting_spell.is_outdoors_spell():
+                    if not self.caster.get_map().is_wmo_exterior(self.caster.location.x,
+                                                                self.caster.location.y,
+                                                                self.caster.location.z):
+                        self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_OUTDOORS)
+                        return False
+
+                # Indoors.
+                if casting_spell.is_indoors_spell():
+                    if not self.caster.get_map().is_wmo_interior(self.caster.location.x,
+                                                                self.caster.location.y,
+                                                                self.caster.location.z):
+                        self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_INDOORS)
+                        return False
+
+            # Not stealth but the spell requires it.
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)

@@ -65,6 +65,47 @@ class LiquidAdtWriter:
                 else:  # Empty cell.
                     file_writer.write(pack('<b', -1))
 
+    def collect_cells(self):
+        cells = {}
+        # Calculate which liquids are needed first based on flags.
+        for i in range(Constants.TILE_SIZE):
+            for j in range(Constants.TILE_SIZE):
+                tile = self.adt.tiles[i][j]
+
+                if not tile or not tile.has_liquids:
+                    continue
+
+                mclq = tile.mclq[0]
+                # Prioritize rivers over oceans.
+                not_ocean = [mclq for mclq in tile.mclq if not mclq.flag & LiquidFlags.FLAG_LQ_OCEAN]
+                if not_ocean:
+                    mclq = not_ocean[0]
+
+                for y in range(Constants.CELL_SIZE):
+                    cy = i * Constants.CELL_SIZE + y
+                    for x in range(Constants.CELL_SIZE):
+                        cx = j * Constants.CELL_SIZE + x
+
+                        if mclq.flags[y][x] != 15:
+                            self.lq_show[cy][cx] = True
+
+                            # Overwrite DEEP water flag.
+                            if mclq.flags[y][x] & (1 << 7) != 0:
+                                mclq.flag = LiquidFlags.FLAG_LQ_DEEP.value
+
+                            self.lq_height[cy][cx] = mclq.heights[y][x]
+                            self.lq_flags[cy][cx] = mclq.flag
+                        else:
+                            self.lq_show[cy][cx] = False
+
+        for y in range(Constants.GRID_SIZE):
+            for x in range(Constants.GRID_SIZE):
+                if not self.lq_show[y][x]:
+                    continue
+                cells[(x, y)] = (self.lq_flags[y][x], self.lq_height[y][x])
+
+        return cells
+
     def _write_cell_liquid(self, file_writer, height, flag):
         file_writer.write(pack('<b', flag))
         # 32 bit Full precision.

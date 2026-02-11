@@ -116,11 +116,11 @@ class DbcDatabaseManager:
     def dispose():
         try:
             SessionHolder.remove()
-        except Exception:
+        except:
             pass
         try:
             dbc_db_engine.dispose()
-        except Exception:
+        except:
             pass
 
     class AreaInformationHolder:

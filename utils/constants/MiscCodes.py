@@ -723,6 +723,13 @@ class MapTileStates(IntEnum):
     UNUSABLE = 2
 
 
+class ZSource(IntEnum):
+    CURRENT_Z = 0
+    NAVS = 1
+    TERRAIN = 2
+    WMO = 3
+
+
 class MoveType(IntEnum):
     INSTANT = 0
     IDLE = 1

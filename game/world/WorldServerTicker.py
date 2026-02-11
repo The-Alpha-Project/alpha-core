@@ -55,8 +55,8 @@ class WorldServerTicker:
                     # Check if this task is lagging behind and throw a warning if so.
                     now = _now()
                     if task.next_run < now:
-                        delay = now - task.next_run
-                        Logger.warning(f'Ticker task \'{task.name}\' is lagging by {delay:.3f}s.')
+                        delay_ms = (now - task.next_run) * 1000
+                        Logger.warning(f'Ticker task {task.name} is lagging by {delay_ms:.1f}ms.')
 
                 # Time until this task needs to run again.
                 time_until_next = task.next_run - _now()

@@ -184,6 +184,12 @@ class Map:
     def get_area_information(self, x, y):
         return self.map_manager.get_area_information(self.map_id, x, y)
 
+    def is_wmo_interior(self, x, y, z):
+        return self.map_manager.is_wmo_interior(self.map_id, x, y, z)
+
+    def is_wmo_exterior(self, x, y, z):
+        return self.map_manager.is_wmo_exterior(self.map_id, x, y, z)
+
     def get_parent_zone_id(self, zone_id):
         return self.map_manager.get_parent_zone_id(zone_id, self.map_id)
 
@@ -215,7 +221,7 @@ class Map:
     def calculate_z_for_object(self, world_object):
         return self.map_manager.calculate_z_for_object(world_object)
 
-    def calculate_z(self, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, z_locked (Could not use map files Z)
+    def calculate_z(self, x, y, current_z, is_rand_point=False) -> tuple:  # float, ZSource
         return self.map_manager.calculate_z(self.map_id, x, y, current_z=current_z, is_rand_point=is_rand_point)
 
     def is_land_location(self, vector=None, x=0, y=0, z=0):

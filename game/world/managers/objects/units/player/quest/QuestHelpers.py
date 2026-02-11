@@ -45,15 +45,15 @@ class QuestHelpers:
 
     @staticmethod
     def is_quest_repeatable(quest_template):
-        return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
+        return (quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE) != 0
 
     @staticmethod
     def is_event_quest(quest_template):
-        return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_SCRIPT
+        return (quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_SCRIPT) != 0
 
     @staticmethod
     def is_exploration_quest(quest_template):
-        return quest_template.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION
+        return (quest_template.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION) != 0
 
     @staticmethod
     def is_exploration_or_event(quest_template):

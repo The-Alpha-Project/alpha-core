@@ -1023,7 +1023,9 @@ class ScriptHandler:
         victim = command.target
 
         if victim and victim.is_alive:
-            attacker.attack(victim)
+            if not attacker.attack(victim, from_script=True):
+                Logger.warning(f'ScriptHandler: Attack failed, {attacker.get_name()} vs {victim.get_name()}, '
+                               f'{command.get_info()}.')
             return False
 
         Logger.warning(f'ScriptHandler: Unable to resolve target, {command.get_info()}.')

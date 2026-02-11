@@ -77,9 +77,10 @@ def release_process(active_process):
     Logger.info(f'Releasing {active_process.name}...')
     while active_process.is_alive():
         try:
-            # Give the process 2 seconds to shut down.
-            active_process.join(timeout=2)
+            # Give the process 10 seconds to shut down.
+            active_process.join(timeout=10)
             if active_process.is_alive():
+                Logger.warning(f'{active_process.name} did not exit in time; terminating.')
                 active_process.terminate()
                 active_process.join()
                 break
@@ -292,7 +293,7 @@ if __name__ == '__main__':
         Logger.info('Realm database released.')
         WorldDatabaseManager.dispose()
         Logger.info('World database released.')
-    except Exception:
+    except:
         pass
 
     manager.shutdown()
