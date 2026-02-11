@@ -70,13 +70,13 @@ class ScriptAIEvent:
                 return 0, 0, 0, 0
 
     def pick_scripts(self):
-        if self.event_flags & EventFlags.RANDOM_ACTION:
+        if (self.event_flags & EventFlags.RANDOM_ACTION) != 0:
             return [choice(self._scripts)]
         else:
             return list(self._scripts)
 
     def can_repeat(self):
-        return bool(self.event_flags & EventFlags.REPEATABLE)
+        return (self.event_flags & EventFlags.REPEATABLE) != 0
 
     def has_repeat_time(self):
         return self.min_repeat or self.max_repeat

@@ -24,32 +24,22 @@ class WmoLiquidParser:
     def load_liquid_data_from(self, file_path):
         with open(file_path, 'rb') as f:
             magic = f.read(4)
-            if magic == b'WLIQ':
-                version, _, liquids_chunks_count = struct.unpack('<HHI', f.read(8))
-                if version != 2:
-                    raise ValueError(f'Unsupported WLIQ version {version}')
-                entries = []
-                for _ in range(liquids_chunks_count):
-                    liquid_type = struct.unpack('<B', f.read(1))[0]
-                    min_bound_vector = Vector3.from_bytes(f.read(12))
-                    corner = Vector3.from_bytes(f.read(12))
-                    x_tiles, y_tiles = struct.unpack('<HH', f.read(4))
-                    entries.append((liquid_type, min_bound_vector, corner, x_tiles, y_tiles))
-                return 2, entries
-
-            # Fallback to legacy vertex-sampled format.
-            f.seek(0)
-            liquids_chunks_count = struct.unpack('i', f.read(4))[0]
+            if magic != Constants.WLIQ_MAGIC:
+                raise ValueError('Legacy WLIQ file missing version header.')
+            header = f.read(8)
+            if len(header) < 8:
+                raise ValueError('Legacy WLIQ file missing version header.')
+            version, _, liquids_chunks_count = struct.unpack('<HHI', header)
+            if version != Constants.WLIQ_EXPECTED_VERSION:
+                raise ValueError(f'Unsupported WLIQ version {version}')
             entries = []
             for _ in range(liquids_chunks_count):
-                liquid_type = struct.unpack('B', f.read(1))[0]
+                liquid_type = struct.unpack('<B', f.read(1))[0]
                 min_bound_vector = Vector3.from_bytes(f.read(12))
-                vertices_count = struct.unpack('i', f.read(4))[0]
-                vertices = []
-                for _ in range(vertices_count):
-                    vertices.append(Vector3.from_bytes(f.read(12)))
-                entries.append((liquid_type, min_bound_vector, vertices))
-            return 1, entries
+                corner = Vector3.from_bytes(f.read(12))
+                x_tiles, y_tiles = struct.unpack('<HH', f.read(4))
+                entries.append((liquid_type, min_bound_vector, corner, x_tiles, y_tiles))
+            return entries
 
     def parse(self, wmo_liquids):
         if not self.adt.wmo_placements or not self.adt.wmo_filenames:
@@ -62,58 +52,24 @@ class WmoLiquidParser:
             if wmo_hash not in WMO_LIQ_FILES_HASH_MAP:
                 return
 
-            version, entries = self.load_liquid_data_from(WMO_LIQ_FILES_HASH_MAP[wmo_hash])
+            entries = self.load_liquid_data_from(WMO_LIQ_FILES_HASH_MAP[wmo_hash])
             t_matrix = wmo_placement.get_transform_matrix()
 
-            if version == 2:
-                for liq_type, min_bound, corner, x_tiles, y_tiles in entries:
-                    self._rasterize_liquid_tiles(
-                        wmo_liquids,
-                        t_matrix,
-                        liq_type,
-                        min_bound,
-                        corner,
-                        x_tiles,
-                        y_tiles,
-                    )
-            else:
-                for liq_type, min_bound, vertices in entries:
-                    WmoLiquidParser._transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, min_bound, liq_type)
+            for liq_type, min_bound, corner, x_tiles, y_tiles in entries:
+                self._rasterize_liquid_tiles(
+                    wmo_liquids,
+                    t_matrix,
+                    liq_type,
+                    min_bound,
+                    corner,
+                    x_tiles,
+                    y_tiles,
+                )
 
             return
         except Exception as e:
             Logger.error(f'Error processing WMO placement {wmo_placement.name_id}: {e}')
             exit()
-
-    @staticmethod
-    def _transform_and_cache_vertices(wmo_liquids, vertices, t_matrix, liq_min_bound, liq_type):
-        # Transform liquid min_bound.
-        min_bound = Vector3.transform(liq_min_bound, t_matrix)
-
-        for vert in vertices:
-            v = Vector3.transform(vert, t_matrix)
-            adt_x, adt_y, cell_x, cell_y = MapUtils.calculate_tile(v.X, v.Y, RESOLUTION_LIQUIDS - 1)
-            # Initialize wmo liquids for adt if needed.
-            WmoLiquidParser._ensure_adt_wmo_liquid_initialization(wmo_liquids, adt_x, adt_y)
-
-            # Write wmo liquid height.
-            # We can have different liquids at the same cell at different heights, handle that here.
-            # This is seen mostly in IF (Kings room lava vs upper floor lava) and UC (Entrance slime vs canals slime).
-            liq_list_for_cells = wmo_liquids[adt_x][adt_y][cell_x][cell_y]
-            if liq_list_for_cells:
-                # Allow two liquids per cell position.
-                if len(liq_list_for_cells) > 1:
-                    continue
-
-                z0 = liq_list_for_cells[0][0]  # Known Z.
-                # Within the already known liquid for this cell.
-                if abs(round(z0, 3) - round(v.Z, 3)) < 2.0:
-                    continue
-
-            # Append either first liquid or second liquid for this cell.
-            wmo_liquids[adt_x][adt_y][cell_x][cell_y].append((v.Z, min_bound.Z, liq_type))
-
-        vertices.clear()
 
     def _rasterize_liquid_tiles(self, wmo_liquids, t_matrix, liq_type, liq_min_bound, corner, x_tiles, y_tiles):
         min_bound = Vector3.transform(liq_min_bound, t_matrix)

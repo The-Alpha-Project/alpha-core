@@ -143,7 +143,7 @@ class CreatureGroupManager:
         return alive
 
     def is_formation(self):
-        return self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE
+        return (self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE) != 0
 
     def compute_relative_position(self, group_member, distance=0.0):
         leader = self.get_leader()

@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum, IntEnum
+from shutil import get_terminal_size
 
 from colorama import init
 from colorama import Fore, Style
@@ -36,10 +37,11 @@ class Logger:
     # Initialize colorama.
     init()
     _abort_check = None
+    _progress_active = False
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
-        return config.Server.Logging.logging_mask & log_type
+        return (config.Server.Logging.logging_mask & log_type) != 0
 
     @staticmethod
     def _colorize_message(label, color, msg):
@@ -47,38 +49,55 @@ class Logger:
         return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
     @staticmethod
+    def _clear_progress_line():
+        if not Logger._progress_active:
+            return
+        width = get_terminal_size(fallback=(120, 20)).columns
+        print('\r' + (' ' * (width - 1)) + '\r', end='')
+        Logger._progress_active = False
+
+    @staticmethod
     def debug(msg):
         if Logger._should_log(DebugLevel.DEBUG):
+            Logger._clear_progress_line()
             print(Logger._colorize_message('[DEBUG]', DebugColorLevel.DEBUG, msg))
 
     @staticmethod
     def warning(msg):
         if Logger._should_log(DebugLevel.WARNING):
+            Logger._clear_progress_line()
             print(Logger._colorize_message('[WARNING]', DebugColorLevel.WARNING, msg))
 
     @staticmethod
     def error(msg):
         if Logger._should_log(DebugLevel.ERROR):
+            Logger._clear_progress_line()
             print(Logger._colorize_message('[ERROR]', DebugColorLevel.ERROR, msg))
 
     @staticmethod
-    def info(msg, end='\n'):
+    def info(msg, end='\n', progress=False):
         if Logger._should_log(DebugLevel.INFO):
+            if not progress:
+                Logger._clear_progress_line()
             print(Logger._colorize_message('[INFO]', DebugColorLevel.INFO, msg), end=end)
+            Logger._progress_active = end == '\r'
 
     @staticmethod
     def success(msg):
         if Logger._should_log(DebugLevel.SUCCESS):
+            Logger._clear_progress_line()
             print(Logger._colorize_message('[SUCCESS]', DebugColorLevel.SUCCESS, msg))
 
     @staticmethod
     def anticheat(msg):
         if Logger._should_log(DebugLevel.ANTICHEAT):
+            Logger._clear_progress_line()
             print(Logger._colorize_message('[ANTICHEAT]', DebugColorLevel.ANTICHEAT, msg))
 
     @staticmethod
     def script(msg):
         if Logger._should_log(DebugLevel.SCRIPT):
+            Logger._clear_progress_line()
             print(Logger._colorize_message('[SCRIPT]', DebugColorLevel.SCRIPT, msg))
 
     # Additional methods
@@ -94,6 +113,6 @@ class Logger:
         msg = f'{msg} [{current}/{total}] ({int(current * 100 / total)}%)'
         if current != total and divisions > 0:
             if divisions == 1 or int(current % (total / divisions)) == 0:
-                Logger.info(msg, end='\r')
+                Logger.info(msg, end='\r', progress=True)
         else:
             Logger.success(msg)

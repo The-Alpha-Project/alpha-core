@@ -66,8 +66,9 @@ class ConfusedMovement(BaseMovement):
 
     # override
     def can_remove(self):
-        return (not self.unit.is_alive or not self.duration_seconds or not self.unit.unit_state & UnitStates.CONFUSED
-                or self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or
+        return (not self.unit.is_alive or not self.duration_seconds or
+                (self.unit.unit_state & UnitStates.CONFUSED) == 0 or
+                (self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING) != 0 or
                 (not self.until_canceled and time.time() >= self.expected_confused_end_timestamp))
 
     # override

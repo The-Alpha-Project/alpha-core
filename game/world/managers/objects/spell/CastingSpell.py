@@ -337,25 +337,25 @@ class CastingSpell:
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE == SpellAttributes.SPELL_ATTR_PASSIVE
 
     def is_ability(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY
+        return (self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY) != 0
 
     def is_tradeskill(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_TRADESPELL
+        return (self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_TRADESPELL) != 0
 
     def is_channeled(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED
+        return (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED) != 0
 
     def is_far_sight(self):
-        if self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT:
+        if (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT) != 0:
             return True
         return any(effect.effect_type == SpellEffects.SPELL_EFFECT_ADD_FARSIGHT for effect in self.get_effects())
 
     def generates_threat(self):
-        return (not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
+        return ((self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT) == 0
                 and SpellThreatInfo.spell_generates_threat(self.spell_entry.ID))
 
     def generates_threat_on_miss(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_THREAT_ON_MISS
+        return (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_THREAT_ON_MISS) != 0
 
     def requires_implicit_initial_unit_target(self):
         # Some spells are self casts, but require an implicit unit target when casted.
@@ -434,13 +434,13 @@ class CastingSpell:
         return False
 
     def ignores_immunity(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY
+        return (self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) != 0
 
     def grants_positive_immunity(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS
+        return (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS) != 0
 
     def cast_breaks_stealth(self):
-        return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NOT_BREAK_STEALTH
+        return (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NOT_BREAK_STEALTH) == 0
 
     def is_fishing_spell(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
@@ -448,12 +448,12 @@ class CastingSpell:
     def is_indoors_spell(self):
         if not config.Server.Settings.use_map_tiles:
             return False
-        return bool(self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_INDOORS_ONLY)
+        return (self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_INDOORS_ONLY) != 0
 
     def is_outdoors_spell(self):
         if not config.Server.Settings.use_map_tiles:
             return False
-        return bool(self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_OUTDOORS_ONLY)
+        return (self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_OUTDOORS_ONLY) != 0
 
 
     def has_pet_target(self):
@@ -495,7 +495,7 @@ class CastingSpell:
                {SpellCategory.SPELLCATEGORY_ITEM_FOOD, SpellCategory.SPELLCATEGORY_ITEM_DRINK}
 
     def is_overpower(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_ENABLE_AT_DODGE
+        return (self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_ENABLE_AT_DODGE) != 0
 
     def has_effect_of_type(self, *effect_types: SpellEffects):
         for effect in self._effects:
@@ -510,11 +510,11 @@ class CastingSpell:
         return None
 
     def unlock_cooldown_on_trigger(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
+        return (self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE) != 0
 
     def casts_on_swing(self):
-        return self.spell_entry.Attributes & \
-               (SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 | SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_2)
+        return (self.spell_entry.Attributes &
+                (SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 | SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_2)) != 0
 
     def casts_on_ranged_attack(self):
         # Quick Shot has a negative base cast time (-1000000), which will resolve to 0.
@@ -535,7 +535,7 @@ class CastingSpell:
                       (1 << ItemSubClasses.ITEM_SUBCLASS_CROSSBOW) | \
                       (1 << ItemSubClasses.ITEM_SUBCLASS_WAND)
 
-        return self.spell_entry.EquippedItemSubclass & ranged_mask != 0
+        return (self.spell_entry.EquippedItemSubclass & ranged_mask) != 0
 
     def is_weapon_attack(self):
         return self.casts_on_swing() or self.is_ranged_weapon_attack()
@@ -544,12 +544,12 @@ class CastingSpell:
         if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
             return False
 
-        return self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE) != 0
+        return (self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE)) != 0
 
     def requires_combo_points(self):
         cp_att = (SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS |
                   SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS)
-        return self.spell_caster.is_player() and self.spell_entry.AttributesEx & cp_att != 0
+        return self.spell_caster.is_player() and (self.spell_entry.AttributesEx & cp_att) != 0
 
     def requires_aura_state(self):
         return self.spell_entry.CasterAuraState != 0

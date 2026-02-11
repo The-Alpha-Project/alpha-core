@@ -33,7 +33,7 @@ class ScriptCommand:
     # Script commands should return False by default.
     # If they return True the rest of the script is aborted.
     def should_abort(self):
-        return self.data_flags & ScriptFlags.SF_GENERAL_ABORT_ON_FAILURE
+        return (self.data_flags & ScriptFlags.SF_GENERAL_ABORT_ON_FAILURE) != 0
 
     def resolve_initial_targets(self, source, target):
         if self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:

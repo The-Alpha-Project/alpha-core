@@ -703,15 +703,15 @@ class SkillManager:
         if item_class not in self.proficiencies:
             return False
 
-        if self.proficiencies[item_class].item_subclass_mask & item_subclass_mask:
+        if (self.proficiencies[item_class].item_subclass_mask & item_subclass_mask) != 0:
             return True  # Account for case where the player has learned a proficiency with a command.
 
-        return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
+        return (self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask) != 0
 
     def can_use_equipment_now(self, item_class, item_subclass_mask):
         if item_class not in self.proficiencies:
             return False
-        return self.proficiencies[item_class].item_subclass_mask & item_subclass_mask
+        return (self.proficiencies[item_class].item_subclass_mask & item_subclass_mask) != 0
 
     # Shields and Block do not require an actual block to be gained, randomly pick one upon defense gain.
     # Warriors use the Shield skill, Paladins the Block skill and the rest only the Defense skill.

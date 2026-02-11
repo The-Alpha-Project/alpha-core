@@ -8,6 +8,7 @@ from tools.extractors.definitions.objects.Wmo import Wmo, WMO_FILE_PATHS_HASH_MA
 from tools.extractors.definitions.objects.WmoGroupFile import WmoGroupFile
 from tools.extractors.definitions.reader.StreamReader import StreamReader
 from tools.extractors.pympqlib.MpqArchive import MpqArchive
+from tools.extractors.helpers.Constants import Constants
 from utils.Logger import Logger
 
 
@@ -75,11 +76,14 @@ class WmoHeightParser:
         try:
             with open(file_path, 'rb') as f:
                 magic = f.read(4)
-                if magic != b'WGEO':
-                    return
-                version, _, _ = struct.unpack('<BBH', f.read(4))
-                if version != 3:
-                    return
+                if magic != Constants.WGEO_MAGIC:
+                    raise ValueError('Legacy WGEO file missing version header.')
+                header = f.read(4)
+                if len(header) < 4:
+                    raise ValueError('Legacy WGEO file missing version header.')
+                version, _, _ = struct.unpack('<BBH', header)
+                if version != Constants.WGEO_EXPECTED_VERSION:
+                    raise ValueError(f'Unsupported WGEO version {version}')
                 group_count = struct.unpack('<I', f.read(4))[0]
 
                 for _ in range(group_count):

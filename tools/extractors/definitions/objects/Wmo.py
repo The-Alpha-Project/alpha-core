@@ -4,6 +4,7 @@ from tools.extractors.definitions.chunks.MOHD import MOHD
 from tools.extractors.definitions.objects.WmoGroupFile import WmoGroupFile
 from tools.extractors.definitions.reader.StreamReader import StreamReader
 from tools.extractors.pympqlib.MpqArchive import MpqArchive
+from tools.extractors.helpers.Constants import Constants
 import struct
 import hashlib
 
@@ -39,9 +40,8 @@ class Wmo:
         WMO_LIQ_FILES_HASH_MAP[self.hash_name] = file_name
 
         with open(file_name, 'wb') as f:
-            # WLIQ v2: compact liquid tiles (no per-vertex sampling stored).
-            f.write(b'WLIQ')
-            f.write(struct.pack('<HHI', 2, 0, len(self.liquids_data)))
+            f.write(Constants.WLIQ_MAGIC)
+            f.write(struct.pack('<HHI', Constants.WLIQ_EXPECTED_VERSION, 0, len(self.liquids_data)))
             for liq_type, liq_min_bound, liq_corner, x_tiles, y_tiles in self.liquids_data:
                 f.write(struct.pack('<B', liq_type))
                 f.write(struct.pack('<fff', liq_min_bound.X, liq_min_bound.Y, liq_min_bound.Z))

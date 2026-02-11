@@ -6,11 +6,10 @@ from tools.extractors.definitions.objects.Wmo import Wmo, WMO_GEO_FILES_HASH_MAP
 from tools.extractors.definitions.objects.WmoGroupFile import WmoGroupFile
 from tools.extractors.definitions.reader.StreamReader import StreamReader
 from tools.extractors.pympqlib.MpqArchive import MpqArchive
+from tools.extractors.helpers.Constants import Constants
 from utils.Logger import Logger
 
 class WmoGeometryExtractor:
-    _MAGIC = b'WGEO'
-    _VERSION = 3
 
     @classmethod
     def extract_to_file(cls, wmo_path, output_dir):
@@ -26,8 +25,8 @@ class WmoGeometryExtractor:
                 if not header:
                     return False
 
-                f.write(cls._MAGIC)
-                f.write(struct.pack('<BBH', cls._VERSION, 0, 0))
+                f.write(Constants.WGEO_MAGIC)
+                f.write(struct.pack('<BBH', Constants.WGEO_EXPECTED_VERSION, 0, 0))
                 f.write(struct.pack('<I', 0))  # group_count placeholder
 
                 total_groups = header.wmo_group_files_count

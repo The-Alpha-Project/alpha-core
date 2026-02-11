@@ -15,7 +15,7 @@ from utils.constants.MiscCodes import ZSource
 
 
 class MapTile:
-    EXPECTED_VERSION = 'ACMAP_1.92'
+    EXPECTED_VERSION = 'ACMAP_1.76'
 
     def __init__(self, map_, adt_x, adt_y):
         self.map_ = map_

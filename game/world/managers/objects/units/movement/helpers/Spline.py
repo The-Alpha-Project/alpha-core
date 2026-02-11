@@ -143,7 +143,7 @@ class Spline:
         return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()
 
     def is_flight(self):
-        return self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
+        return (self.spline_flags & SplineFlags.SPLINEFLAG_FLYING) != 0
 
     def get_speed(self):
         # No waypoints left means movement is done, extra_time_seconds is just a wait window.

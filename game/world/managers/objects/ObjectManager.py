@@ -401,42 +401,42 @@ class ObjectManager:
 
     def is_object(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT) != 0
         return self.get_type_id() == ObjectTypeIds.ID_OBJECT
 
     def is_unit(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT) != 0
         return self.get_type_id() == ObjectTypeIds.ID_UNIT
 
     def is_player(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER) != 0
         return self.get_type_id() == ObjectTypeIds.ID_PLAYER
 
     def is_gameobject(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_GAMEOBJECT) != 0
         return self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
 
     def is_dyn_object(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_DYNAMICOBJECT
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_DYNAMICOBJECT) != 0
         return self.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT
 
     def is_corpse(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_CORPSE
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_CORPSE) != 0
         return self.get_type_id() == ObjectTypeIds.ID_CORPSE
 
     def is_item(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_ITEM
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_ITEM) != 0
         return self.get_type_id() == ObjectTypeIds.ID_ITEM
 
     def is_container(self, by_mask=False):
         if by_mask:
-            return self.get_type_mask() & ObjectTypeFlags.TYPE_CONTAINER
+            return (self.get_type_mask() & ObjectTypeFlags.TYPE_CONTAINER) != 0
         return self.get_type_id() == ObjectTypeIds.ID_CONTAINER
 
     def is_transport(self):

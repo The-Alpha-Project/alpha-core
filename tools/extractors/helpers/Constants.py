@@ -1,5 +1,9 @@
 class Constants:
-    MAPS_VERSION = 'ACMAP_1.92'
+    MAPS_VERSION: str = 'ACMAP_1.92'
+    WLIQ_MAGIC: bytes = b'WLIQ'
+    WGEO_MAGIC: bytes = b'WGEO'
+    WLIQ_EXPECTED_VERSION: int = 1
+    WGEO_EXPECTED_VERSION: int = 1
     HEIGHTMAP_MODE_UNIFORM = 0
     HEIGHTMAP_MODE_V8V9 = 1
     LIQUID_FLAG_IS_WMO = 0x1

@@ -167,7 +167,7 @@ class Wdt:
             WMO_FILE_PATHS_HASH_MAP[wmo_hash] = filename
 
             liq_file = os.path.join(wmo_liquids_path, f'{wmo_hash}.liq')
-            if self._has_wliq_v2(liq_file):
+            if self._has_expected_wliq(liq_file):
                 WMO_LIQ_FILES_HASH_MAP[wmo_hash] = liq_file
             else:
                 try:
@@ -178,7 +178,7 @@ class Wdt:
                     Logger.error(f'Error extracting WMO liquids for {filename}: {e}')
 
             wgeo_file = os.path.join(wmo_geometry_path, f'{wmo_hash}.wgeo')
-            if self._has_wgeo_v3(wgeo_file):
+            if self._has_expected_wgeo(wgeo_file):
                 WMO_GEO_FILES_HASH_MAP[wmo_hash] = wgeo_file
             else:
                 try:
@@ -187,26 +187,33 @@ class Wdt:
                     Logger.error(f'Error extracting WMO geometry for {filename}: {e}')
 
     @staticmethod
-    def _has_wliq_v2(file_path):
+    def _has_expected_wliq(file_path):
         try:
             with open(file_path, 'rb') as f:
-                if f.read(4) != b'WLIQ':
-                    return False
-                version = struct.unpack('<H', f.read(2))[0]
-                return version == 2
+                if f.read(4) != Constants.WLIQ_MAGIC:
+                    raise ValueError('Legacy WLIQ file missing version header.')
+                header = f.read(2)
+                if len(header) < 2:
+                    raise ValueError('Legacy WLIQ file missing version header.')
+                version = struct.unpack('<H', header)[0]
+                if version != Constants.WLIQ_EXPECTED_VERSION:
+                    raise ValueError(f'Unsupported WLIQ version {version}')
+                return True
         except OSError:
             return False
 
     @staticmethod
-    def _has_wgeo_v3(file_path):
+    def _has_expected_wgeo(file_path):
         try:
             with open(file_path, 'rb') as f:
-                if f.read(4) != b'WGEO':
-                    return False
+                if f.read(4) != Constants.WGEO_MAGIC:
+                    raise ValueError('Legacy WGEO file missing version header.')
                 header = f.read(4)
                 if len(header) < 4:
-                    return False
+                    raise ValueError('Legacy WGEO file missing version header.')
                 version = struct.unpack('<B', header[:1])[0]
-                return version == 3
+                if version != Constants.WGEO_EXPECTED_VERSION:
+                    raise ValueError(f'Unsupported WGEO version {version}')
+                return True
         except OSError:
             return False

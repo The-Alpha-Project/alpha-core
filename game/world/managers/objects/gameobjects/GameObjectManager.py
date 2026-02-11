@@ -204,7 +204,7 @@ class GameObjectManager(ObjectManager):
         self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
 
     def has_flag(self, flag: GameObjectFlags):
-        return self.flags & flag
+        return (self.flags & flag) != 0
 
     def set_active(self, alternative=False, force=False):
         if self.state == GameObjectStates.GO_STATE_READY:
