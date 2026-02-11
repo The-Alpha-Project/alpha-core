@@ -178,7 +178,7 @@ class Vector:
         return Vector(x, y, z, z_source=z_source)
 
     # https://stackoverflow.com/a/50746409/4208583
-    def get_random_point_in_radius(self, radius, map_id=-1, angle=None, angle_spread=None, min_distance=0.0):
+    def get_random_point_in_radius(self, radius, map_id=-1, min_distance=0.0):
         if radius <= 0.0:
             return self.copy()
         if min_distance < 0.0:
@@ -189,11 +189,7 @@ class Vector:
         min_r2 = min_distance * min_distance
         max_r2 = radius * radius
         r = math.sqrt(random() * (max_r2 - min_r2) + min_r2)
-        if angle is None:
-            theta = random() * 2 * math.pi
-        else:
-            spread = 0.0 if angle_spread is None else abs(angle_spread)
-            theta = angle + (random() * 2 - 1) * spread
+        theta = random() * 2 * math.pi
 
         x = self.x + (r * math.cos(theta))
         y = self.y + (r * math.sin(theta))
