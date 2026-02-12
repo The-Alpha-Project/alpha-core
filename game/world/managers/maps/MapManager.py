@@ -521,6 +521,15 @@ class MapManager:
 
             return z, source
 
+        def _maybe_apply_navs(base_z, base_source, navs_z):
+            if not navs_z:
+                return _debug_return(base_z, base_source)
+            if base_source == ZSource.CURRENT_Z:
+                return _debug_return(navs_z, ZSource.TERRAIN)
+            if abs(current_z - navs_z) < abs(current_z - base_z):
+                return _debug_return(navs_z, base_source)
+            return _debug_return(base_z, base_source)
+
         if not config.Server.Settings.use_nav_tiles and not config.Server.Settings.use_map_tiles:
             return _debug_return(current_z, ZSource.CURRENT_Z)
         try:
@@ -530,32 +539,32 @@ class MapManager:
             # No tile data available or busy loading.
             tile_state = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
             if tile_state != MapTileStates.READY:
-                return _debug_return(current_z, ZSource.CURRENT_Z)
+                return _maybe_apply_navs(current_z, ZSource.CURRENT_Z, navs_z)
 
             # Check if we have .map data for this request.
             tile = MAPS_TILES[map_id][adt_x][adt_y]
             if not tile or not tile.has_maps:
-                if navs_z:
-                    return _debug_return(navs_z, ZSource.NAVS)
-                return _debug_return(current_z, ZSource.CURRENT_Z)
+                return _maybe_apply_navs(current_z, ZSource.CURRENT_Z, navs_z)
 
             try:
-                calculated_z, height_source = tile.get_best_height_at_world(x, y, current_z, navs_z)
+                calculated_z, height_source = tile.get_best_height_at_world(x, y, current_z)
                 # Tolerance.
                 tol = 1.1 if not is_rand_point else 2
                 # If Z goes outside boundaries, expand our search.
                 if (math.fabs(current_z - calculated_z) > tol) and current_z:
                     found, z2 = MapManager.get_near_height(map_id, x, y, current_z, tol)
-                    return _debug_return(z2, ZSource.TERRAIN) if found else _debug_return(current_z, ZSource.CURRENT_Z)
+                    if found:
+                        return _maybe_apply_navs(z2, ZSource.TERRAIN, navs_z)
+                    return _maybe_apply_navs(current_z, ZSource.CURRENT_Z, navs_z)
                 # First Z was valid.
-                return _debug_return(calculated_z, height_source)
+                return _maybe_apply_navs(calculated_z, height_source, navs_z)
             except:
                 tile = MAPS_TILES[map_id][adt_x][adt_y]
                 if tile:
                     safe_cell_x = max(0, min(cell_x, RESOLUTION_ZMAP - 1))
                     safe_cell_y = max(0, min(cell_y, RESOLUTION_ZMAP - 1))
-                    return _debug_return(tile.get_z_at(safe_cell_x, safe_cell_y), ZSource.TERRAIN)
-                return _debug_return(current_z, ZSource.CURRENT_Z)
+                    return _maybe_apply_navs(tile.get_z_at(safe_cell_x, safe_cell_y), ZSource.TERRAIN, navs_z)
+                return _maybe_apply_navs(current_z, ZSource.CURRENT_Z, navs_z)
         except:
             Logger.error(traceback.format_exc())
             return _debug_return(current_z if current_z else 0.0, ZSource.CURRENT_Z)
