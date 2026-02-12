@@ -793,6 +793,7 @@ class SpellManager:
         if self.caster.aura_manager.has_aura_by_type(AuraTypes.SPELL_AURA_MOUNTED):
             return
 
+        # Clear stale custom mount state if some other path already unmounted the unit.
         if not (self.caster.unit_flags & UnitFlags.UNIT_MASK_MOUNTED) and self.caster.mount_display_id <= 0:
             self.caster.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=-1)
             return
