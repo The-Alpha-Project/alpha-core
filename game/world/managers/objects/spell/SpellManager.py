@@ -25,7 +25,8 @@ from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags, ItemSpellTriggerType
-from utils.constants.MiscCodes import HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, ItemBondingTypes
+from utils.constants.MiscCodes import HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, ItemBondingTypes, \
+    ZSource
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
@@ -702,6 +703,11 @@ class SpellManager:
 
     def check_spell_interrupts(self, moved=False, turned=False, received_damage=False, hit_info=HitInfo.DAMAGE,
                                interrupted=False, received_auto_attack=False):
+
+        # No-aura mount spells don't get aura interrupt handling, but should still auto-unmount indoors
+        # (movement + WMO z-source).
+        self._check_unmount_interrupts(moved=moved)
+
         if not self.casting_spells:
             return False
         interrupted_any = False
@@ -775,6 +781,27 @@ class SpellManager:
                 self.remove_cast(casting_spell, interrupted=True)
                 interrupted_any = True
         return interrupted_any
+
+    def _check_unmount_interrupts(self, moved=False):
+        if not moved:
+            return
+
+        if not self.caster.unit_state & UnitStates.SPELL_MOUNTED:
+            return
+
+        # Only handle no-aura mount spells; aura mounts are already managed by AuraManager interrupts.
+        if self.caster.aura_manager.has_aura_by_type(AuraTypes.SPELL_AURA_MOUNTED):
+            return
+
+        if not (self.caster.unit_flags & UnitFlags.UNIT_MASK_MOUNTED) and self.caster.mount_display_id <= 0:
+            self.caster.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=-1)
+            return
+
+        current_loc = self.caster.location
+        _, z_source = self.caster.get_map().calculate_z(current_loc.x, current_loc.y, current_loc.z)
+        if z_source == ZSource.WMO:
+            self.caster.unmount()
+            self.caster.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=-1)
 
     def interrupt_casting_spell(self, cooldown_penalty=0):
         casting_spell = self.get_casting_spell(ignore_melee=True)

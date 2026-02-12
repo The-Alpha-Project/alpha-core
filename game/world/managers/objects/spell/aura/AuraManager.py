@@ -11,7 +11,7 @@ from utils.constants.MiscCodes import ProcFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
     SpellAttributesEx, SpellEffects, AuraState, AuraFlags
-from utils.constants.UnitCodes import UnitFlags, StandState
+from utils.constants.UnitCodes import UnitFlags, StandState, UnitStates
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -137,7 +137,8 @@ class AuraManager:
     def check_aura_interrupts(self, moved=False, turned=False, changed_stand_state=False, negative_aura_applied=False,
                               received_damage=False, enter_combat=False, attacked=False,
                               cast_spell: Optional[CastingSpell] = None):
-        if not self.active_auras:
+        has_mount_state = bool(self.unit_mgr.unit_state & UnitStates.SPELL_MOUNTED)
+        if not self.active_auras and not has_mount_state:
             return
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: enter_combat,

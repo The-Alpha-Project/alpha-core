@@ -98,11 +98,14 @@ class AuraEffectHandler:
         if remove:
             if effect_target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
                 effect_target.unmount()
+            effect_target.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=aura.index)
             return
 
         creature_entry = aura.spell_effect.misc_value
         if not effect_target.summon_mount(creature_entry):
             Logger.error(f'SPELL_AURA_MOUNTED: Creature template ({creature_entry}) not found in database.')
+            return
+        effect_target.set_unit_state(UnitStates.SPELL_MOUNTED, active=True, index=aura.index)
 
     @staticmethod
     def handle_periodic_trigger_spell(aura, effect_target, remove):
