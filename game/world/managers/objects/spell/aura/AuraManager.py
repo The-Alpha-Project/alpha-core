@@ -137,9 +137,9 @@ class AuraManager:
     def check_aura_interrupts(self, moved=False, turned=False, changed_stand_state=False, negative_aura_applied=False,
                               received_damage=False, enter_combat=False, attacked=False,
                               cast_spell: Optional[CastingSpell] = None):
-        has_mount_state = bool(self.unit_mgr.unit_state & UnitStates.SPELL_MOUNTED)
-        if not self.active_auras and not has_mount_state:
+        if not self.active_auras:
             return
+
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: enter_combat,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
