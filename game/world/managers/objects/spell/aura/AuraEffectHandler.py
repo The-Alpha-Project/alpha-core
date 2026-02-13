@@ -96,7 +96,7 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mounted(aura, effect_target, remove):
         if remove:
-            if effect_target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            if effect_target.is_mounted():
                 effect_target.unmount()
             effect_target.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=aura.index)
             return

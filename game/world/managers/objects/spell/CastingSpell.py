@@ -455,6 +455,13 @@ class CastingSpell:
             return False
         return (self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_OUTDOORS_ONLY) != 0
 
+    def is_mount_spell(self):
+        for spell_effect in self.get_effects():
+            if spell_effect.aura_type in [AuraTypes.SPELL_AURA_MOUNTED, AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED]:
+                return True
+            if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_MOUNT:
+                return True
+        return False
 
     def has_pet_target(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_PET

@@ -234,13 +234,12 @@ class SpellEffectHandler:
         if not target.is_unit(by_mask=True):
             return
 
-        already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
-        if already_mounted:
+        if target.is_mounted():
             # Remove any existing mount auras.
             target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
             target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)
             target.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=casting_spell.spell_entry.ID)
-            # Force dismount if target is still mounted (like a previous SPELL_EFFECT_SUMMON_MOUNT that doesn't
+            # Force dismount if the target is still mounted (like a previous SPELL_EFFECT_SUMMON_MOUNT that doesn't
             # leave any applied aura).
             if target.mount_display_id > 0:
                 target.unmount()

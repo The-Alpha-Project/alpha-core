@@ -782,7 +782,7 @@ class CommandManager:
     @staticmethod
     def unmount(world_session, args):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-        if player_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+        if player_mgr.is_mounted():
             player_mgr.unmount()
         return 0, ''
 

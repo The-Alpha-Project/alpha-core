@@ -794,13 +794,13 @@ class SpellManager:
             return
 
         # Clear stale custom mount state if some other path already unmounted the unit.
-        if not (self.caster.unit_flags & UnitFlags.UNIT_MASK_MOUNTED) and self.caster.mount_display_id <= 0:
+        if not self.caster.is_mounted() and self.caster.mount_display_id <= 0:
             self.caster.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=-1)
             return
 
         current_loc = self.caster.location
         _, z_source = self.caster.get_map().calculate_z(current_loc.x, current_loc.y, current_loc.z)
-        if z_source == ZSource.WMO:
+        if z_source == ZSource.WMO or self.caster.is_swimming():
             self.caster.unmount()
             self.caster.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=-1)
 
@@ -1341,7 +1341,12 @@ class SpellManager:
                         self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_INDOORS)
                         return False
 
-            # Not stealth but the spell requires it.
+                # Mount swim check.
+                if casting_spell.is_mount_spell() and self.caster.is_swimming():
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_ABOVEWATER)
+                    return False
+
+            # Requires stealth.
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)

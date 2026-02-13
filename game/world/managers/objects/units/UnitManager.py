@@ -1436,7 +1436,7 @@ class UnitManager(ObjectManager):
         elif speed <= 0:
             speed = default_speed
 
-        if speed_type == SpeedType.RUN and self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+        if speed_type == SpeedType.RUN and self.is_mounted():
             # Apply mounted speed bonuses without affecting walk/swim/turn speeds.
             from game.world.managers.objects.units.player.PlayerManager import PlayerManager
             speed *= self.stat_manager.get_aura_stat_bonus(UnitStats.SPEED_MOUNTED, percentual=True)
@@ -2142,7 +2142,7 @@ class UnitManager(ObjectManager):
         self.set_unit_flags([UnitFlags.UNIT_FLAG_FROZEN, UnitFlags.UNIT_FLAG_TAXI_FLIGHT], active=is_flying)
         if is_flying:
             self.mount(mount_display_id)
-        elif self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+        elif self.is_mounted():
             self.unmount()
 
     # override
@@ -2256,6 +2256,9 @@ class UnitManager(ObjectManager):
 
     def is_above_water(self):
         return not self.is_swimming()
+
+    def is_mounted(self):
+        return (self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED) != 0
 
     # override
     def respawn(self):
