@@ -358,7 +358,7 @@ class SkillManager:
         return True
 
     def _refresh_riding_speed(self):
-        if not self.player_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+        if not self.player_mgr.is_mounted():
             return
         base_speed = self.player_mgr.stat_manager.get_base_stat(UnitStats.SPEED_RUNNING)
         self.player_mgr.change_speed(SpeedType.RUN, base_speed)

@@ -11,7 +11,7 @@ from utils.constants.MiscCodes import ProcFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
     SpellAttributesEx, SpellEffects, AuraState, AuraFlags
-from utils.constants.UnitCodes import UnitFlags, StandState
+from utils.constants.UnitCodes import UnitFlags, StandState, UnitStates
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -29,8 +29,7 @@ class AuraManager:
 
     def add_aura(self, aura):
         # Mount spells act as a toggle. If already mounted, dismount and skip applying a new mount aura.
-        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and \
-                aura.target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+        if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOUNTED and aura.target.is_mounted():
             aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOUNTED)
             aura.target.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED)
             AuraEffectHandler.handle_mounted(aura, aura.target, remove=True)
@@ -139,9 +138,10 @@ class AuraManager:
                               cast_spell: Optional[CastingSpell] = None):
         if not self.active_auras:
             return
+
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: enter_combat,
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.is_mounted(),
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: moved,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING: turned,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ACTION: cast_spell is not None or attacked,
@@ -168,12 +168,11 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
-            # Outdoors-only auras should be treated as movement-interruptible when mounted indoors.
-            if (moved and aura.source_spell.is_outdoors_spell()
-                and self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED):
-                if not self.unit_mgr.get_map().is_wmo_exterior(self.unit_mgr.location.x,
-                                                              self.unit_mgr.location.y,
-                                                              self.unit_mgr.location.z):
+            # Outdoors-only auras should be treated as movement-interruptible when mounted indoors or swimming.
+            if moved and aura.source_spell.is_outdoors_spell() and self.unit_mgr.is_mounted():
+                if self.unit_mgr.is_swimming() or self.unit_mgr.get_map().is_wmo_interior(self.unit_mgr.location.x,
+                                                                                          self.unit_mgr.location.y,
+                                                                                          self.unit_mgr.location.z):
                     self.remove_aura(aura)
                     continue
 

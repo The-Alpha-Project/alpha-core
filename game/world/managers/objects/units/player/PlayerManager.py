@@ -627,7 +627,7 @@ class PlayerManager(UnitManager):
             self.pending_taxi_destination = None
 
         # Unmount if needed.
-        if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+        if self.is_mounted():
             self.unmount()
 
         # Repop/Resurrect.
