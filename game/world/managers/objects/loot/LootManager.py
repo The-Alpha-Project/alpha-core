@@ -83,7 +83,7 @@ class LootManager:
         if group_id > 0:
             equal_chance_entries_length = 0
             for loot_item in group_loot_items:
-                if self.skip_quest_item(loot_item, requester):
+                if not requester.player_or_group_require_quest_item(loot_item.item):
                     continue
                 if loot_item.ChanceOrQuestChance == 0:
                     equal_chance_entries_length += 1
@@ -92,7 +92,7 @@ class LootManager:
 
         current_roll = uniform(0.0, 100)
         for loot_item in group_loot_items:
-            if self.skip_quest_item(loot_item, requester):
+            if not requester.player_or_group_require_quest_item(loot_item.item):
                 continue
 
             item_chance = abs(loot_item.ChanceOrQuestChance)
@@ -118,14 +118,6 @@ class LootManager:
             current_roll = uniform(0.0, 100)
 
         return loot_item_result
-
-    # noinspection PyMethodMayBeStatic
-    def skip_quest_item(self, loot_item, requester):
-        # Check if this is a quest item and if the player or group needs it.
-        if requester and loot_item.ChanceOrQuestChance < 0:
-            if requester.player_or_group_require_quest_item(loot_item.item):
-                return False
-        return loot_item.ChanceOrQuestChance < 0
 
     def add_loot(self, loot_item, requester):
         from game.world.managers.objects.loot.LootHolder import LootHolder
