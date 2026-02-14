@@ -49,6 +49,8 @@ class QuestGiverQueryQuestHandler:
                     return 0
                 if not quest_giver.item_template.start_quest == quest_entry:
                     return 0
+                if not player_mgr.quest_manager.get_quest_state_acceptable(quest.quest_entry):
+                    return 0
             else:
                 Logger.error(f'Error in {reader.opcode_str()}, unknown quest giver type.')
                 return 0
