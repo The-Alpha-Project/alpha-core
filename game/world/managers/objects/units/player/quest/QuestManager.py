@@ -297,6 +297,9 @@ class QuestManager:
         # Greeting - 'None'
         return QuestState.QUEST_GREETING
 
+    def get_quest_state_acceptable(self, quest_entry):
+        return self.get_quest_state(quest_entry) < QuestState.QUEST_ACCEPTED
+
     def get_active_quest_num_from_quest_giver(self, quest_giver):
         quest_num: int = 0
 
@@ -1268,8 +1271,8 @@ class QuestManager:
         if not item_template:
             return False
 
-        # Always allow items that are quest starters.
-        if item_template.start_quest > 0:
+        # Always allow items that are quest starters (if we are not on that quest and it's not done)
+        if item_template.start_quest > 0 and self.get_quest_state_acceptable(item_template.start_quest):
             return True
 
         for active_quest in list(self.active_quests.values()):
