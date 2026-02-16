@@ -1122,32 +1122,32 @@ class CreatureManager(UnitManager):
         return super()._get_field_value_for_update(index, is_create, requester, update_data)
 
     def generate_dynamic_field_value(self, requester):
-        dyn_flags = self.dynamic_flags
+        if not self.loot_manager or not self.loot_manager.has_loot():
+            return self.dynamic_flags
+
         loot_visibility = False
+        for loot in self.loot_manager.current_loot:
+            if not loot:
+                continue
 
-        if self.loot_manager and self.loot_manager.has_loot():
-            for loot in self.loot_manager.current_loot:
-                if not loot:
-                    continue
+            # Check if loot is a quest item and needed by quests.
+            is_quest_item = loot.is_quest_item()
+            item_needed = requester.quest_manager.item_needed_by_quests(loot.item.item_template.entry)
+            is_visible_to_player = loot.is_visible_to_player(requester)
 
-                # Check if loot is a quest item and needed by quests.
-                is_quest_item = loot.is_quest_item()
-                item_needed = requester.quest_manager.item_needed_by_quests(loot.item.item_template.entry)
-                is_visible_to_player = loot.is_visible_to_player(requester)
+            # Continue if loot is a quest item not needed or not visible.
+            if (is_quest_item and not item_needed) or not is_visible_to_player:
+                continue
 
-                # Continue if loot is a quest item not needed or not visible.
-                if (is_quest_item and not item_needed) or not is_visible_to_player:
-                    continue
+            # If loot passes the above checks, set visibility and break early.
+            loot_visibility = True
+            break
 
-                # If loot passes the above checks, set visibility and break early.
-                loot_visibility = True
-                break
+        # If no loot is visible and lootable flag is set, remove lootable flag for this observer.
+        if not loot_visibility and (self.dynamic_flags & UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE):
+            return self.dynamic_flags & ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
 
-            # If no loot is visible and lootable flag is set, remove lootable flag for this observer.
-            if not loot_visibility and (dyn_flags & UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE):
-                return dyn_flags & ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
-
-        return dyn_flags
+        return self.dynamic_flags
 
 # Summon despawn handling.
 
