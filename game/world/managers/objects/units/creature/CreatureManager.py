@@ -1130,20 +1130,20 @@ class CreatureManager(UnitManager):
                 if not loot:
                     continue
 
-                # Check if loot is a quest item and needed by quests
+                # Check if loot is a quest item and needed by quests.
                 is_quest_item = loot.is_quest_item()
                 item_needed = requester.quest_manager.item_needed_by_quests(loot.item.item_template.entry)
                 is_visible_to_player = loot.is_visible_to_player(requester)
 
-                # Continue if loot is a quest item not needed or not visible
+                # Continue if loot is a quest item not needed or not visible.
                 if (is_quest_item and not item_needed) or not is_visible_to_player:
                     continue
 
-                # If loot passes the above checks, set visibility and break early
+                # If loot passes the above checks, set visibility and break early.
                 loot_visibility = True
                 break
 
-            # If no loot is visible and lootable flag is set, remove lootable flag
+            # If no loot is visible and lootable flag is set, remove lootable flag for this observer.
             if not loot_visibility and (dyn_flags & UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE):
                 return dyn_flags & ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
 
