@@ -83,6 +83,10 @@ class AuraEffectHandler:
                 else:
                     effect_target.aura_manager.cancel_auras_by_spell_id(passive_spell_id)
 
+        # Remove Auras that require shapeshift aura (e.g. sneaking requires cat form).
+        if remove:
+            effect_target.aura_manager.cancel_auras_by_shapeshift_mask(aura.spell_effect.misc_value)
+
         effect_target.stat_manager.apply_bonuses()
 
         if remove or not model_info[0]:

@@ -329,6 +329,14 @@ class AuraManager:
             auras.append(aura)
         return auras
 
+    def get_auras_by_shapeshift_mask(self, shapeshift_mask) -> list[AppliedAura]:
+        auras = []
+        for aura in list(self.active_auras.values()):
+            if aura.source_spell.spell_entry.ShapeshiftMask != shapeshift_mask:
+                continue
+            auras.append(aura)
+        return auras
+
     def has_aura_by_type(self, aura_type) -> bool:
         for aura in list(self.active_auras.values()):
             if aura.spell_effect.aura_type == aura_type:
@@ -459,6 +467,9 @@ class AuraManager:
             if source_restriction and aura.caster is not source_restriction:
                 continue
             self.remove_aura(aura, canceled=True)
+
+    def cancel_auras_by_shapeshift_mask(self, shapeshift_mask):
+        auras = self.get_auras_by_shapeshift_mask(shapeshift_mask)
 
     def remove_auras_from_spell(self, casting_spell):
         for aura in list(self.active_auras.values()):
