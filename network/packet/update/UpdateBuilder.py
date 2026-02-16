@@ -126,16 +126,19 @@ class UpdateBuilder:
             else:
                 self._create_owner_known_objects_updates.add(world_object)
 
-    def add_partial_update_from_bytes(self, bytes_):
+    def add_partial_update_from_bytes(self, world_object, update_bytes):
         with self._lock:
-            self._add_packet(bytes_, packet_type=PacketType.PARTIAL)
+            # If a create packet already exists for the object, defer to the next tick.
+            packet_type = PacketType.PARTIAL if world_object.guid not in self._create_guids else PacketType.PARTIAL_DEFERRED
+            self._add_packet(update_bytes, packet_type=packet_type)
 
     def add_partial_update_from_object(self, world_object, update_data=None):
         with self._lock:
-            # If create packet already exists for the object, defer to next tick.
-            packet_type = PacketType.PARTIAL if world_object.guid not in self._create_guids else PacketType.PARTIAL_DEFERRED
-            self._add_packet(world_object.get_partial_update_bytes(requester=self._player_mgr,
-                                                                   update_data=update_data), packet_type)
+            update_bytes = world_object.get_partial_update_bytes(requester=self._player_mgr, update_data=update_data)
+            self.add_partial_update_from_bytes(world_object, update_bytes)
+
+    def add_dyn_flags_update_from_object(self, world_object, requester):
+        self.add_partial_update_from_bytes(world_object, world_object.get_dynamic_flag_update_bytes(requester))
 
     def add_destroy_update_from_object(self, world_object):
         with self._lock:

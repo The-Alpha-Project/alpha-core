@@ -98,11 +98,6 @@ class UpdateManager:
                 partial_packet = self.player_mgr.generate_partial_packet(requester=self.player_mgr, update_data=update_data)
                 self.player_mgr.enqueue_packet(partial_packet)
 
-    def update_gameobject_dynamic_flag(self, gameobject):
-        with self._lock:
-            dyn_flags_bytes = gameobject.get_dynamic_flag_update_bytes(requester=self.player_mgr)
-            self.update_builder.add_partial_update_from_bytes(dyn_flags_bytes)
-
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
     def update_world_object_on_self(self, world_object, update_flags=UpdateFlags.NONE, update_data=None):
@@ -113,12 +108,16 @@ class UpdateManager:
                 return
 
             has_changes = update_flags & UpdateFlags.CHANGES
+            has_dyn_flags_changes = update_flags & UpdateFlags.DYNAMIC_FLAGS
             can_detect = self.player_mgr.can_detect_target(world_object)[0]
-            if world_object.guid in self.player_mgr.known_objects and can_detect and has_changes:
+            if world_object.guid in self.player_mgr.known_objects and can_detect and (has_changes or has_dyn_flags_changes):
                 if not world_object.is_spawned:
                     self.enqueue_object_update(world_object.get_type_id())  # Update known objects for type.
-                else:
+                    return
+                if has_changes:
                     self.update_builder.add_partial_update_from_object(world_object, update_data=update_data)
+                if has_dyn_flags_changes:
+                    self.update_builder.add_dyn_flags_update_from_object(world_object, self.player_mgr)
             elif (world_object.guid not in self.player_mgr.known_objects and can_detect and has_changes
                   and world_object.is_spawned and world_object.guid not in self.player_mgr.known_stealth_units):
                 # Dynamic objects or temporary summons, pet or guardian, update immediately.
