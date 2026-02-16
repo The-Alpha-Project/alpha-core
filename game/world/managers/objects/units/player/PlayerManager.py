@@ -876,10 +876,10 @@ class PlayerManager(UnitManager):
             for loot in loot_manager.current_loot:
                 if loot:
                     # Skip conditions:
-                    # - Is quest item and player does not have the involved quest.
-                    # - Is quest multi-drop item and is no longer visible to this player.
+                    # - It's a quest item and player does not have the involved quest.
+                    # - It's a quest multi-drop item and is no longer visible to this player.
                     if not from_item_container and loot.is_quest_item() and \
-                            not self.player_or_group_require_quest_item(loot.get_item_entry(), only_self=True) or \
+                            not self.quest_manager.item_needed_by_quests(loot.item.item_template.entry) or \
                             not loot.is_visible_to_player(self):
                         slot += 1
                         continue
@@ -1042,8 +1042,8 @@ class PlayerManager(UnitManager):
                 self.quest_manager.update_surrounding_quest_status()
                 self.friends_manager.send_update_to_friends()
 
-    def player_or_group_require_quest_item(self, item_entry, only_self=False):
-        if not self.group_manager or only_self:
+    def player_or_group_require_quest_item(self, item_entry):
+        if not self.group_manager:
             return self.quest_manager.item_needed_by_quests(item_entry)
         else:
             for member in list(self.group_manager.members.values()):
