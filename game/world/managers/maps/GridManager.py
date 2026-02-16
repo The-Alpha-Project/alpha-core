@@ -38,6 +38,7 @@ class GridManager:
         cell_swap = source_cell_key is not None and current_cell_key != source_cell_key
         has_changes = update_flags & UpdateFlags.CHANGES
         has_inventory_changes = update_flags & UpdateFlags.INVENTORY
+        has_dyn_flags_changes = update_flags & UpdateFlags.DYNAMIC_FLAGS
 
         # Handle cell change within the same map.
         if current_cell_key != source_cell_key:
@@ -58,7 +59,7 @@ class GridManager:
             self._update_players_surroundings(current_cell_key, exclude_cells=affected_cells, object_type=object_type)
 
         # If this world object has pending field/inventory updates, trigger an update on interested players.
-        if has_changes or has_inventory_changes:
+        if has_changes or has_inventory_changes or has_dyn_flags_changes:
             update_data = None
             if has_changes:
                 # Grab the current state of this world object update fields mask and values,

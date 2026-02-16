@@ -190,7 +190,7 @@ class GameObjectManager(ObjectManager):
             self.set_active()
 
         # Force surrounding players to refresh this GO interactive state.
-        self.refresh_dynamic_flag()
+        self.get_map().update_object(self, UpdateFlags.DYNAMIC_FLAGS)
 
     def set_state(self, state, force=False):
         self.state = state
@@ -212,9 +212,6 @@ class GameObjectManager(ObjectManager):
                            else GameObjectStates.GO_STATE_ACTIVE_ALTERNATIVE, force=force)
             return True
         return False
-
-    def refresh_dynamic_flag(self):
-        self.set_uint32(GameObjectFields.GAMEOBJECT_DYN_FLAGS, self.dynamic_flags, force=True)
 
     def is_active(self):
         return self.state in {GameObjectStates.GO_STATE_ACTIVE, GameObjectStates.GO_STATE_ACTIVE_ALTERNATIVE}

@@ -60,6 +60,7 @@ class UpdateFlags(IntFlag):
     NONE = 0
     CHANGES = 1 << 0
     INVENTORY = 1 << 1
+    DYNAMIC_FLAGS = 1 << 2
 
 
 # Some might be unused on Alpha

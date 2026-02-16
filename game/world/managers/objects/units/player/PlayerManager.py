@@ -842,6 +842,9 @@ class PlayerManager(UnitManager):
                     # Empty loot, remove looting flags.
                     if not loot_manager.has_loot():
                         enemy.set_lootable(False)
+                    else:
+                        # Still has loot, but might not be for everyone, update lootable visibility.
+                        enemy.get_map().update_object(enemy, update_flags=UpdateFlags.DYNAMIC_FLAGS)
             # GAMEOBJECTS.
             elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
                 game_object = target_world_object

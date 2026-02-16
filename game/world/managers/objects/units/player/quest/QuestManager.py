@@ -17,8 +17,9 @@ from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError, ItemClasses
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestCantTakeReason, QuestMethod, \
-    QuestFlags, GameObjectTypes, HighGuid, ScriptTypes, ObjectTypeIds
+from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestCantTakeReason, \
+    QuestMethod, \
+    QuestFlags, GameObjectTypes, HighGuid, ScriptTypes, ObjectTypeIds, UpdateFlags
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -524,7 +525,7 @@ class QuestManager:
                 gameobject = world_object
                 types = [GameObjectTypes.TYPE_CHEST, GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER]
                 if gameobject.gobject_template.type in types:
-                    self.player_mgr.update_manager.update_gameobject_dynamic_flag(gameobject)
+                    gameobject.get_map().update_object(gameobject, update_flags=UpdateFlags.DYNAMIC_FLAGS)
 
     # Send item query details and return item struct byte segments.
     def _gen_item_struct(self, item_entry, count):
@@ -1066,7 +1067,7 @@ class QuestManager:
 
         # Force surrounding players to refresh this GO interactive state.
         if quest_giver.is_gameobject():
-            quest_giver.refresh_dynamic_flag()
+            quest_giver.get_map().update_object(quest_giver, UpdateFlags.DYNAMIC_FLAGS)
 
     def get_next_quest_in_chain(self, quest_giver, current_quest):
         # Current quest has no linked next quest.
