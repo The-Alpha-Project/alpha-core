@@ -471,8 +471,14 @@ class AuraManager:
     def cancel_auras_by_shapeshift_mask(self, shapeshift_mask):
         auras = self.get_auras_by_shapeshift_mask(shapeshift_mask)
 
-        for aura in auras:
-            self.remove_aura(aura, canceled=True)
+        # No masak given
+        if shapeshift_mask <= 0:
+            return auras
+
+        for aura in list(self.active_auras.values()):
+            if (aura.source_spell.spell_entry.ShapeshiftMask & shapeshift_mask) == shapeshift_mask and aura.source_spell.is_self_targeted():
+                auras.append(aura)
+        return auras
 
     def remove_auras_from_spell(self, casting_spell):
         for aura in list(self.active_auras.values()):
