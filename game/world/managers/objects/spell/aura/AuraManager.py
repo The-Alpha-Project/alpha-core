@@ -328,6 +328,29 @@ class AuraManager:
             auras.append(aura)
         return auras
 
+    def get_auras_by_shapeshift_mask(self, shapeshift_mask, self_targeted_only=False, exclude_aura: Optional[AppliedAura] = None) -> list[AppliedAura]:
+        if shapeshift_mask <= 0:
+            return []
+
+        auras = []
+        for aura in list(self.active_auras.values()):
+            if exclude_aura and aura is exclude_aura:
+                continue
+
+            aura_mask = aura.source_spell.spell_entry.ShapeshiftMask
+            if aura_mask <= 0:
+                continue
+
+            if aura_mask & shapeshift_mask == 0:
+                continue
+
+            if self_targeted_only and not aura.source_spell.is_self_targeted():
+                continue
+
+            auras.append(aura)
+
+        return auras
+
     def has_aura_by_type(self, aura_type) -> bool:
         for aura in list(self.active_auras.values()):
             if aura.spell_effect.aura_type == aura_type:
@@ -457,6 +480,16 @@ class AuraManager:
         for aura in auras:
             if source_restriction and aura.caster is not source_restriction:
                 continue
+            self.remove_aura(aura, canceled=True)
+
+    def cancel_auras_by_shapeshift_mask(self, shapeshift_mask, self_targeted_only=False, exclude_aura: Optional[AppliedAura] = None):
+        auras = self.get_auras_by_shapeshift_mask(
+            shapeshift_mask,
+            self_targeted_only=self_targeted_only,
+            exclude_aura=exclude_aura
+        )
+
+        for aura in auras:
             self.remove_aura(aura, canceled=True)
 
     def remove_auras_from_spell(self, casting_spell):
