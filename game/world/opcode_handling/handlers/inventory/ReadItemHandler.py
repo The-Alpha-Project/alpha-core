@@ -3,15 +3,12 @@ from struct import pack, unpack
 
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
-from utils.constants.ItemCodes import InventoryError, InventorySlots
+from utils.constants.ItemCodes import InventoryError, InventorySlots, ReadItemState
 from utils.constants.MiscCodes import Languages
 from utils.constants.OpCodes import OpCode
 
 
 class ReadItemHandler:
-    READ_ITEM_STATE_TRANSLATED = 0
-    READ_ITEM_STATE_TRANSLATION = 1
-    READ_ITEM_STATE_CLOSE = 2  # Any state >= 2 closes the item text frame on client.
     READ_ITEM_TRANSLATION_DELAY_MS = 5000
 
     @staticmethod
@@ -38,7 +35,7 @@ class ReadItemHandler:
                 ReadItemHandler._send_read_item_state(
                     world_session,
                     item.guid,
-                    ReadItemHandler.READ_ITEM_STATE_CLOSE
+                    ReadItemState.CLOSE
                 )
                 return 0
 
@@ -51,7 +48,7 @@ class ReadItemHandler:
                     ReadItemHandler._send_read_item_state(
                         world_session,
                         item.guid,
-                        ReadItemHandler.READ_ITEM_STATE_TRANSLATION,
+                        ReadItemState.TRANSLATION,
                         timer_ms=ReadItemHandler.READ_ITEM_TRANSLATION_DELAY_MS
                     )
 
@@ -64,7 +61,7 @@ class ReadItemHandler:
                     ReadItemHandler._send_read_item_state(
                         world_session,
                         item.guid,
-                        ReadItemHandler.READ_ITEM_STATE_TRANSLATED
+                        ReadItemState.TRANSLATED
                     )
             else:
                 data = pack('<Q', item.guid)
@@ -75,7 +72,7 @@ class ReadItemHandler:
     @staticmethod
     def _send_read_item_state(world_session, item_guid, state, timer_ms=0):
         data = pack('<QB', item_guid, state)
-        if state == ReadItemHandler.READ_ITEM_STATE_TRANSLATION:
+        if state == ReadItemState.TRANSLATION:
             data += pack('<I', timer_ms)
         # Packet name uses "FAILED" which is misleading; state values also drive normal open/translation behavior.
         world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_FAILED, data))

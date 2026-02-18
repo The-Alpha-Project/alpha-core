@@ -16,7 +16,8 @@ from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags, \
+    ReadItemState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import ObjectFields, ItemFields, PlayerFields
@@ -32,8 +33,6 @@ GIFT_ENTRY_RELATIONSHIP = {
 
 
 class ItemManager(ObjectManager):
-    READ_ITEM_FAILED_STATE_TRANSLATED = 0
-
     def __init__(self,
                  item_template,
                  item_instance=None,
@@ -385,7 +384,7 @@ class ItemManager(ObjectManager):
         if not player_mgr:
             return
 
-        data = pack('<QB', self.guid, ItemManager.READ_ITEM_FAILED_STATE_TRANSLATED)
+        data = pack('<QB', self.guid, ReadItemState.TRANSLATED)
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_FAILED, data))
 
     def _get_item_flags(self):
