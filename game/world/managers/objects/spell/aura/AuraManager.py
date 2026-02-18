@@ -329,12 +329,7 @@ class AuraManager:
             auras.append(aura)
         return auras
 
-    def get_auras_by_shapeshift_mask(
-            self,
-            shapeshift_mask,
-            self_targeted_only=False,
-            exclude_aura: Optional[AppliedAura] = None
-    ) -> list[AppliedAura]:
+    def get_auras_by_shapeshift_mask(self, shapeshift_mask, self_targeted_only=False, exclude_aura: Optional[AppliedAura] = None) -> list[AppliedAura]:
         if shapeshift_mask <= 0:
             return []
 
@@ -488,12 +483,7 @@ class AuraManager:
                 continue
             self.remove_aura(aura, canceled=True)
 
-    def cancel_auras_by_shapeshift_mask(
-            self,
-            shapeshift_mask,
-            self_targeted_only=False,
-            exclude_aura: Optional[AppliedAura] = None
-    ):
+    def cancel_auras_by_shapeshift_mask(self, shapeshift_mask, self_targeted_only=False, exclude_aura: Optional[AppliedAura] = None):
         auras = self.get_auras_by_shapeshift_mask(
             shapeshift_mask,
             self_targeted_only=self_targeted_only,
