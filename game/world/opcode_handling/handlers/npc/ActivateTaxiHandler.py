@@ -6,6 +6,14 @@ from utils.constants.OpCodes import OpCode
 
 
 class ActivateTaxiHandler:
+    @staticmethod
+    def _is_taxi_blocked_by_shapeshift(player_mgr):
+        if not player_mgr.shapeshift_form:
+            return False
+
+        form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(player_mgr.shapeshift_form)
+        # Stances are shapeshifts in dbc but should not block taxi usage.
+        return not (form_entry and (form_entry.Flags & 1))
 
     @staticmethod
     def handle(world_session, reader):
@@ -21,14 +29,18 @@ class ActivateTaxiHandler:
 
             if world_session.player_mgr.in_combat:
                 result = ActivateTaxiReplies.ERR_TAXIPLAYERBUSY
+            elif ActivateTaxiHandler._is_taxi_blocked_by_shapeshift(world_session.player_mgr):
+                result = ActivateTaxiReplies.ERR_TAXIPLAYERSHAPESHIFTED
             elif world_session.player_mgr.mount_display_id > 0:
                 result = ActivateTaxiReplies.ERR_TAXIPLAYERALREADYMOUNTED
 
-            taxi_path = DbcDatabaseManager.taxi_path_get(start_node, dest_node)
-            if not taxi_path:
-                result = ActivateTaxiReplies.ERR_TAXINOSUCHPATH
+            taxi_path = None
+            if result == ActivateTaxiReplies.ERR_TAXIOK:
+                taxi_path = DbcDatabaseManager.taxi_path_get(start_node, dest_node)
+                if not taxi_path:
+                    result = ActivateTaxiReplies.ERR_TAXINOSUCHPATH
 
-            if world_session.player_mgr.coinage < taxi_path.Cost:
+            if result == ActivateTaxiReplies.ERR_TAXIOK and world_session.player_mgr.coinage < taxi_path.Cost:
                 result = ActivateTaxiReplies.ERR_TAXINOTENOUGHMONEY
 
             if result == ActivateTaxiReplies.ERR_TAXIOK:
