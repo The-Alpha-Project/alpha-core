@@ -18,6 +18,7 @@ class InventoryManager:
         self.owner = owner
         # Containers are lazy initialized, since we need the player session active (in-world).
         self.containers = {}
+        self.current_item_translation = None
 
     def initialize_and_load_items(self):
         self.containers = {
@@ -83,6 +84,32 @@ class InventoryManager:
             if item.duration:
                 item.send_item_duration()
 
+    def clear_item_read_translation_timers(self):
+        if self.current_item_translation:
+            self.current_item_translation.clear_item_read_translation_timer()
+        self.current_item_translation = None
+
+    def update_item_read_translation_timers(self, now, item=None, delay_ms=None):
+        if item:
+            if self.current_item_translation and self.current_item_translation.guid != item.guid:
+                self.current_item_translation.clear_item_read_translation_timer()
+            self.current_item_translation = item
+            if delay_ms is not None:
+                item.queue_item_read_translation_timer(now, delay_ms)
+            return
+
+        if not self.current_item_translation:
+            return
+
+        # Keep a valid item reference only while the item is in inventory.
+        if not self.get_item_by_guid(self.current_item_translation.guid):
+            self.current_item_translation.clear_item_read_translation_timer()
+            self.current_item_translation = None
+            return
+
+        if self.current_item_translation.update_item_read_translation_timer(now):
+            self.current_item_translation = None
+
     def can_use_item(self, item_template):
         if item_template.required_level:
             if self.owner.level < item_template.required_level:
@@ -147,63 +174,68 @@ class InventoryManager:
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False, created_by=0,
                  perm_enchant=0, send_message=True, show_item_get=True):
-        if entry != 0 and not item_template:
-            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
-        amount_left = count
-        target_bag_slot = -1  # Highest bag slot items were added to
+        self.owner.begin_inventory_operation()
+        try:
+            if entry != 0 and not item_template:
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
+            amount_left = count
+            target_bag_slot = -1  # Highest bag slot items were added to
 
-        if item_template:
-            error = self.can_store_item(item_template, count)
-            if error != InventoryError.BAG_OK:
-                if handle_error:
-                    self.send_equip_error(error)
-                return False
+            if item_template:
+                error = self.can_store_item(item_template, count)
+                if error != InventoryError.BAG_OK:
+                    if handle_error:
+                        self.send_equip_error(error)
+                    return False
 
-            # Add to any existing stacks.
-            for slot, container in self.containers.items():
-                if (not container or not container.can_contain_item(item_template) or
-                        self.is_bank_slot(container.current_slot, slot)):
-                    continue
-                amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
-
-                if amount_left <= 0:
-                    target_bag_slot = slot
-                    break
-
-            if amount_left > 0:
+                # Add to any existing stacks.
                 for slot, container in self.containers.items():
-                    if not container or not container.can_contain_item(item_template):
+                    if (not container or not container.can_contain_item(item_template) or
+                            self.is_bank_slot(container.current_slot, slot)):
                         continue
-                    prev_left = amount_left
-                    amount_left, item_mgr = container.add_item(item_template, count=amount_left,
-                                                               perm_enchant=perm_enchant, check_existing=False,
-                                                               created_by=created_by)
-                    # New item, apply enchantments and persist.
-                    if item_mgr:
-                        # Load enchantments, if any.
-                        self.owner.enchantment_manager.load_enchantments_for_item(item_mgr)
-                        # Persist.
-                        item_mgr.save()
-
-                    if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
-                        target_bag_slot = slot
+                    amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
 
                     if amount_left <= 0:
+                        target_bag_slot = slot
                         break
 
-        # Default to backpack if bag slot was not set.
-        if target_bag_slot == -1:
-            target_bag_slot = InventorySlots.SLOT_INBACKPACK
+                if amount_left > 0:
+                    for slot, container in self.containers.items():
+                        if not container or not container.can_contain_item(item_template):
+                            continue
+                        prev_left = amount_left
+                        amount_left, item_mgr = container.add_item(item_template, count=amount_left,
+                                                                   perm_enchant=perm_enchant, check_existing=False,
+                                                                   created_by=created_by)
+                        # New item, apply enchantments and persist.
+                        if item_mgr:
+                            # Load enchantments, if any.
+                            self.owner.enchantment_manager.load_enchantments_for_item(item_mgr)
+                            # Persist.
+                            item_mgr.save()
 
-        items_added = amount_left != count
-        if items_added:
-            if show_item_get:
-                self.send_item_receive_message(self.owner.guid, item_template.entry,
-                                               target_bag_slot, looted, send_message)
-            # Update quest item count, if needed.
-            self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
+                        if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
+                            target_bag_slot = slot
 
-        return items_added
+                        if amount_left <= 0:
+                            break
+
+            # Default to backpack if bag slot was not set.
+            if target_bag_slot == -1:
+                target_bag_slot = InventorySlots.SLOT_INBACKPACK
+
+            items_added = amount_left != count
+            if items_added:
+                added_count = count - amount_left
+                if show_item_get:
+                    self.send_item_receive_message(self.owner.guid, item_template.entry,
+                                                   target_bag_slot, looted, send_message)
+                # Update quest item count, if needed.
+                self.owner.quest_manager.reward_item(item_template.entry, item_count=added_count)
+
+            return items_added
+        finally:
+            self.owner.end_inventory_operation()
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
                          handle_error=True):

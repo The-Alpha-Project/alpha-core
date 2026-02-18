@@ -257,6 +257,12 @@ class InventoryStats(IntEnum):
     STAMINA = 7
 
 
+class ReadItemState(IntEnum):
+    TRANSLATED = 0
+    TRANSLATION = 1
+    CLOSE = 2  # Any state >= 2 closes the item text frame on client.
+
+
 class InventoryError(IntEnum):
     BAG_OK = 0
     BAG_LEVEL_MISMATCH = 1

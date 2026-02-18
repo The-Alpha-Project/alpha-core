@@ -16,7 +16,7 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes, SpeedType
+from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes, SpeedType, Languages
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects, SpellAttributes, SpellAttributesEx
 from utils.constants.UnitCodes import UnitFlags
@@ -856,6 +856,21 @@ class SkillManager:
         if not skill_line_ability or not skill_line_ability.SkillLine:
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
+
+    def can_read_language(self, language_id: int) -> bool:
+        if language_id == Languages.LANG_UNIVERSAL:
+            return True
+
+        for spell_id in DbcDatabaseManager.SpellHolder.get_language_spell_ids(language_id):
+            skill = self.get_skill_for_spell_id(spell_id)
+            if not skill:
+                continue
+            if not self.has_skill(skill.ID):
+                continue
+            if self.get_total_skill_value(skill.ID) > 0:
+                return True
+
+        return False
 
     def get_max_rank(self, skill_id, level=-1):
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)

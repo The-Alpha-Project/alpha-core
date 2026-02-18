@@ -1,5 +1,6 @@
 import math
 import time
+from threading import RLock
 from typing import Any
 
 from bitarray import bitarray
@@ -81,6 +82,8 @@ class PlayerManager(UnitManager):
         self.known_objects = KnownObjects(self)
         self.known_items = dict()
         self.known_stealth_units = dict()
+        self._inventory_operation_lock = RLock()
+        self._inventory_operation_count = 0
 
         self.player = player
         self.online = online
@@ -349,6 +352,8 @@ class PlayerManager(UnitManager):
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
+        self.inventory.clear_item_read_translation_timers()
+        TradeManager.cancel_trade(self)
         self.online = False
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
@@ -1501,6 +1506,19 @@ class PlayerManager(UnitManager):
         else:
             Logger.warning('Tried to send packet to null session.')
 
+    def begin_inventory_operation(self):
+        with self._inventory_operation_lock:
+            self._inventory_operation_count += 1
+
+    def end_inventory_operation(self):
+        with self._inventory_operation_lock:
+            if self._inventory_operation_count > 0:
+                self._inventory_operation_count -= 1
+
+    def has_inventory_operation_in_progress(self):
+        with self._inventory_operation_lock:
+            return self._inventory_operation_count > 0
+
     def check_swimming_state(self, elapsed):
         if not self.is_alive:
             return
@@ -1555,6 +1573,8 @@ class PlayerManager(UnitManager):
 
         # Enchantment manager.
         self.enchantment_manager.update(elapsed)
+        # Item read translation timers.
+        self.inventory.update_item_read_translation_timers(now)
 
         # Release spirit timer.
         if not self.is_alive:
@@ -1577,7 +1597,8 @@ class PlayerManager(UnitManager):
         # Check if player has update fields changes.
         has_changes = self.has_pending_updates()
         # Avoid inventory/item update if there is an ongoing inventory operation.
-        has_inventory_changes = self.inventory.has_pending_updates()
+        has_inventory_changes = (self.inventory.has_pending_updates()
+                                 and not self.has_inventory_operation_in_progress())
 
         # Movement checks and group updates.
         has_moved = self.has_moved or self.has_turned

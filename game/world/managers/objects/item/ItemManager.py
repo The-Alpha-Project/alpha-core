@@ -16,7 +16,8 @@ from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
-from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
+from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags, \
+    ReadItemState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import ObjectFields, ItemFields, PlayerFields
@@ -46,6 +47,7 @@ class ItemManager(ObjectManager):
         self.current_slot = item_instance.slot if item_instance else current_slot
         self.is_backpack = False
         self.duration = item_instance.duration if item_instance else 0
+        self.read_translation_due_at = 0.0
 
         self.enchantments = []  # Handled by EnchantmentManager.
         self.stats = []
@@ -357,6 +359,33 @@ class ItemManager(ObjectManager):
 
         data = pack('<QI', self.guid, self.duration)
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_TIME_UPDATE, data))
+
+    def queue_item_read_translation_timer(self, now, delay_ms):
+        if delay_ms <= 0:
+            self.send_item_read_translated()
+            self.read_translation_due_at = 0.0
+            return
+
+        self.read_translation_due_at = now + delay_ms / 1000.0
+
+    def clear_item_read_translation_timer(self):
+        self.read_translation_due_at = 0.0
+
+    def update_item_read_translation_timer(self, now):
+        if self.read_translation_due_at <= 0.0 or now < self.read_translation_due_at:
+            return False
+
+        self.read_translation_due_at = 0.0
+        self.send_item_read_translated()
+        return True
+
+    def send_item_read_translated(self):
+        player_mgr = self.get_owner_unit()
+        if not player_mgr:
+            return
+
+        data = pack('<QB', self.guid, ReadItemState.TRANSLATED)
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_READ_ITEM_FAILED, data))
 
     def _get_item_flags(self):
         # Prior to Patch 1.7 ITEM_FIELD_FLAGS 32 bit value was built using 2 16 bit integers, dynamic item flags and

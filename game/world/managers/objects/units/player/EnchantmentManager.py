@@ -1,4 +1,6 @@
 from struct import pack
+from typing import Optional, Any
+
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import ItemEnchantmentType, EnchantmentSlots, InventoryTypes
 from utils.constants.OpCodes import OpCode
@@ -104,7 +106,8 @@ class EnchantmentManager:
                         self.set_item_enchantment(item, enchantment_slot, enchantment.entry, enchantment.duration,
                                                   enchantment.charges)
 
-    def set_item_enchantment(self, item, slot, value, duration, charges, expired=False):
+    def set_item_enchantment(self, item, slot, value, duration, charges,
+                             expired=False, caster: Optional[Any] = None):
         duration = duration if slot != EnchantmentSlots.PERMANENT_SLOT else -1
 
         if not expired:
@@ -116,6 +119,17 @@ class EnchantmentManager:
 
         should_reapply = current_value != value or current_charges != charges or expired
         should_save = current_value != value or current_duration != duration or current_charges != charges
+
+        is_visible_enchant_slot = slot <= EnchantmentSlots.TEMPORARY_SLOT
+        is_enchant_changed = current_value != value
+
+        # Remove/fade log when enchant disappears or is replaced.
+        if is_visible_enchant_slot and current_value and (expired or is_enchant_changed):
+            self.send_enchantment_log(None, item, current_value)
+
+        # Add/apply log when a new visible enchant is applied.
+        if is_visible_enchant_slot and caster and value and is_enchant_changed:
+            self.send_enchantment_log(caster, item, value)
 
         # Check for buffs changes only on items that can be equipped.
         if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP and should_reapply:
@@ -136,25 +150,26 @@ class EnchantmentManager:
         if should_save:
             item.save()
 
-    # TODO: Need to figure how to display the expiration message.
-    def send_enchantment_log(self, caster, item, enchantment_id, show_affiliation=False):
-        data = pack('<IQ', show_affiliation, self.unit_mgr.guid)
-        if not show_affiliation:
-            data += pack('<Q', caster.guid)
-        else:
+    # WoWClient.c ENCHANTMENTLOG::UI expects:
+    # flags(uint32), attacker_guid(uint64), [victim_guid(uint64) if (flags & 1) == 0], enchantment(uint32), item_id(uint32)
+    # flags bit 0 = remove/fade event.
+    # "victim" is the item owner in client log formatting.
+    def send_enchantment_log(self, caster: Optional[Any], item, enchantment_id):
+        is_remove = not caster
+        attacker_guid = self.unit_mgr.guid if is_remove else caster.guid
+
+        data = pack('<IQ', 1 if is_remove else 0, attacker_guid)
+        if not is_remove:
+
             data += pack('<Q', self.unit_mgr.guid)
-
         data += pack('<2I', enchantment_id, item.entry)
+
         packet = PacketWriter.get_packet(OpCode.SMSG_ENCHANTMENTLOG, data)
-        if not show_affiliation:
-            self.unit_mgr.enqueue_packet(packet)
+        self.unit_mgr.enqueue_packet(packet)
 
-            # Caster needs the log too if it's not the recipient.
-            if caster.is_player() and caster.guid != self.unit_mgr.guid:
-                caster.enqueue_packet(packet)
-
-            self.send_enchantment_log(caster, item, enchantment_id, show_affiliation=True)
-        else:
+        # Add/apply logs are broadcast to nearby players.
+        # Remove/fade logs are sent only to owner.
+        if not is_remove:
             self.unit_mgr.get_map().send_surrounding(packet, self.unit_mgr, include_self=False)
 
     # Notify the client with the enchantment duration.
