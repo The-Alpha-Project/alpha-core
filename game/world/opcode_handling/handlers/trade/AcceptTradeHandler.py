@@ -46,6 +46,12 @@ class AcceptTradeHandler:
                 TradeManager.cancel_trade(other_player)
                 return 0
 
+        # Validate proposed enchants before moving any item/money.
+        for trade_owner, trade_data in ((player, player_trade), (other_player, other_player_trade)):
+            if not trade_data.can_apply_proposed_enchant():
+                TradeManager.cancel_trade(trade_owner)
+                return 0
+
         if other_player_trade.is_accepted:
             # Inventory checks.
             for slot in range(TradeManager.TRADE_SLOT_COUNT):
@@ -106,8 +112,10 @@ class AcceptTradeHandler:
                                                      player_item.current_slot, True)
 
             # Apply enchantment to item (if any).
-            player_trade.apply_proposed_enchant()
-            other_player_trade.apply_proposed_enchant()
+            for trade_owner, trade_data in ((player, player_trade), (other_player, other_player_trade)):
+                if not trade_data.apply_proposed_enchant():
+                    TradeManager.cancel_trade(trade_owner)
+                    return 0
 
             player.mod_money(other_player_trade.money)
             player.mod_money(-player_trade.money)

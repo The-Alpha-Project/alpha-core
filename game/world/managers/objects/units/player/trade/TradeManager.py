@@ -10,6 +10,19 @@ class TradeManager:
     TRADE_SLOT_COUNT = 6
 
     @staticmethod
+    def has_active_trade(player):
+        if not player or not player.trade_data:
+            return False
+
+        other_player = player.trade_data.other_player
+        if not other_player or not other_player.trade_data or other_player.trade_data.other_player != player:
+            # Drop stale non-reciprocal trade data to prevent "always busy" lockups.
+            player.trade_data = None
+            return False
+
+        return True
+
+    @staticmethod
     def send_trade_status(player, status):
         if not player:
             return
@@ -30,9 +43,10 @@ class TradeManager:
             return
 
         if player.trade_data:
-            if player.trade_data.other_player:
-                TradeManager.send_trade_status(player.trade_data.other_player, TradeStatus.TRADE_STATUS_CANCELLED)
-                player.trade_data.other_player.trade_data = None
+            other_player = player.trade_data.other_player
+            if other_player and other_player.trade_data and other_player.trade_data.other_player == player:
+                TradeManager.send_trade_status(other_player, TradeStatus.TRADE_STATUS_CANCELLED)
+                other_player.trade_data = None
 
             TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_CANCELLED)
             player.trade_data = None

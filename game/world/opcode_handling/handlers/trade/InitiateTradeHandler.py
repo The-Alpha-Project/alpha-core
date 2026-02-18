@@ -14,14 +14,18 @@ class InitiateTradeHandler:
                 player = world_session.player_mgr
                 trade_player = player.get_map().get_surrounding_player_by_guid(world_session.player_mgr, guid)
                 trade_status = None
-                if not trade_player or not trade_player.is_alive:
+                if trade_player == player:
+                    trade_status = TradeStatus.TRADE_STATUS_PLAYER_BUSY
+                elif not trade_player or not trade_player.is_alive:
                     trade_status = TradeStatus.TRADE_STATUS_PLAYER_NOT_FOUND
                 elif trade_player.friends_manager.has_ignore(player.guid):
                     trade_status = TradeStatus.TRADE_STATUS_PLAYER_IGNORED
                 elif not player.is_alive:
                     trade_status = TradeStatus.TRADE_STATUS_DEAD
-                elif player.trade_data:
+                elif TradeManager.has_active_trade(player):
                     trade_status = TradeStatus.TRADE_STATUS_ALREADY_TRADING
+                elif TradeManager.has_active_trade(trade_player):
+                    trade_status = TradeStatus.TRADE_STATUS_PLAYER_BUSY
                 elif player.team != trade_player.team:
                     trade_status = TradeStatus.TRADE_STATUS_WRONG_FACTION
 

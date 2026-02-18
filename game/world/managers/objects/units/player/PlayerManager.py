@@ -353,6 +353,7 @@ class PlayerManager(UnitManager):
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.inventory.clear_item_read_translation_timers()
+        TradeManager.cancel_trade(self)
         self.online = False
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()

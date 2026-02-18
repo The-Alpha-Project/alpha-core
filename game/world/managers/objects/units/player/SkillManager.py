@@ -857,25 +857,11 @@ class SkillManager:
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 
-    @staticmethod
-    @lru_cache
-    def get_language_spell_ids(language_id) -> tuple[int]:
-        spell_ids: list[int] = []
-        for spell in DbcDatabaseManager.SpellHolder.SPELLS.values():
-            effects = (
-                (spell.Effect_1, spell.EffectMiscValue_1),
-                (spell.Effect_2, spell.EffectMiscValue_2),
-                (spell.Effect_3, spell.EffectMiscValue_3)
-            )
-            if any(effect == SpellEffects.SPELL_EFFECT_LANGUAGE and misc == language_id for effect, misc in effects):
-                spell_ids.append(spell.ID)
-        return tuple(spell_ids)
-
     def can_read_language(self, language_id: int) -> bool:
         if language_id == Languages.LANG_UNIVERSAL:
             return True
 
-        for spell_id in SkillManager.get_language_spell_ids(language_id):
+        for spell_id in DbcDatabaseManager.SpellHolder.get_language_spell_ids(language_id):
             skill = self.get_skill_for_spell_id(spell_id)
             if not skill:
                 continue

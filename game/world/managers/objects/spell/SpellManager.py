@@ -1981,7 +1981,7 @@ class SpellManager:
             self.caster.aura_manager.modify_aura_state(aura_state, apply=False)
 
         removed_items = set()
-        if is_player:
+        if is_player and not casting_spell.is_trade_enchant():
             for reagent_info in casting_spell.get_reagents():  # Reagents.
                 if reagent_info[0] == 0:
                     break

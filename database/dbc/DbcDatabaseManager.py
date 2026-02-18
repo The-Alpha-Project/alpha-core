@@ -9,7 +9,7 @@ from database.dbc.DbcModels import *
 from game.world.managers.maps.helpers.AreaInformation import AreaInformation
 from game.world.managers.objects.locks.LockHolder import LockHolder
 from utils.ConfigManager import *
-from utils.constants.SpellCodes import SpellImplicitTargets
+from utils.constants.SpellCodes import SpellEffects, SpellImplicitTargets
 
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.DBC.username)
@@ -199,6 +199,20 @@ class DbcDatabaseManager:
                 return 0
 
             return DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
+
+        @staticmethod
+        @lru_cache
+        def get_language_spell_ids(language_id) -> tuple[int, ...]:
+            spell_ids: list[int] = []
+            for spell in DbcDatabaseManager.SpellHolder.SPELLS.values():
+                effects = (
+                    (spell.Effect_1, spell.EffectMiscValue_1),
+                    (spell.Effect_2, spell.EffectMiscValue_2),
+                    (spell.Effect_3, spell.EffectMiscValue_3)
+                )
+                if any(effect == SpellEffects.SPELL_EFFECT_LANGUAGE and misc == language_id for effect, misc in effects):
+                    spell_ids.append(spell.ID)
+            return tuple(spell_ids)
 
     @staticmethod
     def spell_get_all():

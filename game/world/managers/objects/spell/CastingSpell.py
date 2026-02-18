@@ -161,6 +161,19 @@ class CastingSpell:
 
         return self.initial_target.is_item()
 
+    def is_trade_enchant(self):
+        if not self.spell_caster.is_player():
+            return False
+
+        if not self.initial_target_is_item():
+            return False
+
+        if not self.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY,
+                                       SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT):
+            return False
+
+        return self.initial_target.get_owner_guid() != self.spell_caster.guid
+
     def initial_target_is_gameobject(self):
         if not self.initial_target_is_object():
             return False

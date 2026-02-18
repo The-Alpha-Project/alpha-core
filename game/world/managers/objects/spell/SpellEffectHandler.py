@@ -856,38 +856,41 @@ class SpellEffectHandler:
         # If this enchantment is being applied on a trade, update trade status with proposed enchant.
         # Enchant will be applied after trade is accepted.
         if owner_player != caster:
-            if caster.trade_data and caster.trade_data.other_player and caster.trade_data.other_player.trade_data:
-                # Get the trade slot for the item being enchanted.
-                trade_slot = caster.trade_data.other_player.trade_data.get_slot_by_item(target)
+            if caster.trade_data and caster.trade_data.has_linked_trade_data():
+                source_trade_data = caster.trade_data
+                target_trade_data = source_trade_data.get_linked_trade_data()
+                current_target_trade_data, trade_slot = source_trade_data.resolve_enchant_target_trade_context(target)
+                if not current_target_trade_data or not target_trade_data:
+                    return
+
+                target_owner_guid = current_target_trade_data.player.guid
 
                 # Update proposed enchantment on caster.
-                caster.trade_data.set_proposed_enchant(trade_slot,
+                source_trade_data.set_proposed_enchant(trade_slot,
                                                        casting_spell.spell_entry.ID,
                                                        enchantment_slot,
                                                        effect.misc_value,
-                                                       duration, charges)
+                                                       duration, charges, caster.guid, target_owner_guid, target.guid)
 
                 # Update proposed enchantment on receiver.
-                caster.trade_data.other_player.trade_data.set_proposed_enchant(trade_slot,
-                                                                               casting_spell.spell_entry.ID,
-                                                                               enchantment_slot,
-                                                                               effect.misc_value,
-                                                                               duration, charges)
+                target_trade_data.set_proposed_enchant(trade_slot,
+                                                       casting_spell.spell_entry.ID,
+                                                       enchantment_slot,
+                                                       effect.misc_value,
+                                                       duration, charges, caster.guid, target_owner_guid, target.guid)
 
                 # Update trade status, this will propagate to both players.
-                caster.trade_data.update_trade_status()
+                source_trade_data.update_trade_status()
                 return
 
         # Apply permanent enchantment.
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
-                                                              -1 if not is_temporary else duration, charges)
+                                                              -1 if not is_temporary else duration, charges,
+                                                              caster=caster)
         owner_player.equipment_proc_manager.handle_equipment_change(target)
 
         # Save item.
         target.save()
-
-        # Enchantment log.
-        owner_player.enchantment_manager.send_enchantment_log(caster, target, effect.misc_value)
 
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
