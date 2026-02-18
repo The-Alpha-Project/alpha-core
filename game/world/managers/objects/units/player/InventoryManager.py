@@ -18,6 +18,7 @@ class InventoryManager:
         self.owner = owner
         # Containers are lazy initialized, since we need the player session active (in-world).
         self.containers = {}
+        self.current_item_translation = None
 
     def initialize_and_load_items(self):
         self.containers = {
@@ -82,6 +83,32 @@ class InventoryManager:
         for item in self.get_all_items():
             if item.duration:
                 item.send_item_duration()
+
+    def clear_item_read_translation_timers(self):
+        if self.current_item_translation:
+            self.current_item_translation.clear_item_read_translation_timer()
+        self.current_item_translation = None
+
+    def update_item_read_translation_timers(self, now, item=None, delay_ms=None):
+        if item:
+            if self.current_item_translation and self.current_item_translation.guid != item.guid:
+                self.current_item_translation.clear_item_read_translation_timer()
+            self.current_item_translation = item
+            if delay_ms is not None:
+                item.queue_item_read_translation_timer(now, delay_ms)
+            return
+
+        if not self.current_item_translation:
+            return
+
+        # Keep a valid item reference only while the item is in inventory.
+        if not self.get_item_by_guid(self.current_item_translation.guid):
+            self.current_item_translation.clear_item_read_translation_timer()
+            self.current_item_translation = None
+            return
+
+        if self.current_item_translation.update_item_read_translation_timer(now):
+            self.current_item_translation = None
 
     def can_use_item(self, item_template):
         if item_template.required_level:
