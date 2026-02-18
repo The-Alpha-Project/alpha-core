@@ -349,6 +349,7 @@ class PlayerManager(UnitManager):
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
+        self.inventory.clear_item_read_translation_timers()
         self.online = False
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
@@ -1555,6 +1556,8 @@ class PlayerManager(UnitManager):
 
         # Enchantment manager.
         self.enchantment_manager.update(elapsed)
+        # Item read translation timers.
+        self.inventory.update_item_read_translation_timers(now)
 
         # Release spirit timer.
         if not self.is_alive:

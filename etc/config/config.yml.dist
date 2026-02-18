@@ -1,5 +1,5 @@
 Version:
-    current: 26
+    current: 27
 
 Database:
     Auth:
@@ -120,6 +120,7 @@ World:
         use_spline_for_chairs: True  # Avoids player nudge upon using chairs/benches.
         enable_slime_lava_damage: False
         enable_slime_fishing: False  # Until 0.5.4, slime was not fishable.
+        enable_experimental_page_translation: True  # Enables delayed translation for readable non-universal item pages.
 
     Chat:
         ChatRange:
