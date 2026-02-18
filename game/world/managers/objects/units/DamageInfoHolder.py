@@ -246,7 +246,7 @@ class DamageInfoHolder:
         return spell_hit_flags
 
     # VictimRoundDuration is used to time the victim animation when processing an attack round.
-    # The data originates from the attack round info (attacker’s combat round).
+    # The data originates from the attack round info (attacker's combat round).
     def _get_victim_round_duration(self):
         if not self.attacker or not self.attacker.is_unit(by_mask=True):
             return 0

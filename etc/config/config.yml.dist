@@ -120,7 +120,7 @@ World:
         use_spline_for_chairs: True  # Avoids player nudge upon using chairs/benches.
         enable_slime_lava_damage: False
         enable_slime_fishing: False  # Until 0.5.4, slime was not fishable.
-        enable_experimental_page_translation: True  # Enables delayed translation for readable non-universal item pages.
+        enable_experimental_page_translation: False  # Enables delayed translation for readable non-universal item pages (https://github.com/vmangos/core/issues/3216).
 
     Chat:
         ChatRange:
