@@ -1507,7 +1507,8 @@ class ScriptHandler:
                 break
             cumulative += chance
 
-        command.source.object_ai.set_spell_list(chosen_spell_list_id)
+        if not command.source.object_ai.set_spell_list(chosen_spell_list_id):
+            return command.should_abort()
         return False
 
     @staticmethod
