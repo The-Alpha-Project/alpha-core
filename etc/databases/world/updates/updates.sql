@@ -13997,7 +13997,6 @@ begin not atomic
 
     -- 19/02/2026 1
     if (select count(*) from applied_updates where id='190220261') = 0 then
-        -- Script cast spell remap in script tables (HIGH confidence only, aura/effect/level/name scored).
         UPDATE `creature_ai_scripts` SET `datalong` = 871 WHERE `id` = 174801 AND `command` = 15 AND `datalong` = 15062; -- Shield Wall (15062) -> Shield Wall (871)
         UPDATE `creature_ai_scripts` SET `datalong` = 633 WHERE `id` = 174802 AND `command` = 15 AND `datalong` = 17233; -- Lay on Hands (17233) -> Lay on Hands (633)
         UPDATE `creature_ai_scripts` SET `datalong` = 5164 WHERE `id` = 183602 AND `command` = 15 AND `datalong` = 13360; -- Knockdown (13360) -> Knockdown (5164)
@@ -14180,7 +14179,6 @@ begin not atomic
 
     -- 19/02/2026 2
     if (select count(*) from applied_updates where id='190220262') = 0 then
-        -- Script cast spell remap in script tables (MEDIUM confidence only, aura/effect/level/name scored).
         UPDATE `creature_ai_scripts` SET `datalong` = 703 WHERE `id` = 81303 AND `command` = 15 AND `datalong` = 8818; -- Garrote (8818) -> Garrote (703)
         UPDATE `creature_ai_scripts` SET `datalong` = 697 WHERE `id` = 373502 AND `command` = 15 AND `datalong` = 12746; -- Summon Voidwalker (12746) -> Summon Voidwalker (697)
         UPDATE `creature_ai_scripts` SET `datalong` = 697 WHERE `id` = 582202 AND `command` = 15 AND `datalong` = 12746; -- Summon Voidwalker (12746) -> Summon Voidwalker (697)
