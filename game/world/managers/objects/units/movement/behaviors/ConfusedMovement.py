@@ -73,8 +73,12 @@ class ConfusedMovement(BaseMovement):
 
     # override
     def on_removed(self):
-        self.unit.remove_all_movement_flags()
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_CONFUSED, False)
+
+        if self.unit.is_alive and self.unit.in_combat and not self.unit.combat_target:
+            target = self.unit.threat_manager.get_hostile_target()
+            if target and target.is_alive:
+                self.unit.attack(target)
 
     def _get_confused_move_point(self):
         start_point = self.home_position
