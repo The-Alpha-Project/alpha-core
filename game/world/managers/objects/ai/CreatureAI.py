@@ -39,10 +39,13 @@ class CreatureAI:
             self.script_phase = 0
 
     def load_spell_list(self):
-        if not self.creature.creature_template.spell_list_id:
+        # Clear current list if any.
+        self.creature_spells.clear()
+
+        if not self.creature.spell_list_id:
             return
         # Load creature spells if available.
-        spell_list_id = self.creature.creature_template.spell_list_id
+        spell_list_id = self.creature.spell_list_id
         creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
         if not creature_spells:
             return
@@ -107,7 +110,7 @@ class CreatureAI:
         
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
-        pass
+        self.ai_event_handler.on_summoned_just_died(creature)
 
     # Group member just died.
     def group_member_just_died(self, unit, is_leader):
@@ -147,7 +150,7 @@ class CreatureAI:
 
     # Called when spell hits creature's target.
     def spell_hit_target(self, unit, spell_entry):
-        pass
+        self.ai_event_handler.on_spell_hit_target(unit, spell_entry)
 
     # Called when creature is spawned or respawned (for resetting variables).
     def just_respawned(self):
@@ -190,7 +193,7 @@ class CreatureAI:
 
     # Called when the creature summon despawn.
     def summoned_creatures_despawn(self, creature):
-        pass
+        self.ai_event_handler.on_summoned_just_despawned(creature)
 
     # TODO: PlayerAI, route both player and creatures add_thread through AI.
     # Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc).
@@ -214,7 +217,13 @@ class CreatureAI:
         pass
 
     def set_spell_list(self, spell_list):
-        pass
+        self.creature.spell_list_id = max(0, spell_list)
+        self.load_spell_list()
+        self.casting_delay = 0
+
+        # Set initial cooldowns.
+        if self.has_spell_list():
+            self._initialize_spell_list_cooldowns()
 
     def update_spell_list(self, elapsed):
         if not self.has_spell_list():

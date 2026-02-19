@@ -1077,6 +1077,10 @@ class UnitManager(ObjectManager):
                 and damage_info.total_damage):
             target.object_ai.spell_hit(caster=self, casting_spell=casting_spell)
 
+        # Notify caster AI about successful spell hits on targets.
+        if (casting_spell and self.object_ai and damage_info.spell_miss_reason == SpellMissReason.MISS_REASON_NONE):
+            self.object_ai.spell_hit_target(target, casting_spell.spell_entry)
+
         target.receive_damage(damage_info, source=self, casting_spell=casting_spell, is_periodic=is_periodic)
 
     def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
@@ -1764,6 +1768,10 @@ class UnitManager(ObjectManager):
 
     # Implemented by CreatureManager.
     def is_critter(self):
+        return False
+
+    # Implemented by CreatureManager.
+    def is_immune_to_aoe(self):
         return False
 
     # Implemented by CreatureManager.

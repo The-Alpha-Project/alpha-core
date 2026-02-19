@@ -198,24 +198,30 @@ class EffectTargets:
 
         scripted_targets = WorldDatabaseManager.SpellScriptTargetHolder.\
             spell_script_targets_get_by_spell(target_effect.casting_spell.spell_entry.ID)
+        apply_aoe_immunity = casting_spell.is_area_of_effect_spell()
 
         if not enemies_only and not friends_only and not distance_loc and not \
-                casting_spell.spell_entry.TargetCreatureType and not scripted_targets:
+                casting_spell.spell_entry.TargetCreatureType and not scripted_targets and not apply_aoe_immunity:
             return units  # No filters provided.
 
         return EffectTargets._filter_unit_targets(units, casting_spell,
                                                   enemies_only=enemies_only, friends_only=friends_only,
                                                   distance_loc=distance_loc, radius=radius,
-                                                  target_entries=[t.target_entry for t in scripted_targets])
+                                                  target_entries=[t.target_entry for t in scripted_targets],
+                                                  apply_aoe_immunity=apply_aoe_immunity)
 
     @staticmethod
     def _filter_unit_targets(units, casting_spell, enemies_only=False, friends_only=False,
-                             distance_loc=None, radius=-1, target_entries=None):
+                             distance_loc=None, radius=-1, target_entries=None, apply_aoe_immunity=False):
         filtered_units = []
         unit_type_restriction = casting_spell.spell_entry.TargetCreatureType
 
         radius_sqrd = radius ** 2
         for unit in units:
+
+            if apply_aoe_immunity and unit.is_immune_to_aoe():
+                continue
+
             # Unit type.
             if unit_type_restriction and not unit_type_restriction & (1 << unit.creature_type - 1):
                 continue

@@ -588,8 +588,6 @@ class SpellEffectHandler:
 
         caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, creature_id=effect.misc_value)
 
-    # TODO:
-    #  Level of pet summoned using engineering item based at engineering skill level.
     @staticmethod
     def handle_summon_guardian(casting_spell, effect, caster, target):
         creature_entry = effect.misc_value
@@ -607,6 +605,10 @@ class SpellEffectHandler:
 
         # Detach guardians with same entry if any.
         caster.pet_manager.detach_pets_by_entry(creature_entry)
+
+        # Engineering items can override level.
+        guardian_level = SkillManager.get_engineering_item_summon_level(caster, casting_spell.source_item,
+                                                                         require_trinket=True)
 
         for count in range(amount):
             random_point = caster.location.get_random_point_in_radius(radius, caster.map_id)
@@ -630,7 +632,7 @@ class SpellEffectHandler:
                                                       summon_type=summon_type,
                                                       is_guardian=True)
 
-            caster.pet_manager.add_guardian_from_spell(creature_manager, casting_spell)
+            caster.pet_manager.add_guardian_from_spell(creature_manager, casting_spell, guardian_level=guardian_level)
             caster.get_map().spawn_object(instance=creature_manager)
             if caster.object_ai:
                 caster.object_ai.just_summoned(creature_manager)
@@ -641,6 +643,8 @@ class SpellEffectHandler:
         if not creature_entry:
             return
 
+        # Engineering items can override level.
+        summon_level = SkillManager.get_engineering_item_summon_level(caster, casting_spell.source_item)
         radius = effect.get_radius()
         duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
@@ -667,6 +671,7 @@ class SpellEffectHandler:
                                                       caster.instance_id,
                                                       summoner=caster, faction=caster.faction, ttl=duration,
                                                       spell_id=casting_spell.spell_entry.ID,
+                                                      level=summon_level,
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
                                                       summon_type=summon_type)
 

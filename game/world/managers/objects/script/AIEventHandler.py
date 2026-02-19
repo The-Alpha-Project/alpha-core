@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from functools import lru_cache
 from random import randint
+import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptAIEvent import ScriptAIEvent
@@ -9,24 +9,26 @@ from game.world.managers.objects.script.ScriptManager import ScriptManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes, UnitInLosReaction
 from utils.constants.ScriptCodes import EventFlags
+from utils.constants.SpellCodes import SpellSchoolMask
 from utils.constants.UnitCodes import PowerTypes, UnitStates
 
 
-@dataclass
 class EventLock:
-    event_id: int
-    elapsed_secs: float
-    repeat_secs: float
-    can_repeat: bool
-
-    def update(self, elapsed):
-        if not self.can_repeat:
-            return
-        self.elapsed_secs += elapsed
+    def __init__(self, event_id, repeat_secs, can_repeat):
+        self.event_id = event_id
+        self.can_repeat = can_repeat
+        self.unlock_timestamp = time.time() + max(0, repeat_secs) if can_repeat else 0
 
     def is_locked(self):
-        locked = not self.can_repeat or self.elapsed_secs < self.repeat_secs
-        return locked
+        if not self.can_repeat:
+            return True
+        if self.unlock_timestamp <= 0:
+            return False
+        return time.time() < self.unlock_timestamp
+
+    def unlock(self):
+        self.can_repeat = True
+        self.unlock_timestamp = 0
 
 class AIEventHandler:
     def __init__(self, creature):
@@ -47,7 +49,7 @@ class AIEventHandler:
             return
 
         # Avoid executing new ooc scripts when no players around.
-        # Cell can still be active cause of already running script.
+        # Cell can still be active cause of an already running script.
         if self.creature.has_player_observers():
             self.update_timer_out_of_combat_events(self.update_diff_secs)
             self.update_missing_aura_events(self.update_diff_secs)
@@ -63,10 +65,13 @@ class AIEventHandler:
             self.update_target_casting_events(target, self.update_diff_secs)
             self.update_target_rooted_events(target, self.update_diff_secs)
             self.update_target_aura_events(target, self.update_diff_secs)
+            self.update_target_missing_aura_events(target, self.update_diff_secs)
 
+            self.update_aura_events(self.update_diff_secs)
             self.update_self_hp_events(self.update_diff_secs)
             self.update_self_mana_events(self.update_diff_secs)
             self.update_self_friendly_hp_events(self.update_diff_secs)
+            self.update_self_friendly_cc_events(self.update_diff_secs)
             self.update_self_friendly_missing_buff_events(self.update_diff_secs)
 
         # Reset timer.
@@ -145,21 +150,43 @@ class AIEventHandler:
                 continue
 
             if not event.event_param1 or casting_spell.spell_entry.ID == event.event_param1:
-                # TODO: Review this mask comparison.
-                if casting_spell.get_damage_school_mask() & event.event_param2:
+                spell_school_mask = 1 << casting_spell.spell_entry.School
+                event_school_mask = AIEventHandler._normalize_spell_school_mask(event.event_param2)
+                if spell_school_mask & event_school_mask:
                     self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_spell_hit_target(self, target, spell_entry):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SPELL_HIT_TARGET)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target):
+                continue
+
+            if event.event_param1 and spell_entry.ID != event.event_param1:
+                continue
+
+            spell_school_mask = 1 << spell_entry.School
+            event_school_mask = AIEventHandler._normalize_spell_school_mask(event.event_param2)
+            if spell_school_mask & event_school_mask:
+                self._enqueue_creature_ai_event(map_, event, target=target)
 
     def on_script_event_happened(self, event_id, event_data, target):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SCRIPT_EVENT)
         map_ = self.creature.get_map()
         target = target if target else self.creature
+        matched_event = False
         for event in events:
-            if event.event_param1 == event_id and event.event_param2 == event_data:
-                if not self._validate_event(event, target=target):
-                    continue
-                self._enqueue_creature_ai_event(map_, event, target=target)
-            else:
-                Logger.warning(f'Unable to start script on event {event_id} for unit {self.creature.get_name()}')
+            if event.event_param1 != event_id or event.event_param2 != event_data:
+                continue
+
+            matched_event = True
+            if not self._validate_event(event, target=target):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=target)
+
+        if events and not matched_event:
+            Logger.debug(f'No matching AI_EVENT_TYPE_SCRIPT_EVENT for event {event_id} data {event_data}, '
+                         f'unit {self.creature.get_name()}')
 
     def on_group_member_died(self, source, is_leader):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_GROUP_MEMBER_DIED)
@@ -186,6 +213,30 @@ class AIEventHandler:
 
     def on_summoned(self, world_object):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SUMMONED_UNIT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=world_object):
+                continue
+
+            if event.event_param1 != world_object.entry:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, world_object)
+
+    def on_summoned_just_died(self, world_object):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SUMMONED_JUST_DIED)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=world_object):
+                continue
+
+            if event.event_param1 != world_object.entry:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, world_object)
+
+    def on_summoned_just_despawned(self, world_object):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SUMMONED_JUST_DESPAWNED)
         map_ = self.creature.get_map()
         for event in events:
             if not self._validate_event(event, target=world_object):
@@ -265,11 +316,25 @@ class AIEventHandler:
 
             self._enqueue_creature_ai_event(map_, event, target)
 
-    def update_target_missing_aura_events(self, elapsed_secs):
-        target = self.creature.combat_target
-        if not target:
-            return
+    def update_aura_events(self, elapsed_secs):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_AURA)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature, elapsed_secs=elapsed_secs):
+                continue
 
+            # Param1: SpellID.
+            auras = self.creature.aura_manager.get_auras_by_spell_id(event.event_param1)
+            if not auras:
+                continue
+
+            # Param2: Number of times stacked.
+            if auras[0].applied_stacks < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, self.creature)
+
+    def update_target_missing_aura_events(self, target, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_MISSING_AURA)
         map_ = self.creature.get_map()
         for event in events:
@@ -277,12 +342,9 @@ class AIEventHandler:
                 continue
 
             # Param1: SpellID.
-            auras = target.creature.aura_manager.get_auras_by_spell_id(event.event_param1)
-            if not auras:
-                continue
-
-            # Param2: Expected stacks.
-            if auras[0].applied_stacks >= event.event_param2:
+            # Event should trigger when aura is missing or below expected stacks.
+            auras = target.aura_manager.get_auras_by_spell_id(event.event_param1)
+            if auras and auras[0].applied_stacks >= event.event_param2:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, target)
@@ -314,11 +376,8 @@ class AIEventHandler:
 
             # Param1: SpellID.
             auras = self.creature.aura_manager.get_auras_by_spell_id(event.event_param1)
-            if not auras:
-                continue
-
-            # Param2: Expected stacks.
-            if auras[0].applied_stacks >= event.event_param2:
+            # Event should trigger when aura is missing or below expected stacks.
+            if auras and auras[0].applied_stacks >= event.event_param2:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, self.creature)
@@ -423,6 +482,22 @@ class AIEventHandler:
 
             self._enqueue_creature_ai_event(map_, event, missing_buff_friendly)
 
+    def update_self_friendly_cc_events(self, elapsed_secs):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_FRIENDLY_IS_CC)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature, elapsed_secs=elapsed_secs):
+                continue
+
+            # Param1: Dispel type (unused).
+            # Param2: Search radius.
+            cc_friendly = ScriptManager.resolve_friendly_cc(self.creature, target=None,
+                                                            param1=event.event_param2)
+            if not cc_friendly:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, cc_friendly)
+
     def update_self_friendly_hp_events(self, elapsed_secs):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_FRIENDLY_HP)
         map_ = self.creature.get_map()
@@ -467,10 +542,12 @@ class AIEventHandler:
         if event.event_flags & EventFlags.NOT_CASTING and self.creature.is_casting():
             return False
 
-        if elapsed_secs and self._is_event_locked(event, elapsed_secs):
+        # Apply lock checks for both periodic and callback-triggered events.
+        if self._is_event_locked(event):
             return False
 
-        if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+        # Use a 1..100 roll window so chance values map directly to percentages.
+        if event.event_chance != 100 and randint(1, 100) > event.event_chance:
             if not event.event_flags & EventFlags.REPEATABLE:
                 # Locked until events are flushed.
                 self._lock_event(event.id, 0, False)
@@ -490,7 +567,7 @@ class AIEventHandler:
         event_lock = self.event_locks.get(event_id, None)
         if not event_lock:
             return False
-        event_lock.repeat_secs = 0
+        event_lock.unlock()
         self.creature.get_map().unlock_scripted_event(event_id)
         return True
 
@@ -508,20 +585,23 @@ class AIEventHandler:
         return self._events.get(event_type, [])
 
     def _lock_event(self, event_id, repeat_seconds, can_repeat):
-        self.event_locks[event_id] = EventLock(event_id=event_id, elapsed_secs=0,
-                                                      repeat_secs=repeat_seconds,
-                                                      can_repeat=can_repeat)
+        self.event_locks[event_id] = EventLock(event_id=event_id, repeat_secs=repeat_seconds, can_repeat=can_repeat)
 
-    def _is_event_locked(self, event, elapsed_secs):
+    def _is_event_locked(self, event):
         event_lock = self.event_locks.get(event.id, None)
         if not event_lock:
             return False
 
-        event_lock.update(elapsed_secs)
         locked = event_lock.is_locked()
 
         # Delete lock if necessary.
         if not locked:
-            self.event_locks.pop(event.id)
+            self.event_locks.pop(event.id, None)
 
         return locked
+
+    @staticmethod
+    def _normalize_spell_school_mask(mask):
+        if mask < 0:
+            return SpellSchoolMask.SPELL_SCHOOL_MASK_ALL # Use -1 for "all schools"
+        return mask

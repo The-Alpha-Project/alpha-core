@@ -201,7 +201,12 @@ class GameObjectManager(ObjectManager):
             self.flags |= flag
         else:
             self.flags &= ~flag
+
         self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+
+        if (flag & GameObjectFlags.NO_INTERACT) != 0:
+            # Force surrounding players to refresh this GO interactive state.
+            self.get_map().update_object(self, UpdateFlags.DYNAMIC_FLAGS)
 
     def has_flag(self, flag: GameObjectFlags):
         return (self.flags & flag) != 0
@@ -296,6 +301,9 @@ class GameObjectManager(ObjectManager):
             Logger.warning(f'Invalid spell id for GameObject {self.get_name()}, Id {self.spawn_id}, spell {spell_id}')
 
     def generate_dynamic_field_value(self, requester):
+        if self.has_flag(GameObjectFlags.NO_INTERACT):
+            return 0
+
         go_handled_types = {GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER, GameObjectTypes.TYPE_CHEST}
         if self.gobject_template.type in go_handled_types:
             if requester.quest_manager.should_interact_with_go(self):
