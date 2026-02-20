@@ -94,8 +94,8 @@ class ScriptTarget(IntEnum):
     # Friendly unit without aura but not provided target.
     # Param1 = search_radius
     TARGET_T_FRIENDLY_MISSING_BUFF_EXCEPT = 18
-    # The source WorldObject of a scripted map event.
-    # Param1 = eventId
+    # Friendly unit under charm.
+    # Param1 = search_radius
     TARGET_T_FRIENDLY_CC = 19
     # The target WorldObject of a scripted map event.
     # Param1 = eventId

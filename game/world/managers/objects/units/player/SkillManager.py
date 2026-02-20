@@ -15,7 +15,7 @@ from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
-from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
+from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError, InventoryTypes
 from utils.constants.MiscCodes import SkillCategories, AttackTypes, LockTypes, SpeedType, Languages
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects, SpellAttributes, SpellAttributesEx
@@ -749,6 +749,27 @@ class SkillManager:
         skill = self.skills[skill_id]
         bonus_skill = 0 if no_bonus else self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
+
+    @staticmethod
+    def get_engineering_item_summon_level(player_mgr, source_item, require_trinket=False):
+        if not player_mgr or not player_mgr.is_player() or not source_item:
+            return -1
+
+        item_template = source_item.item_template
+        if not item_template:
+            return -1
+
+        if item_template.required_skill != SkillTypes.ENGINEERING:
+            return -1
+
+        if require_trinket and item_template.inventory_type != InventoryTypes.TRINKET:
+            return -1
+
+        engineering_skill = player_mgr.skill_manager.get_total_skill_value(SkillTypes.ENGINEERING)
+        if engineering_skill <= 0:
+            return -1
+
+        return engineering_skill // 5
 
     def get_skill_value_for_spell_id(self, spell_id):
         skill = self.get_skill_for_spell_id(spell_id)

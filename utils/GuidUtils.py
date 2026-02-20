@@ -1,4 +1,5 @@
 from utils.constants.MiscCodes import HighGuid
+from utils.EnumUtils import EnumUtils
 
 
 class GuidUtils:
@@ -10,6 +11,6 @@ class GuidUtils:
     @staticmethod
     def try_get_high_guid(guid):
         value = guid & (0xFFFF << 48)
-        if not HighGuid.has_value(value):
+        if not EnumUtils.has_value(HighGuid, value):
             return None
         return GuidUtils.extract_high_guid(value)

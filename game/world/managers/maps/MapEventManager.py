@@ -1,5 +1,6 @@
 from game.world.managers.objects.script.ScriptedEvent import ScriptedEvent
 from utils.constants.ScriptCodes import SetMapScriptDataOptions
+from utils.Logger import Logger
 
 
 class MapEventManager:
@@ -9,9 +10,15 @@ class MapEventManager:
     def update(self, now):
         for event_id, scripted_event in list(self.scripted_events.items()):
             if scripted_event.ended:
-                self.scripted_events.pop(event_id)
+                self.scripted_events.pop(event_id, None)
                 continue
-            scripted_event.update(now)
+            try:
+                scripted_event.update(now)
+            except Exception:
+                Logger.exception(f'MapEventManager: Failed to update scripted event {event_id}, removing event.')
+                scripted_event.ended = True
+            if scripted_event.ended:
+                self.scripted_events.pop(event_id, None)
 
     def add_event(self, source, target, map_id, event_id, time_limit, success_condition, success_script,
                   failure_condition, failure_script):

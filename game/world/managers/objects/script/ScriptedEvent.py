@@ -14,7 +14,7 @@ class ScriptedEvent:
         self.source = source
         self.target = target
         self.map_id = map_id
-        self.expire_time = time.time() + expire_time if expire_time else -1
+        self.expire_time = time.time() + max(0, expire_time or 0)
         self.failure_condition = failure_condition
         self.failure_script = failure_script
         self.success_condition = success_condition
@@ -28,12 +28,7 @@ class ScriptedEvent:
         if self.ended:
             return True
 
-        if self.expire_time == -1:
-            Logger.warning(f'Event {self.event_id} has expired with no expiration time set.')
-            self.end_event(False)
-            return True
-
-        if self.expire_time < now:
+        if self.expire_time <= now:
             self.end_event(False)
             return True
 
@@ -46,6 +41,8 @@ class ScriptedEvent:
             return True
 
         for t in self.event_targets:
+            if not t.target:
+                continue
             if t.failure_condition and ConditionChecker.validate(t.failure_condition, self.source, t.target):
                 self.end_event(False)
                 return True
@@ -58,18 +55,25 @@ class ScriptedEvent:
     def end_event(self, success):
         self.ended = True
 
-        if not self.source:
-            Logger.error(f'No source found to trigger end script for event {self.event_id}, aborting.')
-            return
-
         script = self.success_script if success else self.failure_script
-        if script:
-            self.source.get_map().enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, script)
+        enqueue_source = self.source or self.target
+        if script and enqueue_source and (ConditionChecker.is_unit(enqueue_source) or
+                                          ConditionChecker.is_gameobject(enqueue_source)):
+            map_ = enqueue_source.get_map()
+            if map_:
+                map_.enqueue_script(enqueue_source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, script)
+        elif script:
+            Logger.error(f'No valid source found to trigger end script for event {self.event_id}, skipping.')
 
         for t in self.event_targets:
             script = t.success_script if success else t.failure_script
-            if script:
-                t.target.get_map().enqueue_script(t.target, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, script)
+            if not script or not t.target:
+                continue
+            if not (ConditionChecker.is_unit(t.target) or ConditionChecker.is_gameobject(t.target)):
+                continue
+            map_ = t.target.get_map()
+            if map_:
+                map_.enqueue_script(t.target, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, script)
 
     def send_event_data(self, data, options):
         if options == SendMapEventOptions.SO_SENDMAPEVENT_ALL_TARGETS:
@@ -79,17 +83,25 @@ class ScriptedEvent:
         elif options == SendMapEventOptions.SO_SENDMAPEVENT_EXTRA_TARGETS_ONLY:
             self.send_event_to_additional_targets(data)
 
+    # Map events can target non-creatures, only units with object_ai can consume script events.
+    def _notify_script_event_if_possible(self, world_object, data):
+        if not ConditionChecker.is_unit(world_object):
+            return
+        if not world_object.object_ai:
+            return
+        world_object.object_ai.on_script_event(self.event_id, data, None)
+
     def send_event_to_main_targets(self, data):
-        self.target.object_ai.on_script_event(self.event_id, data, None)
+        self._notify_script_event_if_possible(self.target, data)
 
     def send_event_to_additional_targets(self, data):
         for t in self.event_targets:
-            t.target.object_ai.on_script_event(self.event_id, data, None)
+            self._notify_script_event_if_possible(t.target, data)
 
     def send_event_to_all_targets(self, data):
-        self.target.object_ai.on_script_event(self.event_id, data, None)
+        self._notify_script_event_if_possible(self.target, data)
         for t in self.event_targets:
-            t.target.object_ai.on_script_event(self.event_id, data, None)
+            self._notify_script_event_if_possible(t.target, data)
 
     def set_source(self, source):
         self.source = source
@@ -100,7 +112,8 @@ class ScriptedEvent:
     def get_target(self, entry=0):
         if not entry:
             return self.target
-        event_target = next(t for t in self.event_targets if t.entry == entry)
+        # Extra targets are stored as wrappers, compare by wrapped object's entry.
+        event_target = next((t for t in self.event_targets if t.target and t.target.entry == entry), None)
         return event_target.target if event_target else None
 
     def get_source(self):
@@ -108,13 +121,17 @@ class ScriptedEvent:
 
     def add_or_update_extra_target(self, target, failure_condition, failure_script, success_condition,
                                    success_script):
-        event_target = [t for t in self.event_targets if t.target.entry == target.entry]
+        if not target:
+            return
+
+        # Match by object identity (guid), not by entry, to avoid overwriting multiple same-entry targets.
+        event_target = [t for t in self.event_targets if t.target and t.target.guid == target.guid]
         if not event_target:
             self.event_targets.append(ScriptedEventTarget(target, failure_condition, failure_script,
                                                           success_condition, success_script))
             return
 
-        event_target = target[0]
+        event_target = event_target[0]
         event_target.failure_condition = failure_condition
         event_target.failure_script = failure_script
         event_target.success_condition = success_condition
@@ -122,22 +139,23 @@ class ScriptedEvent:
 
     def remove_event_target(self, _target, condition_id, options):
         if options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_TARGETS:
-            self.event_targets = []
+            self.event_targets.clear()
         elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_SELF:
-            self.event_targets.remove(_target)
+            if not _target:
+                return
+            self.event_targets = [t for t in self.event_targets if t.target != _target]
         elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ONE_FIT_CONDITION:
+            if not condition_id:
+                return
             for t in self.event_targets:
-                if ConditionChecker.check_condition_object_fit_condition(condition_id, None, t):
+                if ConditionChecker.validate(condition_id, self.source, t.target):
                     self.event_targets.remove(t)
                     return
         elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_FIT_CONDITION:
-            matches = 0
-            for t in self.event_targets:
-                if ConditionChecker.check_condition_object_fit_condition(condition_id, None, t):
-                    matches += 1
-
-            if matches == len(self.event_targets):
-                self.event_targets = {}
+            if not condition_id:
+                return
+            self.event_targets = [t for t in self.event_targets
+                                  if not ConditionChecker.validate(condition_id, self.source, t.target)]
 
     def update_event_data(self, success_condition, success_script, failure_condition, failure_script):
         self.success_condition = success_condition
@@ -146,16 +164,18 @@ class ScriptedEvent:
         self.failure_script = failure_script
 
     def get_data(self, index):
-        return self.event_data[index]
+        # Missing indices are valid and should default to 0.
+        return self.event_data.get(index, 0)
 
     def set_data(self, index, value):
         self.event_data[index] = value
 
     def increment_data(self, index, value):
-        self.event_data[index] += value
+        self.event_data[index] = self.event_data.get(index, 0) + value
 
     def decrement_data(self, index, value):
-        if self.event_data[index] > value:
-            self.event_data[index] -= value
+        current = self.event_data.get(index, 0)
+        if current > value:
+            self.event_data[index] = current - value
         else:
             self.event_data[index] = 0

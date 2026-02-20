@@ -11,6 +11,7 @@ from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
@@ -39,10 +40,13 @@ class CreatureAI:
             self.script_phase = 0
 
     def load_spell_list(self):
-        if not self.creature.creature_template.spell_list_id:
+        # Clear current list if any.
+        self.creature_spells.clear()
+
+        if not self.creature.spell_list_id:
             return
         # Load creature spells if available.
-        spell_list_id = self.creature.creature_template.spell_list_id
+        spell_list_id = self.creature.spell_list_id
         creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
         if not creature_spells:
             return
@@ -107,7 +111,7 @@ class CreatureAI:
         
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
-        pass
+        self.ai_event_handler.on_summoned_just_died(creature)
 
     # Group member just died.
     def group_member_just_died(self, unit, is_leader):
@@ -147,7 +151,7 @@ class CreatureAI:
 
     # Called when spell hits creature's target.
     def spell_hit_target(self, unit, spell_entry):
-        pass
+        self.ai_event_handler.on_spell_hit_target(unit, spell_entry)
 
     # Called when creature is spawned or respawned (for resetting variables).
     def just_respawned(self):
@@ -190,7 +194,7 @@ class CreatureAI:
 
     # Called when the creature summon despawn.
     def summoned_creatures_despawn(self, creature):
-        pass
+        self.ai_event_handler.on_summoned_just_despawned(creature)
 
     # TODO: PlayerAI, route both player and creatures add_thread through AI.
     # Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc).
@@ -214,7 +218,26 @@ class CreatureAI:
         pass
 
     def set_spell_list(self, spell_list):
-        pass
+        spell_list_id = max(0, spell_list)
+
+        # Invalid spell-list ids should not wipe/replace the spell list.
+        if spell_list_id:
+            creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(
+                spell_list_id
+            )
+            if not creature_spells:
+                Logger.warning(f'CreatureAI: Failed to set spell list {spell_list_id} for '
+                               f'creature entry {self.creature.entry}; list does not exist.')
+                return False
+
+        self.creature.spell_list_id = spell_list_id
+        self.load_spell_list()
+        self.casting_delay = 0
+
+        # Set initial cooldowns.
+        if self.has_spell_list():
+            self._initialize_spell_list_cooldowns()
+        return True
 
     def update_spell_list(self, elapsed):
         if not self.has_spell_list():
@@ -411,6 +434,7 @@ class CreatureAI:
     # Called when leaving combat.
     def on_combat_stop(self):
         # Reset back to default spells template. This also resets timers.
+        self.set_spell_list(self.creature.creature_template.spell_list_id)
         # Reset combat movement and melee attack.
         self.ai_event_handler.on_evade()
 

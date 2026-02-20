@@ -1,4 +1,5 @@
 from utils.Logger import Logger
+from utils.EnumUtils import EnumUtils
 from utils.constants.MiscFlags import ScriptFlags
 from utils.constants.ScriptCodes import ScriptCommands
 
@@ -72,5 +73,6 @@ class ScriptCommand:
         return True, self.source, self.target
 
     def get_info(self):
-        return (f'ScriptID: {self.script_id}, Command {ScriptCommands(self.command).name}, '
+        command_name = EnumUtils.name_or_value(ScriptCommands, self.command)
+        return (f'ScriptID: {self.script_id}, Command {command_name}, '
                 f'Abort: {"True" if self.should_abort() else "False"}')

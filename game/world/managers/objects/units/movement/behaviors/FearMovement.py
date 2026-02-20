@@ -83,9 +83,12 @@ class FearMovement(BaseMovement):
 
     # override
     def on_removed(self):
-        self.unit.remove_all_movement_flags()
-        # Remove fleeing flag if not caused by auras (ie. scripted flee).
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, False)
+
+        if self.unit.is_alive and self.unit.in_combat and not self.unit.combat_target:
+            target = self.unit.threat_manager.get_hostile_target()
+            if target and target.is_alive:
+                self.unit.attack(target)
 
     def _get_waypoint(self):
         waypoint = self.waypoints[0]

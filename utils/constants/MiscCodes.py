@@ -66,10 +66,6 @@ class UpdateFlags(IntFlag):
 # Some might be unused on Alpha
 class HighGuid(IntEnum):
 
-    @classmethod
-    def has_value(cls, value):
-        return value in cls._value2member_map_
-
     HIGHGUID_PLAYER = 0x0000 << 48
     HIGHGUID_ITEM = 0x4000 << 48
     HIGHGUID_CONTAINER = 0x4000 << 48
@@ -1142,10 +1138,6 @@ class PoolType(IntEnum):
 
 class MapsNoNavs(IntEnum):
 
-    @classmethod
-    def has_value(cls, value):
-        return value in cls._value2member_map_
-
     UnderMine = 2
     Test = 13
     ScottTest = 25
@@ -1208,6 +1200,7 @@ class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_TARGET_HP = 12
     AI_EVENT_TYPE_TARGET_CASTING = 13
     AI_EVENT_TYPE_FRIENDLY_HP = 14
+    AI_EVENT_TYPE_FRIENDLY_IS_CC = 15
     AI_EVENT_TYPE_FRIENDLY_MISSING_BUFF = 16
     AI_EVENT_TYPE_SUMMONED_UNIT = 17
     AI_EVENT_TYPE_TARGET_MANA = 18
@@ -1215,14 +1208,20 @@ class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_QUEST_COMPLETE = 20
     AI_EVENT_TYPE_REACHED_HOME = 21
     AI_EVENT_TYPE_RECEIVE_EMOTE = 22
+    AI_EVENT_TYPE_AURA = 23
     AI_EVENT_TYPE_TARGET_AURA = 24
+    AI_EVENT_TYPE_SUMMONED_JUST_DIED = 25
+    AI_EVENT_TYPE_SUMMONED_JUST_DESPAWNED = 26
     AI_EVENT_TYPE_MISSING_AURA = 27
     AI_EVENT_TYPE_TARGET_MISSING_AURA = 28
-    # AI_EVENT_TYPE_MOVEMENT_INFORM = 29
+    AI_EVENT_TYPE_MOVEMENT_INFORM = 29
     AI_EVENT_TYPE_LEAVE_COMBAT = 30
     AI_EVENT_TYPE_SCRIPT_EVENT = 31
     AI_EVENT_TYPE_GROUP_MEMBER_DIED = 32
     AI_EVENT_TYPE_TARGET_ROOTED = 33
+    AI_EVENT_TYPE_HIT_BY_AURA = 34
+    AI_EVENT_TYPE_STEALTH_ALERT = 35
+    AI_EVENT_TYPE_SPELL_HIT_TARGET = 36
 
 
 class BroadcastMessageType(IntEnum):

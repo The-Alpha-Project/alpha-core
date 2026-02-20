@@ -26,7 +26,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
     MoveType, EmoteUnitState, TempSummonType
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import TemporaryFactionFlags
-from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity
+from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity, AuraTypes, SpellEffects
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -131,6 +131,9 @@ class CreatureManager(UnitManager):
             self.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, self.creature_template.mechanic_immune_mask)
         if self.creature_template.school_immune_mask:
             self.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.creature_template.school_immune_mask)
+        # CREATURE_FLAG_EXTRA_NOT_TAUNTABLE maps to taunt immunity (aura + threat effect).
+        if self.is_not_tauntable():
+            self._apply_innate_taunt_immunity()
 
         if self.is_totem() or self.is_critter() or not self.can_have_target() or self.ignores_combat():
             self.react_state = CreatureReactStates.REACT_PASSIVE
@@ -379,6 +382,41 @@ class CreatureManager(UnitManager):
     def can_summon_guards(self):
         return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_SUMMON_GUARD) != 0
 
+    def is_not_tauntable(self):
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NOT_TAUNTABLE) != 0
+
+    def _apply_innate_taunt_immunity(self):
+        # Aura-based taunts (SPELL_AURA_MOD_TAUNT).
+        # Alpha-era warrior Taunt (spell 355), which uses SPELL_EFFECT_THREAT.
+
+        # Immunities are stored as {immunity_type: {source_id: bitmask}}.
+        # source_id == -1 is the reserved "innate" (non-aura) source.
+        aura_immunity_sources = self._immunities.get(SpellImmunity.IMMUNITY_AURA, {})
+        innate_aura_mask = aura_immunity_sources.get(-1, 0)
+
+        taunt_aura_mask = 1 << AuraTypes.SPELL_AURA_MOD_TAUNT
+        merged_innate_mask = innate_aura_mask | taunt_aura_mask
+
+        # Write the merged innate mask so we keep any previously assigned innate aura immunities.
+        self.set_immunity(SpellImmunity.IMMUNITY_AURA, merged_innate_mask)
+
+        effect_immunity_sources = self._immunities.get(SpellImmunity.IMMUNITY_EFFECT, {})
+        innate_effect_mask = effect_immunity_sources.get(-1, 0)
+
+        taunt_effect_mask = 1 << SpellEffects.SPELL_EFFECT_THREAT
+        merged_innate_effect_mask = innate_effect_mask | taunt_effect_mask
+
+        # Keep pre-existing innate effect immunities while adding THREAT immunity for Taunt.
+        self.set_immunity(SpellImmunity.IMMUNITY_EFFECT, merged_innate_effect_mask)
+
+    def keeps_positive_auras_on_evade(self):
+        return (self.creature_template.flags_extra
+                & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_KEEP_POSITIVE_AURAS_ON_EVADE) != 0
+
+    # override
+    def is_immune_to_aoe(self):
+        return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_IMMUNE_AOE) != 0
+
     def can_assist_help_calls(self):
         return (self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_ASSIST) == 0
 
@@ -555,7 +593,6 @@ class CreatureManager(UnitManager):
         # Flag creature as currently evading.
         self.is_evading = True
 
-        # Remove hostile auras.
         self.aura_manager.remove_hostile_auras()
 
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
@@ -717,6 +754,8 @@ class CreatureManager(UnitManager):
         self.time_to_live_timer = 0
         self.time_to_live = 0
 
+        # Notify summoner EventAI before detach logic can clear the summon relation.
+        self._notify_summoner_ai_summoned_creature_despawned()
         super().despawn(ttl, respawn_delay)
 
     def _should_despawn(self, elapsed):
@@ -727,7 +766,14 @@ class CreatureManager(UnitManager):
         if not self.is_dynamic_spawn:
             return False
 
-        return SUMMON_DESPAWN_TYPES[self.summon_type](self, elapsed)
+        summon_handler = SUMMON_DESPAWN_TYPES.get(self.summon_type)
+        if not summon_handler:
+            Logger.warning(f'Unsupported temp summon type {self.summon_type} for creature entry {self.entry}; '
+                           f'falling back to DEAD_DESPAWN.')
+            self.summon_type = TempSummonType.TEMP_SUMMON_DEAD_DESPAWN
+            summon_handler = CreatureManager.handle_summon_dead
+
+        return summon_handler(self, elapsed)
 
     def update_time_to_live(self, elapsed):
         if self.time_to_live > 0:
@@ -879,7 +925,22 @@ class CreatureManager(UnitManager):
 
         self.remove_all_unit_flags()
 
-        return super().die(killer)
+        died = super().die(killer)
+        if died:
+            self._notify_summoner_ai_summoned_creature_just_died()
+        return died
+
+    def _notify_summoner_ai_summoned_creature_just_died(self):
+        summoner = self.summoner
+        if not summoner or not summoner.is_unit(by_mask=True) or not summoner.object_ai:
+            return
+        summoner.object_ai.summoned_creature_just_died(self)
+
+    def _notify_summoner_ai_summoned_creature_despawned(self):
+        summoner = self.summoner
+        if not summoner or not summoner.is_unit(by_mask=True) or not summoner.object_ai:
+            return
+        summoner.object_ai.summoned_creatures_despawn(self)
 
     def reward_kill_xp(self, player):
         if self.static_flags & CreatureStaticFlags.NO_XP:
@@ -1242,15 +1303,24 @@ class CreatureManager(UnitManager):
             if not unit.in_combat:
                 unit.despawn()
                 return True
+            # Keep the timer clamped while combat blocks despawn.
+            unit.time_to_live_timer = unit.time_to_live
 
         return False
 
 
     @staticmethod
     def handle_summon_timed_combat_or_corpse(unit, elapsed):
-        if not unit.is_alive or unit.update_time_to_live(elapsed):
+        if not unit.is_alive:
             unit.despawn()
             return True
+
+        if unit.update_time_to_live(elapsed):
+            if not unit.in_combat:
+                unit.despawn()
+                return True
+            # Match VMaNGOS behavior, once ttl is reached in combat, wait until combat ends.
+            unit.time_to_live_timer = unit.time_to_live
 
         return False
 
@@ -1263,6 +1333,9 @@ class CreatureManager(UnitManager):
             elif not unit.is_alive:
                 unit.despawn()
                 return True
+            else:
+                # Keep the timer clamped while combat blocks forced death.
+                unit.time_to_live_timer = unit.time_to_live
 
         return False
 

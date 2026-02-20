@@ -22,6 +22,7 @@ from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.maps.helpers.Namigator import Namigator
 from utils.ConfigManager import config
+from utils.EnumUtils import EnumUtils
 from utils.Formulas import Distances
 from utils.GitUtils import GitUtils
 from utils.Logger import Logger
@@ -75,7 +76,7 @@ class MapManager:
 
     @staticmethod
     def has_navs(map_id):
-        return not MapsNoNavs.has_value(map_id)
+        return not EnumUtils.has_value(MapsNoNavs, map_id)
 
     @staticmethod
     @lru_cache
