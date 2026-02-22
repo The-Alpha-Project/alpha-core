@@ -116,12 +116,14 @@ class PetManager:
     def get_guardian_count(self) -> int:
         return len([pet for pet in self.active_pets.values() if pet and pet.creature.is_guardian])
 
-    def add_guardian_from_spell(self, creature: CreatureManager, spell: CastingSpell) -> Optional[ActivePet]:
+    def add_guardian_from_spell(self, creature: CreatureManager, spell: CastingSpell,
+                                guardian_level: int = -1) -> Optional[ActivePet]:
         guardian_slot = self.get_free_guardian_slot()
         if not guardian_slot:
             return None
 
         return self.set_creature_as_pet(creature, spell.spell_entry.ID, guardian_slot,
+                                        pet_level=guardian_level,
                                         replenish_on_summon=True)
 
     def _add_pet(self, creature: CreatureManager, summon_spell_id: int, level: int, permanent: bool) -> PetData:

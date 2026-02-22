@@ -23,7 +23,7 @@ class Script:
 
     def update(self, now):
         if not self.started:
-            # Check initial delay for command sequence.
+            # Check the initial delay for the command sequence.
             if self.delay and now - self.time_added < self.delay:
                 return
             self.start_time = now
@@ -54,13 +54,17 @@ class Script:
             script_command.target = target
 
             # Check if source or target are currently in inactive cells, if so, make their cells become active.
-            if source and not source.get_map().is_active_cell(source.current_cell):
-                source.get_map().activate_cell_by_world_object(source)
-            if target and target != source and not target.get_map().is_active_cell(target.current_cell):
-                target.get_map().activate_cell_by_world_object(target)
+            if source:
+                source_map = source.get_map()
+                if source_map and not source_map.is_active_cell(source.current_cell):
+                    source_map.activate_cell_by_world_object(source)
+            if target and target != source:
+                target_map = target.get_map()
+                if target_map and not target_map.is_active_cell(target.current_cell):
+                    target_map.activate_cell_by_world_object(target)
 
             # Condition is not met, skip or abort.
-            if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):
+            if not ConditionChecker.validate(script_command.condition_id, source=source, target=target):
                 if script_command.should_abort():
                     self.abort()
                     return
@@ -73,7 +77,7 @@ class Script:
                 return
 
     def abort(self):
-        event_info = {self.event.get_event_info() if self.event else 'None'}
+        event_info = self.event.get_event_info() if self.event else 'None'
         Logger.warning(f'Script {self.id} from event {event_info}, Aborted.')
         self.aborted = True
         self.commands.clear()

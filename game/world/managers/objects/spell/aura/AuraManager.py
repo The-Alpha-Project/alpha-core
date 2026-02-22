@@ -357,6 +357,28 @@ class AuraManager:
                 return True
         return False
 
+    def has_breakable_by_damage_aura_type(self, aura_type, exclude_aura_spell_id=0) -> bool:
+        for aura in self.get_auras_by_type(aura_type):
+            # Avoid self-interrupt of channeled CC spells (e.g., Seduction).
+            if exclude_aura_spell_id and aura.spell_id == exclude_aura_spell_id:
+                continue
+
+            if aura.interrupt_flags & SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE:
+                return True
+
+        return False
+
+    def has_breakable_by_damage_crowd_control_aura(self, exclude_caster_channel=None) -> bool:
+        exclude_aura_spell_id = 0
+        if exclude_caster_channel:
+            channel_spell = exclude_caster_channel.spell_manager.get_casting_spell(ignore_melee=True)
+            if channel_spell and channel_spell.is_channeled():
+                exclude_aura_spell_id = channel_spell.spell_entry.ID
+
+        return self.has_breakable_by_damage_aura_type(AuraTypes.SPELL_AURA_MOD_CONFUSE, exclude_aura_spell_id) or \
+            self.has_breakable_by_damage_aura_type(AuraTypes.SPELL_AURA_MOD_STUN, exclude_aura_spell_id) or \
+            self.has_breakable_by_damage_aura_type(AuraTypes.SPELL_AURA_TRANSFORM, exclude_aura_spell_id)
+
     def get_active_auras(self):
         return [self.active_auras[i] for i in
                 range(0, AuraSlots.AURA_SLOT_PASSIVE_AURA_START)

@@ -256,6 +256,9 @@ class UnitManager(ObjectManager):
             and not self.unit_state & UnitStates.STUNNED and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
             and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING and not self.unit_state & UnitStates.CONFUSED
 
+    def has_aura_pet_should_avoid_breaking(self, exclude_caster_channel=None) -> bool:
+        return self.aura_manager.has_breakable_by_damage_crowd_control_aura(exclude_caster_channel)
+
     # override
     def can_attack_target(self, target):
         if not target or target is self:
@@ -1077,6 +1080,10 @@ class UnitManager(ObjectManager):
                 and damage_info.total_damage):
             target.object_ai.spell_hit(caster=self, casting_spell=casting_spell)
 
+        # Notify caster AI about successful spell hits on targets.
+        if (casting_spell and self.object_ai and damage_info.spell_miss_reason == SpellMissReason.MISS_REASON_NONE):
+            self.object_ai.spell_hit_target(target, casting_spell.spell_entry)
+
         target.receive_damage(damage_info, source=self, casting_spell=casting_spell, is_periodic=is_periodic)
 
     def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
@@ -1764,6 +1771,10 @@ class UnitManager(ObjectManager):
 
     # Implemented by CreatureManager.
     def is_critter(self):
+        return False
+
+    # Implemented by CreatureManager.
+    def is_immune_to_aoe(self):
         return False
 
     # Implemented by CreatureManager.

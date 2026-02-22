@@ -17,12 +17,18 @@ class ConditionChecker:
         if not condition_id:
             return True
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+        if not condition:
+            Logger.warning(f'ConditionChecker: Condition {condition_id} does not exist.')
+            return False
         return ConditionChecker._validate(condition, source, target)
 
     # Helper functions.
 
     @staticmethod
     def _validate(condition, source, target):
+        if not condition:
+            return False
+
         if condition.flags & ConditionFlags.CONDITION_FLAG_SWAP_TARGETS:
             _tmp_old_target = target
             target = source
@@ -518,7 +524,11 @@ class ConditionChecker:
         # Condition_value2 = index.
         # Condition_value3 = data.
         # Condition_value4 = 0 equal, 1 equal or higher, 2 equal or lower.
-        map_instance = source.get_map()
+        unit = source if source else _target
+        if not unit:
+            return False
+
+        map_instance = unit.get_map()
         if not map_instance:
             return False
 
@@ -526,12 +536,13 @@ class ConditionChecker:
         if not event:
             return False
 
+        event_value = event.get_data(condition.value2)
         if condition.value4 == 0:
-            return event.event_data[condition.value2] == condition.value3
+            return event_value == condition.value3
         elif condition.value4 == 1:
-            return event.event_data[condition.value2] >= condition.value3
+            return event_value >= condition.value3
         elif condition.value4 == 2:
-            return event.event_data[condition.value2] <= condition.value3
+            return event_value <= condition.value3
         else:
             return False
 
