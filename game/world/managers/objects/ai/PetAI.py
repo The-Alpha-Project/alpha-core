@@ -9,7 +9,7 @@ from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import MoveType
 from utils.constants.PetCodes import PetCommandState, PetMoveState
 from utils.constants.SpellCodes import SpellTargetMask, SpellEffects
-from utils.constants.UnitCodes import UnitStates, CreatureReactStates
+from utils.constants.UnitCodes import CreatureReactStates
 
 
 class PetAI(CreatureAI):
@@ -159,8 +159,7 @@ class PetAI(CreatureAI):
         if self.get_react_state() == CreatureReactStates.REACT_PASSIVE:
             return command_state == PetCommandState.COMMAND_ATTACK
 
-        # TODO: Check HasAuraPetShouldAvoidBreaking.
-        if target.unit_state & UnitStates.FLEEING:
+        if target.has_aura_pet_should_avoid_breaking():
             return command_state == PetCommandState.COMMAND_ATTACK
 
         # Returning - pets ignore attacks only if owner clicked follow.

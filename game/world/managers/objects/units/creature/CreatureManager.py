@@ -25,6 +25,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
     MoveType, EmoteUnitState, TempSummonType
 from utils.constants.OpCodes import OpCode
+from utils.constants.PetCodes import PetCommandState
 from utils.constants.ScriptCodes import TemporaryFactionFlags
 from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity, AuraTypes, SpellEffects
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
@@ -789,6 +790,20 @@ class CreatureManager(UnitManager):
         #  Pets check react state logic before calling attack through PetAI.
         if self.get_react_state() == CreatureReactStates.REACT_PASSIVE and not self.is_pet():
             return False
+
+        # Preserve breakable crowd-control auras unless the owner explicitly commanded an attack.
+        if self.is_pet() and not from_script and victim.has_aura_pet_should_avoid_breaking():
+            charmer_or_summoner = self.get_charmer_or_summoner()
+            command_state = PetCommandState.COMMAND_STAY
+            if charmer_or_summoner:
+                controlled_pet = charmer_or_summoner.pet_manager.get_active_controlled_pet()
+                if controlled_pet:
+                    command_state = controlled_pet.get_pet_data().command_state
+                else:
+                    command_state = PetCommandState.COMMAND_FOLLOW
+
+            if command_state != PetCommandState.COMMAND_ATTACK:
+                return False
 
         if not self.can_have_target() or self.ignores_combat():
             return False
