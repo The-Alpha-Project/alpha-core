@@ -1,22 +1,57 @@
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import TradeStatus
 
 
 class AcceptTradeHandler:
+    @staticmethod
+    def _resolve_enchant_target_item_guids(player_trade, other_player_trade):
+        target_item_guids = set()
+
+        for trade_data in (player_trade, other_player_trade):
+            proposed = trade_data.proposed_enchantment
+            if not proposed.is_valid() or not proposed.enchantment_entry:
+                continue
+
+            if proposed.target_item_guid:
+                target_item_guids.add(proposed.target_item_guid)
+                continue
+
+            if proposed.trade_slot < 0 or proposed.trade_slot >= TradeManager.TRADE_SLOT_COUNT:
+                continue
+
+            slot_item = trade_data.items[proposed.trade_slot]
+            if slot_item:
+                target_item_guids.add(slot_item.guid)
+                continue
+
+            linked_trade_data = trade_data.get_linked_trade_data()
+            if linked_trade_data and linked_trade_data.items[proposed.trade_slot]:
+                target_item_guids.add(linked_trade_data.items[proposed.trade_slot].guid)
+
+        return target_item_guids
 
     @staticmethod
     def handle(world_session, reader):
-        player = world_session.player_mgr
+        # Validate world session.
+        player, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        if not player:
+            return res
+
         player_trade = player.trade_data
         if not player_trade:
             TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_CANCELLED)
             return 0
 
+        if not TradeManager.validate_active_trade(player):
+            return 0
+
         other_player = player_trade.other_player
         other_player_trade = other_player.trade_data
-        item_to_receive_enchant = None
+        enchant_target_item_guids = AcceptTradeHandler._resolve_enchant_target_item_guids(player_trade,
+                                                                                           other_player_trade)
         player_trade.set_accepted(True)
 
         # Prevent players from trading money they don't actually have.
@@ -36,14 +71,15 @@ class AcceptTradeHandler:
             TradeManager.cancel_trade(other_player)
             return 0
 
-        # Cancel if any item is soulbound.
-        for slot in range(TradeManager.TRADE_SLOT_COUNT):
-            if player_trade.items[slot] and player_trade.items[slot].is_soulbound():
-                TradeManager.cancel_trade(player)
-                return 0
-
-            if other_player_trade.items[slot] and other_player_trade.items[slot].is_soulbound():
-                TradeManager.cancel_trade(other_player)
+        # Cancel if any item is soulbound and is being traded (not only enchanted).
+        for trade_owner, trade_data in ((player, player_trade), (other_player, other_player_trade)):
+            for slot in range(TradeManager.TRADE_SLOT_COUNT):
+                trade_item = trade_data.items[slot]
+                if not trade_item or not trade_item.is_soulbound():
+                    continue
+                if trade_item.guid in enchant_target_item_guids:
+                    continue
+                TradeManager.cancel_trade(trade_owner)
                 return 0
 
         # Validate proposed enchants before moving any item/money.
@@ -55,27 +91,25 @@ class AcceptTradeHandler:
         if other_player_trade.is_accepted:
             # Inventory checks.
             for slot in range(TradeManager.TRADE_SLOT_COUNT):
-                # Search for item to receive enchantment.
-                if not item_to_receive_enchant and player_trade.proposed_enchantment.enchantment_entry and \
-                        player_trade.proposed_enchantment.trade_slot == slot:
-                    if player_trade.items[slot]:
-                        item_to_receive_enchant = player_trade.items[slot]
-                    elif other_player_trade.items[slot]:
-                        item_to_receive_enchant = other_player_trade.items[slot]
+                player_item = player_trade.items[slot]
+                other_player_item = other_player_trade.items[slot]
+                if player_item and player_item.guid in enchant_target_item_guids:
+                    continue
+                if other_player_item and other_player_item.guid in enchant_target_item_guids:
                     continue
 
                 # Check if player can store item.
-                if player_trade.items[slot]:
-                    error = other_player.inventory.can_store_item(player_trade.items[slot].item_template,
-                                                                  player_trade.items[slot].item_instance.stackcount)
+                if player_item:
+                    error = other_player.inventory.can_store_item(player_item.item_template,
+                                                                  player_item.item_instance.stackcount)
                     if error != InventoryError.BAG_OK:
                         TradeManager.cancel_trade(other_player)
                         return 0
 
                 # Check if other player can store item.
-                if other_player_trade.items[slot]:
-                    error = player.inventory.can_store_item(other_player_trade.items[slot].item_template,
-                                                            other_player_trade.items[slot].item_instance.stackcount)
+                if other_player_item:
+                    error = player.inventory.can_store_item(other_player_item.item_template,
+                                                            other_player_item.item_instance.stackcount)
                     if error != InventoryError.BAG_OK:
                         TradeManager.cancel_trade(player)
                         return 0
@@ -87,9 +121,10 @@ class AcceptTradeHandler:
                 other_player_item = other_player_trade.items[slot]
 
                 # Do not transfer enchanted items.
-                if item_to_receive_enchant:
-                    if player_item == item_to_receive_enchant or other_player_item == item_to_receive_enchant:
-                        continue
+                if player_item and player_item.guid in enchant_target_item_guids:
+                    continue
+                if other_player_item and other_player_item.guid in enchant_target_item_guids:
+                    continue
 
                 if other_player_item:
                     if player.inventory.add_item(

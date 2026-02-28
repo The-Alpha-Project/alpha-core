@@ -776,7 +776,7 @@ class ScriptHandler:
         # target = Unit
         # datalong = spell_id
         # datalong2 = eCastSpellFlags
-        if not command.source:
+        if not command.source or not command.source.spell_manager:
             Logger.warning(f'ScriptHandler: No source found, {command.get_info()}.')
             return command.should_abort()
 
@@ -785,30 +785,55 @@ class ScriptHandler:
             ScriptHandler._validate_spell_id(command)
             return command.should_abort()
 
-        self_cast = not command.target or command.target == command.source
-        target = command.target if command.target else command.source
+        cast_flags = command.datalong2
+        cast_target = command.target if command.target else command.source
+        source_is_unit = not command.source.is_player() and command.source.is_unit()
+        source_ai = command.source.object_ai if source_is_unit else None
+        self_cast = cast_target == command.source
         target_mask = SpellTargetMask.UNIT if not self_cast else SpellTargetMask.SELF
+        spell_target = cast_target
         targets_terrain = spell_entry.Targets & SpellTargetMask.CAN_TARGET_TERRAIN
         if targets_terrain:
-            target = target.location
+            if not cast_target:
+                Logger.warning(f'[Script] [{command.script_id}], Unable to resolve destination for spell {command.datalong}.')
+                return command.should_abort()
+            spell_target = cast_target.location
             target_mask = SpellTargetMask.DEST_LOCATION
 
-        spell = command.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
+        is_triggered = bool(cast_flags & CastFlags.CF_TRIGGERED)
+        spell = command.source.spell_manager.try_initialize_spell(
+            spell_entry,
+            spell_target,
+            target_mask,
+            triggered=is_triggered,
+            validate=True
+        )
         if not spell:
+            if source_ai:
+                source_ai.update_main_ranged_cast_state(cast_flags, SpellCheckCastResult.SPELL_FAILED_ERROR)
             Logger.warning(f'[Script] [{command.script_id}], Unable to cast spell {command.datalong}')
             return command.should_abort()
 
-        if command.datalong2 & CastFlags.CF_TRIGGERED:
+        if is_triggered:
             spell.force_instant_cast()
-        elif not targets_terrain and command.source.is_unit():
-            cast_result = command.source.object_ai.try_to_cast(target, spell, command.datalong2, chance=100)
+
+        cast_result = spell.validate_script_cast_state(cast_flags)
+        if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
+            Logger.warning(f'[Script] [{command.script_id}],'
+                           f' Unable to cast spell {command.datalong}-{spell.spell_entry.Name_enUS},'
+                           f' Cast result {SpellCheckCastResult(cast_result).name}')
+            return command.should_abort()
+
+        if source_ai and cast_target and cast_target.is_unit():
+            cast_result = source_ai.try_to_cast(cast_target, spell, cast_flags, chance=0)
+            source_ai.update_main_ranged_cast_state(cast_flags, cast_result)
             if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
                 Logger.warning(f'[Script] [{command.script_id}],'
                                f' Unable to cast spell {command.datalong}-{spell.spell_entry.Name_enUS},'
                                f' Cast result {SpellCheckCastResult(cast_result).name}')
                 return command.should_abort()
 
-        command.source.spell_manager.start_spell_cast(initialized_spell=spell)
+        command.source.spell_manager.start_spell_cast(initialized_spell=spell, remove_colliding=False)
 
         return False
 

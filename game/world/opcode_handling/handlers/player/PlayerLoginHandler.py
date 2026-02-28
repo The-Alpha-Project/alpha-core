@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketReader import PacketReader
 import time
@@ -20,7 +21,8 @@ class PlayerLoginHandler:
 
     @staticmethod
     def handle(world_session, reader: PacketReader) -> int:
-        if len(reader.data) < 8:  # Avoid handling wrong player login packet.
+        # Avoid handling an empty or truncated packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):  # Avoid handling wrong player login packet.
             return -1
 
         guid = unpack('<Q', reader.data[:8])[0]

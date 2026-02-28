@@ -38,7 +38,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes, ItemSubClasses
-from utils.constants.MiscCodes import ChatFlags, LootTypes, MountResults, DismountResults, LockTypes, \
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LootErrors, MountResults, DismountResults, LockTypes, \
     SpeedType
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
@@ -354,6 +354,7 @@ class PlayerManager(UnitManager):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
         self.inventory.clear_item_read_translation_timers()
         TradeManager.cancel_trade(self)
+        self.interrupt_looting()
         self.online = False
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
@@ -523,6 +524,8 @@ class PlayerManager(UnitManager):
 
         # Pending teleport information.
         pending_teleport = self.pending_teleport_data[0]
+
+        self.interrupt_looting()
 
         # Leave combat.
         self.leave_combat()
@@ -734,21 +737,63 @@ class PlayerManager(UnitManager):
         arbiter = self.get_map().get_surrounding_gameobject_by_guid(self, arbiter_guid)
         return arbiter
 
-    # override
-    def mount(self, mount_display_id):
-        # TODO: validate mount. Check MountResults.
-        if not super().mount(mount_display_id):
-            data = pack('<I', MountResults.MOUNTRESULT_INVALID_MOUNTEE)
-            packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
-            self.enqueue_packet(packet)
+    def send_mount_result(self, result: MountResults):
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, pack('<I', int(result))))
+
+    def send_dismount_result(self, result: DismountResults):
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, pack('<I', int(result))))
+
+    def is_in_disallowed_mount_form(self):
+        if not self.shapeshift_form:
+            return False
+
+        form_entry = DbcDatabaseManager.spell_shapeshift_form_get_by_id(self.shapeshift_form)
+        if not form_entry:
+            return False
+
+        # Stances are represented as shapeshifts but are mount-compatible.
+        return (form_entry.Flags & 1) == 0
 
     # override
-    def unmount(self):
-        # TODO: validate unmount. Check DismountResults.
-        if not super().unmount():
-            data = pack('<I', DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
-            packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
-            self.enqueue_packet(packet)
+    def mount(self, mount_display_id):
+        if mount_display_id <= 0 or \
+                not DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
+            self.send_mount_result(MountResults.MOUNTRESULT_NOT_MOUNTABLE)
+            return False
+
+        if self.is_mounted():
+            self.send_mount_result(MountResults.MOUNTRESULT_ALREADY_MOUNTED)
+            return False
+
+        if self.is_in_disallowed_mount_form():
+            self.send_mount_result(MountResults.MOUNTRESULT_SHAPESHIFTED)
+            return False
+
+        if self.unit_flags & UnitFlags.UNIT_FLAG_LOOTING:
+            self.send_mount_result(MountResults.MOUNTRESULT_LOOTING)
+            return False
+
+        if not super().mount(mount_display_id):
+            self.send_mount_result(MountResults.MOUNTRESULT_NOT_MOUNTABLE)
+            return False
+
+        self.send_mount_result(MountResults.MOUNTRESULT_OK)
+        return True
+
+    # override
+    def unmount(self, from_aura=False):
+        if not self.is_mounted():
+            if not from_aura:
+                self.send_dismount_result(DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
+            return False
+
+        if not super().unmount(from_aura=from_aura):
+            if not from_aura:
+                self.send_dismount_result(DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
+            return False
+
+        self.send_dismount_result(DismountResults.DISMOUNT_RESULT_OK)
+        return True
 
     # override
     def change_speed(self, speed_type: SpeedType = SpeedType.RUN, speed: float = 0.0):
@@ -807,7 +852,7 @@ class PlayerManager(UnitManager):
 
     def send_loot_release(self, loot_selection):
         self.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=False)
-        loot_guid = self.loot_selection.object_guid
+        loot_guid = loot_selection.object_guid
 
         high_guid: HighGuid = GuidUtils.extract_high_guid(loot_guid)
         data = pack('<QB', loot_selection.object_guid, 1)  # Must be 1 otherwise client keeps the loot window open
@@ -827,7 +872,7 @@ class PlayerManager(UnitManager):
 
         if target_world_object:
             # Retrieve the loot manager for the corresponding world object.
-            loot_manager = self.loot_selection.get_loot_manager(target_world_object)
+            loot_manager = loot_selection.get_loot_manager(target_world_object)
             # Remove self from active looters.
             loot_manager.remove_active_looter(self)
             object_type = target_world_object.get_type_id()
@@ -840,7 +885,7 @@ class PlayerManager(UnitManager):
                         enemy.killed_by = None
                     # If in party, check if this player has rights to release the loot for FFA.
                     elif enemy.killed_by and enemy.killed_by.group_manager:
-                        if self in enemy.killed_by.group_manager.get_allowed_looters(enemy):
+                        if self.guid in enemy.killed_by.group_manager.get_allowed_looters(enemy):
                             if not loot_manager.has_loot():  # Flush looters for this enemy.
                                 enemy.killed_by.group_manager.clear_looters_for_victim(enemy)
                             enemy.killed_by = None
@@ -865,6 +910,14 @@ class PlayerManager(UnitManager):
             if not loot_manager.has_loot():
                 loot_manager.clear()
         self.loot_selection = None
+
+    def send_loot_error(self, loot_guid, error_code=LootErrors.LOOT_ERROR_DIDNT_KILL):
+        # Client expects: guid + acquire type (0) + one-byte error code.
+        self.set_unit_flag(UnitFlags.UNIT_FLAG_LOOTING, active=False)
+        if self.loot_selection and self.loot_selection.object_guid == loot_guid:
+            self.loot_selection = None
+        data = pack('<QBB', loot_guid, LootTypes.LOOT_TYPE_NOTALLOWED, error_code)
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data))
 
     def send_loot(self, loot_manager, from_item_container=False):
         loot_type = loot_manager.get_loot_type(self, loot_manager.world_object)
@@ -1668,6 +1721,7 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(death_notify_packet)
 
         TradeManager.cancel_trade(self)
+        self.interrupt_looting()
         self.spirit_release_timer = 0
         self.mirror_timers_manager.stop_all()
         self.update_swimming_state(False)

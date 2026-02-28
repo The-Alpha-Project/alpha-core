@@ -12,7 +12,9 @@ class QuestGiverRemoveQuestHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 1:  # Avoid handling empty quest giver remove quest packet.
-            slot = unpack('<B', reader.data[:1])[0]
-            player_mgr.quest_manager.handle_remove_quest(slot)
+        # Avoid handling an empty quest giver remove quest packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=1):
+            return 0
+        slot = unpack('<B', reader.data[:1])[0]
+        player_mgr.quest_manager.handle_remove_quest(slot)
         return 0

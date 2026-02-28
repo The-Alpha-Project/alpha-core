@@ -1,7 +1,7 @@
 import math
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
-from utils.Formulas import UnitFormulas, Distances
+from utils.Formulas import Distances
 from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import SplineFlags
@@ -207,7 +207,7 @@ class ChaseMovement(BaseMovement):
         return self.unit.location.distance(self.combat_target.location) < combat_distance
 
     def _get_combat_stop_distance(self):
-        base_distance = UnitFormulas.combat_distance(self.unit, self.combat_target)
+        base_distance = Distances.combat_distance(self.unit, self.combat_target)
         # Add a small buffer to reduce overlaps during chase.
         base_distance += 0.3
         moving_away = self._relative_state == RelativeChaseState.AWAY

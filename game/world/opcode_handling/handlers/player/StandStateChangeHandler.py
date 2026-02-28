@@ -14,8 +14,10 @@ class StandStateChangeHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 4:  # Avoid handling empty stand state packet.
-            state: int = unpack('<I', reader.data[:4])[0]
-            player_mgr.set_stand_state(StandState(state))
+        # Avoid handling an empty stand state packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        state: int = unpack('<I', reader.data[:4])[0]
+        player_mgr.set_stand_state(StandState(state))
 
         return 0

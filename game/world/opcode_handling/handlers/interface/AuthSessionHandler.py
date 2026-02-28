@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 import hashlib
 import hmac
 import time
@@ -46,7 +47,8 @@ class AuthSessionHandler:
 
     @staticmethod
     def handle_srp6_begin(auth_session, reader):
-        if len(reader.data) < 9:
+        # Avoid handling an empty or truncated packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=9):
             data = pack('<2B', AuthCode.AUTH_FAILED, Srp6ResponseType.AuthChallenge)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
@@ -58,7 +60,8 @@ class AuthSessionHandler:
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
 
-        if len(reader.data) < 9 + user_length:
+        # Avoid handling an empty or truncated packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=9 + user_length):
             data = pack('<2B', AuthCode.AUTH_FAILED, Srp6ResponseType.AuthChallenge)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
@@ -100,7 +103,8 @@ class AuthSessionHandler:
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
 
-        if len(reader.data) != AuthSessionHandler.SRP6_PROOF_LEN:
+        # Avoid handling a packet with an invalid length.
+        if not HandlerValidator.validate_packet_length(reader, exact_length=AuthSessionHandler.SRP6_PROOF_LEN):
             data = pack('<2B', AuthCode.AUTH_FAILED, Srp6ResponseType.AuthProof)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             auth_session.account_mgr.clear_srp_state()
@@ -152,7 +156,8 @@ class AuthSessionHandler:
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
 
-        if len(reader.data) != AuthSessionHandler.SRP6_RECODE_LEN:
+        # Avoid handling a packet with an invalid length.
+        if not HandlerValidator.validate_packet_length(reader, exact_length=AuthSessionHandler.SRP6_RECODE_LEN):
             data = pack('<2B', AuthCode.AUTH_FAILED, Srp6ResponseType.AuthProof)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             auth_session.account_mgr.clear_srp_state()
@@ -233,7 +238,8 @@ class AuthSessionHandler:
         if not password:
             seed_offset = len(username) + 9
             digest_offset = seed_offset + 4
-            if len(reader.data) < digest_offset + 20:
+            # Avoid handling an empty or truncated packet.
+            if not HandlerValidator.validate_packet_length(reader, min_length=digest_offset + 20):
                 AuthSessionHandler.send_result(world_session, AuthCode.AUTH_FAILED)
                 return -1
             client_seed = reader.data[seed_offset:digest_offset]

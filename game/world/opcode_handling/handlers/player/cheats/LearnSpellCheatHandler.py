@@ -16,8 +16,10 @@ class LearnSpellCheatHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to learn spell.')
             return 0
 
-        if len(reader.data) >= 4:  # Avoid handling empty learn spell cheat packet.
-            spell_id = unpack('<I', reader.data[:4])[0]
-            player_mgr.spell_manager.learn_spell(spell_id)
+        # Avoid handling an empty learn spell cheat packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        spell_id = unpack('<I', reader.data[:4])[0]
+        player_mgr.spell_manager.learn_spell(spell_id)
 
         return 0

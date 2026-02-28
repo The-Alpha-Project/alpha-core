@@ -17,11 +17,93 @@ class Distances:
     MAX_SHARE_DISTANCE = 100.0
     SPELL_FOCUS_DISTANCE = 50.0
     MAX_OBJ_INTEREST_RADIUS = 100.0
+    MAX_POI_DISTANCE = 694.44446
     # End of distances extracted from the client.
 
     # Other distances (not extracted from the client).
     CREATURE_EVADE_DISTANCE = 65.0  # Guessed (Spell Range 'Extra Long Range' + 5).
     GROUP_SHARING_DISTANCE = 74.0  # Used for XP, loot, reputation...
+    GAMEOBJECT_INTERACT_DISTANCE = 6.0
+    LOOT_DISTANCE_GRACE = 2.0  # Server-side tolerance for client loot cursor variance.
+
+    # Inferred from the 0.5.3 client formulas.
+    BASE_MELEERANGE_OFFSET = 1.3333334
+    INTERACTABLE_DISTANCE_EXPAND_FACTOR = 1.05
+    INTERACTABLE_DISTANCE_NORMALIZE_FACTOR = 0.89999998
+
+    @staticmethod
+    def is_in_range(source, target, max_distance):
+        if not source or not target:
+            return False
+
+        if source.map_id != target.map_id or source.instance_id != target.instance_id:
+            return False
+
+        return source.location.distance(target.location) <= max_distance
+
+    @staticmethod
+    def is_within_duel_distance(source, target):
+        return Distances.is_in_range(source, target, Distances.MAX_DUEL_DISTANCE)
+
+    @staticmethod
+    def is_within_trade_distance(source, target):
+        return Distances.is_in_range(source, target, Distances.MAX_TRADE_DISTANCE)
+
+    @staticmethod
+    def is_within_shop_distance(source, target):
+        return Distances.is_in_range(source, target, Distances.MAX_SHOP_DISTANCE)
+
+    @staticmethod
+    def is_within_inspect_distance(source, target):
+        return Distances.is_in_range(source, target, Distances.MAX_INSPECT_DISTANCE)
+
+    @staticmethod
+    def is_within_loot_distance(source, target):
+        if not source or not target:
+            return False
+
+        # Match vmangos loot range behavior: combat-reach based with melee offset, clamped to attack distance.
+        source_reach = source.get_combat_reach()
+        target_reach = target.get_combat_reach()
+        max_distance = max(Distances.MAX_LOOT_DISTANCE,
+                           source_reach + target_reach + Distances.BASE_MELEERANGE_OFFSET)
+        max_distance += Distances.LOOT_DISTANCE_GRACE
+        return Distances.is_in_range(source, target, max_distance)
+
+    @staticmethod
+    def is_within_sitchairuse_distance(source, target):
+        return Distances.is_in_range(source, target, Distances.MAX_SITCHAIRUSE_DISTANCE)
+
+    @staticmethod
+    def is_within_bind_distance(source, target):
+        return Distances.is_in_range(source, target, Distances.MAX_BIND_DISTANCE)
+
+    @staticmethod
+    def is_within_group_share_distance(source, target):
+        # Keep strict comparison for parity with existing group share checks.
+        return source and target and source.map_id == target.map_id and source.instance_id == target.instance_id and \
+            source.location.distance(target.location) < Distances.GROUP_SHARING_DISTANCE
+
+    @staticmethod
+    def is_within_gameobject_interact_distance(source, target):
+        return Distances.is_in_range(source, target, Distances.GAMEOBJECT_INTERACT_DISTANCE)
+
+    @staticmethod
+    def resolve_spell_focus_distance(template_distance):
+        return min(template_distance, Distances.SPELL_FOCUS_DISTANCE)
+
+    # Taken from the 0.5.3 client.
+    @staticmethod
+    def interactable_distance(attacker, target):
+        return ((attacker.weapon_reach + attacker.combat_reach + target.weapon_reach + target.combat_reach +
+                 Distances.BASE_MELEERANGE_OFFSET)
+                * Distances.INTERACTABLE_DISTANCE_EXPAND_FACTOR
+                * Distances.INTERACTABLE_DISTANCE_NORMALIZE_FACTOR)
+
+    @staticmethod
+    def combat_distance(attacker, target):
+        # TODO: Find better formula?
+        return Distances.interactable_distance(attacker, target) * 0.6
 
 
 class CreatureFormulas:
@@ -66,17 +148,6 @@ class UnitFormulas:
         if item_info:
             return item_info.WeaponSwingSize
         return 0
-
-    # Taken from the 0.5.3 client
-    @staticmethod
-    def interactable_distance(attacker, target):
-        return ((attacker.weapon_reach + attacker.combat_reach + target.weapon_reach + target.combat_reach + 1.3333334)
-                * 1.05 * 0.89999998)
-
-    @staticmethod
-    def combat_distance(attacker, target):
-        # TODO: Find better formula?
-        return UnitFormulas.interactable_distance(attacker, target) * 0.6
 
     @staticmethod
     def rage_conversion_value(level):

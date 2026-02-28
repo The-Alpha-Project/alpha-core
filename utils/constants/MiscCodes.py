@@ -277,7 +277,8 @@ class UnitDynamicTypes(IntEnum):
 
 class MountResults(IntEnum):
     MOUNTRESULT_INVALID_MOUNTEE = 0  # You can't mount that unit!
-    MOUNTRESULT_TOO_FARA_WAY = 1  # That mount is too far away!
+    MOUNTRESULT_TOO_FAR_AWAY = 1  # That mount is too far away!
+    MOUNTRESULT_TOO_FARA_WAY = 1  # Backward-compatible alias.
     MOUNTRESULT_ALREADY_MOUNTED = 2  # You're already mounted!
     MOUNTRESULT_NOT_MOUNTABLE = 3  # That unit can't be mounted!
     MOUNTRESULT_NOT_YOUR_PET = 4  # That mount isn't your pet!
@@ -286,12 +287,14 @@ class MountResults(IntEnum):
     MOUNTRESULT_RACE_CANT_MOUNT = 7  # You can't mount because of your race!
     MOUNTRESULT_SHAPESHIFTED = 8  # You can't mount while shapeshifted!
     MOUNTRESULT_FORCED_DISMOUNT = 9  # You dismount before continuing.
+    MOUNTRESULT_OK = 10  # No error.
 
 
 class DismountResults(IntEnum):
     DISMOUNT_RESULT_NO_PET = 0
     DISMOUNT_RESULT_NOT_MOUNTED = 1
     DISMOUNT_RESULT_NOT_YOUR_PET = 2
+    DISMOUNT_RESULT_OK = 3
 
 
 class LootTypes(IntEnum):
@@ -299,6 +302,16 @@ class LootTypes(IntEnum):
     LOOT_TYPE_CORPSE = 1
     LOOT_TYPE_PICKLOCK = 2
     LOOT_TYPE_FISHING = 3
+
+
+class LootErrors(IntEnum):
+    # CGPlayer_C::OnLootResponse (0.5.3 client).
+    LOOT_ERROR_DIDNT_KILL = 0
+    LOOT_ERROR_TOO_FAR = 4
+    LOOT_ERROR_BAD_FACING = 5
+    LOOT_ERROR_LOCKED = 6
+    LOOT_ERROR_NOT_STANDING = 8
+    LOOT_ERROR_STUNNED = 9
 
 
 class ReputationFlag(IntEnum):
@@ -1149,41 +1162,7 @@ class MapsNoNavs(IntEnum):
 
 
 class CreatureAIEventTypes(IntEnum):
-    # TODO: (Taken as-is from VMaNGOS) Finish moving all of these to our naming.
-    #     EVENT_T_TIMER                   = 0,                    // InitialMin, InitialMax, RepeatMin, RepeatMax
-    #     EVENT_T_TIMER_OOC               = 1,                    // InitialMin, InitialMax, RepeatMin, RepeatMax
-    #     EVENT_T_HP                      = 2,                    // HPMax%, HPMin%, RepeatMin, RepeatMax
-    #     EVENT_T_MANA                    = 3,                    // ManaMax%,ManaMin% RepeatMin, RepeatMax
-    #     EVENT_T_AGGRO                   = 4,                    // NONE
-    #     EVENT_T_KILL                    = 5,                    // RepeatMin, RepeatMax, PlayerOnly
-    #     EVENT_T_DEATH                   = 6,                    // NONE
-    #     EVENT_T_EVADE                   = 7,                    // NONE
-    #     EVENT_T_SPELLHIT                = 8,                    // SpellID, School, RepeatMin, RepeatMax
-    #     EVENT_T_RANGE                   = 9,                    // MinDist, MaxDist, RepeatMin, RepeatMax
-    #     EVENT_T_OOC_LOS                 = 10,                   // NoHostile, MaxRnage, RepeatMin, RepeatMax
-    #     EVENT_T_SPAWNED                 = 11,                   // NONE
-    #     EVENT_T_TARGET_HP               = 12,                   // HPMax%, HPMin%, RepeatMin, RepeatMax
-    #     EVENT_T_TARGET_CASTING          = 13,                   // RepeatMin, RepeatMax
-    #     EVENT_T_FRIENDLY_HP             = 14,                   // HPDeficit, Radius, RepeatMin, RepeatMax
-    #     EVENT_T_FRIENDLY_IS_CC          = 15,                   // DispelType, Radius, RepeatMin, RepeatMax
-    #     EVENT_T_FRIENDLY_MISSING_BUFF   = 16,                   // SpellId, Radius, RepeatMin, RepeatMax
-    #     EVENT_T_SUMMONED_UNIT           = 17,                   // CreatureId, RepeatMin, RepeatMax
-    #     EVENT_T_TARGET_MANA             = 18,                   // ManaMax%, ManaMin%, RepeatMin, RepeatMax
-    #     EVENT_T_QUEST_ACCEPT            = 19,                   // QuestID
-    #     EVENT_T_QUEST_COMPLETE          = 20,                   //
-    #     EVENT_T_REACHED_HOME            = 21,                   // NONE
-    #     EVENT_T_RECEIVE_EMOTE           = 22,                   // EmoteId, Condition, CondValue1, CondValue2
-    #     EVENT_T_AURA                    = 23,                   // Param1 = SpellID, Param2 = Number of time stacked, Param3/4 Repeat Min/Max
-    #     EVENT_T_TARGET_AURA             = 24,                   // Param1 = SpellID, Param2 = Number of time stacked, Param3/4 Repeat Min/Max
-    #     EVENT_T_SUMMONED_JUST_DIED      = 25,                   // CreatureId, RepeatMin, RepeatMax
-    #     EVENT_T_SUMMONED_JUST_DESPAWN   = 26,                   // CreatureId, RepeatMin, RepeatMax
-    #     EVENT_T_MISSING_AURA            = 27,                   // Param1 = SpellID, Param2 = Number of time stacked expected, Param3/4 Repeat Min/Max
-    #     EVENT_T_TARGET_MISSING_AURA     = 28,                   // Param1 = SpellID, Param2 = Number of time stacked expected, Param3/4 Repeat Min/Max
-    #     EVENT_T_MOVEMENT_INFORM         = 29,                   // Param1 = motion type, Param2 = point ID, RepeatMin, RepeatMax
-    #     EVENT_T_LEAVE_COMBAT            = 30,                   // NONE
-    #     EVENT_T_MAP_SCRIPT_EVENT        = 31,                   // Param1 = EventID, Param2 = Data
-    #     EVENT_T_GROUP_MEMBER_DIED       = 32,                   // Param1 = CreatureId, Param2 = IsLeader
-    #     EVENT_T_VICTIM_ROOTED           = 33,                   // RepeatMin, RepeatMax
+    # Values are kept aligned with VMaNGOS EVENT_T_* identifiers.
 
     AI_EVENT_TYPE_TIMER_IN_COMBAT = 0
     AI_EVENT_TYPE_OUT_OF_COMBAT = 1

@@ -15,22 +15,24 @@ class ResurrectResponseHandler:
         if player_mgr.update_lock or player_mgr.is_alive:
             return 0
 
-        if len(reader.data) >= 9:  # Avoid handling empty resurrect response packet.
-            guid, status = unpack('<QB', reader.data[:9])
+        # Avoid handling an empty resurrect response packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=9):
+            return 0
+        guid, status = unpack('<QB', reader.data[:9])
 
-            # Resurrection request declined.
-            if status == 0:
-                return 0
+        # Resurrection request declined.
+        if status == 0:
+            return 0
 
-            # Resurrection request data not available.
-            if not player_mgr.resurrect_data:
-                return 0
+        # Resurrection request data not available.
+        if not player_mgr.resurrect_data:
+            return 0
 
-            # Original resuscitator doesn't match with the received one.
-            if player_mgr.resurrect_data.resuscitator_guid != guid:
-                return 0
+        # Original resuscitator doesn't match with the received one.
+        if player_mgr.resurrect_data.resuscitator_guid != guid:
+            return 0
 
-            player_mgr.resurrect()
+        player_mgr.resurrect()
 
         return 0
 
@@ -41,8 +43,10 @@ class ResurrectResponseHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 8:  # Avoid handling empty reclaim corpse packet.
-            guid = unpack('<Q', reader.data[:8])[0]
-            player_mgr.reclaim_corpse(guid)
+        # Avoid handling an empty reclaim corpse packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):
+            return 0
+        guid = unpack('<Q', reader.data[:8])[0]
+        player_mgr.reclaim_corpse(guid)
 
         return 0

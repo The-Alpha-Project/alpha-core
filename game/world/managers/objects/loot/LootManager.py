@@ -176,17 +176,43 @@ class LootManager:
         return LootTypes.LOOT_TYPE_NOTALLOWED
 
     def add_active_looter(self, player_mgr):
-        if player_mgr not in self.active_looters:
-            self.active_looters.append(player_mgr)
+        with self.loot_lock:
+            if player_mgr not in self.active_looters:
+                self.active_looters.append(player_mgr)
 
     def remove_active_looter(self, player_mgr):
-        if player_mgr in self.active_looters:
-            self.active_looters.remove(player_mgr)
+        with self.loot_lock:
+            if player_mgr in self.active_looters:
+                self.active_looters.remove(player_mgr)
 
     def get_active_looters(self):
-        return [looter for looter in self.active_looters if looter]
+        with self.loot_lock:
+            active_looters = [looter for looter in self.active_looters if self._is_valid_active_looter(looter)]
+            if len(active_looters) != len(self.active_looters):
+                self.active_looters = active_looters
+            return list(active_looters)
 
     def clear(self):
-        self.clear_money()
-        self.current_loot.clear()
-        self.active_looters.clear()
+        with self.loot_lock:
+            self.clear_money()
+            self.current_loot.clear()
+            self.active_looters.clear()
+
+    def _is_valid_active_looter(self, looter):
+        if not looter or not looter.is_in_world():
+            return False
+
+        loot_selection = looter.loot_selection
+        if not loot_selection or loot_selection.object_guid != self.world_object.guid:
+            return False
+
+        if not self.world_object.is_item() and \
+                (looter.map_id != self.world_object.map_id or looter.instance_id != self.world_object.instance_id):
+            return False
+
+        if not self.world_object.is_item():
+            from utils.Formulas import Distances
+            if not Distances.is_within_loot_distance(looter, self.world_object):
+                return False
+
+        return True

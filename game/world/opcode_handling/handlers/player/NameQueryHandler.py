@@ -16,17 +16,19 @@ class NameQueryHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 8:  # Avoid handling empty name query packet.
-            guid = unpack('<Q', reader.data[:8])[0]
-            requested_player = player_mgr.get_map().get_surrounding_player_by_guid(world_session.player_mgr, guid)
+        # Avoid handling an empty name query packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):
+            return 0
+        guid = unpack('<Q', reader.data[:8])[0]
+        requested_player = player_mgr.get_map().get_surrounding_player_by_guid(world_session.player_mgr, guid)
 
-            if requested_player:
-                player = requested_player.player
-            else:
-                player = RealmDatabaseManager.character_get_by_guid(guid)
+        if requested_player:
+            player = requested_player.player
+        else:
+            player = RealmDatabaseManager.character_get_by_guid(guid)
 
-            if player:
-                player_mgr.enqueue_packet(NameQueryHandler.get_query_details(player))
+        if player:
+            player_mgr.enqueue_packet(NameQueryHandler.get_query_details(player))
 
         return 0
 

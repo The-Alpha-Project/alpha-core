@@ -20,37 +20,39 @@ class DebugAIStateHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
-            guid = unpack('<Q', reader.data[:8])[0]
+        # Avoid handling an empty debug AI state packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):
+            return 0
+        guid = unpack('<Q', reader.data[:8])[0]
 
-            high_guid: HighGuid = GuidUtils.extract_high_guid(guid)
-            if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PLAYER or high_guid == HighGuid.HIGHGUID_PET:
-                world_object = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid, include_players=True)
-            else:
-                world_object = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
+        high_guid: HighGuid = GuidUtils.extract_high_guid(guid)
+        if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PLAYER or high_guid == HighGuid.HIGHGUID_PET:
+            world_object = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid, include_players=True)
+        else:
+            world_object = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
 
-            # No object with that Guid? Return.
-            if not world_object:
-                return 0
+        # No object with that Guid? Return.
+        if not world_object:
+            return 0
 
-            messages: list[str] = world_object.get_debug_messages(player_mgr)
-            data = pack(
-                '<QI',
-                guid,
-                len(messages)
+        messages: list[str] = world_object.get_debug_messages(player_mgr)
+        data = pack(
+            '<QI',
+            guid,
+            len(messages)
+        )
+
+        for message in messages:
+            message_bytes = PacketWriter.string_to_bytes(message[:127])  # Max length is 128 (127 + null byte).
+            data += pack(
+                f'<{len(message_bytes)}s',
+                message_bytes
             )
 
-            for message in messages:
-                message_bytes = PacketWriter.string_to_bytes(message[:127])  # Max length is 128 (127 + null byte).
-                data += pack(
-                    f'<{len(message_bytes)}s',
-                    message_bytes
-                )
+        # This is only useful for dev accounts in case they want to interact with objects through commands.
+        if world_session.account_mgr.is_dev():
+            player_mgr.last_debug_ai_state_object = world_object
 
-            # This is only useful for dev accounts in case they want to interact with objects through commands.
-            if world_session.account_mgr.is_dev():
-                player_mgr.last_debug_ai_state_object = world_object
-
-            player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DEBUG_AISTATE, data))
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DEBUG_AISTATE, data))
 
         return 0

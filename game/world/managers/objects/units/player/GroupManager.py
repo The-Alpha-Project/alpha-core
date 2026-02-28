@@ -307,8 +307,6 @@ class GroupManager:
 
     # Called once upon victim dead.
     def set_allowed_looters(self, victim):
-        if victim.guid in self.allowed_looters:
-            return
         self.allowed_looters[victim.guid] = self._fill_allowed_looters()
 
     # Get allowed looters for specific creature.
@@ -334,8 +332,8 @@ class GroupManager:
 
     # noinspection PyMethodMayBeStatic
     def is_close_member(self, requester, player_mgr):
-        return requester and player_mgr and player_mgr.online and requester.map_id == player_mgr.map_id and \
-               requester.location.distance(player_mgr.location) < Distances.GROUP_SHARING_DISTANCE
+        return requester and player_mgr and player_mgr.online and \
+            Distances.is_within_group_share_distance(requester, player_mgr)
 
     def reward_group_reputation(self, requester, creature):
         for player_mgr in self.get_close_members(requester):

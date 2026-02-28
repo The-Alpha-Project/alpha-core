@@ -17,7 +17,7 @@ from game.world.managers.objects.units.creature.groups.CreatureGroupManager impo
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
-from utils.Formulas import Distances, UnitFormulas
+from utils.Formulas import Distances
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
@@ -319,6 +319,9 @@ class CreatureManager(UnitManager):
 
         self.loading = False
         self.fully_loaded = True
+
+    def get_bounding_radius(self):
+        return super().get_bounding_radius()
 
     def set_virtual_equipment(self, slot, item_id):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
@@ -1052,7 +1055,7 @@ class CreatureManager(UnitManager):
             detection_range -= max(-25, min(self.level - unit.level, 25))
 
         # Minimum aggro radius seems to be combat distance.
-        detection_range = max(detection_range, UnitFormulas.combat_distance(self, unit))
+        detection_range = max(detection_range, Distances.combat_distance(self, unit))
         return detection_range
 
     # Automatically set/remove swimming move flag on units.

@@ -20,7 +20,7 @@ from game.world.managers.objects.units.player.StatManager import StatManager, Un
 from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
-from utils.Formulas import UnitFormulas
+from utils.Formulas import Distances, UnitFormulas
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
@@ -234,8 +234,7 @@ class UnitManager(ObjectManager):
         return self.guid
 
     def is_within_interactable_distance(self, victim):
-        current_distance = self.location.distance(victim.location)
-        return current_distance <= UnitFormulas.interactable_distance(self, victim)
+        return Distances.is_in_range(self, victim, Distances.interactable_distance(self, victim))
 
     # override
     def is_hostile_to(self, target):
@@ -273,12 +272,12 @@ class UnitManager(ObjectManager):
         if not target.is_alive:
             return False
 
-        # Sanctuary.
-        if target.unit_state & UnitStates.SANCTUARY:
+        # Evading units should not be attackable while returning home.
+        if target.is_evading:
             return False
 
-        # Fleeing.
-        if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+        # Sanctuary.
+        if target.unit_state & UnitStates.SANCTUARY:
             return False
 
         # Beastmaster.
@@ -325,6 +324,10 @@ class UnitManager(ObjectManager):
 
     def attack(self, victim: UnitManager, from_script=False):
         if not victim or victim == self:
+            return False
+
+        # Evading units should not engage or be engaged in combat.
+        if self.is_evading or victim.is_evading:
             return False
 
         # Dead units can neither attack nor be attacked
@@ -1748,7 +1751,7 @@ class UnitManager(ObjectManager):
             return True
         return False
 
-    def unmount(self):
+    def unmount(self, from_aura=False):
         self.mount_display_id = 0
         packet = PacketWriter.get_packet(OpCode.SMSG_PUREMOUNT_CANCELLED, data=pack(f'<Q', self.guid))
         self.get_map().send_surrounding(packet, self, include_self=self.is_player())
@@ -2124,6 +2127,12 @@ class UnitManager(ObjectManager):
     def set_bounding_radius(self, bounding_radius):
         self.bounding_radius = bounding_radius
         self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
+
+    def get_bounding_radius(self):
+        return super().get_bounding_radius()
+
+    def get_combat_reach(self):
+        return max(0.0, self.combat_reach or 0.0)
 
     # Implemented by CreatureManager
     def has_melee(self):

@@ -7,17 +7,31 @@ from utils.Logger import Logger
 from utils.constants.ScriptCodes import ScriptTarget, AttackingTarget
 
 
+VMANGOS_SHIFTED_TARGET_ALIASES = {
+    # TODO: VMaNGOS inserted target types 6/7 and migrated data with +2 for target_type > 5.
+    #  Our current world data is still mostly in pre-shift numbering, but some rows may
+    #  leak in with shifted values. These aliases keep those rows functional.
+    28: ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY,
+    29: ScriptTarget.TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY
+}
+
+
 class ScriptManager:
-    def __init__(self):
-        pass
 
     @staticmethod
     # This can return either UnitManager or GameObjectManager. (Both have spell managers and aura managers)
     def get_target_by_type(caster, target, target_type, param1=None, param2=None, spell_template=None):
-        try:
-            return SCRIPT_TARGETS[target_type](caster, target, param1, param2, spell_template)
-        except KeyError:
-            Logger.warning(f'Unknown target type {target_type}.')
+        resolver = SCRIPT_TARGETS.get(target_type)
+        if not resolver:
+            aliased_target_type = VMANGOS_SHIFTED_TARGET_ALIASES.get(target_type)
+            if aliased_target_type is not None:
+                Logger.debug(f'Remapping shifted script target type {target_type} -> {aliased_target_type}.')
+                resolver = SCRIPT_TARGETS.get(aliased_target_type)
+
+        if resolver:
+            return resolver(caster, target, param1, param2, spell_template)
+
+        Logger.warning(f'Unknown target type {target_type}.')
         return None
 
     @staticmethod

@@ -1,15 +1,28 @@
 from struct import unpack
 from game.world.managers.objects.units.creature.utils.VendorUtils import VendorUtils
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
 class BuyItemHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        if len(reader.data) >= 13:  # Avoid handling empty buy item packet.
-            vendor_guid, item, count, auto_equip = unpack('<QI2B', reader.data[:14])
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
 
-            if vendor_guid > 0:
-                VendorUtils.handle_buy_item(world_session.player_mgr, vendor_guid, item, count)
+        if not player_mgr.is_alive:
+            return 0
+
+        # Avoid handling an empty/truncated buy item packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=14):
+            return 0
+
+        vendor_guid, item, count, _auto_equip = unpack('<QI2B', reader.data[:14])
+        if vendor_guid <= 0:
+            return 0
+
+        VendorUtils.handle_buy_item(player_mgr, vendor_guid, item, count)
 
         return 0

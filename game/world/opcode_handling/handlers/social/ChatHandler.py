@@ -1,6 +1,7 @@
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.CommandManager import CommandManager
 from game.world.managers.objects.units.ChatManager import ChatManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ChatMsgs, Languages
@@ -10,15 +11,18 @@ class ChatHandler:
 
     @staticmethod
     def handle(world_session, reader):
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        if not player_mgr:
+            return res
+        # Avoid handling an empty or truncated packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):
+            return 0
+
         chat_type, lang = unpack('<2I', reader.data[:8])
         message = ''
 
-        # Return if no player.
-        if not world_session.player_mgr:
-            return 0
-
-        if world_session.player_mgr.language_mod > -1:
-            lang = world_session.player_mgr.language_mod
+        if player_mgr.language_mod > -1:
+            lang = player_mgr.language_mod
 
         # Override language to universal for GMs.
         if world_session.account_mgr.is_gm():
@@ -28,14 +32,14 @@ class ChatHandler:
         if chat_type == ChatMsgs.CHAT_MSG_CHANNEL:
             channel_name = PacketReader.read_string(reader.data, 8).strip()
             message = PacketReader.read_string(reader.data, 8 + len(channel_name)+1)
-            ChatManager.send_channel_message(world_session.player_mgr, channel_name, message, lang)
+            ChatManager.send_channel_message(player_mgr, channel_name, message, lang)
         # Say, Yell, Emote.
         elif chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \
                 or chat_type == ChatMsgs.CHAT_MSG_YELL:
             message = PacketReader.read_string(reader.data, 8)
-            guid = world_session.player_mgr.guid
-            chat_flags = world_session.player_mgr.chat_flags
+            guid = player_mgr.guid
+            chat_flags = player_mgr.chat_flags
 
             # Only send message if it's not a command.
             if not ChatHandler.check_if_command(world_session, message):
@@ -53,44 +57,44 @@ class ChatHandler:
                 # Always whisper in universal language when speaking with a GM.
                 if target_player_mgr.session.account_mgr.is_gm():
                     lang = Languages.LANG_UNIVERSAL
-                ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, lang)
+                ChatManager.send_whisper(player_mgr, target_player_mgr, message, lang)
             return 0
         # Party.
         elif chat_type == ChatMsgs.CHAT_MSG_PARTY:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)
-                ChatManager.send_party(world_session.player_mgr, message, lang)
+                ChatManager.send_party(player_mgr, message, lang)
             return 0
         # Guild.
         elif chat_type == ChatMsgs.CHAT_MSG_GUILD or chat_type == ChatMsgs.CHAT_MSG_OFFICER:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)
-                ChatManager.send_guild(world_session.player_mgr, message, lang, chat_type)
+                ChatManager.send_guild(player_mgr, message, lang, chat_type)
             return 0
         # AFK.
         elif chat_type == ChatMsgs.CHAT_MSG_AFK:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)
-                if message and message != world_session.player_mgr.afk_message:
-                    world_session.player_mgr.afk_message = message
+                if message and message != player_mgr.afk_message:
+                    player_mgr.afk_message = message
 
-                if not message or not world_session.player_mgr.is_afk():
-                    world_session.player_mgr.toggle_afk()
+                if not message or not player_mgr.is_afk():
+                    player_mgr.toggle_afk()
 
-                if world_session.player_mgr.is_afk() and world_session.player_mgr.is_dnd():
-                    world_session.player_mgr.toggle_dnd()
+                if player_mgr.is_afk() and player_mgr.is_dnd():
+                    player_mgr.toggle_dnd()
         # DND.
         elif chat_type == ChatMsgs.CHAT_MSG_DND:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)
-                if message or not world_session.player_mgr.is_dnd():
-                    world_session.player_mgr.dnd_message = message
+                if message or not player_mgr.is_dnd():
+                    player_mgr.dnd_message = message
 
-                if not message or not world_session.player_mgr.is_dnd():
-                    world_session.player_mgr.toggle_dnd()
+                if not message or not player_mgr.is_dnd():
+                    player_mgr.toggle_dnd()
 
-                if world_session.player_mgr.is_afk() and world_session.player_mgr.is_dnd():
-                    world_session.player_mgr.toggle_afk()
+                if player_mgr.is_afk() and player_mgr.is_dnd():
+                    player_mgr.toggle_afk()
 
         return 0
 

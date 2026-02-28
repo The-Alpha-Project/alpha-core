@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from struct import unpack
 
 from network.packet.PacketWriter import *
@@ -16,11 +17,13 @@ class LookingForGroupHandler:
 
     @staticmethod
     def handle_set(world_session, reader):
-        if len(reader.data) >= 4:  # Avoid handling empty LFG set packet.
-            is_lfg = bool(unpack('<I', reader.data[:4])[0])
+        # Avoid handling an empty LFG set packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        is_lfg = bool(unpack('<I', reader.data[:4])[0])
 
-            if world_session.player_mgr.group_status != WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY:
-                world_session.player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_LFG if is_lfg \
-                    else WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
+        if world_session.player_mgr.group_status != WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY:
+            world_session.player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_LFG if is_lfg \
+                else WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
 
         return 0

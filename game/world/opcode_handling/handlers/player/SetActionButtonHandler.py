@@ -13,21 +13,23 @@ class SetActionButtonHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 5:  # Avoid handling empty set action button packet.
-            index, action = unpack('<Bi', reader.data[:5])
+        # Avoid handling an empty set action button packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=5):
+            return 0
+        index, action = unpack('<Bi', reader.data[:5])
 
-            button = RealmDatabaseManager.character_get_button(player_mgr.player.guid, index)
-            if button:
-                if action == 0:  # Delete
-                    RealmDatabaseManager.character_delete_button(button)
-                else:  # Update
-                    button.action = action
-                    RealmDatabaseManager.character_update_button(button)
-            elif index or action:
-                button = CharacterButton()
-                button.owner = player_mgr.player.guid
-                button.index = index
+        button = RealmDatabaseManager.character_get_button(player_mgr.player.guid, index)
+        if button:
+            if action == 0:  # Delete
+                RealmDatabaseManager.character_delete_button(button)
+            else:  # Update
                 button.action = action
-                RealmDatabaseManager.character_add_button(button)
+                RealmDatabaseManager.character_update_button(button)
+        elif index or action:
+            button = CharacterButton()
+            button.owner = player_mgr.player.guid
+            button.index = index
+            button.action = action
+            RealmDatabaseManager.character_add_button(button)
 
         return 0

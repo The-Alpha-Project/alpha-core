@@ -14,17 +14,19 @@ class RandomRollHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 8:  # Avoid handling empty random roll packet.
-            minimum, maximum = unpack('<2I', reader.data[:8])
+        # Avoid handling an empty random roll packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):
+            return 0
+        minimum, maximum = unpack('<2I', reader.data[:8])
 
-            roll = randint(minimum, maximum)
+        roll = randint(minimum, maximum)
 
-            roll_packet = PacketWriter.get_packet(OpCode.MSG_RANDOM_ROLL,
-                                                  pack('<3IQ', minimum, maximum, roll, player_mgr.guid))
+        roll_packet = PacketWriter.get_packet(OpCode.MSG_RANDOM_ROLL,
+                                              pack('<3IQ', minimum, maximum, roll, player_mgr.guid))
 
-            if player_mgr.group_manager and player_mgr.group_manager.is_party_formed():
-                player_mgr.group_manager.send_packet_to_members(roll_packet, use_ignore=True)
-            else:
-                player_mgr.enqueue_packet(roll_packet)
+        if player_mgr.group_manager and player_mgr.group_manager.is_party_formed():
+            player_mgr.group_manager.send_packet_to_members(roll_packet, use_ignore=True)
+        else:
+            player_mgr.enqueue_packet(roll_packet)
 
         return 0

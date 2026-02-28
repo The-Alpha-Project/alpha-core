@@ -13,6 +13,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.opcode_handling.Definitions import Definitions
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
@@ -121,6 +122,8 @@ class WorldServerSessionHandler:
                 if not packet or not self.keep_alive:  # Can be None if we shut down the thread.
                     break
                 if not packet.opcode:
+                    continue
+                if not HandlerValidator.validate_opcode_packet_length(packet):
                     continue
                 handler, found = Definitions.get_handler_from_packet(self, packet.opcode)
                 if handler:

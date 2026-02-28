@@ -2,6 +2,7 @@ from struct import pack
 
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from network.packet.PacketWriter import PacketWriter
+from utils.Formulas import Distances
 from utils.constants.MiscCodes import TradeStatus
 from utils.constants.OpCodes import OpCode
 
@@ -18,6 +19,30 @@ class TradeManager:
         if not other_player or not other_player.trade_data or other_player.trade_data.other_player != player:
             # Drop stale non-reciprocal trade data to prevent "always busy" lockups.
             player.trade_data = None
+            return False
+
+        return True
+
+    @staticmethod
+    def fail_trade_too_far(player):
+        if not player or not player.trade_data:
+            return
+
+        other_player = player.trade_data.other_player
+        player.trade_data = None
+        TradeManager.send_trade_status(player, TradeStatus.TRADE_STATUS_TOO_FAR_AWAY)
+
+        if other_player and other_player.trade_data and other_player.trade_data.other_player == player:
+            other_player.trade_data = None
+            TradeManager.send_trade_status(other_player, TradeStatus.TRADE_STATUS_TOO_FAR_AWAY)
+
+    @staticmethod
+    def validate_active_trade(player):
+        if not TradeManager.has_active_trade(player):
+            return False
+
+        if not Distances.is_within_trade_distance(player, player.trade_data.other_player):
+            TradeManager.fail_trade_too_far(player)
             return False
 
         return True

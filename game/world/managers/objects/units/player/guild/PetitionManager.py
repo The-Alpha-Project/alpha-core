@@ -39,36 +39,64 @@ class PetitionManager:
         return packet
 
     @staticmethod
-    def sign_petition(petition, signer_player, petition_owner_player):
+    def sign_petition(petition, signer_player, petition_owner_player=None):
+        if not petition or not signer_player:
+            return
+
+        if petition.owner_guid == signer_player.guid:
+            PetitionManager.send_petition_sign_result(signer_player, PetitionError.PETITION_CHARTER_CREATOR)
+            return
+
+        if signer_player.guild_manager:
+            PetitionManager.send_petition_sign_result(signer_player, PetitionError.PETITION_ALREADY_IN_GUILD)
+            return
+
+        if any(signer.guid == signer_player.guid for signer in petition.characters):
+            PetitionManager.send_petition_sign_result(signer_player, PetitionError.PETITION_ALREADY_SIGNED)
+            return
+
+        if len(petition.characters) >= 9:
+            return
+
         petition.characters.append(signer_player.player)
         RealmDatabaseManager.guild_petition_update(petition)
         PetitionManager.send_petition_sign_result(signer_player, PetitionError.PETITION_SUCCESS)
-        PetitionManager.send_petition_sign_result(petition_owner_player, PetitionError.PETITION_SUCCESS)
+        if petition_owner_player:
+            PetitionManager.send_petition_sign_result(petition_owner_player, PetitionError.PETITION_SUCCESS)
 
     @staticmethod
     def turn_in_petition(player_mgr, petition_owner, petition):
-        if petition and petition_owner:
-            if petition_owner != player_mgr.guid:
-                PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_CHARTER_CREATOR)
-            elif len(petition.characters) < 9:
-                PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_NOT_ENOUGH_SIGNATURES)
-            elif player_mgr.guild_manager:
-                PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_ALREADY_IN_GUILD)
-            else:
-                # If not able to create a guild, GuildManager will report the error.
-                if GuildManager.create_guild(player_mgr, petition.name, petition=petition):
-                    data = pack('<I', PetitionError.PETITION_SUCCESS)
-                    packet = PacketWriter.get_packet(OpCode.SMSG_TURN_IN_PETITION_RESULTS, data)
-                    player_mgr.enqueue_packet(packet)
-                    RealmDatabaseManager.guild_petition_destroy(petition)
-                    player_mgr.inventory.remove_items(PetitionManager.CHARTER_ENTRY, 1)
-        else:
-            PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_UNKNOWN_ERROR)
+        if not petition or not petition_owner:
+            PetitionManager.send_petition_turn_in_result(player_mgr, PetitionError.PETITION_UNKNOWN_ERROR)
+            return
+
+        if player_mgr.guild_manager:
+            PetitionManager.send_petition_turn_in_result(player_mgr, PetitionError.PETITION_ALREADY_IN_GUILD)
+            return
+
+        if petition_owner != player_mgr.guid:
+            return
+
+        if len(petition.characters) < 9:
+            PetitionManager.send_petition_turn_in_result(player_mgr, PetitionError.PETITION_NOT_ENOUGH_SIGNATURES)
+            return
+
+        # If not able to create a guild, GuildManager will report the error.
+        if GuildManager.create_guild(player_mgr, petition.name, petition=petition):
+            PetitionManager.send_petition_turn_in_result(player_mgr, PetitionError.PETITION_SUCCESS)
+            RealmDatabaseManager.guild_petition_destroy(petition)
+            player_mgr.inventory.remove_items(PetitionManager.CHARTER_ENTRY, 1)
 
     @staticmethod
     def send_petition_sign_result(player_mgr, result):
         data = pack('<I', result)
         packet = PacketWriter.get_packet(OpCode.SMSG_PETITION_SIGN_RESULTS, data)
+        player_mgr.enqueue_packet(packet)
+
+    @staticmethod
+    def send_petition_turn_in_result(player_mgr, result):
+        data = pack('<I', result)
+        packet = PacketWriter.get_packet(OpCode.SMSG_TURN_IN_PETITION_RESULTS, data)
         player_mgr.enqueue_packet(packet)
 
     @staticmethod

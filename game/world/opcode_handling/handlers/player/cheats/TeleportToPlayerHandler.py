@@ -17,11 +17,13 @@ class TeleportToPlayerHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to port to a player.')
             return 0
 
-        if len(reader.data) >= 1:  # Avoid handling empty teleport to player packet.
-            player_name: str = PacketReader.read_string(reader.data, 0)
-            result = CommandManager.goplayer(world_session, player_name)
+        # Avoid handling an empty teleport to player packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=1):
+            return 0
+        player_name: str = PacketReader.read_string(reader.data, 0)
+        result = CommandManager.goplayer(world_session, player_name)
 
-            if result[0] == -1:
-                CommandManager.tel(world_session, player_name)
+        if result[0] == -1:
+            CommandManager.tel(world_session, player_name)
 
         return 0
