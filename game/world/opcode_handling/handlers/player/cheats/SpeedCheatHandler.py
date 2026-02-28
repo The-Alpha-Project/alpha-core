@@ -17,15 +17,17 @@ class SpeedCheatHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to modify speed.')
             return -1
 
-        if len(reader.data) >= 52:  # Avoid handling empty speed cheat packet.
-            speed = unpack('<f', reader.data[48:52])[0]
-            if reader.opcode == OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT:
-                player_mgr.change_speed(SpeedType.RUN, speed)
-            elif reader.opcode == OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT:
-                player_mgr.change_speed(SpeedType.SWIM, speed)
-            elif reader.opcode == OpCode.MSG_MOVE_SET_WALK_SPEED_CHEAT:
-                player_mgr.change_speed(SpeedType.WALK, speed)
-            elif reader.opcode == OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT:
-                player_mgr.change_speed(SpeedType.TURN, speed)
+        # Avoid handling an empty speed cheat packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=52):
+            return 0
+        speed = unpack('<f', reader.data[48:52])[0]
+        if reader.opcode == OpCode.MSG_MOVE_SET_RUN_SPEED_CHEAT:
+            player_mgr.change_speed(SpeedType.RUN, speed)
+        elif reader.opcode == OpCode.MSG_MOVE_SET_SWIM_SPEED_CHEAT:
+            player_mgr.change_speed(SpeedType.SWIM, speed)
+        elif reader.opcode == OpCode.MSG_MOVE_SET_WALK_SPEED_CHEAT:
+            player_mgr.change_speed(SpeedType.WALK, speed)
+        elif reader.opcode == OpCode.MSG_MOVE_SET_TURN_RATE_CHEAT:
+            player_mgr.change_speed(SpeedType.TURN, speed)
 
         return 0

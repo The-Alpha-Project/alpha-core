@@ -1,4 +1,6 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from struct import unpack
+from utils.Formulas import Distances
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
@@ -8,9 +10,11 @@ class AutostoreLootItemHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        if len(reader.data) >= 1:  # Avoid handling empty autostore loot item packet.
-            slot = unpack('<B', reader.data[:1])[0]
-            AutostoreLootItemHandler._loot_item(world_session.player_mgr, slot)
+        # Avoid handling an empty autostore loot item packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=1):
+            return 0
+        slot = unpack('<B', reader.data[:1])[0]
+        AutostoreLootItemHandler._loot_item(world_session.player_mgr, slot)
 
         return 0
 
@@ -29,8 +33,14 @@ class AutostoreLootItemHandler:
                 world_obj_target = player_mgr.inventory.get_item_by_guid(player_mgr.loot_selection.object_guid)
 
             if world_obj_target:
+                if high_guid in {HighGuid.HIGHGUID_UNIT, HighGuid.HIGHGUID_PET, HighGuid.HIGHGUID_GAMEOBJECT} \
+                        and not Distances.is_within_loot_distance(player_mgr, world_obj_target):
+                    player_mgr.send_loot_release(player_mgr.loot_selection)
+                    return
+
                 loot_manager = player_mgr.loot_selection.get_loot_manager(world_obj_target)
                 if loot_manager:
                     loot_manager.loot_item_in_slot(slot, requester=player_mgr)
             else:
+                player_mgr.send_loot_release(player_mgr.loot_selection)
                 Logger.error(f'Unable to loot item for object {high_guid} at slot {slot}, object not found.')

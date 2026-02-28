@@ -6,6 +6,7 @@ from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import TrainerTemplate
 from network.packet.PacketWriter import PacketWriter
+from utils.Formulas import Distances
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.TextUtils import GameTextFormatter
@@ -198,7 +199,7 @@ class TrainerUtils:
         if not creature_mgr.is_trainer():
             return False
 
-        if not creature_mgr.is_within_interactable_distance(player_mgr) and not player_mgr.is_gm:
+        if not player_mgr.is_gm and not Distances.is_within_shop_distance(player_mgr, creature_mgr):
             return False
 
         # If expecting a specific class, check if they match.

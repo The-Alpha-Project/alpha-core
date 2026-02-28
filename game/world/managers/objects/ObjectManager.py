@@ -219,6 +219,12 @@ class ObjectManager:
     def get_display_id(self):
         return self.current_display_id
 
+    def get_bounding_radius(self):
+        return max(0.0, self.bounding_radius or 0.0)
+
+    def get_combat_reach(self):
+        return 0.0
+
     def set_display_id(self, display_id):
         self.current_display_id = display_id
         return True

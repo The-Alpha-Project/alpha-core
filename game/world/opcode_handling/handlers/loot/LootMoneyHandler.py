@@ -1,4 +1,5 @@
 from network.packet.PacketWriter import PacketWriter
+from utils.Formulas import Distances
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
@@ -27,7 +28,13 @@ class LootMoneyHandler:
                 return
 
             if not world_object:
+                player_mgr.send_loot_release(player_mgr.loot_selection)
                 Logger.error(f'Unable to loot money for object {high_guid}, object not found.')
+                return
+
+            if high_guid in {HighGuid.HIGHGUID_GAMEOBJECT, HighGuid.HIGHGUID_UNIT, HighGuid.HIGHGUID_PET} \
+                    and not Distances.is_within_loot_distance(player_mgr, world_object):
+                player_mgr.send_loot_release(player_mgr.loot_selection)
                 return
 
             loot_manager = player_mgr.loot_selection.get_loot_manager(world_object)

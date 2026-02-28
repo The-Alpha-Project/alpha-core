@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from struct import unpack
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
 
@@ -5,15 +6,17 @@ from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpell
 class UseItemHandler:
     @staticmethod
     def handle(world_session, reader):
-        if len(reader.data) >= 5:  # Avoid handling empty use item packet.
-            bag, slot, spell_slot, target_mask = unpack('<3BH', reader.data[:5])
+        # Avoid handling an empty use item packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=5):
+            return 0
+        bag, slot, spell_slot, target_mask = unpack('<3BH', reader.data[:5])
 
-            item = world_session.player_mgr.inventory.get_item(bag, slot)
-            if not item:
-                return 0
+        item = world_session.player_mgr.inventory.get_item(bag, slot)
+        if not item:
+            return 0
 
-            target_bytes = reader.data[5:]
-            target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
+        target_bytes = reader.data[5:]
+        target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
 
-            world_session.player_mgr.spell_manager.handle_item_cast_attempt(item, target, target_mask, spell_slot)
+        world_session.player_mgr.spell_manager.handle_item_cast_attempt(item, target, target_mask, spell_slot)
         return 0

@@ -18,7 +18,7 @@ from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.Formulas import UnitFormulas
+from utils.Formulas import Distances
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
@@ -551,7 +551,7 @@ class SpellEffectHandler:
         # Generate a point within combat reach and facing the target.
         # It wasn't until Patch 0.6 that Charge sped you along a path towards the target, it just teleported you
         # next to the target (there's also video evidence of this behavior).
-        distance = caster.location.distance(target.location) - UnitFormulas.combat_distance(leaper, target)
+        distance = caster.location.distance(target.location) - Distances.combat_distance(leaper, target)
         charge_location = caster.location.get_point_in_between(caster, distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
 

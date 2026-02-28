@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
+from utils.Formulas import Distances
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
@@ -242,7 +243,7 @@ class GameObjectManager(ObjectManager):
 
     def is_within_interactable_distance(self, victim):
         # TODO: https://github.com/cmangos/mangos-tbc/blob/master/src/game/Entities/GameObject.cpp#L2438
-        return self.location.distance(victim.location) <= 6.0
+        return Distances.is_within_gameobject_interact_distance(self, victim)
 
     # Client only accepts anim values 0-3 and labels them Custom0-3.
     # The effect might depend on the gameobject type, apparently. e.g., Fishing bobber does its animation by sending 0.

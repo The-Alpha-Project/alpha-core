@@ -17,8 +17,10 @@ class GMSummonHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to summon a player.')
             return 0
 
-        if len(reader.data) >= 1:  # Avoid handling empty gm summon packet.
-            player_name: str = PacketReader.read_string(reader.data, 0)
-            CommandManager.summon(world_session, player_name)
+        # Avoid handling an empty gm summon packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=1):
+            return 0
+        player_name: str = PacketReader.read_string(reader.data, 0)
+        CommandManager.summon(world_session, player_name)
 
         return 0

@@ -4,6 +4,7 @@ from database.dbc.DbcModels import Spell
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from utils.Formulas import Distances
 from utils.constants.SpellCodes import SpellTargetMask
 from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -21,16 +22,19 @@ class TrainerBuySpellHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 12:  # Avoid handling empty trainer buy spell packet.
-            trainer_guid: int = unpack('<Q', reader.data[:8])[0]
-            training_spell_id: int = unpack('<I', reader.data[8:12])[0]
+        # Avoid handling an empty trainer buy spell packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=12):
+            return 0
 
-            # If the guid equals to player guid, training through a talent.
-            if trainer_guid == world_session.player_mgr.guid:
-                TrainerBuySpellHandler.handle_player_buy_spell(player_mgr, training_spell_id)
-            # NPC Trainer.
-            else:
-                TrainerBuySpellHandler.handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id)
+        trainer_guid: int = unpack('<Q', reader.data[:8])[0]
+        training_spell_id: int = unpack('<I', reader.data[8:12])[0]
+
+        # If the guid equals to player guid, training through a talent.
+        if trainer_guid == player_mgr.guid:
+            TrainerBuySpellHandler.handle_player_buy_spell(player_mgr, training_spell_id)
+            return 0
+
+        TrainerBuySpellHandler.handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id)
 
         return 0
 
@@ -91,7 +95,17 @@ class TrainerBuySpellHandler:
     @staticmethod
     def handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id):
         unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, trainer_guid)
+        if not unit:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
+            return
+
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(unit.entry)
+        if not creature_template:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
+            return
+
         trainer_templates = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(creature_template.entry)
 
         trainer_spell = None
@@ -131,7 +145,7 @@ class TrainerBuySpellHandler:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
         elif not player_mgr.spell_manager.can_learn_spell(player_spell.ID):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-        elif not player_mgr.is_gm and not unit.is_within_interactable_distance(player_mgr):
+        elif not player_mgr.is_gm and not Distances.is_within_shop_distance(player_mgr, unit):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
 

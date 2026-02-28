@@ -17,8 +17,10 @@ class CheatSetMoneyHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to give himself money.')
             return 0
 
-        if len(reader.data) >= 4:  # Avoid handling empty cheat set money packet.
-            new_money = unpack('<I', reader.data[:4])[0]
-            player_mgr.mod_money(new_money)
+        # Avoid handling an empty cheat set money packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        new_money = unpack('<I', reader.data[:4])[0]
+        player_mgr.mod_money(new_money)
 
         return 0

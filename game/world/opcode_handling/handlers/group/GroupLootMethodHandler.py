@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from struct import unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -9,23 +10,36 @@ class GroupLootMethodHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        if len(reader.data) >= 12:  # Avoid handling empty group loot method packet.
-            loot_method, loot_master = unpack('<IQ', reader.data[:12])
-            target_player_mgr = None
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        if not player_mgr:
+            return res
 
-            if not world_session.player_mgr.group_manager:
-                GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
-                                                         PartyResults.ERR_NOT_IN_GROUP)
-            if world_session.player_mgr.guid != world_session.player_mgr.group_manager.group.leader_guid:
-                GroupManager.send_group_operation_result(world_session.player_mgr, PartyOperations.PARTY_OP_INVITE,
-                                                         '', PartyResults.ERR_NOT_LEADER)
+        # Avoid handling an empty group loot method packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=12):
+            return 0
+        loot_method, loot_master = unpack('<IQ', reader.data[:12])
+        group_manager = player_mgr.group_manager
 
-            if loot_master > 0:
-                target_player_mgr = RealmDatabaseManager.character_get_by_guid(loot_master)
+        if not group_manager:
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
+                                                     PartyResults.ERR_NOT_IN_GROUP)
+            return 0
 
-            if target_player_mgr:
-                world_session.player_mgr.group_manager.set_loot_method(loot_method, master_looter_guid=target_player_mgr.guid)
-            else:
-                world_session.player_mgr.group_manager.set_loot_method(loot_method)
+        if player_mgr.guid != group_manager.group.leader_guid:
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                     '', PartyResults.ERR_NOT_LEADER)
+            return 0
+
+        if loot_master <= 0:
+            group_manager.set_loot_method(loot_method)
+            return 0
+
+        target_player_mgr = RealmDatabaseManager.character_get_by_guid(loot_master)
+        if target_player_mgr:
+            group_manager.set_loot_method(loot_method, master_looter_guid=target_player_mgr.guid)
+            return 0
+
+        group_manager.set_loot_method(loot_method)
 
         return 0

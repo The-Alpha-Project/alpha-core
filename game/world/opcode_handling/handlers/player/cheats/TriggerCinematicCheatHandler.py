@@ -21,10 +21,12 @@ class TriggerCinematicCheatHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to force trigger a cinematic.')
             return 0
 
-        if len(reader.data) >= 4:  # Avoid handling empty trigger cinematic cheat packet.
-            cinematic_id = unpack('<I', reader.data[:4])[0]
-            if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
-                data = pack('<I', cinematic_id)
-                player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+        # Avoid handling an empty trigger cinematic cheat packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        cinematic_id = unpack('<I', reader.data[:4])[0]
+        if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
+            data = pack('<I', cinematic_id)
+            player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
         return 0

@@ -20,9 +20,14 @@ class WorldTeleportHandler:
             return 0
 
         if world_session.account_mgr.is_gm():
-            if len(reader.data) >= 21:  # Avoid handling empty world teleport packet.
+            # Avoid handling an empty world teleport packet.
+            if not HandlerValidator.validate_packet_length(reader, allowed_lengths=(21, 24)):
+                return 0
+            if len(reader.data) == 21:
                 pack_guid, map_, x, y, z, o = unpack('<IB4f', reader.data[:21])
-                world_session.player_mgr.teleport(map_, Vector(x, y, z, o))
+            else:
+                pack_guid, map_, x, y, z, o = unpack('<II4f', reader.data[:24])
+            world_session.player_mgr.teleport(map_, Vector(x, y, z, o))
         else:
             Logger.anticheat(f'Player {world_session.player_mgr.get_name()} ({world_session.player_mgr.guid}) tried to teleport himself.')
 

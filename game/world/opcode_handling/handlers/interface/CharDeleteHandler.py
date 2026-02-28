@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from struct import unpack
 
 from database.realm.RealmDatabaseManager import *
@@ -13,8 +14,10 @@ class CharDeleteHandler:
     @staticmethod
     def handle(world_session, reader):
         guid = 0
-        if len(reader.data) >= 8:  # Avoid handling empty area char delete packet.
-            guid = unpack('<Q', reader.data[:8])[0]
+        # Avoid handling an empty area char delete packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):
+            return 0
+        guid = unpack('<Q', reader.data[:8])[0]
 
         res = CharDelete.CHAR_DELETE_SUCCESS
         # Prevent Guild Masters from deleting their character.

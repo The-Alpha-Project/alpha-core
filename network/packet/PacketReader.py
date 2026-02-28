@@ -4,15 +4,33 @@ from utils.constants.OpCodes import OpCode
 
 
 class PacketReader:
+    __slots__ = ('size', 'opcode', '_data', '_packet_len_cache', '_validated_opcode_length_rule')
+
     def __init__(self, data):
         if len(data) > 5:
             self.size = unpack('>H', data[:2])[0] - 4  # Big Endian
             self.opcode = unpack('<I', data[2:6])[0]
-            self.data = data[6:]
+            payload = data[6:]
         else:
             self.size = 0
             self.opcode = 0
-            self.data = bytearray()
+            payload = bytearray()
+
+        self._packet_len_cache = None
+        self._validated_opcode_length_rule = None
+        self._data = b''
+        self.data = payload
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+        # Length-related caches depend on payload bytes.
+        self._packet_len_cache = None
+        self._validated_opcode_length_rule = None
 
     def opcode_str(self):
         return OpCode(self.opcode).name

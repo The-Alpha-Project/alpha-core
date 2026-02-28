@@ -1,5 +1,4 @@
 import time
-from random import randint
 from struct import pack
 from typing import Optional
 
@@ -23,6 +22,7 @@ from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from network.packet.PacketWriter import PacketWriter
+from utils.Formulas import Distances
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags, ItemSpellTriggerType
 from utils.constants.MiscCodes import HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, ItemBondingTypes, \
@@ -362,7 +362,7 @@ class SpellManager:
         return spell if self.validate_cast(spell) else None
 
     def start_spell_cast(self, spell: Optional[Spell] = None, spell_target=None, target_mask=SpellTargetMask.SELF,
-                         initialized_spell: Optional[CastingSpell] = None):
+                         initialized_spell: Optional[CastingSpell] = None, remove_colliding=True):
         casting_spell = self.try_initialize_spell(spell, spell_target, target_mask) \
             if not initialized_spell else initialized_spell
 
@@ -370,7 +370,8 @@ class SpellManager:
             return
 
         if not casting_spell.triggered:
-            self.remove_colliding_casts(casting_spell)
+            if remove_colliding:
+                self.remove_colliding_casts(casting_spell)
         else:
             casting_spell.cast_flags |= SpellCastFlags.CAST_FLAG_PROC
 
@@ -801,7 +802,8 @@ class SpellManager:
         current_loc = self.caster.location
         _, z_source = self.caster.get_map().calculate_z(current_loc.x, current_loc.y, current_loc.z)
         if z_source == ZSource.WMO or self.caster.is_swimming():
-            self.caster.unmount()
+            # Forced dismount: suppress NOT_MOUNTED errors.
+            self.caster.unmount(from_aura=True)
             self.caster.set_unit_state(UnitStates.SPELL_MOUNTED, active=False, index=-1)
 
     def interrupt_casting_spell(self, cooldown_penalty=0):
@@ -1172,18 +1174,17 @@ class SpellManager:
 
     def set_on_cooldown(self, casting_spell, cooldown_penalty=0):
         spell = casting_spell.spell_entry
+
+        # Creature spell lists handle cooldowns per spell slot inside CreatureAI.
+        if casting_spell.creature_spell:
+            return
+
         # Don't lock cooldown if it unlocks on aura fade and the target is immune to it.
         unlocks_on_trigger = casting_spell.unlock_cooldown_on_trigger() and \
                              not casting_spell.is_target_immune_to_aura(casting_spell.initial_target)
 
-        # If a penalty was provided or the spell comes from a creature spell,
-        # Set the spell on cooldown for the given penalty or a new cd if it is greater than the spell dbc cooldown.
-        if cooldown_penalty or casting_spell.creature_spell:
-            if not cooldown_penalty and casting_spell.creature_spell:
-                min_delay = casting_spell.creature_spell.delay_repeat_min
-                max_delay = casting_spell.creature_spell.delay_repeat_max
-                cooldown_penalty = randint(min_delay, max_delay) * 1000
-
+        # If a penalty was provided, set the spell on cooldown for the given penalty.
+        if cooldown_penalty:
             cooldown_entry = CooldownEntry(spell, time.time(), unlocks_on_trigger, cooldown_penalty=cooldown_penalty)
             # Update existent cooldown for this spell.
             self.cooldowns[spell.ID] = cooldown_entry
@@ -1258,7 +1259,7 @@ class SpellManager:
         return self.get_casting_spell(ignore_melee=True) is not None
 
     def validate_cast(self, casting_spell) -> bool:
-        if self.is_on_cooldown(casting_spell.spell_entry):
+        if not casting_spell.creature_spell and self.is_on_cooldown(casting_spell.spell_entry):
             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
@@ -1380,7 +1381,9 @@ class SpellManager:
             spell_focus_object = [go for go in self.caster.get_map().get_surrounding_gameobjects(self.caster).values()
                                   if go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS
                                   and go.gobject_template.data0 == spell_focus_type
-                                  and self.caster.location.distance(go.location) <= go.gobject_template.data1]
+                                  and Distances.is_in_range(self.caster, go,
+                                                            Distances.resolve_spell_focus_distance(
+                                                                go.gobject_template.data1))]
 
             if not spell_focus_object:
                 self.send_cast_result(
@@ -1421,10 +1424,22 @@ class SpellManager:
 
         if script_target_entries and validation_target != self.caster:
             for entry in script_target_entries:
-                req_type = ObjectTypeIds.ID_UNIT if entry.target_type == SpellScriptTarget.TARGET_UNIT \
-                    else ObjectTypeIds.ID_GAMEOBJECT
+                if entry.target_type == SpellScriptTarget.TARGET_GAMEOBJECT:
+                    req_type = ObjectTypeIds.ID_GAMEOBJECT
+                elif entry.target_type == SpellScriptTarget.TARGET_PLAYER:
+                    req_type = ObjectTypeIds.ID_PLAYER
+                else:
+                    req_type = ObjectTypeIds.ID_UNIT
 
                 if validation_target.get_type_id() != req_type or entry.target_entry != validation_target.entry:
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
+
+                if entry.target_type == SpellScriptTarget.TARGET_DEAD and validation_target.is_alive:
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
+                elif entry.target_type in {SpellScriptTarget.TARGET_UNIT, SpellScriptTarget.TARGET_PLAYER} and \
+                        not validation_target.is_alive:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                     return False
 

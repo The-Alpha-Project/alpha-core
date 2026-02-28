@@ -18,8 +18,10 @@ class CreateItemHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried create item.')
             return 0
 
-        if len(reader.data) >= 4:  # Avoid handling empty create item packet.
-            item_entry = unpack('<I', reader.data[:4])[0]
-            CommandManager.additem(world_session, str(item_entry))
+        # Avoid handling an empty create item packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        item_entry = unpack('<I', reader.data[:4])[0]
+        CommandManager.additem(world_session, str(item_entry))
 
         return 0

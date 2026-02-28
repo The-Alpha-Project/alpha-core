@@ -18,8 +18,10 @@ class DestroyMonsterHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried destroy monster.')
             return 0
 
-        if len(reader.data) >= 4:  # Avoid handling empty destroy monster packet.
-            creature_guid = unpack('<Q', reader.data[:8])[0]
-            CommandManager.destroymonster(world_session, str(creature_guid))
+        # Avoid handling an empty destroy monster packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=8):
+            return 0
+        creature_guid = unpack('<Q', reader.data[:8])[0]
+        CommandManager.destroymonster(world_session, str(creature_guid))
 
         return 0

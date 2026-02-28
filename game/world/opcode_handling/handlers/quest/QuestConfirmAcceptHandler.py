@@ -14,10 +14,12 @@ class QuestConfirmAcceptHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 4:  # Avoid handling empty quest confirm accept packet.
-            quest_id = unpack('<I', reader.data[:4])[0]
-            if player_mgr.quest_manager.is_quest_log_full():
-                player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTLOG_FULL))
-            else:
-                player_mgr.quest_manager.handle_accept_quest(quest_id, 0, shared=True)  # We have no npc guid.
+        # Avoid handling an empty quest confirm accept packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        quest_id = unpack('<I', reader.data[:4])[0]
+        if player_mgr.quest_manager.is_quest_log_full():
+            player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTLOG_FULL))
+        else:
+            player_mgr.quest_manager.handle_accept_quest(quest_id, 0, shared=True)  # We have no npc guid.
         return 0

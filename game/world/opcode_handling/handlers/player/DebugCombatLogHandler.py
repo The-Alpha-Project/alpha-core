@@ -22,8 +22,10 @@ class DebugCombatLogHandler:
             return 0
 
         enabled = False
-        if len(reader.data) >= 4:
-            enabled = unpack('<I', reader.data[:4])[0] != 0
+        # Avoid handling an empty or truncated packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        enabled = unpack('<I', reader.data[:4])[0] != 0
 
         player_mgr.set_unit_flag(UnitFlags.UNIT_FLAG_DEBUG_COMBAT_LOGGING, active=enabled)
         return 0

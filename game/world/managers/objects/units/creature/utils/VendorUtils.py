@@ -5,9 +5,11 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.vendors.VendorData import VendorData
 from network.packet.PacketWriter import PacketWriter
+from utils.Formulas import Distances
 from utils.Logger import Logger
-from utils.constants.MiscCodes import BuyResults
+from utils.constants.MiscCodes import BuyResults, NpcFlags
 from utils.constants.OpCodes import OpCode
+from utils.constants.ItemCodes import InventorySlots
 
 
 class VendorUtils:
@@ -80,6 +82,12 @@ class VendorUtils:
         if not vendor:
             player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_DISTANCE_TOO_FAR, item_id, vendor_guid)
             return
+        if not (vendor.get_npc_flags() & NpcFlags.NPC_FLAG_VENDOR):
+            player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_FIND_ITEM, item_id, vendor_guid)
+            return
+        if not Distances.is_within_shop_distance(player_mgr, vendor):
+            player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_DISTANCE_TOO_FAR, item_id, vendor_guid)
+            return
 
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_id)
         vendor_data = VendorUtils.get_vendor_data(vendor.guid, item_id)
@@ -104,7 +112,16 @@ class VendorUtils:
             return
 
         if bag_guid:
-            bag_slot = player_mgr.inventory.get_container_slot_by_guid(bag_guid)
+            if bag_guid == player_mgr.guid:
+                bag_slot = InventorySlots.SLOT_INBACKPACK.value
+            else:
+                bag_slot = player_mgr.inventory.get_container_slot_by_guid(bag_guid)
+                bag_container = player_mgr.inventory.get_container(bag_slot)
+                if not bag_container or bag_container.guid != bag_guid:
+                    player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_FIND_ITEM, item_id, vendor.guid,
+                                                        real_count)
+                    return
+
             succeed = player_mgr.inventory.add_item_to_slot(dest_bag_slot=bag_slot, dest_slot=slot,
                                                             item_template=item_template, count=real_count)
         else:

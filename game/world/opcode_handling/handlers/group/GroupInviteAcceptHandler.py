@@ -1,11 +1,20 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
+
+
 class GroupInviteAcceptHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        if not world_session.player_mgr.group_manager:
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        if not player_mgr:
+            return res
+
+        group_manager = player_mgr.group_manager
+        if not group_manager:
             return 0
 
-        world_session.player_mgr.group_manager.remove_member_invite(world_session.player_mgr.guid)
-        world_session.player_mgr.group_manager.try_add_member(world_session.player_mgr, False)
+        group_manager.remove_member_invite(player_mgr.guid)
+        group_manager.try_add_member(player_mgr, False)
 
         return 0

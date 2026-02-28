@@ -17,8 +17,10 @@ class LevelCheatHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to modify level.')
             return 0
 
-        if len(reader.data) >= 4:  # Avoid empty packet level cheat packet.
-            new_level = unpack('<I', reader.data[:4])[0]
-            player_mgr.mod_level(new_level)
+        # Avoid handling an empty packet level cheat packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=4):
+            return 0
+        new_level = unpack('<I', reader.data[:4])[0]
+        player_mgr.mod_level(new_level)
 
         return 0

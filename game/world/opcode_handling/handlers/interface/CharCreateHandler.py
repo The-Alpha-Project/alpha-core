@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import *
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.ReputationManager import ReputationManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils
@@ -23,12 +24,21 @@ class CharCreateHandler:
     @staticmethod
     def handle(world_session, reader):
         with CharCreateHandler.LOCK:
+            # Avoid handling an empty or truncated packet.
+            if not HandlerValidator.validate_packet_length(reader, min_length=10):
+                return 0
+
             name = PacketReader.read_string(reader.data, 0)
             if not config.Server.Settings.blizzlike_names:
                 name = name.capitalize()
 
+            name_end_offset = len(name) + 1
+            # Avoid handling an empty or truncated packet.
+            if not HandlerValidator.validate_packet_length(reader, min_length=name_end_offset + 9):
+                return 0
+
             race, class_, gender, skin, face, hairstyle, haircolor, facialhair, outfit_id = unpack(
-                '<9B', reader.data[len(name)+1:]
+                '<9B', reader.data[name_end_offset:name_end_offset + 9]
             )
             race_mask = 1 << (race - 1)
             class_mask = 1 << (class_ - 1)

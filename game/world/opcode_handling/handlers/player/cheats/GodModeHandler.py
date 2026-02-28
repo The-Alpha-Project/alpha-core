@@ -18,10 +18,12 @@ class GodModeHandler:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to set god mode.')
             return 0
 
-        if len(reader.data) >= 1:  # Avoid handling empty god mode packet.
-            # Client sends `0` if you type `godmode`, and `1` if you type `godmode 1` (or a number greater than 1).
-            player_mgr.is_god = unpack('<B', reader.data[:1])[0] >= 1
-            player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GODMODE, reader.data[:1]))
+        # Avoid handling an empty god mode packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=1):
+            return 0
+        # Client sends `0` if you type `godmode`, and `1` if you type `godmode 1` (or a number greater than 1).
+        player_mgr.is_god = unpack('<B', reader.data[:1])[0] >= 1
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GODMODE, reader.data[:1]))
         ChatManager.send_system_message(world_session, f'Godmode '
                                                        f'{"enabled" if player_mgr.is_god else "disabled"}')
 

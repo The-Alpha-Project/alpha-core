@@ -21,9 +21,10 @@ from utils.ConfigManager import config
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import  AttackTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags, \
-    SpellCategory, SpellSchools
+    SpellCategory, SpellSchools, SpellCheckCastResult
 
 
 class CastingSpell:
@@ -136,6 +137,23 @@ class CastingSpell:
 
     def initial_target_is_object(self):
         return isinstance(self.initial_target, ObjectManager)
+
+    def validate_script_cast_state(self, cast_flags):
+        caster = self.spell_caster
+        if not caster or not caster.is_unit(by_mask=True):
+            return SpellCheckCastResult.SPELL_NO_ERROR
+
+        if not caster.spell_manager.is_casting():
+            return SpellCheckCastResult.SPELL_NO_ERROR
+
+        if cast_flags & CastFlags.CF_INTERRUPT_PREVIOUS:
+            caster.spell_manager.remove_colliding_casts(self)
+            return SpellCheckCastResult.SPELL_NO_ERROR
+
+        if not self.triggered:
+            return SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS
+
+        return SpellCheckCastResult.SPELL_NO_ERROR
 
     def initial_target_is_unit_or_player(self):
         if not self.initial_target_is_object():

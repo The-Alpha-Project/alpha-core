@@ -13,20 +13,22 @@ class DestroyItemHandler:
         if not player_mgr:
             return res
 
-        if len(reader.data) >= 3:  # Avoid handling empty destroy item packet.
-            bag, source_slot, count = unpack('<3B', reader.data[:3])
+        # Avoid handling an empty destroy item packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=3):
+            return 0
+        bag, source_slot, count = unpack('<3B', reader.data[:3])
 
-            if bag == 0xFF:
-                bag = InventorySlots.SLOT_INBACKPACK.value
+        if bag == 0xFF:
+            bag = InventorySlots.SLOT_INBACKPACK.value
 
-            item = player_mgr.inventory.get_item(bag, source_slot)
-            if not item:
-                return 0
+        item = player_mgr.inventory.get_item(bag, source_slot)
+        if not item:
+            return 0
 
-            if item.is_container() and not item.is_empty():
-                player_mgr.inventory.send_equip_error(InventoryError.BAG_NOT_EMPTY, item)
-                return 0
+        if item.is_container() and not item.is_empty():
+            player_mgr.inventory.send_equip_error(InventoryError.BAG_NOT_EMPTY, item)
+            return 0
 
-            player_mgr.inventory.remove_item(bag, source_slot, clear_slot=True)
+        player_mgr.inventory.remove_item(bag, source_slot, clear_slot=True)
 
         return 0

@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from struct import unpack
 
 from game.world.managers.abstractions.Vector import Vector
@@ -8,11 +9,13 @@ class CastSpellHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        if len(reader.data) >= 6:  # Avoid handling empty cast spell packet.
-            spell_id, target_mask = unpack('<IH', reader.data[:6])
-            target_bytes = reader.data[6:]  # Remove first 6 bytes to get targeting info.
-            spell_target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
-            world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, spell_target, target_mask)
+        # Avoid handling an empty cast spell packet.
+        if not HandlerValidator.validate_packet_length(reader, min_length=6):
+            return 0
+        spell_id, target_mask = unpack('<IH', reader.data[:6])
+        target_bytes = reader.data[6:]  # Remove first 6 bytes to get targeting info.
+        spell_target = CastSpellHandler.get_target_info(world_session, target_mask, target_bytes)
+        world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, spell_target, target_mask)
 
         return 0
 
