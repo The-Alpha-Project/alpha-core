@@ -16,7 +16,7 @@ class BuyBankSlotHandler:
     @staticmethod
     def handle(world_session, reader):
         # Validate world session.
-        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
         if not player_mgr:
             return res
 

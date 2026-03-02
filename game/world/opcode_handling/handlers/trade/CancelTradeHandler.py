@@ -7,7 +7,7 @@ class CancelTradeHandler:
     @staticmethod
     def handle(world_session, reader):
         # Validate world session.
-        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:
             return res
 

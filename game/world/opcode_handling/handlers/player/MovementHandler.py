@@ -11,7 +11,7 @@ class MovementHandler:
     @staticmethod
     def handle_movement_status(world_session, reader: PacketReader) -> int:
         # Validate world session.
-        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
         if not player_mgr:
             return res
 
