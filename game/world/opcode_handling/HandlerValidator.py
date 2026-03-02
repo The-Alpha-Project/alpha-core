@@ -84,7 +84,7 @@ class HandlerValidator:
         OpCode.CMSG_SWAP_ITEM: {LengthRules.EXACT_LENGTH: 4},
         OpCode.CMSG_SWAP_INV_ITEM: {LengthRules.EXACT_LENGTH: 2},
         OpCode.CMSG_SPLIT_ITEM: {LengthRules.EXACT_LENGTH: 5},
-        OpCode.CMSG_DESTROYITEM: {LengthRules.EXACT_LENGTH: 3},
+        OpCode.CMSG_DESTROYITEM: {LengthRules.EXACT_LENGTH: 6},
         OpCode.CMSG_WRAP_ITEM: {LengthRules.EXACT_LENGTH: 4},
 
         # Unit/Combat/Spell

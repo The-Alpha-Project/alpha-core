@@ -777,7 +777,6 @@ class PlayerManager(UnitManager):
             self.send_mount_result(MountResults.MOUNTRESULT_NOT_MOUNTABLE)
             return False
 
-        self.send_mount_result(MountResults.MOUNTRESULT_OK)
         return True
 
     # override
@@ -792,7 +791,6 @@ class PlayerManager(UnitManager):
                 self.send_dismount_result(DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
             return False
 
-        self.send_dismount_result(DismountResults.DISMOUNT_RESULT_OK)
         return True
 
     # override

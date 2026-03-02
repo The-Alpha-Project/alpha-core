@@ -14,9 +14,9 @@ class DestroyItemHandler:
             return res
 
         # Avoid handling an empty destroy item packet.
-        if not HandlerValidator.validate_packet_length(reader, min_length=3):
+        if not HandlerValidator.validate_packet_length(reader, min_length=6):
             return 0
-        bag, source_slot, count = unpack('<3B', reader.data[:3])
+        bag, source_slot, _count = unpack('<2BI', reader.data[:6])
 
         if bag == 0xFF:
             bag = InventorySlots.SLOT_INBACKPACK.value
