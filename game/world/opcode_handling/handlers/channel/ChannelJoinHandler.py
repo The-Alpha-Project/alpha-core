@@ -16,8 +16,8 @@ class ChannelJoinHandler:
 
         channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel) + 1
-        # Determine optional-field presence from packet length.
-        skip_pass = HandlerValidator.validate_packet_length(reader, exact_length=offset + 1)
+        # Determine optional password presence without triggering a validation warning.
+        skip_pass = len(reader.data) == offset + 1
         password = '' if skip_pass else PacketReader.read_string(reader.data, offset, 0).strip()
         ChannelManager.join_channel(player_mgr, channel, password)
 
