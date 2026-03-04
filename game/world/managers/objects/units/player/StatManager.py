@@ -1148,8 +1148,6 @@ class StatManager:
         # 2) resistance miss (shows as RESIST).
         # This preserves total miss chance:
         # total = base + (1 - base) * resist_mod.
-        base_miss_chance = max(0.0, min(1.0, base_miss_chance))
-        resist_mod = max(0.0, min(1.0, resist_mod))
         resist_slice = (1.0 - base_miss_chance) * resist_mod
         total_miss_chance = base_miss_chance + resist_slice
 
