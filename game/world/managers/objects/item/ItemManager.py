@@ -7,6 +7,7 @@ from database.realm.RealmModels import CharacterInventory, CharacterGifts
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import ItemTemplate
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.EnchantmentHolder import EnchantmentHolder
 from game.world.managers.objects.item.Stats import DamageStat, Stat, SpellStat
@@ -449,7 +450,10 @@ class ItemManager(ObjectManager):
 
     # override
     def get_location(self):
-        return self.get_owner_unit().location
+        player_mgr = self.get_owner_unit()
+        if player_mgr and player_mgr.location:
+            return player_mgr.location
+        return self.location if self.location else Vector.empty()
 
     def get_owner_unit(self):
         return WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())

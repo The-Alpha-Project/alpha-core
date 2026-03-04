@@ -8,6 +8,7 @@ from utils.constants.MiscCodes import ZSource
 class Vector:
     """Class to represent points in a 3D space and utilities to work with them within the game."""
     __slots__ = ('x', 'y', 'z', 'o', 'z_source')
+    EMPTY = None
 
     def __init__(self, x=0.0, y=0.0, z=0.0, o=0.0, z_source=ZSource.CURRENT_Z):
         self.x = x
@@ -75,6 +76,12 @@ class Vector:
 
     def copy(self):
         return Vector(self.x, self.y, self.z, self.o, self.z_source)
+
+    @staticmethod
+    def empty():
+        if Vector.EMPTY is None:
+            Vector.EMPTY = Vector()
+        return Vector.EMPTY
 
     def flush(self):
         self.x = self.y = self.z = self.o = 0
