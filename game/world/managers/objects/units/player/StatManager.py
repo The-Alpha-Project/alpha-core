@@ -1141,35 +1141,19 @@ class StatManager:
         if crit_roll < spell_crit_chance:
             hit_flags |= SpellHitFlags.CRIT
 
-        base_miss_chance, resist_mod = self._get_spell_miss_components_against_self(casting_spell)
-
-        # Split one-roll miss space into:
-        # 1) base spell miss (shows as MISS) and
-        # 2) resistance miss (shows as RESIST).
-        # This preserves total miss chance:
-        # total = base + (1 - base) * resist_mod.
-        resist_slice = (1.0 - base_miss_chance) * resist_mod
-        total_miss_chance = base_miss_chance + resist_slice
+        miss_chance = self.get_spell_resist_chance_against_self(casting_spell)
 
         miss_roll = random.random()
         if spell_logging:
             spell_logging.hit_roll = miss_roll * 100.0
-            spell_logging.hit_roll_needed = total_miss_chance * 100.0
-            spell_logging.resistance_coefficient = resist_mod
-
-        if miss_roll < base_miss_chance:
-            return SpellMissReason.MISS_REASON_PHYSICAL, hit_flags
-
-        if miss_roll < total_miss_chance:
+            spell_logging.hit_roll_needed = miss_chance * 100.0
+            spell_logging.resistance_coefficient = miss_chance
+        if miss_roll < miss_chance:
             return SpellMissReason.MISS_REASON_RESIST, hit_flags
 
         return SpellMissReason.MISS_REASON_NONE, hit_flags
 
     def get_spell_resist_chance_against_self(self, casting_spell):
-        base_miss_chance, resist_mod = self._get_spell_miss_components_against_self(casting_spell)
-        return 1 - (1 - base_miss_chance) * (1 - resist_mod)
-
-    def _get_spell_miss_components_against_self(self, casting_spell):
         # TODO Research is needed on how resist mechanics worked in alpha.
         # 0.7 patch notes:
         # "Players and some creatures now have the ability to resist damage from offensive spells and abilities
@@ -1194,10 +1178,10 @@ class StatManager:
         rating_difference = self.unit_mgr.level * 5 - attacker_combat_rating
         rating_mod = rating_difference / 5 / 100
 
-        base_miss_chance = 0.04
+        miss_chance = 0.04
         level_penalty = 7 if self.unit_mgr.is_player() else 11
 
-        base_miss_chance += rating_mod if rating_difference < 15 else \
+        miss_chance += rating_mod if rating_difference < 15 else \
             0.02 + (rating_mod - 0.02) * level_penalty
 
         # Resistance application.
@@ -1214,7 +1198,11 @@ class StatManager:
         resist_mod *= 0.15 / (attacker_combat_rating / 5)
         resist_mod = max(0.0, min(0.75, resist_mod))
 
-        return base_miss_chance, resist_mod
+        # Final application of resist mod (SpellCaster::MagicSpellHitChance, reversed for hit->miss).
+        if resist_mod:
+            miss_chance = 1 - (1 - miss_chance) * (1 - resist_mod)
+
+        return miss_chance
 
     def update_attack_base_damage(self, attack_type=0):
         if not self.unit_mgr.is_player():
