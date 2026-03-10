@@ -1605,17 +1605,17 @@ class PlayerManager(UnitManager):
         self.units_stealth_detection_check(elapsed)
         # Regeneration.
         self.regenerate(elapsed)
-        # Attack update.
-        self.attack_update(elapsed)
         # Check swimming state.
         self.check_swimming_state(elapsed)
         # Sanctuary check.
         self.update_sanctuary(elapsed)
 
-        # SpellManager.
+        # Process casts before melee swings, matching creature/vmangos ordering.
         self.spell_manager.update(now)
         # AuraManager.
         self.aura_manager.update(now)
+        # Attack update.
+        self.attack_update(elapsed)
         # QuestManager.
         self.quest_manager.update(elapsed)
 
