@@ -438,8 +438,10 @@ class UnitManager(ObjectManager):
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
                 self.attack_swing_elapsed[AttackTypes.BASE_ATTACK] = 0
 
-            # Offhand attack.
-            if off_hand_attack_ready:
+            # Re-check offhand readiness after main-hand handling. The old cached readiness value was computed
+            # before main-hand could delay offhand to 500ms, which allowed queued main-hand abilities and offhand
+            # swings to both execute in the same update tick.
+            if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
                 # Prevent both hand attacks at the same time.
                 if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
