@@ -15,6 +15,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.ChatManager import ChatManager
+from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.ConfigManager import config
@@ -477,11 +478,25 @@ class CommandManager:
             spell_id = res
             code, res = CommandManager._unlearn_spell(world_session, spell_id)
             if code == 0:
-                talent_cost = world_session.player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
+                talent_cost = TalentManager.get_talent_cost_from_player_spell_id(spell_id)
                 world_session.player_mgr.add_talent_points(talent_cost)
                 return 0, f'{res} Talent points were returned.'
             return code, res
         return code, res
+
+    @staticmethod
+    def unltalents(world_session, args):
+        sum_talent_cost = 0
+        sum_talents_unlearned = 0
+        for training_spell in world_session.player_mgr.talent_manager.get_talents_sorted_by_rank():
+            spell_id = training_spell.playerspell
+            code, res = CommandManager._unlearn_spell(world_session, spell_id)
+            if code == 0:
+                talent_cost = TalentManager.get_talent_cost_from_training_spell(training_spell)
+                world_session.player_mgr.add_talent_points(talent_cost)
+                sum_talent_cost += talent_cost
+                sum_talents_unlearned += 1
+        return 0, f'{sum_talents_unlearned} Talents unlearned, {sum_talent_cost} Talent points were returned.'
 
     @staticmethod
     def _unlearn_spell(world_session, spell_id):
@@ -1367,6 +1382,7 @@ GM_COMMAND_DEFINITIONS = {
     'lspells': [CommandManager.lspells, 'learn multiple spells'],
     'unlspell': [CommandManager.unlspell, 'unlearn a spell'],
     'unltalent': [CommandManager.unltalent, 'unlearn a talent'],
+    'unltalents': [CommandManager.unltalents, 'unlearns all talents'],
     'cast': [CommandManager.cast, 'cast a spell'],
     'addaura': [CommandManager.addaura, 'add an aura by spell id'],
     'clearauras': [CommandManager.clearauras, 'clear all auras'],

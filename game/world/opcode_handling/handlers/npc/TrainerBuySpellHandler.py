@@ -56,8 +56,7 @@ class TrainerBuySpellHandler:
                 trainer_spell = t_template
                 break
 
-        talent_cost = trainer_spell.talentpointcost if trainer_spell.talentpointcost > 0 else \
-            TalentManager.get_talent_cost_by_id(trainer_spell.playerspell)
+        talent_cost = TalentManager.get_talent_cost_from_training_spell(trainer_spell)
 
         fail_reason = None
         if talent_cost > player_mgr.talent_points:
