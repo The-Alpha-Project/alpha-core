@@ -464,6 +464,7 @@ class SpellManager:
 
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)
+        self._reset_melee_attack_timers_for_successful_cast(casting_spell)
 
         travel_times = self.calculate_impact_delays(casting_spell)
 
@@ -487,6 +488,15 @@ class SpellManager:
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
+
+    def _reset_melee_attack_timers_for_successful_cast(self, casting_spell: CastingSpell):
+        if not self.caster.is_unit(by_mask=True):
+            return
+
+        if not casting_spell.should_reset_melee_combat_timers():
+            return
+
+        self.caster.reset_melee_attack_timers()
 
     def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False, update_index=-1,
                             partial_targets: Optional[list[int]] = None):

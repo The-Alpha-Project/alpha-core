@@ -438,8 +438,10 @@ class UnitManager(ObjectManager):
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
                 self.attack_swing_elapsed[AttackTypes.BASE_ATTACK] = 0
 
-            # Offhand attack.
-            if off_hand_attack_ready:
+            # Re-check offhand readiness after main-hand handling. The old cached readiness value was computed
+            # before main-hand could delay offhand to 500ms, which allowed queued main-hand abilities and offhand
+            # swings to both execute in the same update tick.
+            if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
                 # Prevent both hand attacks at the same time.
                 if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
@@ -1374,6 +1376,22 @@ class UnitManager(ObjectManager):
 
     def set_attack_timer(self, attack_type, value):
         self.attack_timers[attack_type] = value
+
+    def reset_attack_timer(self, attack_type):
+        if attack_type == AttackTypes.BASE_ATTACK:
+            attack_time = self.base_attack_time
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            attack_time = self.offhand_attack_time
+        else:
+            attack_time = self.attack_timers.get(attack_type, 0)
+
+        self.set_attack_timer(attack_type, max(0, attack_time or 0))
+        self.attack_swing_elapsed[attack_type] = 0
+
+    def reset_melee_attack_timers(self):
+        self.reset_attack_timer(AttackTypes.BASE_ATTACK)
+        if self.has_offhand_weapon():
+            self.reset_attack_timer(AttackTypes.OFFHAND_ATTACK)
 
     def is_sitting(self):
         return self.stand_state == StandState.UNIT_SITTING

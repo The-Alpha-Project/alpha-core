@@ -578,6 +578,13 @@ class CastingSpell:
     def is_weapon_attack(self):
         return self.casts_on_swing() or self.is_ranged_weapon_attack()
 
+    def should_reset_melee_combat_timers(self):
+        # Matches VMaNGOS IsMeleeAttackResetSpell.
+        has_combat_interrupt = \
+            (self.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK) != 0
+        # Multi-Shot is the only safe ID match (ID + Name) found against VMaNGOS DO_NOT_RESET_COMBAT_TIMERS.
+        return not self.triggered and has_combat_interrupt and self.spell_entry.ID != 2643
+
     def requires_fishing_pole(self):
         if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
             return False
