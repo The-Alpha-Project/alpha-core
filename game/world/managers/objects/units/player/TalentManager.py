@@ -24,11 +24,24 @@ class TalentManager:
         # TODO Below statements might not be 100% correct, but works for now since we lack more data.
         # https://github.com/The-Alpha-Project/alpha-core/issues/1362
         if is_specialization:
-            return 10 if spell_rank <= 2 else 15 if 2 < spell_rank <= 4 else 20 if 5 < spell_rank <= 6 \
-                else 25 if 7 < spell_rank <= 8 else 30
+            return 10 if spell_rank <= 2 else 15 if spell_rank <= 4 else 20 if spell_rank <= 6 \
+                else 25 if spell_rank <= 8 else 30
 
         talent_points_cost: int = 10 + ((spell_rank - 1) * 5)
         return talent_points_cost
+
+    @staticmethod
+    def get_talent_cost_from_training_spell(training_spell) -> int:
+        return training_spell.talentpointcost if training_spell.talentpointcost > 0 else \
+            TalentManager.get_talent_cost_by_id(training_spell.playerspell)
+
+    @staticmethod
+    def get_talent_cost_from_player_spell_id(spell_id: int) -> int:
+        for training_spell in TalentManager.get_talents_sorted_by_rank():
+            if training_spell.playerspell == spell_id:
+                return TalentManager.get_talent_cost_from_training_spell(training_spell)
+
+        return TalentManager.get_talent_cost_by_id(spell_id)
 
     @staticmethod
     @lru_cache
@@ -73,8 +86,7 @@ class TalentManager:
             required_level = training_spell.reqlevel if training_spell.reqlevel else spell.BaseLevel
             preceded_spell = training_spell.req_spell_1
 
-            talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else \
-                TalentManager.get_talent_cost_by_id(training_spell.playerspell)
+            talent_points_cost = TalentManager.get_talent_cost_from_training_spell(training_spell)
 
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, required_level, self.player_mgr,
                                                                  fulfills_skill=fulfills_skill,

@@ -15,6 +15,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.ChatManager import ChatManager
+from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.ConfigManager import config
@@ -477,8 +478,7 @@ class CommandManager:
             spell_id = res
             code, res = CommandManager._unlearn_spell(world_session, spell_id)
             if code == 0:
-                # get_talent_cost_by_id seems to wrongly calculate talent points
-                talent_cost = world_session.player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
+                talent_cost = TalentManager.get_talent_cost_from_player_spell_id(spell_id)
                 world_session.player_mgr.add_talent_points(talent_cost)
                 return 0, f'{res} Talent points were returned.'
             return code, res
@@ -492,7 +492,7 @@ class CommandManager:
             spell_id = training_spell.playerspell
             code, res = CommandManager._unlearn_spell(world_session, spell_id)
             if code == 0:
-                talent_cost = training_spell.talentpointcost
+                talent_cost = TalentManager.get_talent_cost_from_training_spell(training_spell)
                 world_session.player_mgr.add_talent_points(talent_cost)
                 sum_talent_cost += talent_cost
                 sum_talents_unlearned += 1
