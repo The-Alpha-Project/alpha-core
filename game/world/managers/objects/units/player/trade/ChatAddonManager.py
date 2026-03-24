@@ -1,5 +1,6 @@
 from enum import IntEnum
 from struct import pack
+from time import monotonic
 
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
@@ -29,19 +30,25 @@ UNIT_ID_TARGETS = {
     'player', 'target', 'party1', 'party2', 'party3', 'party4'
 }
 
+MAX_ADDON_REQUEST_LENGTH = 128
+MAX_ADDON_REQUEST_ARGS = 1
+MAX_ADDON_RESPONSE_LINE_LENGTH = 256
+MAX_AURA_RESULTS = 40
+ADDON_REQUEST_MIN_INTERVAL_SECONDS = 0.01
+
 
 class ChatAddonManager:
 
     @staticmethod
     def process_addon_request(channel, player_mgr, message: str):
-        args = None
+        command = ''
+        args = []
         try:
-            terminator_index = message.find(' ') if ' ' in message else len(message)
-            command = message[0:terminator_index].strip().lower()
-            args = message[terminator_index:].strip()
+            command, args = ChatAddonManager._parse_request(message)
 
-            if args:
-                args = args.split()
+            if not ChatAddonManager._request_allowed(player_mgr):
+                ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_REQUEST, PLAYER)
+                return
 
             if command not in ADDON_COMMAND_DEFINITIONS:
                 ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_FUNCTION, 'player')
@@ -53,7 +60,7 @@ class ChatAddonManager:
                 ChatAddonManager._send_error(channel, player_mgr, code, unit_id)
                 return
 
-            lines = list(filter((0).__ne__, res.rsplit('\n')))
+            lines = [line[:MAX_ADDON_RESPONSE_LINE_LENGTH] for line in res.rsplit('\n') if line]
             packets = []
             for line in lines:
                 packet = ChatAddonManager._get_message_packet(player_mgr.guid, ChatFlags.CHAT_TAG_NONE, line,
@@ -62,11 +69,13 @@ class ChatAddonManager:
                 packets.append(packet)
 
             # Send reply.
-            player_mgr.enqueue_packets(packets)
-        except:
-            target = 'player' if not args else args[0]
+            if packets:
+                player_mgr.enqueue_packets(packets)
+        except Exception as ex:
+            target = PLAYER if not args else args[0]
             ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_REQUEST, target)
-            Logger.warning('Invalid addon request.')
+            Logger.warning(
+                f'Invalid addon request. Command [{command}], sender [{player_mgr.get_name()}], reason [{ex}].')
 
     @staticmethod
     def get_unit_auras(player_mgr, args):
@@ -87,11 +96,15 @@ class ChatAddonManager:
             for aura in unit.aura_manager.get_active_auras():
                 if aura.passive or not aura.displays_in_aura_bar():
                     continue
-                name = aura.source_spell.spell_entry.Name_enUS
+                if not aura.source_spell or not aura.source_spell.spell_entry:
+                    continue
+                name = ChatAddonManager._sanitize_csv_field(aura.source_spell.spell_entry.Name_enUS)
                 texture = aura.source_spell.spell_entry.SpellIconID
                 remaining = int(aura.get_duration())
                 harmful = 1 if aura.harmful else 0
                 auras_information.append(f'{unit_id},{name},{harmful},{texture},{remaining}')
+                if len(auras_information) >= MAX_AURA_RESULTS:
+                    break
 
         if not auras_information:
             return AddonErrorCodes.NO_DATA, '', unit_id
@@ -115,11 +128,17 @@ class ChatAddonManager:
         if not unit:
             return AddonErrorCodes.NO_DATA, '', unit_id
 
+        if not player_mgr.location or not unit.location:
+            return AddonErrorCodes.NO_DATA, '', unit_id
+
         distance = player_mgr.location.distance(unit.location)
         return AddonErrorCodes.SUCCESS, f'{unit_id},{distance:.3f}', unit_id
 
     @staticmethod
     def _get_unit(player_mgr, unit_id=None):
+        if unit_id and unit_id not in UNIT_ID_TARGETS:
+            return AddonErrorCodes.INVALID_TARGET, None, unit_id
+
         error_code = AddonErrorCodes.INVALID_TARGET
         unit = None
 
@@ -145,7 +164,10 @@ class ChatAddonManager:
                 if not player_mgr.group_manager or not player_mgr.group_manager.is_party_formed():
                     error_code = AddonErrorCodes.NO_GROUP
                 else:
-                    index = int(unit_id[-1])
+                    try:
+                        index = int(unit_id[-1])
+                    except (TypeError, ValueError):
+                        return AddonErrorCodes.INVALID_TARGET, None, unit_id
                     unit = player_mgr.group_manager.get_member_at(index)
                     error_code = (AddonErrorCodes.SUCCESS if unit is not None else
                                   AddonErrorCodes.EMPTY_OFFLINE_GROUP_SLOT)
@@ -154,7 +176,8 @@ class ChatAddonManager:
 
     @staticmethod
     def _send_error(channel, player_mgr, code: AddonErrorCodes, unit_id):
-        error = f'{str(code.value)}, {unit_id}'
+        error_unit_id = ChatAddonManager._sanitize_identifier(unit_id)
+        error = f'{str(code.value)}, {error_unit_id}'
         packet = ChatAddonManager._get_message_packet(player_mgr.guid, ChatFlags.CHAT_TAG_NONE, error,
                                                       ChatMsgs.CHAT_MSG_CHANNEL, Languages.LANG_UNIVERSAL,
                                                       channel=channel.name)
@@ -173,6 +196,44 @@ class ChatAddonManager:
         data += pack(f'<{len(message_bytes)}sB', message_bytes, chat_flags)
 
         return PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)
+
+    @staticmethod
+    def _parse_request(message):
+        if not isinstance(message, str):
+            raise ValueError('Non-string addon message.')
+
+        message = message.strip()
+        if not message or len(message) > MAX_ADDON_REQUEST_LENGTH:
+            raise ValueError('Invalid addon message length.')
+
+        args = message.split()
+        if not args or len(args) > MAX_ADDON_REQUEST_ARGS + 1:
+            raise ValueError('Invalid addon message args.')
+
+        command = args[0].lower()
+        command_args = args[1:] if len(args) > 1 else []
+        return command, command_args
+
+    @staticmethod
+    def _request_allowed(player_mgr):
+        now = monotonic()
+        last_request = getattr(player_mgr, '_addon_api_last_request_ts', 0.0)
+        if now - last_request < ADDON_REQUEST_MIN_INTERVAL_SECONDS:
+            return False
+        setattr(player_mgr, '_addon_api_last_request_ts', now)
+        return True
+
+    @staticmethod
+    def _sanitize_csv_field(value):
+        safe_value = '' if value is None else str(value)
+        safe_value = safe_value.replace('\n', ' ').replace('\r', ' ').replace(',', ' ')
+        return safe_value.strip()
+
+    @staticmethod
+    def _sanitize_identifier(unit_id):
+        safe_id = PLAYER if not unit_id else str(unit_id).lower()
+        safe_id = safe_id.replace('\n', '').replace('\r', '').replace(',', '').replace(' ', '')
+        return safe_id if safe_id else PLAYER
 
 
 ADDON_COMMAND_DEFINITIONS = {
