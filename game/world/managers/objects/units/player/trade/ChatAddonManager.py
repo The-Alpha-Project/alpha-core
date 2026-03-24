@@ -99,6 +99,26 @@ class ChatAddonManager:
         return AddonErrorCodes.SUCCESS, res, unit_id
 
     @staticmethod
+    def get_unit_distance(player_mgr, args):
+        unit_id = TARGET
+
+        if args and args[0].lower() not in UNIT_ID_TARGETS:
+            return AddonErrorCodes.INVALID_TARGET, '', args[0].lower()
+        elif args:
+            unit_id = args[0].lower()
+
+        result, unit, unit_id = ChatAddonManager._get_unit(player_mgr, unit_id)
+
+        if result != AddonErrorCodes.SUCCESS:
+            return result, '', unit_id
+
+        if not unit:
+            return AddonErrorCodes.NO_DATA, '', unit_id
+
+        distance = player_mgr.location.distance(unit.location)
+        return AddonErrorCodes.SUCCESS, f'{unit_id},{distance:.3f}', unit_id
+
+    @staticmethod
     def _get_unit(player_mgr, unit_id=None):
         error_code = AddonErrorCodes.INVALID_TARGET
         unit = None
@@ -156,5 +176,6 @@ class ChatAddonManager:
 
 
 ADDON_COMMAND_DEFINITIONS = {
-    'getunitauras': ChatAddonManager.get_unit_auras
+    'getunitauras': ChatAddonManager.get_unit_auras,
+    'getunitdistance': ChatAddonManager.get_unit_distance
 }
