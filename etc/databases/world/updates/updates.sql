@@ -22835,5 +22835,36 @@ begin not atomic
         insert into applied_updates values ('220220262');
     end if;
 
+    -- 24/03/2026 1
+    if (select count(*) from applied_updates where id='240320261') = 0 then
+        -- Fix EventAI self-buff aura checks that reference a different spell id than the one being cast.
+        -- These mismatches cause perpetual retriggers and script cast warnings.
+
+        -- Script: 172901 (Defias Evoker spawn cast): (Frost Armor Rank 1) 168 -> (Frost Armor Rank 2) 7300
+        UPDATE `creature_ai_scripts` SET `datalong` = 7300 WHERE `id` = 172901 AND `command` = 15;
+        -- Script: 778903 (Sandfury Cretin cast script): (Demon Skin legacy) 20798 -> (Demon Skin Rank 1) 687
+        UPDATE `creature_ai_scripts` SET `datalong` = 687 WHERE `id` = 778903 AND `command` = 15 AND `datalong` = 20798;
+
+        -- Event: 50704 (Fenros): (Frost Armor Rank 1) 168 -> (Frost Armor Rank 3) 7301
+        -- Event: 67703 (Venture Co. Tinkerer): (Frost Armor legacy) 12544 -> (Frost Armor Rank 1) 168
+        -- Event: 150701 (Scarlet Initiate): (Frost Armor legacy) 12544 -> (Frost Armor Rank 1) 168
+        -- Event: 172904 (Defias Evoker): (Frost Armor legacy) 12544 -> (Frost Armor Rank 2) 7300
+        -- Event: 173204 (Defias Squallshaper): (Cat Form Shapeshift) 768 -> (Frost Armor Rank 1) 168
+        -- Event: 432807 (Firemane Scalebane): (Fire Shield legacy) 18968 -> (Fire Shield II) 184
+        -- Event: 547101 (Dunemaul Ogre): (Battle Stance Rank 1) 2457 -> (Battle Stance Rank 1) 7165
+        -- Event: 778903 (Sandfury Cretin): (Demon Armor legacy) 13787 -> (Demon Skin Rank 1) 687
+        -- Intentionally excluded:
+        -- 81303 (Colonel Kurzen): checks missing (Stealth legacy) 8822 before casting (Garrote legacy) 8818 opener.
+        -- 427508 (Archmage Arugal): checks missing (Shadow Port) 7587 before casting (Shadow Port) 7586 follow-up and resetting phase.
+        -- "Cast X on Missing Buff" rows: make event_param1 match the current cast spell id.
+        UPDATE `creature_ai_events` e
+        JOIN `creature_ai_scripts` s ON s.`id` = e.`id` AND s.`command` = 15
+        SET e.`event_param1` = s.`datalong`
+        WHERE e.`event_type` = 27
+          AND e.`id` IN (50704, 67703, 150701, 173204, 172904, 432807, 547101, 778903);
+
+        insert into applied_updates values ('240320261');
+    end if;
+
 end $
 delimiter ;
