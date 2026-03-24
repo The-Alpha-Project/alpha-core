@@ -36,6 +36,14 @@ MAX_ADDON_RESPONSE_LINE_LENGTH = 256
 MAX_AURA_RESULTS = 40
 ADDON_REQUEST_MIN_INTERVAL_SECONDS = 0.01
 MAX_ADDON_TOKEN_LENGTH = 24
+ADDON_API_AURAS_VERSION = 2
+ADDON_API_DISTANCE_VERSION = 2
+INVALID_LEGACY_COMMANDS = {'getunitauras', 'getunitdistance'}
+VERSIONED_DATA_COMMANDS = {'get_auras_version', 'get_target_dist_version'}
+OUTDATED_ADDON_NOTIFICATION = (
+    f'Your addon API version is outdated. Please update 053-AddOns '
+    f'(Auras v{ADDON_API_AURAS_VERSION}, TargetDistance v{ADDON_API_DISTANCE_VERSION}).'
+)
 
 
 class ChatAddonManager:
@@ -57,6 +65,8 @@ class ChatAddonManager:
                 return
 
             if command not in ADDON_COMMAND_DEFINITIONS:
+                if command in INVALID_LEGACY_COMMANDS:
+                    ChatAddonManager._notify_outdated_addon_once(player_mgr)
                 request_token = ChatAddonManager._extract_request_token(args)
                 ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_FUNCTION, 'player',
                                              request_token)
@@ -65,6 +75,8 @@ class ChatAddonManager:
             code, res, unit_id, request_token = ADDON_COMMAND_DEFINITIONS[command](player_mgr, args)
 
             if code < AddonErrorCodes.SUCCESS:
+                if command in VERSIONED_DATA_COMMANDS and code == AddonErrorCodes.INVALID_REQUEST:
+                    ChatAddonManager._notify_outdated_addon_once(player_mgr)
                 ChatAddonManager._send_error(channel, player_mgr, code, unit_id, request_token)
                 return
 
@@ -87,18 +99,21 @@ class ChatAddonManager:
                 f'Invalid addon request. Command [{command}], sender [{player_mgr.get_name()}], reason [{ex}].')
 
     @staticmethod
-    def get_unit_auras(player_mgr, args):
-        unit_id = None
-        request_token = ''
-
+    def get_addon_api_version(player_mgr, args):
         if args:
-            if args[0].lower() not in UNIT_ID_TARGETS:
-                return AddonErrorCodes.INVALID_TARGET, '', args[0].lower(), request_token
-            unit_id = args[0].lower()
-            if len(args) > 1:
-                request_token = ChatAddonManager._sanitize_request_token(args[1])
-                if request_token is None:
-                    return AddonErrorCodes.INVALID_REQUEST, '', unit_id, ''
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+        return (
+            AddonErrorCodes.SUCCESS,
+            f'api,auras={ADDON_API_AURAS_VERSION},distance={ADDON_API_DISTANCE_VERSION},strict=1',
+            PLAYER,
+            ''
+        )
+
+    @staticmethod
+    def get_unit_auras(player_mgr, args):
+        parse_result, unit_id, request_token = ChatAddonManager._parse_versioned_unit_and_token(args)
+        if parse_result != AddonErrorCodes.SUCCESS:
+            return parse_result, '', unit_id, request_token
 
         result, unit, unit_id = ChatAddonManager._get_unit(player_mgr, unit_id)
 
@@ -128,13 +143,9 @@ class ChatAddonManager:
 
     @staticmethod
     def get_unit_distance(player_mgr, args):
-        unit_id = TARGET
-        request_token = ''
-
-        if args and args[0].lower() not in UNIT_ID_TARGETS:
-            return AddonErrorCodes.INVALID_TARGET, '', args[0].lower(), request_token
-        elif args:
-            unit_id = args[0].lower()
+        parse_result, unit_id, request_token = ChatAddonManager._parse_versioned_unit_and_token(args)
+        if parse_result != AddonErrorCodes.SUCCESS:
+            return parse_result, '', unit_id, request_token
 
         result, unit, unit_id = ChatAddonManager._get_unit(player_mgr, unit_id)
 
@@ -148,7 +159,7 @@ class ChatAddonManager:
             return AddonErrorCodes.NO_DATA, '', unit_id, request_token
 
         distance = player_mgr.location.distance(unit.location)
-        return AddonErrorCodes.SUCCESS, f'{unit_id},{distance:.3f}', unit_id, request_token
+        return AddonErrorCodes.SUCCESS, f'{unit_id},{distance:.3f},{request_token}', unit_id, request_token
 
     @staticmethod
     def _get_unit(player_mgr, unit_id=None):
@@ -236,14 +247,14 @@ class ChatAddonManager:
     def _request_allowed(player_mgr, command):
         now = monotonic()
         command_key = str(command or '').lower()
-        per_command_last_request = getattr(player_mgr, '_addon_api_last_request_ts', {})
+        per_command_last_request = player_mgr.addon_api_last_request_ts
         if not isinstance(per_command_last_request, dict):
             per_command_last_request = {}
+            player_mgr.addon_api_last_request_ts = per_command_last_request
         last_request = per_command_last_request.get(command_key, 0.0)
         if now - last_request < ADDON_REQUEST_MIN_INTERVAL_SECONDS:
             return False
         per_command_last_request[command_key] = now
-        setattr(player_mgr, '_addon_api_last_request_ts', per_command_last_request)
         return True
 
     @staticmethod
@@ -278,8 +289,34 @@ class ChatAddonManager:
         token = ChatAddonManager._sanitize_request_token(args[1])
         return token if token else ''
 
+    @staticmethod
+    def _notify_outdated_addon_once(player_mgr):
+        if player_mgr.outdated_addon_api:
+            return
+        player_mgr.outdated_addon_api = True
+        ChatAddonManager._send_notification(player_mgr, OUTDATED_ADDON_NOTIFICATION)
+
+    @staticmethod
+    def _send_notification(player_mgr, message):
+        message_bytes = PacketWriter.string_to_bytes(message)
+        data = pack(f'<{len(message_bytes)}s', message_bytes)
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NOTIFICATION, data))
+
+    @staticmethod
+    def _parse_versioned_unit_and_token(args):
+        if not args or len(args) != 2:
+            return AddonErrorCodes.INVALID_REQUEST, PLAYER, ''
+        unit_id = args[0].lower()
+        if unit_id not in UNIT_ID_TARGETS:
+            return AddonErrorCodes.INVALID_TARGET, unit_id, ''
+        request_token = ChatAddonManager._sanitize_request_token(args[1])
+        if request_token is None or request_token == '':
+            return AddonErrorCodes.INVALID_REQUEST, unit_id, ''
+        return AddonErrorCodes.SUCCESS, unit_id, request_token
+
 
 ADDON_COMMAND_DEFINITIONS = {
-    'getunitauras': ChatAddonManager.get_unit_auras,
-    'getunitdistance': ChatAddonManager.get_unit_distance
+    'getaddonapi': ChatAddonManager.get_addon_api_version,
+    'get_auras_version': ChatAddonManager.get_unit_auras,
+    'get_target_dist_version': ChatAddonManager.get_unit_distance
 }
