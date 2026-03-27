@@ -1,6 +1,6 @@
 import math
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from utils.constants.MiscCodes import ReputationSourceGain
+from utils.constants.MiscCodes import ReputationSourceGain, GameObjectTypes
 
 
 class Distances:
@@ -24,6 +24,7 @@ class Distances:
     CREATURE_EVADE_DISTANCE = 65.0  # Guessed (Spell Range 'Extra Long Range' + 5).
     GROUP_SHARING_DISTANCE = 74.0  # Used for XP, loot, reputation...
     GAMEOBJECT_INTERACT_DISTANCE = 6.0
+    FISHING_BOBBER_DISTANCE = 21.0  # Matches the Fishing spell max range + 1.
     LOOT_DISTANCE_GRACE = 2.0  # Server-side tolerance for client loot cursor variance.
 
     # Inferred from the 0.5.3 client formulas.
@@ -62,6 +63,9 @@ class Distances:
         if not source or not target:
             return False
 
+        if target.is_gameobject() and target.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
+            return Distances.is_in_range(source, target, Distances.FISHING_BOBBER_DISTANCE)
+
         # Match vmangos loot range behavior: combat-reach based with melee offset, clamped to attack distance.
         source_reach = source.get_combat_reach()
         target_reach = target.get_combat_reach()
@@ -85,8 +89,10 @@ class Distances:
             source.location.distance(target.location) < Distances.GROUP_SHARING_DISTANCE
 
     @staticmethod
-    def is_within_gameobject_interact_distance(source, target):
-        return Distances.is_in_range(source, target, Distances.GAMEOBJECT_INTERACT_DISTANCE)
+    def is_within_gameobject_interact_distance(source, target, max_distance=None):
+        if max_distance is None:
+            max_distance = Distances.GAMEOBJECT_INTERACT_DISTANCE
+        return Distances.is_in_range(source, target, max_distance)
 
     @staticmethod
     def resolve_spell_focus_distance(template_distance):
