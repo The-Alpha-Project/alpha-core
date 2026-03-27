@@ -1,7 +1,9 @@
 from enum import IntEnum
 from struct import pack
-from time import monotonic
+from time import monotonic, time
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ChatFlags, ChatMsgs, Languages
@@ -36,8 +38,11 @@ MAX_ADDON_RESPONSE_LINE_LENGTH = 256
 MAX_AURA_RESULTS = 40
 ADDON_REQUEST_MIN_INTERVAL_SECONDS = 0.01
 MAX_ADDON_TOKEN_LENGTH = 24
-ADDON_API_AURAS_VERSION = 2
+MAX_ADDON_SETTINGS_LENGTH = 72
+MAX_ADDON_FLAGS_VALUE = 18446744073709551615
+ADDON_API_AURAS_VERSION = 3
 ADDON_API_DISTANCE_VERSION = 2
+ADDON_API_CONFIG_VERSION = 1
 INVALID_LEGACY_COMMANDS = {'getunitauras', 'getunitdistance'}
 VERSIONED_DATA_COMMANDS = {'get_auras_version', 'get_target_dist_version'}
 OUTDATED_ADDON_NOTIFICATION = (
@@ -47,6 +52,14 @@ OUTDATED_ADDON_NOTIFICATION = (
 
 
 class ChatAddonManager:
+
+    @staticmethod
+    def _get_spell_icon_path(icon_id):
+        # Resolve icon filenames server-side so 0.5.3 clients can render aura icons without bundling a spell icon database.
+        spell_icon = DbcDatabaseManager.SpellIconHolder.spell_icon_get_by_id(int(icon_id or 0))
+        if spell_icon and spell_icon.TextureFilename:
+            return ChatAddonManager._sanitize_csv_field(spell_icon.TextureFilename)
+        return 'Interface\\Icons\\Temp'
 
     @staticmethod
     def process_addon_request(channel, player_mgr, message: str):
@@ -104,10 +117,54 @@ class ChatAddonManager:
             return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
         return (
             AddonErrorCodes.SUCCESS,
-            f'api,auras={ADDON_API_AURAS_VERSION},distance={ADDON_API_DISTANCE_VERSION},strict=1',
+            f'api,auras={ADDON_API_AURAS_VERSION},distance={ADDON_API_DISTANCE_VERSION},'
+            f'config={ADDON_API_CONFIG_VERSION},strict=1',
             PLAYER,
             ''
         )
+
+    @staticmethod
+    def get_character_config(player_mgr, args):
+        if not args or len(args) != 1:
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+
+        request_token = ChatAddonManager._sanitize_request_token(args[0])
+        if request_token is None or request_token == '':
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+
+        addon_settings = RealmDatabaseManager.character_get_addon_settings(player_mgr.guid)
+        flags = int(addon_settings.flags) if addon_settings else 0
+        settings = addon_settings.settings if addon_settings and addon_settings.settings else ''
+
+        return (AddonErrorCodes.SUCCESS,
+                ChatAddonManager._build_config_response(flags, request_token, settings),
+                PLAYER,
+                request_token)
+
+    @staticmethod
+    def set_character_config(player_mgr, args):
+        if not args or len(args) != 2:
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+
+        request_token = ChatAddonManager._sanitize_request_token(args[0])
+        if request_token is None or request_token == '':
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+
+        parse_result, flags, settings = ChatAddonManager._parse_config_payload(args[1])
+        if parse_result != AddonErrorCodes.SUCCESS:
+            return parse_result, '', PLAYER, request_token
+
+        RealmDatabaseManager.character_update_addon_settings(
+            player_mgr.guid,
+            flags=flags,
+            settings=settings,
+            updated_at=int(time())
+        )
+
+        return (AddonErrorCodes.SUCCESS,
+                ChatAddonManager._build_config_response(flags, request_token, settings),
+                PLAYER,
+                request_token)
 
     @staticmethod
     def get_unit_auras(player_mgr, args):
@@ -130,9 +187,12 @@ class ChatAddonManager:
                     continue
                 name = ChatAddonManager._sanitize_csv_field(aura.source_spell.spell_entry.Name_enUS)
                 texture = aura.source_spell.spell_entry.SpellIconID
+                texture_path = ChatAddonManager._get_spell_icon_path(texture)
                 remaining = int(aura.get_duration())
                 harmful = 1 if aura.harmful else 0
-                auras_information.append(f'{unit_id},{name},{harmful},{texture},{remaining},{request_token},{unit_guid}')
+                auras_information.append(
+                    f'{unit_id},{name},{harmful},{texture},{remaining},{request_token},{unit_guid},{texture_path}'
+                )
                 if len(auras_information) >= MAX_AURA_RESULTS:
                     break
 
@@ -283,6 +343,62 @@ class ChatAddonManager:
         return token
 
     @staticmethod
+    def _sanitize_settings_payload(settings_payload):
+        if settings_payload is None:
+            return ''
+
+        payload = str(settings_payload).strip()
+        if not payload or payload == '-':
+            return ''
+
+        if len(payload) > MAX_ADDON_SETTINGS_LENGTH:
+            return None
+
+        for char in payload:
+            if char.isalnum():
+                continue
+            if char not in {'_', '-', '.', ':', ';', '='}:
+                return None
+
+        return payload
+
+    @staticmethod
+    def _parse_config_payload(payload):
+        if payload is None:
+            return AddonErrorCodes.INVALID_REQUEST, 0, ''
+
+        config_payload = str(payload).strip()
+        if not config_payload:
+            return AddonErrorCodes.INVALID_REQUEST, 0, ''
+
+        if '|' in config_payload:
+            flags_text, settings_payload = config_payload.split('|', 1)
+        else:
+            flags_text, settings_payload = config_payload, ''
+
+        try:
+            flags = int(flags_text)
+        except (TypeError, ValueError):
+            return AddonErrorCodes.INVALID_REQUEST, 0, ''
+
+        if flags < 0 or flags > MAX_ADDON_FLAGS_VALUE:
+            return AddonErrorCodes.INVALID_REQUEST, 0, ''
+
+        settings_payload = ChatAddonManager._sanitize_settings_payload(settings_payload)
+        if settings_payload is None:
+            return AddonErrorCodes.INVALID_REQUEST, 0, ''
+
+        return AddonErrorCodes.SUCCESS, flags, settings_payload
+
+    @staticmethod
+    def _build_config_response(flags, request_token, settings_payload=''):
+        response = f'cfg,{int(flags)},{request_token}'
+        safe_settings = ChatAddonManager._sanitize_settings_payload(settings_payload)
+        if safe_settings:
+            response += f',{safe_settings}'
+        return response
+
+    @staticmethod
     def _extract_request_token(args):
         if not args or len(args) < 2:
             return ''
@@ -317,6 +433,8 @@ class ChatAddonManager:
 
 ADDON_COMMAND_DEFINITIONS = {
     'getaddonapi': ChatAddonManager.get_addon_api_version,
+    'get_cfg': ChatAddonManager.get_character_config,
     'get_auras_version': ChatAddonManager.get_unit_auras,
-    'get_target_dist_version': ChatAddonManager.get_unit_distance
+    'get_target_dist_version': ChatAddonManager.get_unit_distance,
+    'set_cfg': ChatAddonManager.set_character_config
 }

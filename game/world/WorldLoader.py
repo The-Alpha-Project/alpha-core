@@ -48,6 +48,7 @@ class WorldLoader:
 
             # Spells.
             WorldLoader.load_spells()
+            WorldLoader.load_spell_icons()
             WorldLoader.load_spell_script_targets()
             WorldLoader.load_creature_spells()
             if WorldLoader._should_abort():
@@ -679,6 +680,19 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading spells...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_spell_icons():
+        spell_icons = DbcDatabaseManager.spell_icon_get_all()
+        length = len(spell_icons)
+        count = 0
+
+        for spell_icon in spell_icons:
+            DbcDatabaseManager.SpellIconHolder.load_spell_icon(spell_icon)
+            count += 1
+            Logger.progress('Loading spell icons...', count, length)
 
         return length
 

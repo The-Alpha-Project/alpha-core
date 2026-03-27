@@ -907,6 +907,13 @@ class Spell(Base):
     custom_DispelType = Column(INTEGER(4), nullable=False, server_default=text("'0'"))
 
 
+class SpellIcon(Base):
+    __tablename__ = 'SpellIcon'
+
+    ID = Column(INTEGER(11), primary_key=True, server_default=text("'0'"))
+    TextureFilename = Column(Text)
+
+
 class SpellAuraName(Base):
     __tablename__ = 'SpellAuraNames'
 

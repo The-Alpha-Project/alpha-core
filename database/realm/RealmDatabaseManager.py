@@ -82,6 +82,32 @@ class RealmDatabaseManager:
         realm_db_session.close()
 
     @staticmethod
+    def character_get_addon_settings(guid):
+        realm_db_session = SessionHolder()
+        addon_settings = realm_db_session.query(CharacterAddonsSettings).filter_by(
+            guid=guid & ~HighGuid.HIGHGUID_PLAYER).first()
+        realm_db_session.close()
+        return addon_settings
+
+    @staticmethod
+    def character_update_addon_settings(guid, flags=0, settings=None, updated_at=0):
+        realm_db_session = SessionHolder()
+        db_guid = guid & ~HighGuid.HIGHGUID_PLAYER
+        addon_settings = realm_db_session.query(CharacterAddonsSettings).filter_by(guid=db_guid).first()
+
+        if not addon_settings:
+            addon_settings = CharacterAddonsSettings(guid=db_guid)
+            realm_db_session.add(addon_settings)
+
+        addon_settings.flags = flags
+        addon_settings.settings = settings if settings else None
+        addon_settings.updated_at = updated_at
+
+        realm_db_session.flush()
+        realm_db_session.commit()
+        realm_db_session.close()
+
+    @staticmethod
     def character_inventory_get(character_guid):
         realm_db_session = SessionHolder()
         character_inventory = realm_db_session.query(CharacterInventory).filter_by(
