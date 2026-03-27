@@ -24,7 +24,7 @@ class Distances:
     CREATURE_EVADE_DISTANCE = 65.0  # Guessed (Spell Range 'Extra Long Range' + 5).
     GROUP_SHARING_DISTANCE = 74.0  # Used for XP, loot, reputation...
     GAMEOBJECT_INTERACT_DISTANCE = 6.0
-    FISHING_BOBBER_DISTANCE = 20.0  # Matches the Fishing spell max range.
+    FISHING_BOBBER_DISTANCE = 21.0  # Matches the Fishing spell max range + 1.
     LOOT_DISTANCE_GRACE = 2.0  # Server-side tolerance for client loot cursor variance.
 
     # Inferred from the 0.5.3 client formulas.
