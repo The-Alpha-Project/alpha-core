@@ -4,6 +4,7 @@ from time import monotonic, time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ChatFlags, ChatMsgs, Languages
@@ -419,6 +420,44 @@ class ChatAddonManager:
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NOTIFICATION, data))
 
     @staticmethod
+    def get_guild_roster(player_mgr, args):
+        if not args or len(args) != 1:
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+
+        request_token = ChatAddonManager._sanitize_request_token(args[0])
+        if request_token is None or request_token == '':
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+
+        if not player_mgr.guild_manager:
+            return AddonErrorCodes.NO_DATA, '', PLAYER, request_token
+
+        guild_mgr = player_mgr.guild_manager
+        guild_name = ChatAddonManager._sanitize_csv_field(guild_mgr.guild.name or '')[:50]
+        motd = ChatAddonManager._sanitize_csv_field(guild_mgr.guild.motd or '')[:150]
+
+        online_count = 0
+        total_count = 0
+        member_lines = []
+
+        for guid, member in guild_mgr.members.items():
+            total_count += 1
+            online_player = WorldSessionStateHandler.find_player_by_guid(guid)
+            is_online = 1 if online_player and online_player.online else 0
+            if is_online:
+                online_count += 1
+
+            name = ChatAddonManager._sanitize_csv_field(member.character.name if member.character else '?')
+            level = member.character.level if member.character else 0
+            class_id = member.character.class_ if member.character else 0
+            rank = int(member.rank)
+
+            member_lines.append(f'gm,{name},{level},{class_id},{rank},{is_online}')
+
+        header = f'gr,{request_token},{guild_name},{motd},{online_count},{total_count}'
+        lines = [header] + member_lines
+        return AddonErrorCodes.SUCCESS, '\n'.join(lines), PLAYER, request_token
+
+    @staticmethod
     def _parse_versioned_unit_and_token(args):
         if not args or len(args) != 2:
             return AddonErrorCodes.INVALID_REQUEST, PLAYER, ''
@@ -436,5 +475,6 @@ ADDON_COMMAND_DEFINITIONS = {
     'get_cfg': ChatAddonManager.get_character_config,
     'get_auras_version': ChatAddonManager.get_unit_auras,
     'get_target_dist_version': ChatAddonManager.get_unit_distance,
-    'set_cfg': ChatAddonManager.set_character_config
+    'set_cfg': ChatAddonManager.set_character_config,
+    'get_guild_roster': ChatAddonManager.get_guild_roster,
 }
