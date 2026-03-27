@@ -243,7 +243,7 @@ class GameObjectManager(ObjectManager):
 
     def is_within_interactable_distance(self, victim):
         # TODO: https://github.com/cmangos/mangos-tbc/blob/master/src/game/Entities/GameObject.cpp#L2438
-        max_distance = Distances.FISHING_BOBBER_INTERACT_DISTANCE \
+        max_distance = Distances.FISHING_BOBBER_DISTANCE \
             if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE \
             else Distances.GAMEOBJECT_INTERACT_DISTANCE
         return Distances.is_within_gameobject_interact_distance(self, victim, max_distance)
