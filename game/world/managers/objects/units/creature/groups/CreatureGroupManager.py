@@ -1,5 +1,4 @@
 import math
-from random import choice
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -20,13 +19,16 @@ class CreatureGroupManager:
         self.leader = None
         self.creature_group = None
         self.members: dict[int, CreatureGroupMember] = {}
+        self.member_configs: dict[int, tuple[float, float, int]] = {}
         self.group_flags = 0
+        self._respawn_guard = False
 
     @staticmethod
     def get_create_group(creature_group):
         if creature_group.leader_guid not in CREATURE_GROUPS:
             creature_group_mgr = CreatureGroupManager()
             creature_group_mgr.creature_group = creature_group
+            creature_group_mgr.original_leader_spawn_id = creature_group.leader_guid
             CREATURE_GROUPS[creature_group.leader_guid] = creature_group_mgr
         return CREATURE_GROUPS[creature_group.leader_guid]
 
@@ -38,9 +40,15 @@ class CreatureGroupManager:
             return None
         return self.members[self.leader.guid]
 
-    def add_member(self, creature_mgr, dist: int = 0, angle: int = 0, flags: int = 0):
+    def add_member(self, creature_mgr, dist=None, angle=None, flags=None):
+        if creature_mgr.creature_group and creature_mgr.creature_group is not self:
+            Logger.warning(f'{creature_mgr.get_name()} attempted to join another group without leaving first.')
+            return False
+
         if creature_mgr.guid not in self.members:
             self.members[creature_mgr.guid] = CreatureGroupMember(creature_mgr, self.creature_group, dist, angle, flags)
+        member = self.members[creature_mgr.guid]
+        self.member_configs[creature_mgr.spawn_id] = (member.distance_leader, member.angle, member.flags)
         # Set leader.
         if self.creature_group.leader_guid == creature_mgr.spawn_id:
             self.leader = creature_mgr
@@ -52,7 +60,7 @@ class CreatureGroupManager:
                 creature_movement.sort(key=lambda wp: wp.point)
                 self.waypoints = self._get_sorted_waypoints_by_distance(creature_movement)
 
-        self.group_flags |= self.creature_group.flags
+        self.group_flags |= member.flags
 
         if not creature_mgr.creature_group:
             creature_mgr.creature_group = self
@@ -61,25 +69,44 @@ class CreatureGroupManager:
             creature_mgr.movement_manager.initialize_or_reset()
 
         Logger.debug(f'{creature_mgr.get_name()} joined group.')
+        return True
 
-    def remove_member(self, creature_mgr):
+    def remove_member(self, creature_mgr, disband_if_original_leader=False, forget_member=False):
         if creature_mgr.guid not in self.members:
+            if creature_mgr.creature_group is self:
+                creature_mgr.creature_group = None
+            if forget_member:
+                self.member_configs.pop(creature_mgr.spawn_id, None)
             return
+        was_current_leader = self.is_leader(creature_mgr)
+        is_original_leader = self.original_leader_spawn_id == creature_mgr.spawn_id
         self.members.pop(creature_mgr.guid)
+        if forget_member:
+            self.member_configs.pop(creature_mgr.spawn_id, None)
         disbanded = False
 
-        if not self.members or self.original_leader_spawn_id == creature_mgr.spawn_id:
-            self.disband()
-            disbanded = True
-        elif self.is_leader(creature_mgr) and self.is_formation():
-            new_leader = self._pick_new_leader()
-            self.leader = new_leader if new_leader else None
-
-        if creature_mgr.creature_group:
+        if creature_mgr.creature_group is self:
             creature_mgr.creature_group = None
 
+        if not self.members or (disband_if_original_leader and is_original_leader):
+            self.disband()
+            disbanded = True
+        elif was_current_leader and self.is_formation():
+            # Script-command leave from a temporary leader should restore original leader when possible.
+            new_leader = None
+            if disband_if_original_leader:
+                original_leader = self._get_original_leader_member()
+                if original_leader and original_leader.is_alive:
+                    new_leader = original_leader
+            if not new_leader:
+                new_leader = self._pick_new_leader()
+            self.leader = new_leader if new_leader else None
+            self._reinitialize_alive_members()
+        elif was_current_leader:
+            self.leader = None
+
         # Member left the group but group still exists, reset leaver movement behavior.
-        if not disbanded and self.original_leader_spawn_id != creature_mgr.spawn_id:
+        if not disbanded and not is_original_leader:
             creature_mgr.movement_manager.initialize_or_reset()
 
         if not disbanded:
@@ -95,45 +122,72 @@ class CreatureGroupManager:
             self._assist_member(member.creature, target)
 
     def on_member_died(self, creature_mgr):
-        is_leader = self.leader and creature_mgr.guid == self.leader.guid
+        is_original_leader = self.original_leader_spawn_id == creature_mgr.spawn_id
 
         if self.group_flags & CreatureGroupFlags.OPTION_INFORM_LEADER_ON_MEMBER_DIED:
-            if self.leader and self.leader.is_alive:
-                self.leader.object_ai.group_member_just_died(creature_mgr, is_leader=is_leader)
+            # Mirrors VMaNGOS behavior: only inform the original leader if a non-original member dies.
+            if not is_original_leader:
+                original_leader = self._get_original_leader_member()
+                if original_leader and original_leader.is_alive and original_leader.object_ai:
+                    original_leader.object_ai.group_member_just_died(creature_mgr, is_leader=False)
         if self.group_flags & CreatureGroupFlags.OPTION_INFORM_MEMBERS_ON_ANY_DIED:
             for guid, member in self.members.items():
                 if guid == creature_mgr.guid or not member.creature.is_alive:
                     continue
-                member.creature.object_ai.group_member_just_died(creature_mgr, is_leader=is_leader)
+                if member.creature.object_ai:
+                    member.creature.object_ai.group_member_just_died(creature_mgr, is_leader=is_original_leader)
 
         # We don't re-use creatures instances, remove.
         self.remove_member(creature_mgr)
 
     def on_leave_combat(self, creature_mgr):
-        if self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_ANY_EVADE or \
-                (self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_MASTER_EVADE
-                 and self.is_leader(creature_mgr)):
-            for guid, member in self.members.items():
-                member.creature.despawn()
-            self.disband()
-        elif self.group_flags & CreatureGroupFlags.OPTION_EVADE_TOGETHER:
+        master_evade = self.original_leader_spawn_id == creature_mgr.spawn_id
+
+        if self.group_flags & CreatureGroupFlags.OPTION_EVADE_TOGETHER:
             for guid, member in self.members.items():
                 if guid == creature_mgr.guid or not member.creature.is_alive or not member.creature.combat_target:
                     continue
                 if member.creature.in_combat:
                     member.creature.leave_combat()
 
+            # If a non-original member evades, force the original leader to evade too when possible.
+            if not master_evade:
+                original_leader = self._get_original_leader_member()
+                if original_leader and original_leader.is_alive:
+                    master_evade = True
+                    if original_leader.in_combat:
+                        original_leader.leave_combat()
+
+        if self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_ANY_EVADE or \
+                (self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_MASTER_EVADE and master_evade):
+            self._respawn_all_except(creature_mgr, except_spawn_id=creature_mgr.spawn_id)
+
+    def on_member_respawn(self, creature_mgr):
+        if self._respawn_guard:
+            return
+
+        if self.is_formation() and creature_mgr.spawn_id == self.original_leader_spawn_id:
+            self.leader = creature_mgr
+            self._reinitialize_alive_members()
+
+        if self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_TOGETHER:
+            self._respawn_all_except(creature_mgr, except_spawn_id=creature_mgr.spawn_id)
+
     def disband(self):
         Logger.debug(f'Disbanding creature group.')
-        for guid, member in self.members.items():
-            member.creature_group = None
+        for member in self.members.values():
             member.creature.creature_group = None
+            if self.is_formation() and member.creature.is_alive and not member.creature.in_combat:
+                member.creature.movement_manager.initialize_or_reset()
             Logger.debug(f'{member.creature.get_name()} left creature group.')
         self.members.clear()
+        self.member_configs.clear()
+        self.leader = None
+        self.group_flags = 0
         if not self.original_leader_spawn_id:
             Logger.error(f'Orphan creature group with no leader. Leader Spawn ID: {self.creature_group.leader_guid}.')
             return
-        CREATURE_GROUPS.pop(self.original_leader_spawn_id)
+        CREATURE_GROUPS.pop(self.original_leader_spawn_id, None)
 
     def get_alive_count(self):
         alive = 0
@@ -181,9 +235,60 @@ class CreatureGroupManager:
         return points
 
     def _pick_new_leader(self):
-        alive = [member.creature for member in self.members.values() if member.creature.is_alive
-                 and member.creature.guid != self.leader.guid]
-        return choice(alive) if alive else None
+        for member in self.members.values():
+            creature = member.creature
+            if creature.is_alive and (not self.leader or creature.guid != self.leader.guid):
+                return creature
+
+        # Fallback in case the current leader is still alive and no alternative candidate exists.
+        if self.leader and self.leader.guid in self.members and self.leader.is_alive:
+            return self.leader
+        return None
+
+    def _get_original_leader_member(self):
+        for member in self.members.values():
+            if member.creature.spawn_id == self.original_leader_spawn_id:
+                return member.creature
+        return None
+
+    def _reinitialize_alive_members(self):
+        if not self.is_formation():
+            return
+        for member in self.members.values():
+            if member.creature.is_alive and not member.creature.in_combat:
+                member.creature.movement_manager.initialize_or_reset()
+
+    def _respawn_all_except(self, source_creature, except_spawn_id):
+        if self._respawn_guard:
+            return
+
+        self._respawn_guard = True
+        try:
+            member_spawn_ids = set(self.member_configs.keys())
+            member_spawn_ids.add(self.original_leader_spawn_id)
+
+            for spawn_id in member_spawn_ids:
+                if not spawn_id or spawn_id == except_spawn_id:
+                    continue
+                self._respawn_member_by_spawn_id(source_creature, spawn_id)
+        finally:
+            self._respawn_guard = False
+
+    def _respawn_member_by_spawn_id(self, source_creature, spawn_id):
+        for member in self.members.values():
+            creature = member.creature
+            if creature.spawn_id == spawn_id and creature.initialized and not creature.is_alive:
+                creature.respawn()
+                return
+
+        map_ = source_creature.get_map()
+        spawn = map_.get_creature_spawn_by_id(spawn_id)
+        if not spawn or not spawn.creature_instance:
+            return
+
+        creature = spawn.creature_instance
+        if creature.initialized and not creature.is_alive:
+            creature.respawn()
 
     # noinspection PyMethodMayBeStatic
     def _assist_member(self, creature, target):

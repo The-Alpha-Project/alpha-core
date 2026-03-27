@@ -381,6 +381,8 @@ class ChannelManager:
 
             # Handle AddOn channel.
             if channel.is_addon():
+                # Addon channels are transport channels for API requests; no join/leave announcements needed.
+                channel.announce = False
                 Logger.info(f'Registered addon channel [{channel_name}].')
                 ChannelManager.ADDON_CHANNELS[channel_name] = channel
             else:
@@ -390,6 +392,8 @@ class ChannelManager:
             channel = ChannelManager.get_channel(channel_name, player_mgr)
 
         if channel.player_in_channel(player_mgr):
+            if channel.is_addon():
+                return
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.PLAYER_ALREADY_MEMBER, player_mgr)
             ChannelManager.send_to_player(player_mgr, packet)
         elif not channel.password_ok(password):

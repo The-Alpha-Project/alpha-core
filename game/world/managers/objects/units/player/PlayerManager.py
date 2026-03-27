@@ -101,6 +101,8 @@ class PlayerManager(UnitManager):
         self.loot_selection: Optional[LootSelection] = None
 
         self.chat_flags = chat_flags
+        self.outdated_addon_api = False
+        self.addon_api_last_request_ts = {}
         self.afk_message = ''
         self.dnd_message = ''
         self.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY

@@ -1024,6 +1024,8 @@ class CreatureManager(UnitManager):
     def respawn(self):
         self.initialize_from_creature_template(self.creature_template)
         super().respawn()
+        if self.creature_group:
+            self.creature_group.on_member_respawn(self)
 
     # override
     def get_npc_flags(self):
