@@ -24,7 +24,7 @@ from utils.Srp6 import Srp6
 from utils.StringUtils import find_closest_match, normalize_name, parse_bool
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, SpeedType, ZSource
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, SpeedType
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureStaticFlags
 from utils.constants.UpdateFields import PlayerFields

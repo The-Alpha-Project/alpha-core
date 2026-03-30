@@ -5,6 +5,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from game.world.managers.objects.units.player.trade.ChatAddonManager import ChatAddonManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ChatLogManager import ChatLogManager
+from utils.Logger import Logger
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, \
     GuildTypeCommand, ChannelNotifications, Languages, BroadcastMessageType
@@ -53,13 +54,22 @@ class ChatManager:
 
     @staticmethod
     def send_channel_message(sender, channel_name, message, lang):
+        Logger.debug(f'[ChannelMsg] Looking up channel="{channel_name}" for player={sender.get_name()}')
         channel = ChannelManager.get_channel(channel_name, sender)
         # Check if channel exists.
         if not channel:
+            Logger.debug(f'[ChannelMsg] Channel "{channel_name}" NOT FOUND')
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
             return False
 
+        # Sender must be a member of the channel before any message processing.
+        if not channel.player_in_channel(sender):
+            packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
+            ChannelManager.send_to_player(sender, packet)
+            return False
+
+        Logger.debug(f'[ChannelMsg] Channel found: is_addon={channel.is_addon()}')
         if channel.is_addon():
             ChatAddonManager.process_addon_request(channel, sender, message)
         else:
