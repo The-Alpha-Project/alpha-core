@@ -23119,5 +23119,136 @@ begin not atomic
         insert into applied_updates values ('250320268');
     end if;
 
+    -- 27/03/2026
+    if (select count(*) from applied_updates where id='270320261') = 0 then
+        -- Remove orphaned EventAI rows whose missing scripts correspond to stale/non-0.5.3 spell/effect casts.
+        -- These references only produce warnings at runtime and cannot execute successfully without a script row.
+        DELETE FROM `creature_ai_events`
+        WHERE `id` IN (
+            93803, 180502, 185304, 292701, 311001, 363301, 365502, 367202, 374802,
+            392403, 392503, 405601, 413102, 451201, 452301, 452501, 453901, 454101,
+            485701, 485703, 485704, 527001, 527301, 530701, 530801, 536201, 536303,
+            536402, 565002, 571008, 571201, 571301, 571601, 571701, 1659201
+        );
+
+        insert into applied_updates values ('270320261');
+    end if;
+
+    if (select count(*) from applied_updates where id='270320262') = 0 then
+        -- Move template-driven summon companions to explicit ON_SPAWN EventAI casts.
+        -- This allows CreatureAI.just_respawned() to stay passive-only while preserving trainer/companion summons.
+        UPDATE `creature_ai_events`
+        SET `event_type` = 11, `event_param1` = 0, `event_param2` = 0, `event_param3` = 0, `event_param4` = 0,
+            `comment` = CASE `id`
+                WHEN 65701 THEN 'Defias Pirate - Summon Bloodsail Companion on Spawn'
+                WHEN 66901 THEN 'Skullsplitter Hunter - Cast Skullsplitter Pet on Spawn'
+                WHEN 69901 THEN 'Bloodscalp Beastmaster - Summon Bloodscalp Tiger on Spawn'
+                WHEN 78401 THEN 'Skullsplitter Beastmaster - Cast Skullsplitter Pet on Spawn'
+                WHEN 319901 THEN 'Burning Blade Cultist - Cast Summon Imp on Spawn'
+                WHEN 326502 THEN 'Razormane Hunter - Summon Razormane Wolf on Spawn'
+                WHEN 372501 THEN 'Dark Strand Cultist - Summon Imp on Spawn'
+                WHEN 466802 THEN 'Burning Blade Summoner - Cast Summon Imp on Spawn'
+                WHEN 600802 THEN 'Shadowsworn Warlock - Voidwalker on Spawn'
+                ELSE `comment`
+            END
+        WHERE `id` IN (65701, 66901, 69901, 78401, 319901, 326502, 372501, 466802, 600802);
+
+        UPDATE `creature_ai_events`
+        SET `event_type` = 11, `event_param1` = 0, `event_param2` = 0, `event_param3` = 0, `event_param4` = 0,
+            `comment` = 'Savannah Matriarch - Cast Savannah Cub on Spawn'
+        WHERE `id` = 341601;
+
+        INSERT INTO `creature_ai_scripts` (
+            `id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`,
+            `target_param1`, `target_param2`, `target_type`, `data_flags`,
+            `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`,
+            `condition_id`, `comments`
+        ) VALUES
+        (61903, 0, 0, 15, 5108, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Conjurer - Cast Spell Voidwalker'),
+        (287001, 0, 0, 15, 4946, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Henria Derth - Cast Spell Summon Tamed Wolf'),
+        (287201, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Whaldak Darkbenk - Cast Spell Summon Tamed Spider'),
+        (287601, 0, 0, 15, 7908, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grunenstur Balindom - Cast Spell Summon Tamed Crocilisk'),
+        (287801, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Peria Lamenur - Cast Spell Summon Tamed Cat'),
+        (287901, 0, 0, 15, 7904, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Karrina Mekenda - Cast Spell Summon Tamed Bird'),
+        (288001, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hurom Juggendolf - Cast Spell Summon Tamed Boar'),
+        (288101, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Durdek Karrin - Cast Spell Summon Tamed Bear'),
+        (293801, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Aldric Hunter - Cast Spell Summon Tamed Bear'),
+        (293901, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jackson Bayne - Cast Spell Summon Tamed Boar'),
+        (294001, 0, 0, 15, 7904, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Frank Ward - Cast Spell Summon Tamed Bird'),
+        (294102, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lanie Reed - Cast Spell Summon Tamed Spider'),
+        (294201, 0, 0, 15, 4946, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dylan Bissel - Cast Spell Summon Tamed Wolf'),
+        (294301, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ransin Donner - Cast Spell Summon Tamed Crab'),
+        (354501, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Claude Erksine - Cast Spell Summon Tamed Bear'),
+        (354601, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bernie Heisten - Cast Spell Summon Tamed Spider'),
+        (362002, 0, 0, 15, 7908, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Harruk - Cast Spell Summon Tamed Crocilisk'),
+        (362101, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kurll - Cast Spell Summon Tamed Cat'),
+        (362201, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grokor - Cast Spell Summon Tamed Boar'),
+        (362301, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tursk - Cast Spell Summon Tamed Crab'),
+        (362401, 0, 0, 15, 7911, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Zudd - Cast Spell Summon Tamed Scorpion'),
+        (362501, 0, 0, 15, 7910, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rarck - Cast Spell Summon Tamed Raptor'),
+        (368501, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Harb Clawhoof - Cast Spell Summon Tamed Cat'),
+        (368802, 0, 0, 15, 7913, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Reban Freerunner - Cast Spell Summon Tamed Tall Strider'),
+        (368901, 0, 0, 15, 4946, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Laer Stepperunner - Cast Spell Summon Tamed Wolf'),
+        (369002, 0, 0, 15, 7904, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kar Stormsinger - Cast Spell Summon Tamed Bird'),
+        (369701, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kyln Longclaw - Cast Spell Summon Tamed Boar'),
+        (369801, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bolyun - Cast Spell Summon Tamed Spider'),
+        (369901, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Nerra - Cast Spell Summon Tamed Cat'),
+        (370002, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jadenvis Seawatcher - Cast Spell Summon Tamed Crab'),
+        (370101, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tharnariun Treetender - Cast Spell Summon Tamed Bear'),
+        (370201, 0, 0, 15, 7913, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Alanndarian Nightsong - Cast Spell Summon Tamed Tall Strider'),
+        (404301, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Galthuk - Cast Spell Summon Tamed Bear'),
+        (462101, 0, 0, 15, 7910, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rebald Yorglun - Cast Spell Summon Tamed Raptor'),
+        (488201, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Om''kan - Cast Spell Summon Tamed Spider'),
+        (490102, 0, 0, 15, 7908, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kenna - Cast Spell Summon Tamed Crocilisk'),
+        (490202, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Frank Lasson - Cast Spell Summon Tamed Spider'),
+        (511801, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Brogun Stoneshield - Cast Spell Summon Tamed Boar');
+
+        INSERT INTO `creature_ai_events` (
+            `id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`,
+            `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`,
+            `comment`
+        ) VALUES
+        (61903, 619, 0, 11, 0, 100, 0, 0, 0, 0, 0, 61903, 0, 0, 'Defias Conjurer - Cast Voidwalker on Spawn'),
+        (287001, 2870, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287001, 0, 0, 'Henria Derth - Cast Summon Tamed Wolf on Spawn'),
+        (287201, 2872, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287201, 0, 0, 'Whaldak Darkbenk - Cast Summon Tamed Spider on Spawn'),
+        (287601, 2876, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287601, 0, 0, 'Grunenstur Balindom - Cast Summon Tamed Crocilisk on Spawn'),
+        (287801, 2878, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287801, 0, 0, 'Peria Lamenur - Cast Summon Tamed Cat on Spawn'),
+        (287901, 2879, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287901, 0, 0, 'Karrina Mekenda - Cast Summon Tamed Bird on Spawn'),
+        (288001, 2880, 0, 11, 0, 100, 0, 0, 0, 0, 0, 288001, 0, 0, 'Hurom Juggendolf - Cast Summon Tamed Boar on Spawn'),
+        (288101, 2881, 0, 11, 0, 100, 0, 0, 0, 0, 0, 288101, 0, 0, 'Durdek Karrin - Cast Summon Tamed Bear on Spawn'),
+        (293801, 2938, 0, 11, 0, 100, 0, 0, 0, 0, 0, 293801, 0, 0, 'Aldric Hunter - Cast Summon Tamed Bear on Spawn'),
+        (293901, 2939, 0, 11, 0, 100, 0, 0, 0, 0, 0, 293901, 0, 0, 'Jackson Bayne - Cast Summon Tamed Boar on Spawn'),
+        (294001, 2940, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294001, 0, 0, 'Frank Ward - Cast Summon Tamed Bird on Spawn'),
+        (294102, 2941, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294102, 0, 0, 'Lanie Reed - Cast Summon Tamed Spider on Spawn'),
+        (294201, 2942, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294201, 0, 0, 'Dylan Bissel - Cast Summon Tamed Wolf on Spawn'),
+        (294301, 2943, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294301, 0, 0, 'Ransin Donner - Cast Summon Tamed Crab on Spawn'),
+        (354501, 3545, 0, 11, 0, 100, 0, 0, 0, 0, 0, 354501, 0, 0, 'Claude Erksine - Cast Summon Tamed Bear on Spawn'),
+        (354601, 3546, 0, 11, 0, 100, 0, 0, 0, 0, 0, 354601, 0, 0, 'Bernie Heisten - Cast Summon Tamed Spider on Spawn'),
+        (362002, 3620, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362002, 0, 0, 'Harruk - Cast Summon Tamed Crocilisk on Spawn'),
+        (362101, 3621, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362101, 0, 0, 'Kurll - Cast Summon Tamed Cat on Spawn'),
+        (362201, 3622, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362201, 0, 0, 'Grokor - Cast Summon Tamed Boar on Spawn'),
+        (362301, 3623, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362301, 0, 0, 'Tursk - Cast Summon Tamed Crab on Spawn'),
+        (362401, 3624, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362401, 0, 0, 'Zudd - Cast Summon Tamed Scorpion on Spawn'),
+        (362501, 3625, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362501, 0, 0, 'Rarck - Cast Summon Tamed Raptor on Spawn'),
+        (368501, 3685, 0, 11, 0, 100, 0, 0, 0, 0, 0, 368501, 0, 0, 'Harb Clawhoof - Cast Summon Tamed Cat on Spawn'),
+        (368802, 3688, 0, 11, 0, 100, 0, 0, 0, 0, 0, 368802, 0, 0, 'Reban Freerunner - Cast Summon Tamed Tall Strider on Spawn'),
+        (368901, 3689, 0, 11, 0, 100, 0, 0, 0, 0, 0, 368901, 0, 0, 'Laer Stepperunner - Cast Summon Tamed Wolf on Spawn'),
+        (369002, 3690, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369002, 0, 0, 'Kar Stormsinger - Cast Summon Tamed Bird on Spawn'),
+        (369701, 3697, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369701, 0, 0, 'Kyln Longclaw - Cast Summon Tamed Boar on Spawn'),
+        (369801, 3698, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369801, 0, 0, 'Bolyun - Cast Summon Tamed Spider on Spawn'),
+        (369901, 3699, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369901, 0, 0, 'Nerra - Cast Summon Tamed Cat on Spawn'),
+        (370002, 3700, 0, 11, 0, 100, 0, 0, 0, 0, 0, 370002, 0, 0, 'Jadenvis Seawatcher - Cast Summon Tamed Crab on Spawn'),
+        (370101, 3701, 0, 11, 0, 100, 0, 0, 0, 0, 0, 370101, 0, 0, 'Tharnariun Treetender - Cast Summon Tamed Bear on Spawn'),
+        (370201, 3702, 0, 11, 0, 100, 0, 0, 0, 0, 0, 370201, 0, 0, 'Alanndarian Nightsong - Cast Summon Tamed Tall Strider on Spawn'),
+        (404301, 4043, 0, 11, 0, 100, 0, 0, 0, 0, 0, 404301, 0, 0, 'Galthuk - Cast Summon Tamed Bear on Spawn'),
+        (462101, 4621, 0, 11, 0, 100, 0, 0, 0, 0, 0, 462101, 0, 0, 'Rebald Yorglun - Cast Summon Tamed Raptor on Spawn'),
+        (488201, 4882, 0, 11, 0, 100, 0, 0, 0, 0, 0, 488201, 0, 0, 'Om''kan - Cast Summon Tamed Spider on Spawn'),
+        (490102, 4901, 0, 11, 0, 100, 0, 0, 0, 0, 0, 490102, 0, 0, 'Kenna - Cast Summon Tamed Crocilisk on Spawn'),
+        (490202, 4902, 0, 11, 0, 100, 0, 0, 0, 0, 0, 490202, 0, 0, 'Frank Lasson - Cast Summon Tamed Spider on Spawn'),
+        (511801, 5118, 0, 11, 0, 100, 0, 0, 0, 0, 0, 511801, 0, 0, 'Brogun Stoneshield - Cast Summon Tamed Boar on Spawn');
+
+        insert into applied_updates values ('270320262');
+    end if;
+
 end $
 delimiter ;

@@ -14,8 +14,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
-    SpellEffects
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates, CreatureReactStates
 
 if TYPE_CHECKING:
@@ -158,7 +157,8 @@ class CreatureAI:
 
     # Called when creature is spawned or respawned (for resetting variables).
     def just_respawned(self):
-        # Apply passives and cast pet summons.
+        # Only passive template spells should be applied on respawn.
+        # Active casts and summons are driven by EventAI/creature_spells data.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not spell:
@@ -169,8 +169,6 @@ class CreatureAI:
 
             if spell.is_passive():
                 self.creature.spell_manager.apply_passive_spell_effects(spell.spell_entry)
-            elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET, SpellEffects.SPELL_EFFECT_SUMMON):
-                self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
 
         # Run on-spawn AI scripts.
         self.ai_event_handler.on_spawn()
