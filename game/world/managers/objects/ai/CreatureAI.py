@@ -87,20 +87,30 @@ class CreatureAI:
     # Distract creature, if player gets too close while stealth/prowling.
     # AIReactionStates.AI_REACT_ALERT
     def trigger_alert(self, unit):
-        pass
+        if (not unit or not self.creature.is_alive or self.creature.in_combat
+                or self.creature.unit_state & (UnitStates.DISTRACTED | UnitStates.CONFUSED | UnitStates.STUNNED)
+                or self.creature.unit_flags & UnitFlags.UNIT_FLAG_FLEEING):
+            return False
 
-    # Modifies unit facing and sometimes plays a sound.
-    def send_ai_reaction(self, victim, ai_reaction):
-        if ai_reaction == AIReactionStates.AI_REACT_ALERT:
-            if self.last_alert_time > 0:
-                return False
-            # Stop creature movement if needed.
-            self.creature.movement_manager.stop()
-            self.last_alert_time = 10  # Seconds.
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.creature.can_attack_target(unit):
+            return False
 
+        if self.last_alert_time > 0:
+            return False
+
+        if not self.creature.get_map().los_check(self.creature.get_ray_position(), unit.get_ray_position()):
+            return False
+
+        self.send_ai_reaction(AIReactionStates.AI_REACT_ALERT)
+        angle = self.creature.location.get_angle_towards_vector(unit.location)
+        self.creature.movement_manager.move_distracted(duration_seconds=5, angle=angle)
+        self.last_alert_time = 10  # Seconds.
+        return True
+
+    # Sends the AI reaction packet/sound to nearby clients.
+    def send_ai_reaction(self, ai_reaction):
         data = pack('<QI', self.creature.guid, ai_reaction)
         packet = PacketWriter.get_packet(OpCode.SMSG_AI_REACTION, data)
-        self.creature.movement_manager.face_target(victim)
         self.creature.get_map().send_surrounding(packet, self.creature, False)
         return True
 
