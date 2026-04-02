@@ -4,7 +4,6 @@ from game.world.managers.objects.units.ChatManager import ChatManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from utils.ConfigManager import config
-from utils.Logger import Logger
 from utils.constants.MiscCodes import ChatMsgs, Languages
 
 
@@ -20,7 +19,6 @@ class ChatHandler:
             return 0
 
         chat_type, lang = unpack('<2I', reader.data[:8])
-        Logger.debug(f'[ChatHandler] chat_type={chat_type} (0x{chat_type:02X}), lang={lang}')
         message = ''
 
         if player_mgr.language_mod > -1:
@@ -34,7 +32,6 @@ class ChatHandler:
         if chat_type == ChatMsgs.CHAT_MSG_CHANNEL:
             channel_name = PacketReader.read_string(reader.data, 8).strip()
             message = PacketReader.read_string(reader.data, 8 + len(channel_name)+1)
-            Logger.debug(f'[ChatHandler] Channel msg: type={chat_type}, channel="{channel_name}", msg="{message[:60]}"')
             ChatManager.send_channel_message(player_mgr, channel_name, message, lang)
         # Say, Yell, Emote.
         elif chat_type == ChatMsgs.CHAT_MSG_SAY \

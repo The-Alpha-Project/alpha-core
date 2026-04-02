@@ -90,8 +90,6 @@ class ChatAddonManager:
                                              request_token)
                 return
 
-            Logger.debug(f'[AddonAPI] Command: {command}, args: {args}, player: {player_mgr.get_name()}')
-
             if command not in ADDON_COMMAND_DEFINITIONS:
                 if command in INVALID_LEGACY_COMMANDS:
                     ChatAddonManager._notify_outdated_addon_once(player_mgr)
@@ -437,16 +435,13 @@ class ChatAddonManager:
     @staticmethod
     def get_guild_roster(player_mgr, args):
         if not args or len(args) != 1:
-            Logger.debug(f'[GuildRoster] Invalid args: {args}')
             return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
 
         request_token = ChatAddonManager._sanitize_request_token(args[0])
         if request_token is None or request_token == '':
-            Logger.debug(f'[GuildRoster] Invalid token from args: {args}')
             return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
 
         if not player_mgr.guild_manager:
-            Logger.debug(f'[GuildRoster] Player {player_mgr.get_name()} has no guild_manager')
             return AddonErrorCodes.NO_DATA, '', PLAYER, request_token
 
         guild_mgr = player_mgr.guild_manager
@@ -473,8 +468,6 @@ class ChatAddonManager:
 
         header = f'gr,{request_token},{guild_name},{motd},{online_count},{total_count}'
         lines = [header] + member_lines
-        Logger.debug(f'[GuildRoster] Sending {len(member_lines)} members to {player_mgr.get_name()}, '
-                     f'guild={guild_name}, online={online_count}/{total_count}')
         return AddonErrorCodes.SUCCESS, '\n'.join(lines), PLAYER, request_token
 
     @staticmethod
