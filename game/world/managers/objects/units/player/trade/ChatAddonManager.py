@@ -41,14 +41,26 @@ ADDON_REQUEST_MIN_INTERVAL_SECONDS = 0.01
 MAX_ADDON_TOKEN_LENGTH = 24
 MAX_ADDON_SETTINGS_LENGTH = 72
 MAX_ADDON_FLAGS_VALUE = 18446744073709551615
-ADDON_API_AURAS_VERSION = 3
-ADDON_API_DISTANCE_VERSION = 2
-ADDON_API_CONFIG_VERSION = 1
-INVALID_LEGACY_COMMANDS = {'getunitauras', 'getunitdistance'}
-VERSIONED_DATA_COMMANDS = {'get_auras_version', 'get_target_dist_version'}
+# Public addon API versions start at 1 for each currently supported feature surface.
+ADDON_API_VERSION_ORDER = ('auras', 'distance', 'config', 'guild')
+ADDON_API_VERSIONS = {
+    'auras': 1,
+    'distance': 1,
+    'config': 1,
+    'guild': 1,
+}
+INVALID_LEGACY_COMMANDS = {
+    'getunitauras',
+    'getunitdistance',
+    'get_auras_version',
+    'get_target_dist_version'
+}
 OUTDATED_ADDON_NOTIFICATION = (
-    f'Your addon API version is outdated. Please update 053-AddOns '
-    f'(Auras v{ADDON_API_AURAS_VERSION}, TargetDistance v{ADDON_API_DISTANCE_VERSION}).'
+    'Your AlphaUI addon API is outdated. Please update AlphaUI '
+    f'(Auras v{ADDON_API_VERSIONS["auras"]}, '
+    f'TargetDistance v{ADDON_API_VERSIONS["distance"]}, '
+    f'Config v{ADDON_API_VERSIONS["config"]}, '
+    f'Guild v{ADDON_API_VERSIONS["guild"]}).'
 )
 
 
@@ -91,8 +103,6 @@ class ChatAddonManager:
             code, res, unit_id, request_token = ADDON_COMMAND_DEFINITIONS[command](player_mgr, args)
 
             if code < AddonErrorCodes.SUCCESS:
-                if command in VERSIONED_DATA_COMMANDS and code == AddonErrorCodes.INVALID_REQUEST:
-                    ChatAddonManager._notify_outdated_addon_once(player_mgr)
                 ChatAddonManager._send_error(channel, player_mgr, code, unit_id, request_token)
                 return
 
@@ -118,10 +128,14 @@ class ChatAddonManager:
     def get_addon_api_version(player_mgr, args):
         if args:
             return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+        api_fields = [
+            f'{api_name}={ADDON_API_VERSIONS[api_name]}'
+            for api_name in ADDON_API_VERSION_ORDER
+        ]
+        api_fields.append('strict=1')
         return (
             AddonErrorCodes.SUCCESS,
-            f'api,auras={ADDON_API_AURAS_VERSION},distance={ADDON_API_DISTANCE_VERSION},'
-            f'config={ADDON_API_CONFIG_VERSION},strict=1',
+            'api,' + ','.join(api_fields),
             PLAYER,
             ''
         )
@@ -181,8 +195,8 @@ class ChatAddonManager:
             return result, '', unit_id, request_token
 
         auras_information = []
+        unit_guid = str(unit.guid) if unit else ''
         if unit:
-            unit_guid = str(unit.guid)
             for aura in unit.aura_manager.get_active_auras():
                 if aura.passive or not aura.displays_in_aura_bar():
                     continue
@@ -193,15 +207,14 @@ class ChatAddonManager:
                 texture_path = ChatAddonManager._get_spell_icon_path(texture)
                 remaining = int(aura.get_duration())
                 harmful = 1 if aura.harmful else 0
-                auras_information.append(
-                    f'{unit_id},{name},{harmful},{texture},{remaining},{request_token},{unit_guid},{texture_path}'
-                )
+                auras_information.append(f'ae,{name},{harmful},{remaining},{texture_path}')
                 if len(auras_information) >= MAX_AURA_RESULTS:
                     break
 
+        header = f'au,{unit_id},{request_token},{unit_guid},{len(auras_information)}'
         if not auras_information:
-            return AddonErrorCodes.NO_DATA, '', unit_id, request_token
-        res = f'{len(auras_information)}\n' + str.join('\n', auras_information)
+            return AddonErrorCodes.SUCCESS, header, unit_id, request_token
+        res = header + '\n' + str.join('\n', auras_information)
         return AddonErrorCodes.SUCCESS, res, unit_id, request_token
 
     @staticmethod
@@ -221,8 +234,8 @@ class ChatAddonManager:
         if not player_mgr.location or not unit.location:
             return AddonErrorCodes.NO_DATA, '', unit_id, request_token
 
-        distance = player_mgr.location.distance(unit.location)
-        return AddonErrorCodes.SUCCESS, f'{unit_id},{distance:.3f},{request_token}', unit_id, request_token
+        distance = int(player_mgr.location.distance(unit.location) + 0.5)
+        return AddonErrorCodes.SUCCESS, f'{unit_id},{distance},{request_token}', unit_id, request_token
 
     @staticmethod
     def _get_unit(player_mgr, unit_id=None):
@@ -480,8 +493,8 @@ class ChatAddonManager:
 ADDON_COMMAND_DEFINITIONS = {
     'getaddonapi': ChatAddonManager.get_addon_api_version,
     'get_cfg': ChatAddonManager.get_character_config,
-    'get_auras_version': ChatAddonManager.get_unit_auras,
-    'get_target_dist_version': ChatAddonManager.get_unit_distance,
+    'get_auras': ChatAddonManager.get_unit_auras,
+    'get_target_dist': ChatAddonManager.get_unit_distance,
     'set_cfg': ChatAddonManager.set_character_config,
     'get_guild_roster': ChatAddonManager.get_guild_roster,
 }
