@@ -822,7 +822,8 @@ class ConditionChecker:
         if not target.creature_group:
             return False
 
-        return not condition.value2 or target.creature_group.original_leader_spawn_id == condition.value2
+        leader_guid = condition.value1 if condition.value1 else condition.value2
+        return not leader_guid or target.creature_group.original_leader_spawn_id == leader_guid
 
     @staticmethod
     def check_condition_creature_group_dead(_condition, _source, target):

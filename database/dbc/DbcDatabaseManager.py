@@ -221,6 +221,24 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return res
 
+    class SpellIconHolder:
+        SPELL_ICONS: dict[int, SpellIcon] = {}
+
+        @staticmethod
+        def load_spell_icon(spell_icon: SpellIcon):
+            DbcDatabaseManager.SpellIconHolder.SPELL_ICONS[spell_icon.ID] = spell_icon
+
+        @staticmethod
+        def spell_icon_get_by_id(icon_id):
+            return DbcDatabaseManager.SpellIconHolder.SPELL_ICONS.get(icon_id)
+
+    @staticmethod
+    def spell_icon_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellIcon).all()
+        dbc_db_session.close()
+        return res
+
     @staticmethod
     @lru_cache
     def spell_get_by_name(spell_name):

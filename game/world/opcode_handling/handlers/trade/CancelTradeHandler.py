@@ -6,8 +6,14 @@ class CancelTradeHandler:
 
     @staticmethod
     def handle(world_session, reader):
-        # Validate world session.
-        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
+        # The client can emit a trailing cancel-trade packet while tearing down the UI on logout.
+        # By then the session may already have detached its player manager.
+        player_mgr, res = HandlerValidator.validate_session(
+            world_session,
+            reader.opcode,
+            disconnect=False,
+            log_missing_player=False
+        )
         if not player_mgr:
             return res
 

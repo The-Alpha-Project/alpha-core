@@ -57,6 +57,18 @@ class Character(Base):
     power5 = Column(INTEGER(10), nullable=False, server_default=text("0"))
 
 
+class CharacterAddonsSettings(Base):
+    __tablename__ = 'character_addons_settings'
+
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'),
+                  primary_key=True, nullable=False, server_default=text("0"))
+    flags = Column(BIGINT(20), nullable=False, server_default=text("0"))
+    settings = Column(LONGTEXT, comment='Serialized per-character addon settings payload')
+    updated_at = Column(BIGINT(20), nullable=False, server_default=text("0"))
+
+    character = relationship('Character')
+
+
 class Ticket(Base):
     __tablename__ = 'tickets'
 

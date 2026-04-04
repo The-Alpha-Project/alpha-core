@@ -60,6 +60,12 @@ class ChatManager:
             ChannelManager.send_to_player(sender, packet)
             return False
 
+        # Sender must be a member of the channel before any message processing.
+        if not channel.player_in_channel(sender):
+            packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
+            ChannelManager.send_to_player(sender, packet)
+            return False
+
         if channel.is_addon():
             ChatAddonManager.process_addon_request(channel, sender, message)
         else:

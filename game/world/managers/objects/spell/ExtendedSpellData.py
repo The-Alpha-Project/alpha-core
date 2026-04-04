@@ -37,7 +37,7 @@ class ShapeshiftInfo:
     SHAPESHIFT_MODELS = {
         ShapeshiftForms.SHAPESHIFT_FORM_CAT: (892, 892, 0.8),
         ShapeshiftForms.SHAPESHIFT_FORM_TREE: (864, 864, 1.0),
-        ShapeshiftForms.SHAPESHIFT_FORM_FLYING: (632, 632, 0.8),  # Guessed, using Travel Form display id instead.
+        ShapeshiftForms.SHAPESHIFT_FORM_FLYING: (1419, 1419, 0.8),  # 'Yes, the druid's air form is a condor' - E3-2003
         ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: (2428, 2428, 0.8),
         ShapeshiftForms.SHAPESHIFT_FORM_BEAR: (2281, 2289, 1.0),
         ShapeshiftForms.SHAPESHIFT_FORM_AMBIENT: (328, 328, 1.0),  # Guessed, only used by zzOLDScout Form.

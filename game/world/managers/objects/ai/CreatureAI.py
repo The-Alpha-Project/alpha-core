@@ -14,8 +14,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
-    SpellEffects
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates, CreatureReactStates
 
 if TYPE_CHECKING:
@@ -88,20 +87,30 @@ class CreatureAI:
     # Distract creature, if player gets too close while stealth/prowling.
     # AIReactionStates.AI_REACT_ALERT
     def trigger_alert(self, unit):
-        pass
+        if (not unit or not self.creature.is_alive or self.creature.in_combat
+                or self.creature.unit_state & (UnitStates.DISTRACTED | UnitStates.CONFUSED | UnitStates.STUNNED)
+                or self.creature.unit_flags & UnitFlags.UNIT_FLAG_FLEEING):
+            return False
 
-    # Modifies unit facing and sometimes plays a sound.
-    def send_ai_reaction(self, victim, ai_reaction):
-        if ai_reaction == AIReactionStates.AI_REACT_ALERT:
-            if self.last_alert_time > 0:
-                return False
-            # Stop creature movement if needed.
-            self.creature.movement_manager.stop()
-            self.last_alert_time = 10  # Seconds.
+        if self.get_react_state() == CreatureReactStates.REACT_PASSIVE or not self.creature.can_attack_target(unit):
+            return False
 
+        if self.last_alert_time > 0:
+            return False
+
+        if not self.creature.get_map().los_check(self.creature.get_ray_position(), unit.get_ray_position()):
+            return False
+
+        self.send_ai_reaction(AIReactionStates.AI_REACT_ALERT)
+        angle = self.creature.location.get_angle_towards_vector(unit.location)
+        self.creature.movement_manager.move_distracted(duration_seconds=5, angle=angle)
+        self.last_alert_time = 10  # Seconds.
+        return True
+
+    # Sends the AI reaction packet/sound to nearby clients.
+    def send_ai_reaction(self, ai_reaction):
         data = pack('<QI', self.creature.guid, ai_reaction)
         packet = PacketWriter.get_packet(OpCode.SMSG_AI_REACTION, data)
-        self.creature.movement_manager.face_target(victim)
         self.creature.get_map().send_surrounding(packet, self.creature, False)
         return True
 
@@ -158,7 +167,8 @@ class CreatureAI:
 
     # Called when creature is spawned or respawned (for resetting variables).
     def just_respawned(self):
-        # Apply passives and cast pet summons.
+        # Only passive template spells should be applied on respawn.
+        # Active casts and summons are driven by EventAI/creature_spells data.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not spell:
@@ -169,8 +179,6 @@ class CreatureAI:
 
             if spell.is_passive():
                 self.creature.spell_manager.apply_passive_spell_effects(spell.spell_entry)
-            elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET, SpellEffects.SPELL_EFFECT_SUMMON):
-                self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
 
         # Run on-spawn AI scripts.
         self.ai_event_handler.on_spawn()

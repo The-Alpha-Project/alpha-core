@@ -572,28 +572,36 @@ class WorldDatabaseManager:
     @staticmethod
     def creature_groups_get_all() -> list[CreatureGroup]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureGroup).all()
+        res = world_db_session.query(CreatureGroup) \
+            .order_by(CreatureGroup.leader_guid, CreatureGroup.member_guid) \
+            .all()
         world_db_session.close()
         return res
 
     class CreatureGroupsHolder:
         CREATURE_GROUP_BY_MEMBER: dict = {}
+        CREATURE_GROUP_BY_LEADER: dict = {}
 
         @staticmethod
         def load_creature_groups(creature_group):
             leader_guid = creature_group.leader_guid
             member_guid = creature_group.member_guid
-            if creature_group.leader_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
-                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[leader_guid] = creature_group
 
-            if creature_group.member_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
+            # Keep a dedicated leader map to avoid key collisions when a leader guid appears
+            # as a member in a different group and this leader has no self-row.
+            leader_row = member_guid == leader_guid
+            if leader_row or leader_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_LEADER:
+                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_LEADER[leader_guid] = creature_group
+
+            if leader_row or member_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
                 WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[member_guid] = creature_group
 
         @staticmethod
         def get_group_by_member_spawn_id(spawn_id):
-            if spawn_id in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
-                return WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[spawn_id]
-            return []
+            member_group = WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER.get(spawn_id)
+            if member_group:
+                return member_group
+            return WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_LEADER.get(spawn_id)
 
     class CreatureMovementHolder:
         CREATURE_WAYPOINTS: Dict[int, List[CreatureMovement]] = {}

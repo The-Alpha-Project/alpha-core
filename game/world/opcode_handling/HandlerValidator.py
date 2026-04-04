@@ -228,15 +228,21 @@ class HandlerValidator:
             return f'UNKNOWN_{opcode}'
 
     @staticmethod
-    def validate_session(world_session, opcode, disconnect=True):
+    def validate_session(world_session, opcode, disconnect=True, log_missing_player=True):
         if not world_session:
-            Logger.error(f'OpCode {HandlerValidator._opcode_name(opcode)}, Session was None.')
-            return None, -1 if disconnect else 0
+            if log_missing_player:
+                log = Logger.error if disconnect else Logger.warning
+                suffix = 'Disconnecting.' if disconnect else 'Ignoring.'
+                log(f'OpCode {HandlerValidator._opcode_name(opcode)}, Session was None. {suffix}')
+            return None, -1 if disconnect else 1
 
         if not world_session.player_mgr:
-            Logger.error(f'OpCode {HandlerValidator._opcode_name(opcode)}, Session: {world_session.client_address} had None PlayerMgr'
-                         f' instance. Disconnecting.')
-            return None, -1 if disconnect else 0
+            if log_missing_player:
+                log = Logger.error if disconnect else Logger.warning
+                suffix = 'Disconnecting.' if disconnect else 'Ignoring.'
+                log(f'OpCode {HandlerValidator._opcode_name(opcode)}, Session: {world_session.client_address} had None '
+                    f'PlayerMgr instance. {suffix}')
+            return None, -1 if disconnect else 1
 
         return world_session.player_mgr, 0
 

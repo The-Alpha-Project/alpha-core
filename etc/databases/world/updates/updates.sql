@@ -22835,5 +22835,420 @@ begin not atomic
         insert into applied_updates values ('220220262');
     end if;
 
+    -- 24/03/2026 1
+    if (select count(*) from applied_updates where id='240320261') = 0 then
+        -- Fix EventAI self-buff aura checks that reference a different spell id than the one being cast.
+        -- These mismatches cause perpetual retriggers and script cast warnings.
+
+        -- Script: 172901 (Defias Evoker spawn cast): (Frost Armor Rank 1) 168 -> (Frost Armor Rank 2) 7300
+        UPDATE `creature_ai_scripts` SET `datalong` = 7300 WHERE `id` = 172901 AND `command` = 15;
+        -- Script: 778903 (Sandfury Cretin cast script): (Demon Skin legacy) 20798 -> (Demon Skin Rank 1) 687
+        UPDATE `creature_ai_scripts` SET `datalong` = 687 WHERE `id` = 778903 AND `command` = 15 AND `datalong` = 20798;
+
+        -- Event: 50704 (Fenros): (Frost Armor Rank 1) 168 -> (Frost Armor Rank 3) 7301
+        -- Event: 67703 (Venture Co. Tinkerer): (Frost Armor legacy) 12544 -> (Frost Armor Rank 1) 168
+        -- Event: 150701 (Scarlet Initiate): (Frost Armor legacy) 12544 -> (Frost Armor Rank 1) 168
+        -- Event: 172904 (Defias Evoker): (Frost Armor legacy) 12544 -> (Frost Armor Rank 2) 7300
+        -- Event: 173204 (Defias Squallshaper): (Cat Form Shapeshift) 768 -> (Frost Armor Rank 1) 168
+        -- Event: 432807 (Firemane Scalebane): (Fire Shield legacy) 18968 -> (Fire Shield II) 184
+        -- Event: 547101 (Dunemaul Ogre): (Battle Stance Rank 1) 2457 -> (Battle Stance Rank 1) 7165
+        -- Event: 778903 (Sandfury Cretin): (Demon Armor legacy) 13787 -> (Demon Skin Rank 1) 687
+        -- Intentionally excluded:
+        -- 81303 (Colonel Kurzen): checks missing (Stealth legacy) 8822 before casting (Garrote legacy) 8818 opener.
+        -- 427508 (Archmage Arugal): checks missing (Shadow Port) 7587 before casting (Shadow Port) 7586 follow-up and resetting phase.
+        -- "Cast X on Missing Buff" rows: make event_param1 match the current cast spell id.
+        UPDATE `creature_ai_events` e
+        JOIN `creature_ai_scripts` s ON s.`id` = e.`id` AND s.`command` = 15
+        SET e.`event_param1` = s.`datalong`
+        WHERE e.`event_type` = 27
+          AND e.`id` IN (50704, 67703, 150701, 173204, 172904, 432807, 547101, 778903);
+
+        insert into applied_updates values ('240320261');
+    end if;
+
+    -- Duskwood: Stitches event overview (Translation to Ello, quest 252).
+    -- Flow summary:
+    -- 1) Quest complete summons Stitches at (-10277.63, 54.27, 42.20, o=4.22) after 31s.
+    -- 2) Stitches follows waypoint route (entry 412) from Darkshire outskirts to town center.
+    -- 3) Waypoint 34 (first defense): move existing camp watchers (no duplicate summons)
+    --    - Hutchins (1001), Blomberg (1000), Dodds (888), Paige (499) to defense points.
+    --    They engage once Stitches reaches them (no forced attack start).
+    -- 4) Waypoint 34/35: Cutford support and town crier warning.
+    -- 5) Waypoint 39 (second defense): summon and group
+    --    - Selkin (1100), Merant (1098), Gelwin (1099), Thayer (1101)
+    --    around (-10618, -1184, 28.5).
+    -- 6) Waypoint 61 (final defense): summon
+    --    - Sarys (1203) at (-10574.31, -1179.06, 28.03, o=3.05)
+    --    - Corwin (1204) at (-10575.13, -1170.07, 28.25, o=3.61)
+    -- 7) End of route switches Stitches to random movement; on death, summoned watchers are despawned.
+
+    -- 25/03/2026
+    if (select count(*) from applied_updates where id='250320268') = 0 then
+        -- Keep Translation to Ello hooked to quest_end_scripts id 252 and add Stitches summon.
+        UPDATE `quest_template` SET `CompleteScript` = 252 WHERE `entry` = 252;
+
+        DELETE FROM `quest_end_scripts` WHERE `id` = 252 AND `command` = 10 AND `datalong` = 412;
+        INSERT INTO `quest_end_scripts` (
+            `id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`,
+            `target_param1`, `target_param2`, `target_type`, `data_flags`,
+            `dataint`, `dataint2`, `dataint3`, `dataint4`,
+            `x`, `y`, `z`, `o`, `condition_id`, `comments`
+        ) VALUES
+        (252, 31, 0, 10, 412, 3600000, 1, 500, 0, 0, 0, 0, 5, 412001, -1, 7, -10277.63, 54.27, 42.2, 4.22, 0, 'Translation to Ello - Summon Stitches');
+
+        -- Summon dataint2 references generic script ids.
+        DELETE FROM `generic_scripts` WHERE `id` IN (412001, 412098, 412099, 412100, 412101, 412102, 412103);
+        INSERT INTO `generic_scripts` (
+            `id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`,
+            `target_param1`, `target_param2`, `target_type`, `data_flags`,
+            `dataint`, `dataint2`, `dataint3`, `dataint4`,
+            `x`, `y`, `z`, `o`, `condition_id`, `comments`
+        ) VALUES
+        (412001, 0, 0, 60, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches - Start waypoints from entry'),
+        (412098, 1, 0, 78, 7, 0, 0, 0, 1100, 40, 8, 0, 0, 0, 0, 0, 4.014, 0, 0, 1.519417, 0, 'Watcher Merant - Join Selkin formation'),
+        (412099, 1, 0, 78, 7, 0, 0, 0, 1100, 40, 8, 0, 0, 0, 0, 0, 3.2812, 0, 0, 2.132734, 0, 'Watcher Gelwin - Join Selkin formation'),
+        (412100, 0, 0, 60, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Watcher Selkin - Start waypoints (repeat)'),
+        (412101, 1, 0, 78, 7, 0, 0, 0, 1100, 40, 8, 0, 0, 0, 0, 0, 2.3692, 0, 0, 0.697629, 0, 'Watcher Thayer - Join Selkin formation'),
+        (412102, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, -10905.52, -374.1, 39.88, 1.25, 0, 'Watcher Hutchins - Move to defense point'),
+        (412103, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, -10902.2119, -375.4885, 40.0009, 1.25, 0, 'Watcher Blomberg - Move to defense point');
+
+        -- Keep these ids out of event_scripts to avoid lookup ambiguity.
+        DELETE FROM `event_scripts` WHERE `id` IN (412001, 412098, 412099, 412100, 412101, 412102, 412103);
+
+        DELETE FROM `creature_movement_scripts` WHERE `id` IN (412010, 412029, 412030, 412031, 412034, 412035, 412039, 412061, 412065);
+        INSERT INTO `creature_movement_scripts` (
+            `id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`,
+            `target_param1`, `target_param2`, `target_type`, `data_flags`,
+            `dataint`, `dataint2`, `dataint3`, `dataint4`,
+            `x`, `y`, `z`, `o`, `condition_id`, `comments`
+        ) VALUES
+        (412010, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 277, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches - Yell at waypoint 10'),
+        (412029, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 277, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches - Yell at waypoint 29'),
+        (412030, 0, 0, 0, 0, 0, 0, 0, 468, 500, 8, 18, 89, 0, 0, 0, 0, 0, 0, 0, 0, 'Town Crier - Warn at waypoint 30'),
+        (412034, 0, 1, 3, 0, 0, 4, 0, 1001, 120, 8, 18, 0, 0, 0, 0, -10905.52, -374.1, 39.88, 1.25, 0, 'Stitches - Order Watcher Hutchins to first defense point'),
+        (412034, 0, 2, 3, 0, 0, 4, 0, 1000, 120, 8, 18, 0, 0, 0, 0, -10902.2119, -375.4885, 40.0009, 1.25, 0, 'Stitches - Order Watcher Blomberg to first defense point'),
+        (412034, 1, 3, 3, 0, 0, 4, 0, 888, 120, 8, 18, 0, 0, 0, 0, -10903.0439, -377.5391, 40.0658, 1.19, 0, 'Stitches - Order Watcher Dodds to assist'),
+        (412034, 1, 4, 3, 0, 0, 4, 0, 499, 120, 8, 18, 0, 0, 0, 0, -10906.2217, -375.9572, 39.9603, 1.19, 0, 'Stitches - Order Watcher Paige to assist'),
+        (412034, 0, 0, 26, 0, 0, 0, 0, 1436, 300, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Watcher Cutford - Attack Stitches'),
+        (412035, 0, 0, 0, 0, 0, 0, 0, 468, 500, 8, 18, 90, 0, 0, 0, 0, 0, 0, 0, 0, 'Town Crier - Warn at waypoint 35'),
+        (412039, 0, 0, 10, 1098, 900000, 1, 120, 0, 0, 0, 0, 5, 412098, -1, 4, -10616.64, -1181.67, 28.49, 5.93, 0, 'Stitches - Summon Watcher Merant'),
+        (412039, 0, 1, 10, 1099, 900000, 1, 120, 0, 0, 0, 0, 5, 412099, -1, 4, -10618.9, -1182.15, 28.57, 5.93, 0, 'Stitches - Summon Watcher Gelwin'),
+        (412039, 0, 2, 10, 1100, 900000, 1, 120, 0, 0, 0, 0, 5, 412100, -1, 4, -10618.22, -1185.36, 28.58, 5.93, 0, 'Stitches - Summon Watcher Selkin'),
+        (412039, 0, 3, 10, 1101, 900000, 1, 120, 0, 0, 0, 0, 5, 412101, -1, 4, -10615.99, -1184.56, 28.46, 5.93, 0, 'Stitches - Summon Watcher Thayer'),
+        (412061, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 277, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches - Yell at waypoint 61'),
+        (412061, 0, 1, 10, 1203, 900000, 1, 120, 0, 0, 0, 0, 5, 0, -1, 4, -10574.31, -1179.06, 28.03, 3.05, 0, 'Stitches - Summon Watcher Sarys'),
+        (412061, 0, 2, 10, 1204, 900000, 1, 120, 0, 0, 0, 0, 5, 0, -1, 4, -10575.13, -1170.07, 28.25, 3.61, 0, 'Stitches - Summon Watcher Corwin'),
+        (412061, 0, 3, 0, 0, 0, 0, 0, 468, 500, 8, 18, 92, 0, 0, 0, 0, 0, 0, 0, 0, 'Town Crier - Warn at waypoint 61'),
+        (412065, 0, 0, 20, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 'Stitches - Switch to random movement at end');
+
+        DELETE FROM `creature_ai_events` WHERE `id` IN (412001);
+        INSERT INTO `creature_ai_events` (
+            `id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`,
+            `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`,
+            `action1_script`, `action2_script`, `action3_script`, `comment`
+        ) VALUES
+        (412001, 412, 0, 6, 0, 100, 0, 0, 0, 0, 0, 412201, 0, 0, 'Stitches - On death event cleanup');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (412201);
+        INSERT INTO `creature_ai_scripts` (
+            `id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`,
+            `target_param1`, `target_param2`, `target_type`, `data_flags`,
+            `dataint`, `dataint2`, `dataint3`, `dataint4`,
+            `x`, `y`, `z`, `o`, `condition_id`, `comments`
+        ) VALUES
+        (412201, 0, 0, 0, 0, 0, 0, 0, 468, 500, 8, 18, 93, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches death - Town Crier final yell'),
+        (412201, 0, 1, 18, 0, 0, 0, 0, 1098, 500, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches death - Despawn Watcher Merant'),
+        (412201, 0, 2, 18, 0, 0, 0, 0, 1099, 500, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches death - Despawn Watcher Gelwin'),
+        (412201, 0, 3, 18, 0, 0, 0, 0, 1100, 500, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches death - Despawn Watcher Selkin'),
+        (412201, 0, 4, 18, 0, 0, 0, 0, 1101, 500, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches death - Despawn Watcher Thayer'),
+        (412201, 0, 5, 18, 0, 0, 0, 0, 1203, 500, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches death - Despawn Watcher Sarys'),
+        (412201, 0, 6, 18, 0, 0, 0, 0, 1204, 500, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stitches death - Despawn Watcher Corwin');
+
+        DELETE FROM `creature_movement_template` WHERE `entry` IN (412, 1098, 1099, 1100, 1101);
+        INSERT INTO `creature_movement_template` (
+            `entry`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`
+        ) VALUES
+        (412,0,-10277.6,54.27,42.2,0,5000,0,0),
+        (412,1,-10301.3,61.2281,41.6227,0,0,0,0),
+        (412,2,-10303,90.1979,37.9904,0,0,0,0),
+        (412,3,-10339,117.446,29.0969,0,0,0,0),
+        (412,4,-10351.5,123.068,30.4421,0,0,0,0),
+        (412,5,-10370.2,150.839,35.2507,0,0,0,0),
+        (412,6,-10388.7,203.77,33.8711,0,0,0,0),
+        (412,7,-10420.9,226.142,33.7127,0,0,0,0),
+        (412,8,-10453.4,242.73,31.3118,0,0,0,0),
+        (412,9,-10491.1,281.42,32.1841,0,0,0,0),
+        (412,10,-10536.2,295.187,30.9005,0,0,0,412010),
+        (412,11,-10625.6,293.057,33.9319,0,0,0,0),
+        (412,12,-10635.4,288.561,36.2511,0,0,0,0),
+        (412,13,-10651.6,274.232,39.925,0,0,0,0),
+        (412,14,-10664.9,270.728,40.4314,0,0,0,0),
+        (412,15,-10687.9,283.994,40.3164,0,0,0,0),
+        (412,16,-10701.6,284.716,40.3482,0,0,0,0),
+        (412,17,-10727.9,281.341,41.5488,0,0,0,0),
+        (412,18,-10735.3,284.107,40.7814,0,0,0,0),
+        (412,19,-10750.9,301.799,39.2853,0,0,0,0),
+        (412,20,-10765.3,310.253,36.9858,0,0,0,0),
+        (412,21,-10795.7,308.84,32.6619,0,0,0,0),
+        (412,22,-10802.5,301.769,31.3551,0,0,0,0),
+        (412,23,-10804.2,282.183,30.6729,0,0,0,0),
+        (412,24,-10787.7,202.287,30.2021,0,0,0,0),
+        (412,25,-10755.3,137.25,29.0085,0,0,0,0),
+        (412,26,-10750.8,120.197,28.5755,0,0,0,0),
+        (412,27,-10754.1,71.1714,29.1834,0,0,0,0),
+        (412,28,-10783.5,-4.87522,30.1126,0,0,0,0),
+        (412,29,-10810.1,-93.3187,29.072,0,0,0,412029),
+        (412,30,-10835.3,-164.599,33.8591,0,0,0,412030),
+        (412,31,-10850,-219.687,38.0445,0,0,0,0),
+        (412,32,-10863.3,-282.047,38.1141,0,0,0,0),
+        (412,33,-10867.7,-298.216,37.8923,0,0,0,0),
+        (412,34,-10901.5,-373.583,39.92,0,0,0,412034),
+        (412,35,-10905.3,-423.588,42.1482,0,0,0,412035),
+        (412,36,-10909.5,-499.136,51.2137,0,0,0,0),
+        (412,37,-10912,-520.589,53.2373,0,0,0,0),
+        (412,38,-10919.5,-547.104,53.9189,0,0,0,0),
+        (412,39,-10930.1,-571.311,54.14,0,0,0,412039),
+        (412,40,-10948.6,-595.613,55.0908,0,0,0,0),
+        (412,41,-10955,-609.983,55.2477,0,0,0,0),
+        (412,42,-10957.9,-637.303,55.182,0,0,0,0),
+        (412,43,-10954.8,-650.701,55.4006,0,0,0,0),
+        (412,44,-10927.5,-687.849,55.4896,0,0,0,0),
+        (412,45,-10908.5,-724.489,54.7121,0,0,0,0),
+        (412,46,-10890.9,-746.88,55.4449,0,0,0,0),
+        (412,47,-10844.5,-796.238,56.1618,0,0,0,0),
+        (412,48,-10828,-828.656,55.5704,0,0,0,0),
+        (412,49,-10814.2,-856.816,55.9057,0,0,0,0),
+        (412,50,-10798.1,-911.533,55.946,0,0,0,0),
+        (412,51,-10795.3,-924.007,55.7429,0,0,0,0),
+        (412,52,-10798.2,-945.427,56.5852,0,0,0,0),
+        (412,53,-10807.3,-970.333,56.2262,0,0,0,0),
+        (412,54,-10804.6,-1033.15,46.6068,0,0,0,0),
+        (412,55,-10803.3,-1043.84,44.6945,0,0,0,0),
+        (412,56,-10786.5,-1081.55,36.1924,0,0,0,0),
+        (412,57,-10777.6,-1115.75,29.8918,0,0,0,0),
+        (412,58,-10760.7,-1142.26,26.9919,0,0,0,0),
+        (412,59,-10705.8,-1180.28,26.4369,0,0,0,0),
+        (412,60,-10678.3,-1190.96,27.3871,0,0,0,0),
+        (412,61,-10658.8,-1193.38,28.4673,0,0,0,412061),
+        (412,62,-10618.9,-1182.64,28.586,0,0,0,0),
+        (412,63,-10593.9,-1177.6,28.3581,0,0,0,0),
+        (412,64,-10573.9,-1175.1,28.003,0,0,0,0),
+        (412,65,-10560.3,-1187.79,28.084,0,0,0,412065),
+        (1100,0,-10618.2,-1185.35,28.577,0,0,0,0),
+        (1100,1,-10653.7,-1192.26,28.486,0,0,0,0),
+        (1100,2,-10689.5,-1186.75,27.227,0,0,0,0),
+        (1100,3,-10746.6,-1152.2,26.514,0,0,0,0),
+        (1100,4,-10771.4,-1127,28.342,0,0,0,0),
+        (1100,5,-10780.4,-1105.5,31.711,0,0,0,0),
+        (1100,6,-10789.7,-1069.27,38.874,0,0,0,0),
+        (1100,7,-10802.8,-1037.89,45.726,0,0,0,0),
+        (1100,8,-10807.5,-981.94,55.335,0,0,0,0),
+        (1100,9,-10802,-957.14,56.383,0,0,0,0),
+        (1100,10,-10794.5,-931.9,55.991,0,0,0,0),
+        (1100,11,-10796.1,-912.86,55.861,0,0,0,0),
+        (1100,12,-10811,-863.068,55.8616,0,0,0,0),
+        (1100,13,-10828.9,-821.049,56.0904,0,300000,0,0),
+        (1100,14,-10868.6,-772.222,55.6331,0,0,0,0),
+        (1100,15,-10898.4,-739.738,55.345,0,0,0,0),
+        (1100,16,-10918.6,-706.129,55.587,0,0,0,0),
+        (1100,17,-10934.6,-677.592,55.604,0,0,0,0),
+        (1100,18,-10957.2,-648.819,55.3365,0,0,0,0),
+        (1100,19,-10960.2,-628.713,55.1653,0,0,0,0),
+        (1100,20,-10951.6,-602.768,55.289,0,0,0,0),
+        (1100,21,-10928.4,-564.199,54.0784,0,0,0,0),
+        (1100,22,-10915.6,-534.164,53.903,0,0,0,0),
+        (1100,23,-10911,-496.998,51.0605,0,0,0,0),
+        (1100,24,-10907.2,-374.86,39.8722,0,0,0,0);
+
+        INSERT INTO `creature_movement_template` (
+            `entry`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`
+        )
+        SELECT 1098, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`
+          FROM `creature_movement_template` WHERE `entry` = 1100;
+
+        INSERT INTO `creature_movement_template` (
+            `entry`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`
+        )
+        SELECT 1099, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`
+          FROM `creature_movement_template` WHERE `entry` = 1100;
+
+        INSERT INTO `creature_movement_template` (
+            `entry`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`
+        )
+        SELECT 1101, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`
+          FROM `creature_movement_template` WHERE `entry` = 1100;
+
+        -- Template tuning: keep alpha Stitches profile while aligning event participants.
+        UPDATE `creature_template`
+        SET `faction` = 21, `damage_multiplier` = 5.75, `health_multiplier` = 10, `armor_multiplier` = 3.3, `base_attack_time` = 1341
+        WHERE `entry` = 412;
+
+        UPDATE `creature_template`
+        SET `damage_multiplier` = 1, `health_multiplier` = 1, `armor_multiplier` = 1, `base_attack_time` = 2000
+        WHERE `entry` IN (1000, 1001, 1098, 1099, 1100, 1101);
+
+        UPDATE `creature_template`
+        SET `damage_multiplier` = 1, `health_multiplier` = 3, `armor_multiplier` = 1, `base_attack_time` = 2000
+        WHERE `entry` IN (1203, 1204);
+
+        UPDATE `creature_template`
+        SET `level_min` = 37, `level_max` = 37, `movement_type` = 2, `damage_multiplier` = 0.9,
+            `health_multiplier` = 1.15, `armor_multiplier` = 0.95, `base_attack_time` = 2000
+        WHERE `entry` = 1436;
+
+        UPDATE `creature_template` SET `level_min` = 29, `level_max` = 29, `armor_multiplier` = 1.2 WHERE `entry` = 499;
+        UPDATE `creature_template` SET `faction` = 53 WHERE `entry` = 888;
+
+        -- Static camp watchers used by first wave in alpha screenshots.
+        REPLACE INTO `spawns_creatures` (
+            `spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`,
+            `map`, `position_x`, `position_y`, `position_z`, `orientation`,
+            `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`,
+            `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`
+        ) VALUES
+        (400470, 1000, 0, 0, 0, 0, -10933.7, -378.684, 39.7037, 5.45, 300, 300, 0, 100, 0, 0, 0, 0, 0),
+        (400471, 1001, 0, 0, 0, 0, -10926.5, -380.11, 39.2032, 0.778, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Match Fraizer static spawn record to vMaNGOS.
+        UPDATE `spawns_creatures`
+        SET `position_x` = -10580.4, `position_y` = -1184.18, `position_z` = 27.2808,
+            `orientation` = 6.15416, `movement_type` = 1, `wander_distance` = 1,
+            `spawntimesecsmin` = 300, `spawntimesecsmax` = 300
+        WHERE `spawn_id` = 5960;
+
+        insert into applied_updates values ('250320268');
+    end if;
+
+    -- 27/03/2026
+    if (select count(*) from applied_updates where id='270320261') = 0 then
+        -- Remove orphaned EventAI rows whose missing scripts correspond to stale/non-0.5.3 spell/effect casts.
+        -- These references only produce warnings at runtime and cannot execute successfully without a script row.
+        DELETE FROM `creature_ai_events`
+        WHERE `id` IN (
+            93803, 180502, 185304, 292701, 311001, 363301, 365502, 367202, 374802,
+            392403, 392503, 405601, 413102, 451201, 452301, 452501, 453901, 454101,
+            485701, 485703, 485704, 527001, 527301, 530701, 530801, 536201, 536303,
+            536402, 565002, 571008, 571201, 571301, 571601, 571701, 1659201
+        );
+
+        insert into applied_updates values ('270320261');
+    end if;
+
+    if (select count(*) from applied_updates where id='270320262') = 0 then
+        -- Move template-driven summon companions to explicit ON_SPAWN EventAI casts.
+        -- This allows CreatureAI.just_respawned() to stay passive-only while preserving trainer/companion summons.
+        UPDATE `creature_ai_events`
+        SET `event_type` = 11, `event_param1` = 0, `event_param2` = 0, `event_param3` = 0, `event_param4` = 0,
+            `comment` = CASE `id`
+                WHEN 65701 THEN 'Defias Pirate - Summon Bloodsail Companion on Spawn'
+                WHEN 66901 THEN 'Skullsplitter Hunter - Cast Skullsplitter Pet on Spawn'
+                WHEN 69901 THEN 'Bloodscalp Beastmaster - Summon Bloodscalp Tiger on Spawn'
+                WHEN 78401 THEN 'Skullsplitter Beastmaster - Cast Skullsplitter Pet on Spawn'
+                WHEN 319901 THEN 'Burning Blade Cultist - Cast Summon Imp on Spawn'
+                WHEN 326502 THEN 'Razormane Hunter - Summon Razormane Wolf on Spawn'
+                WHEN 372501 THEN 'Dark Strand Cultist - Summon Imp on Spawn'
+                WHEN 466802 THEN 'Burning Blade Summoner - Cast Summon Imp on Spawn'
+                WHEN 600802 THEN 'Shadowsworn Warlock - Voidwalker on Spawn'
+                ELSE `comment`
+            END
+        WHERE `id` IN (65701, 66901, 69901, 78401, 319901, 326502, 372501, 466802, 600802);
+
+        UPDATE `creature_ai_events`
+        SET `event_type` = 11, `event_param1` = 0, `event_param2` = 0, `event_param3` = 0, `event_param4` = 0,
+            `comment` = 'Savannah Matriarch - Cast Savannah Cub on Spawn'
+        WHERE `id` = 341601;
+
+        INSERT INTO `creature_ai_scripts` (
+            `id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`,
+            `target_param1`, `target_param2`, `target_type`, `data_flags`,
+            `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`,
+            `condition_id`, `comments`
+        ) VALUES
+        (61903, 0, 0, 15, 5108, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Conjurer - Cast Spell Voidwalker'),
+        (287001, 0, 0, 15, 4946, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Henria Derth - Cast Spell Summon Tamed Wolf'),
+        (287201, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Whaldak Darkbenk - Cast Spell Summon Tamed Spider'),
+        (287601, 0, 0, 15, 7908, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grunenstur Balindom - Cast Spell Summon Tamed Crocilisk'),
+        (287801, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Peria Lamenur - Cast Spell Summon Tamed Cat'),
+        (287901, 0, 0, 15, 7904, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Karrina Mekenda - Cast Spell Summon Tamed Bird'),
+        (288001, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hurom Juggendolf - Cast Spell Summon Tamed Boar'),
+        (288101, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Durdek Karrin - Cast Spell Summon Tamed Bear'),
+        (293801, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Aldric Hunter - Cast Spell Summon Tamed Bear'),
+        (293901, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jackson Bayne - Cast Spell Summon Tamed Boar'),
+        (294001, 0, 0, 15, 7904, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Frank Ward - Cast Spell Summon Tamed Bird'),
+        (294102, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lanie Reed - Cast Spell Summon Tamed Spider'),
+        (294201, 0, 0, 15, 4946, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dylan Bissel - Cast Spell Summon Tamed Wolf'),
+        (294301, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ransin Donner - Cast Spell Summon Tamed Crab'),
+        (354501, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Claude Erksine - Cast Spell Summon Tamed Bear'),
+        (354601, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bernie Heisten - Cast Spell Summon Tamed Spider'),
+        (362002, 0, 0, 15, 7908, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Harruk - Cast Spell Summon Tamed Crocilisk'),
+        (362101, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kurll - Cast Spell Summon Tamed Cat'),
+        (362201, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grokor - Cast Spell Summon Tamed Boar'),
+        (362301, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tursk - Cast Spell Summon Tamed Crab'),
+        (362401, 0, 0, 15, 7911, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Zudd - Cast Spell Summon Tamed Scorpion'),
+        (362501, 0, 0, 15, 7910, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rarck - Cast Spell Summon Tamed Raptor'),
+        (368501, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Harb Clawhoof - Cast Spell Summon Tamed Cat'),
+        (368802, 0, 0, 15, 7913, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Reban Freerunner - Cast Spell Summon Tamed Tall Strider'),
+        (368901, 0, 0, 15, 4946, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Laer Stepperunner - Cast Spell Summon Tamed Wolf'),
+        (369002, 0, 0, 15, 7904, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kar Stormsinger - Cast Spell Summon Tamed Bird'),
+        (369701, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kyln Longclaw - Cast Spell Summon Tamed Boar'),
+        (369801, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bolyun - Cast Spell Summon Tamed Spider'),
+        (369901, 0, 0, 15, 7906, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Nerra - Cast Spell Summon Tamed Cat'),
+        (370002, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jadenvis Seawatcher - Cast Spell Summon Tamed Crab'),
+        (370101, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tharnariun Treetender - Cast Spell Summon Tamed Bear'),
+        (370201, 0, 0, 15, 7913, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Alanndarian Nightsong - Cast Spell Summon Tamed Tall Strider'),
+        (404301, 0, 0, 15, 7903, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Galthuk - Cast Spell Summon Tamed Bear'),
+        (462101, 0, 0, 15, 7910, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rebald Yorglun - Cast Spell Summon Tamed Raptor'),
+        (488201, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Om''kan - Cast Spell Summon Tamed Spider'),
+        (490102, 0, 0, 15, 7908, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kenna - Cast Spell Summon Tamed Crocilisk'),
+        (490202, 0, 0, 15, 7912, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Frank Lasson - Cast Spell Summon Tamed Spider'),
+        (511801, 0, 0, 15, 7905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Brogun Stoneshield - Cast Spell Summon Tamed Boar');
+
+        INSERT INTO `creature_ai_events` (
+            `id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`,
+            `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`,
+            `comment`
+        ) VALUES
+        (61903, 619, 0, 11, 0, 100, 0, 0, 0, 0, 0, 61903, 0, 0, 'Defias Conjurer - Cast Voidwalker on Spawn'),
+        (287001, 2870, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287001, 0, 0, 'Henria Derth - Cast Summon Tamed Wolf on Spawn'),
+        (287201, 2872, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287201, 0, 0, 'Whaldak Darkbenk - Cast Summon Tamed Spider on Spawn'),
+        (287601, 2876, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287601, 0, 0, 'Grunenstur Balindom - Cast Summon Tamed Crocilisk on Spawn'),
+        (287801, 2878, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287801, 0, 0, 'Peria Lamenur - Cast Summon Tamed Cat on Spawn'),
+        (287901, 2879, 0, 11, 0, 100, 0, 0, 0, 0, 0, 287901, 0, 0, 'Karrina Mekenda - Cast Summon Tamed Bird on Spawn'),
+        (288001, 2880, 0, 11, 0, 100, 0, 0, 0, 0, 0, 288001, 0, 0, 'Hurom Juggendolf - Cast Summon Tamed Boar on Spawn'),
+        (288101, 2881, 0, 11, 0, 100, 0, 0, 0, 0, 0, 288101, 0, 0, 'Durdek Karrin - Cast Summon Tamed Bear on Spawn'),
+        (293801, 2938, 0, 11, 0, 100, 0, 0, 0, 0, 0, 293801, 0, 0, 'Aldric Hunter - Cast Summon Tamed Bear on Spawn'),
+        (293901, 2939, 0, 11, 0, 100, 0, 0, 0, 0, 0, 293901, 0, 0, 'Jackson Bayne - Cast Summon Tamed Boar on Spawn'),
+        (294001, 2940, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294001, 0, 0, 'Frank Ward - Cast Summon Tamed Bird on Spawn'),
+        (294102, 2941, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294102, 0, 0, 'Lanie Reed - Cast Summon Tamed Spider on Spawn'),
+        (294201, 2942, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294201, 0, 0, 'Dylan Bissel - Cast Summon Tamed Wolf on Spawn'),
+        (294301, 2943, 0, 11, 0, 100, 0, 0, 0, 0, 0, 294301, 0, 0, 'Ransin Donner - Cast Summon Tamed Crab on Spawn'),
+        (354501, 3545, 0, 11, 0, 100, 0, 0, 0, 0, 0, 354501, 0, 0, 'Claude Erksine - Cast Summon Tamed Bear on Spawn'),
+        (354601, 3546, 0, 11, 0, 100, 0, 0, 0, 0, 0, 354601, 0, 0, 'Bernie Heisten - Cast Summon Tamed Spider on Spawn'),
+        (362002, 3620, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362002, 0, 0, 'Harruk - Cast Summon Tamed Crocilisk on Spawn'),
+        (362101, 3621, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362101, 0, 0, 'Kurll - Cast Summon Tamed Cat on Spawn'),
+        (362201, 3622, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362201, 0, 0, 'Grokor - Cast Summon Tamed Boar on Spawn'),
+        (362301, 3623, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362301, 0, 0, 'Tursk - Cast Summon Tamed Crab on Spawn'),
+        (362401, 3624, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362401, 0, 0, 'Zudd - Cast Summon Tamed Scorpion on Spawn'),
+        (362501, 3625, 0, 11, 0, 100, 0, 0, 0, 0, 0, 362501, 0, 0, 'Rarck - Cast Summon Tamed Raptor on Spawn'),
+        (368501, 3685, 0, 11, 0, 100, 0, 0, 0, 0, 0, 368501, 0, 0, 'Harb Clawhoof - Cast Summon Tamed Cat on Spawn'),
+        (368802, 3688, 0, 11, 0, 100, 0, 0, 0, 0, 0, 368802, 0, 0, 'Reban Freerunner - Cast Summon Tamed Tall Strider on Spawn'),
+        (368901, 3689, 0, 11, 0, 100, 0, 0, 0, 0, 0, 368901, 0, 0, 'Laer Stepperunner - Cast Summon Tamed Wolf on Spawn'),
+        (369002, 3690, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369002, 0, 0, 'Kar Stormsinger - Cast Summon Tamed Bird on Spawn'),
+        (369701, 3697, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369701, 0, 0, 'Kyln Longclaw - Cast Summon Tamed Boar on Spawn'),
+        (369801, 3698, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369801, 0, 0, 'Bolyun - Cast Summon Tamed Spider on Spawn'),
+        (369901, 3699, 0, 11, 0, 100, 0, 0, 0, 0, 0, 369901, 0, 0, 'Nerra - Cast Summon Tamed Cat on Spawn'),
+        (370002, 3700, 0, 11, 0, 100, 0, 0, 0, 0, 0, 370002, 0, 0, 'Jadenvis Seawatcher - Cast Summon Tamed Crab on Spawn'),
+        (370101, 3701, 0, 11, 0, 100, 0, 0, 0, 0, 0, 370101, 0, 0, 'Tharnariun Treetender - Cast Summon Tamed Bear on Spawn'),
+        (370201, 3702, 0, 11, 0, 100, 0, 0, 0, 0, 0, 370201, 0, 0, 'Alanndarian Nightsong - Cast Summon Tamed Tall Strider on Spawn'),
+        (404301, 4043, 0, 11, 0, 100, 0, 0, 0, 0, 0, 404301, 0, 0, 'Galthuk - Cast Summon Tamed Bear on Spawn'),
+        (462101, 4621, 0, 11, 0, 100, 0, 0, 0, 0, 0, 462101, 0, 0, 'Rebald Yorglun - Cast Summon Tamed Raptor on Spawn'),
+        (488201, 4882, 0, 11, 0, 100, 0, 0, 0, 0, 0, 488201, 0, 0, 'Om''kan - Cast Summon Tamed Spider on Spawn'),
+        (490102, 4901, 0, 11, 0, 100, 0, 0, 0, 0, 0, 490102, 0, 0, 'Kenna - Cast Summon Tamed Crocilisk on Spawn'),
+        (490202, 4902, 0, 11, 0, 100, 0, 0, 0, 0, 0, 490202, 0, 0, 'Frank Lasson - Cast Summon Tamed Spider on Spawn'),
+        (511801, 5118, 0, 11, 0, 100, 0, 0, 0, 0, 0, 511801, 0, 0, 'Brogun Stoneshield - Cast Summon Tamed Boar on Spawn');
+
+        insert into applied_updates values ('270320262');
+    end if;
+
 end $
 delimiter ;

@@ -23,7 +23,8 @@ from game.world.managers.objects.units.movement.helpers.SplineEvent import Splin
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, \
-    GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags
+    GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags, \
+    CreatureGroupFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders, CreatureReactStates
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -1887,6 +1888,16 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No or invalid target (must be creature), {command.get_info()}')
             return command.should_abort()
 
+        if command.source.creature_group:
+            Logger.warning(f'ScriptHandler: Source is already in a creature group, {command.get_info()}')
+            return command.should_abort()
+
+        options = int(command.datalong)
+        valid_options = 0
+        for option in CreatureGroupFlags:
+            valid_options |= int(option)
+        options &= valid_options
+
         creature_group_mgr = command.target.creature_group
         if not creature_group_mgr:
             Logger.debug(f'Creating creature group, leader is {command.target.get_name()}')
@@ -1895,12 +1906,12 @@ class ScriptHandler:
                 member_guid=command.target.spawn_id,
                 dist=command.x,
                 angle=command.o,
-                flags=command.datalong
+                flags=options
             ))
             command.target.creature_group = creature_group_mgr
-            creature_group_mgr.add_member(command.target)
+            creature_group_mgr.add_member(command.target, dist=0, angle=0, flags=options)
 
-        creature_group_mgr.add_member(command.source, dist=command.x, angle=command.o, flags=command.datalong)
+        creature_group_mgr.add_member(command.source, dist=command.x, angle=command.o, flags=options)
         return False
 
     @staticmethod
@@ -1915,7 +1926,8 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No creature group, {command.get_info()}')
             return command.should_abort()
 
-        command.source.creature_group.remove_member(command.source)
+        command.source.creature_group.remove_member(command.source, disband_if_original_leader=True,
+                                                    forget_member=True)
         return False
 
     @staticmethod

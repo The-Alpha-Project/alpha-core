@@ -342,6 +342,12 @@ class UnitManager(ObjectManager):
         if not from_script and not self.can_attack_target(victim):
             return False
 
+        current_target = self.combat_target
+        if current_target:
+            if current_target == victim:
+                return False
+            self.attack_stop()
+
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
@@ -352,9 +358,10 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
+        if self.object_ai:  # Send AI reaction.
+            self.object_ai.send_ai_reaction(AIReactionStates.AI_REACT_HOSTILE)
+
         if victim.is_player() or victim.is_player_controlled_pet():
-            if self.object_ai: # Send AI reaction.
-                self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
             # Force players or player pets in-combat.
             victim.threat_manager.add_threat(source=self)
 
@@ -2411,7 +2418,7 @@ class UnitManager(ObjectManager):
             distance = self.location.distance(unit.location)
         can_detect_unit, alert = self.can_detect_target(unit, distance)
         if alert and unit.is_player() and not self.is_player():
-            self.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
+            self.object_ai.trigger_alert(unit)
 
         if not can_detect_unit or self.is_player():
             return
