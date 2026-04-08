@@ -425,6 +425,8 @@ class PetManager:
 
         active_pet.set_level(self.owner.level, replenish=True)
 
+    # TODO: New helper touch_updatefield that directly sets dirty bit on mask instead of using multiple force calls
+    #  which trigger multiple update_object() calls.
     def refresh_pet_update_fields(self) -> bool:
         active_pet = self.get_active_controlled_pet()
         if not active_pet or not active_pet.creature.is_alive:
