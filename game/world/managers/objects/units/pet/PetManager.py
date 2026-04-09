@@ -13,6 +13,7 @@ from game.world.managers.objects.units.pet.PetData import PetData
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants import CustomCodes
+from utils.constants.MiscCodes import UpdateFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetSlot
 from utils.constants.SpellCodes import SpellCheckCastResult, TotemSlots, SpellTargetMask
@@ -423,6 +424,59 @@ class PetManager:
             return
 
         active_pet.set_level(self.owner.level, replenish=True)
+
+    # TODO: New helper touch_updatefield that directly sets dirty bit on mask instead of using multiple force calls
+    #  which trigger multiple update_object() calls.
+    def refresh_pet_update_fields(self) -> bool:
+        active_pet = self.get_active_controlled_pet()
+        if not active_pet or not active_pet.creature.is_alive:
+            return False
+
+        pet_data = active_pet.get_pet_data()
+        owner = self.owner
+        creature = active_pet.creature
+        Logger.debug(f'Refreshing pet update fields for {owner.get_name()} pet guid {creature.guid}.')
+
+        # Reapply ownership/charm linkage fields touched by attach().
+        if active_pet.is_permanent() or not active_pet.is_controlled():
+            if not creature.is_totem() and not creature.is_guardian():
+                summon_value = owner.get_uint64(UnitFields.UNIT_FIELD_SUMMON)
+                owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, summon_value, force=True)
+            created_by_value = creature.get_uint64(UnitFields.UNIT_FIELD_CREATEDBY)
+            creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, created_by_value, force=True)
+            summoned_by_value = creature.get_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY)
+            creature.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, summoned_by_value, force=True)
+            created_spell_value = creature.get_uint32(UnitFields.UNIT_CREATED_BY_SPELL)
+            creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, created_spell_value, force=True)
+        else:
+            charmed_by_value = creature.get_uint64(UnitFields.UNIT_FIELD_CHARMEDBY)
+            creature.set_uint64(UnitFields.UNIT_FIELD_CHARMEDBY, charmed_by_value, force=True)
+            charm_value = owner.get_uint64(UnitFields.UNIT_FIELD_CHARM)
+            owner.set_uint64(UnitFields.UNIT_FIELD_CHARM, charm_value, force=True)
+
+        faction_template_value = creature.get_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE)
+        creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, faction_template_value, force=True)
+        # Reapply pet level/experience fields touched during summon/update.
+        pet_experience_value = creature.get_uint32(UnitFields.UNIT_FIELD_PETEXPERIENCE)
+        creature.set_uint32(UnitFields.UNIT_FIELD_PETEXPERIENCE, pet_experience_value, force=True)
+        level_value = creature.get_uint32(UnitFields.UNIT_FIELD_LEVEL)
+        creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, level_value, force=True)
+        pet_next_level_xp_value = creature.get_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP)
+        creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, pet_next_level_xp_value, force=True)
+
+        if pet_data.is_hunter_pet():
+            unit_flags_value = creature.get_uint32(UnitFields.UNIT_FIELD_FLAGS)
+            creature.set_uint32(UnitFields.UNIT_FIELD_FLAGS, unit_flags_value, force=True)
+            pet_number_value = creature.get_uint32(UnitFields.UNIT_FIELD_PETNUMBER)
+            creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, pet_number_value, force=True)
+            pet_name_timestamp_value = creature.get_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP)
+            creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, pet_name_timestamp_value, force=True)
+
+        if creature.is_in_world():
+            creature.get_map().update_object(creature, update_flags=UpdateFlags.CHANGES)
+
+        self.send_pet_spell_info()
+        return True
 
     def handle_cast_result(self, spell_id, result):
         if not self.owner.is_player() or result == SpellCheckCastResult.SPELL_NO_ERROR:

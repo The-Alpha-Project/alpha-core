@@ -362,21 +362,22 @@ class ObjectManager:
     def _get_value_by_type_at(self, value_type, index, is_int64):
         return self.update_packet_factory.get_value(index, value_type)
 
-    # Some client UI/control updates (e.g., shapeshift, charm, farsight) only happen when the
-    # related UpdateField is received. Using force for the local player sends an immediate
-    # update packet, so the client reacts without waiting for the next update, causing the UI to glitch.
+    # Some client UI/control updates only happen when the related UpdateField is resent.
+    # force marks a field dirty even if the value did not change; immediate flush still only applies
+    # to local player/gameobject updates to avoid UI glitches.
     def _set_value(self, index, value, value_type, is_int64, force=False):
-        force = force and (self.is_player() or self.is_gameobject())
+        force_update = bool(force)
+        immediate_update = force_update and (self.is_player() or self.is_gameobject())
         with self.update_packet_factory.lock:
-            if force or self.update_packet_factory.should_update(index, value, value_type, is_int64):
+            if force_update or self.update_packet_factory.should_update(index, value, value_type, is_int64):
                 self.update_packet_factory.update(index, value, value_type, is_int64)
-                if force and self.is_in_world():  # Changes should apply immediately.
+                if immediate_update and self.is_in_world():  # Changes should apply immediately.
                     update_flags = UpdateFlags.CHANGES
                     if self.is_player() and self.inventory.has_pending_updates():
                         update_flags |= UpdateFlags.INVENTORY
                     self.get_map().update_object(self, update_flags=update_flags)
-                return True, force
-        return False, force
+                return True, immediate_update
+        return False, immediate_update
 
     # override
     def update(self, now):

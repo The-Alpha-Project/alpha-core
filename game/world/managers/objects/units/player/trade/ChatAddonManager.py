@@ -24,6 +24,7 @@ class AddonErrorCodes(IntEnum):
 # Available UnitIDs.
 PLAYER = 'player'
 TARGET = 'target'
+PET = 'pet'
 PARTY1 = 'party1'
 PARTY2 = 'party2'
 PARTY3 = 'party3'
@@ -42,12 +43,13 @@ MAX_ADDON_TOKEN_LENGTH = 24
 MAX_ADDON_SETTINGS_LENGTH = 72
 MAX_ADDON_FLAGS_VALUE = 18446744073709551615
 # Public addon API versions start at 1 for each currently supported feature surface.
-ADDON_API_VERSION_ORDER = ('auras', 'distance', 'config', 'guild')
+ADDON_API_VERSION_ORDER = ('auras', 'distance', 'config', 'guild', 'pet')
 ADDON_API_VERSIONS = {
     'auras': 1,
     'distance': 1,
     'config': 1,
     'guild': 1,
+    'pet': 1,
 }
 INVALID_LEGACY_COMMANDS = {
     'getunitauras',
@@ -60,7 +62,8 @@ OUTDATED_ADDON_NOTIFICATION = (
     f'(Auras v{ADDON_API_VERSIONS["auras"]}, '
     f'TargetDistance v{ADDON_API_VERSIONS["distance"]}, '
     f'Config v{ADDON_API_VERSIONS["config"]}, '
-    f'Guild v{ADDON_API_VERSIONS["guild"]}).'
+    f'Guild v{ADDON_API_VERSIONS["guild"]}, '
+    f'Pet v{ADDON_API_VERSIONS["pet"]}).'
 )
 
 
@@ -80,6 +83,7 @@ class ChatAddonManager:
         args = []
         try:
             command, args = ChatAddonManager._parse_request(message)
+            Logger.debug(f'Addon request [{command}] from [{player_mgr.get_name()}], args={args}.')
 
             if not ChatAddonManager._request_allowed(player_mgr, command):
                 unit_id = PLAYER
@@ -414,9 +418,19 @@ class ChatAddonManager:
 
     @staticmethod
     def _extract_request_token(args):
-        if not args or len(args) < 2:
+        if not args:
             return ''
+
+        if len(args) == 1:
+            token = ChatAddonManager._sanitize_request_token(args[0])
+            return token if token else ''
+
         token = ChatAddonManager._sanitize_request_token(args[1])
+        if token:
+            return token
+
+        # Fallback for request formats where the token is the first argument.
+        token = ChatAddonManager._sanitize_request_token(args[0])
         return token if token else ''
 
     @staticmethod
@@ -471,6 +485,30 @@ class ChatAddonManager:
         return AddonErrorCodes.SUCCESS, '\n'.join(lines), PLAYER, request_token
 
     @staticmethod
+    def notify_reload_ui(player_mgr, args):
+        if args:
+            return AddonErrorCodes.INVALID_REQUEST, '', PLAYER, ''
+
+        if player_mgr.pet_manager:
+            player_mgr.pet_manager.refresh_pet_update_fields()
+
+        return AddonErrorCodes.SUCCESS, '', PLAYER, ''
+
+    @staticmethod
+    def get_pet_action_bar(player_mgr, args):
+        if not args or len(args) != 1:
+            return AddonErrorCodes.INVALID_REQUEST, '', PET, ''
+
+        request_token = ChatAddonManager._sanitize_request_token(args[0])
+        if request_token is None or request_token == '':
+            return AddonErrorCodes.INVALID_REQUEST, '', PET, ''
+
+        if not player_mgr.pet_manager or not player_mgr.pet_manager.refresh_pet_update_fields():
+            return AddonErrorCodes.NO_DATA, '', PET, request_token
+
+        return AddonErrorCodes.SUCCESS, '', PET, request_token
+
+    @staticmethod
     def _parse_versioned_unit_and_token(args):
         if not args or len(args) != 2:
             return AddonErrorCodes.INVALID_REQUEST, PLAYER, ''
@@ -490,4 +528,6 @@ ADDON_COMMAND_DEFINITIONS = {
     'get_target_dist': ChatAddonManager.get_unit_distance,
     'set_cfg': ChatAddonManager.set_character_config,
     'get_guild_roster': ChatAddonManager.get_guild_roster,
+    'notify_reloadui': ChatAddonManager.notify_reload_ui,
+    'get_pet_bar': ChatAddonManager.get_pet_action_bar,
 }
