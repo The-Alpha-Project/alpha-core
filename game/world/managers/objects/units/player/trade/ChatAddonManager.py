@@ -123,8 +123,8 @@ class ChatAddonManager:
             target = PLAYER if not args else args[0]
             request_token = ChatAddonManager._extract_request_token(args)
             ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_REQUEST, target, request_token)
-            Logger.addon(
-                f'Invalid request [{command}] from [{player_mgr.get_name()}], reason [{ex}].')
+            Logger.warning(
+                f'Invalid addon request [{command}] from [{player_mgr.get_name()}], reason [{ex}].')
 
     @staticmethod
     def get_addon_api_version(player_mgr, args):
