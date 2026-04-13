@@ -17,7 +17,16 @@ class ConfigManager:
     def load(self):
         self.create_default_config_file()
         with open(PathManager.get_config_file_path(), 'r') as stream:
-            data = yaml.load(stream, Loader=yaml.Loader)
+            try:
+                data = yaml.load(stream, Loader=yaml.Loader)
+            except yaml.YAMLError as e:
+                raise SystemExit(f'Malformed config.yml: {e}')
+            config_version = (data or {}).get('Version', {}).get('current', -1)
+            if config_version != ConfigManager.EXPECTED_VERSION:
+                raise SystemExit(
+                    f'Invalid config version: found {config_version}, expected {ConfigManager.EXPECTED_VERSION}. '
+                    f'Please update your config.yml from config.yml.dist.'
+                )
             self.config = json.loads(
                 json.dumps(data), object_hook=lambda d: namedtuple('Configs', d.keys())(*d.values())
             )

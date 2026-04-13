@@ -162,6 +162,14 @@ docker-compose up --renew-anon-volumes sql
 
 ---
 
+## 🧩 Addons
+
+[AlphaUI](https://github.com/The-Alpha-Project/AlphaUI) is a custom addon framework for the `0.5.3` client. It provides UI enhancements and quality-of-life features not present in the original client, communicating with the server through the addons chat API.
+
+To enable addon support, set `enable_addons_chat_api: True` under `Server > General` in your `config.yml`.
+
+---
+
 ## ⚠️ Common Issues
 
 - **Port already in use (MariaDB / Docker):**

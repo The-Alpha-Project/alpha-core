@@ -95,9 +95,10 @@ Server:
         #   Error = 0x10 (16)
         #   Debug = 0x20 (32)
         #   Script = 0x40 (64)
+        #   Addon = 0x80 (128)
         #
-        #   All = 0x7f (127, the sum of all)
-        logging_mask: 0x7f
+        #   All = 0xff (255, the sum of all)
+        logging_mask: 0xff
         log_player_chat: False
         log_chat_path: /var/log/alpha-core/chat
         log_dev_path: /var/log/alpha-core/dev

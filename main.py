@@ -152,17 +152,6 @@ SHARED_STATE = None
 ACTIVE_PROCESSES = []
 
 if __name__ == '__main__':
-    # Validate configuration file version.
-    # (Not using Logger since it can fail due to missing config options too).
-    try:
-        if config.Version.current != ConfigManager.EXPECTED_VERSION:
-            print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION} '
-                  f'found {config.Version.current}.')
-            exit()
-    except AttributeError:
-        print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
-        exit()
-
     # Semaphore objects are leaked on shutdown in macOS if using spawn for some reason.
     if platform == 'darwin':
         context = multiprocessing.get_context('fork')
