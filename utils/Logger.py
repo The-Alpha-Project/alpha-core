@@ -16,7 +16,7 @@ class DebugColorLevel(Enum):
     ERROR = Fore.RED + Style.BRIGHT
     DEBUG = Fore.CYAN + Style.BRIGHT
     SCRIPT = Fore.MAGENTA + Style.BRIGHT
-    ADDON = Fore.LIGHTGREEN_EX + Style.BRIGHT
+    ADDON = Fore.LIGHTGREEN_EX + Style.DIM
 
 
 class DebugLevel(IntEnum):
