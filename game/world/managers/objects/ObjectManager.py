@@ -344,6 +344,10 @@ class ObjectManager:
     def set_float(self, index, value, force=False):
         return self._set_value(index, float(value), 'f', False, force)
 
+    def touch_update_field(self, index, is_int64=False):
+        with self.update_packet_factory.lock:
+            self.update_packet_factory.touch(index, is_int64)
+
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index, False)
 

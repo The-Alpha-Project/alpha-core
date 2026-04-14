@@ -83,7 +83,7 @@ class ChatAddonManager:
         args = []
         try:
             command, args = ChatAddonManager._parse_request(message)
-            Logger.debug(f'Addon request [{command}] from [{player_mgr.get_name()}], args={args}.')
+            Logger.addon(f'Request [{command}] from [{player_mgr.get_name()}], args={args}.')
 
             if not ChatAddonManager._request_allowed(player_mgr, command):
                 unit_id = PLAYER
@@ -124,7 +124,7 @@ class ChatAddonManager:
             request_token = ChatAddonManager._extract_request_token(args)
             ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_REQUEST, target, request_token)
             Logger.warning(
-                f'Invalid addon request. Command [{command}], sender [{player_mgr.get_name()}], reason [{ex}].')
+                f'Invalid addon request [{command}] from [{player_mgr.get_name()}], reason [{ex}].')
 
     @staticmethod
     def get_addon_api_version(player_mgr, args):

@@ -383,7 +383,7 @@ class ChannelManager:
             if channel.is_addon():
                 # Addon channels are transport channels for API requests; no join/leave announcements needed.
                 channel.announce = False
-                Logger.info(f'Registered addon channel [{channel_name}].')
+                Logger.addon(f'Registered channel [{channel_name}].')
                 ChannelManager.ADDON_CHANNELS[channel_name] = channel
             else:
                 ChannelManager.CHANNELS[player_mgr.team][channel_name] = channel

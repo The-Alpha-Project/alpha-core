@@ -2,7 +2,7 @@ from struct import pack
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
-from game.world.managers.objects.units.player.trade.ChatAddonManager import ChatAddonManager
+from game.world.managers.objects.units.player.ChatAddonManager import ChatAddonManager
 from network.packet.PacketWriter import PacketWriter
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults

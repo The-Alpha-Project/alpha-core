@@ -16,6 +16,7 @@ class DebugColorLevel(Enum):
     ERROR = Fore.RED + Style.BRIGHT
     DEBUG = Fore.CYAN + Style.BRIGHT
     SCRIPT = Fore.MAGENTA + Style.BRIGHT
+    ADDON = Fore.LIGHTGREEN_EX + Style.DIM
 
 
 class DebugLevel(IntEnum):
@@ -27,6 +28,7 @@ class DebugLevel(IntEnum):
     ERROR = 0x10
     DEBUG = 0x20
     SCRIPT = 0x40
+    ADDON = 0x80
 
 
 class AbortLoading(Exception):
@@ -99,6 +101,12 @@ class Logger:
         if Logger._should_log(DebugLevel.SCRIPT):
             Logger._clear_progress_line()
             print(Logger._colorize_message('[SCRIPT]', DebugColorLevel.SCRIPT, msg))
+
+    @staticmethod
+    def addon(msg):
+        if Logger._should_log(DebugLevel.ADDON):
+            Logger._clear_progress_line()
+            print(Logger._colorize_message('[ADDON]', DebugColorLevel.ADDON, msg))
 
     # Additional methods
 

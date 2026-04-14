@@ -130,6 +130,11 @@ class UpdatePacketFactory:
             else:
                 self.set_value(index, value, value_type)
 
+    def touch(self, index, is_int64=False):
+        self.update_mask.set_bit(index)
+        if is_int64:
+            self.update_mask.set_bit(index + 1)
+
     def set_value(self, index, value, value_type):
         pack_into(f'<{value_type}', self.update_values_bytes, index * 4, value)
         self.update_mask.set_bit(index)
