@@ -120,6 +120,7 @@ class PlayerManager(UnitManager):
         self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
         self.explored_areas.setall(0)
         self.liquid_information = None
+        self.pvp_source_location = None  # (map_id, Vector) saved when entering a PvP map via /pvp.
 
         if self.player:
             self.race = player.race

@@ -3,4 +3,5 @@ PyYAML
 colorama
 SQLAlchemy
 pymysql
+cryptography  # Required for MySQL 8+ caching_sha2_password auth.
 requests

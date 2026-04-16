@@ -15,11 +15,32 @@ class PvPPortHandler:
         if not player_mgr:
             return res
 
+        current_map = player_mgr.get_map()
+
+        # Already in a PvP map, teleport back.
+        if current_map.is_pvp():
+            if player_mgr.pvp_source_location:
+                # Return to saved location.
+                source_map, source_vector = player_mgr.pvp_source_location
+                player_mgr.pvp_source_location = None
+                player_mgr.teleport(source_map, source_vector)
+            else:
+                # No source saved (e.g. server restarted), fall back to deathbind.
+                deathbind_map, deathbind_location = player_mgr.get_deathbind_coordinates()
+                player_mgr.teleport(deathbind_map, deathbind_location)
+            return 0
+
+        # Only allow /pvp from world maps (Eastern Kingdoms and Kalimdor).
+        if player_mgr.map_id not in (0, 1):
+            return 0
+
         # Only two maps flagged as PvP exist in 0.5.3: PvPZone01 and PvPZone02.
         pvp_map = random.randint(1, 2)
         location = WorldDatabaseManager.worldport_get_by_name(f'PvPZone0{pvp_map}')
 
         if location:
+            # Save current location before porting.
+            player_mgr.pvp_source_location = (player_mgr.map_id, player_mgr.location.copy())
             tel_location = Vector(location.x, location.y, location.z, location.o)
             player_mgr.teleport(location.map, tel_location)
 
