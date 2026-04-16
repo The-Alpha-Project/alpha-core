@@ -1353,8 +1353,10 @@ class UnitManager(ObjectManager):
         # Reset aura states.
         self.aura_manager.reset_aura_states()
 
-        # Remove casts, active for dead units, not active for alive units.
-        self.spell_manager.remove_casts(remove_active=not self.is_alive)
+        # Living players keep their casts when leaving combat (e.g. gathering, self-heals).
+        # Dead units and creatures (evading) get their casts cleaned up.
+        if not self.is_player() or not self.is_alive:
+            self.spell_manager.remove_casts(remove_active=not self.is_alive)
 
         # Reset threat table.
         self.threat_manager.reset()
