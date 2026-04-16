@@ -15,6 +15,10 @@ class PvPPortHandler:
         if not player_mgr:
             return res
 
+        # Only allow /pvp if not in combat.
+        if player_mgr.in_combat:
+            return 0
+
         current_map = player_mgr.get_map()
 
         # Already in a PvP map, teleport back.
@@ -28,10 +32,6 @@ class PvPPortHandler:
                 # No source saved (e.g. server restarted), fall back to deathbind.
                 deathbind_map, deathbind_location = player_mgr.get_deathbind_coordinates()
                 player_mgr.teleport(deathbind_map, deathbind_location)
-            return 0
-
-        # Only allow /pvp from world maps (Eastern Kingdoms and Kalimdor).
-        if player_mgr.map_id not in (0, 1):
             return 0
 
         # Only two maps flagged as PvP exist in 0.5.3: PvPZone01 and PvPZone02.
