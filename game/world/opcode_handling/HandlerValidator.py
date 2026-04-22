@@ -244,6 +244,9 @@ class HandlerValidator:
                     f'PlayerMgr instance. {suffix}')
             return None, -1 if disconnect else 1
 
+        if world_session.player_mgr.logout_in_progress:
+            return None, 1
+
         return world_session.player_mgr, 0
 
     @staticmethod

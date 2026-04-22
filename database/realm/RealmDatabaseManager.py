@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.realm.RealmModels import *
@@ -15,6 +16,12 @@ DB_REALM_NAME = config.Database.Realm.db_name
 realm_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_REALM_NAME}?charset=utf8mb4',
                                 pool_pre_ping=True)
 SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autoflush=False))
+
+CHARACTER_UPDATE_COLUMNS = tuple(
+    (attr.key, attr.columns[0])
+    for attr in inspect(Character).column_attrs
+    if attr.key != 'guid'
+)
 
 
 class RealmDatabaseManager:
@@ -75,8 +82,18 @@ class RealmDatabaseManager:
 
     @staticmethod
     def character_update(character):
+        if not character:
+            return
+
+        def get_character_update_values():
+            return {
+                column: getattr(character, attr_key)
+                for attr_key, column in CHARACTER_UPDATE_COLUMNS
+            }
+
         realm_db_session = SessionHolder()
-        realm_db_session.merge(character)
+        update_values = get_character_update_values()
+        realm_db_session.query(Character).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).update(update_values)
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.close()

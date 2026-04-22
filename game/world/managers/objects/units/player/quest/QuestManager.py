@@ -16,6 +16,7 @@ from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError, ItemClasses
 from utils.constants.OpCodes import OpCode
+from utils.constants.SaveCodes import SaveReason
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestCantTakeReason, \
     QuestMethod, \
@@ -1078,6 +1079,8 @@ class QuestManager:
         # Force surrounding players to refresh this GO interactive state.
         if quest_giver.is_gameobject():
             quest_giver.get_map().update_object(quest_giver, UpdateFlags.DYNAMIC_FLAGS)
+
+        self.player_mgr.persist_character_state(SaveReason.QUEST_REWARD)
 
     def get_next_quest_in_chain(self, quest_giver, current_quest):
         # Current quest has no linked next quest.

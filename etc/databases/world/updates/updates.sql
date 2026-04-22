@@ -23317,5 +23317,15 @@ begin not atomic
         insert into applied_updates values ('190420261');
     end if;
 
+    -- 21/04/2026 1
+    if (select count(*) from applied_updates where id='210420261') = 0 then
+        -- Defias Bandit invalid spell-list.
+        UPDATE `creature_template`
+        SET `spell_list_id` = 0
+        WHERE `entry` = 116 AND `spell_list_id` = 1160;
+
+        insert into applied_updates values ('210420261');
+    end if;
+
 end $
 delimiter ;

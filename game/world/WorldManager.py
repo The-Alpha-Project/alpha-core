@@ -19,6 +19,7 @@ from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
+from utils.constants.SaveCodes import SaveReason
 
 STARTUP_TIME = time()
 WORLD_ON = True
@@ -78,13 +79,13 @@ class WorldServerSessionHandler:
             self.disconnect()
 
     @staticmethod
-    def save_characters():
-        WorldSessionStateHandler.save_characters()
+    def save_characters(reason=SaveReason.MANUAL, allow_locked=False):
+        WorldSessionStateHandler.save_characters(reason=reason, allow_locked=allow_locked)
 
     @staticmethod
     def disconnect_sessions():
         for session in WorldSessionStateHandler.get_world_sessions():
-            if session.player_mgr and session.player_mgr.online:
+            if session.player_mgr and session.player_mgr.online and not session.player_mgr.logout_in_progress:
                 session.player_mgr.logout()
             session.disconnect()
 
@@ -154,7 +155,7 @@ class WorldServerSessionHandler:
         self.keep_alive = False
 
         try:
-            if self.player_mgr and self.player_mgr.online:
+            if self.player_mgr and self.player_mgr.online and not self.player_mgr.logout_in_progress:
                 self.player_mgr.logout()
         except AttributeError:
             pass
@@ -312,7 +313,7 @@ class WorldServerSessionHandler:
         Logger.info('[WorldServer] Turned off.')
         ChatLogManager.exit()
         # Since only this process is able to see current world sessions, save characters and disconnect all sessions.
-        WorldServerSessionHandler.save_characters()
+        WorldServerSessionHandler.save_characters(reason=SaveReason.SHUTDOWN, allow_locked=True)
         WorldServerSessionHandler.disconnect_sessions()
         ticker.stop()
         MapManager.shutdown_tile_loader()

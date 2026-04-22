@@ -1,7 +1,8 @@
 import math
 import time
+import traceback
 from threading import RLock
-from typing import Any
+from typing import Any, Union
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -43,6 +44,7 @@ from utils.constants.MiscCodes import ChatFlags, LootTypes, LootErrors, MountRes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
+from utils.constants.SaveCodes import SaveReason
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, \
     RegenStatsFlags, CreatureTypes, UnitStates
@@ -115,6 +117,7 @@ class PlayerManager(UnitManager):
         self.stealth_detect_timer = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
+        self.logout_in_progress = False
         self.pending_taxi_destination = None
         self.explored_areas = bitarray(MAX_EXPLORED_AREAS, 'little')
         self.explored_areas.setall(0)
@@ -295,6 +298,7 @@ class PlayerManager(UnitManager):
             Logger.info(f'Player logging into Map {self.map_id} Instance {self.instance_id}')
 
     def complete_login(self, first_login=False):
+        self.logout_in_progress = False
         self.online = True
 
         # Join default channels.
@@ -355,46 +359,86 @@ class PlayerManager(UnitManager):
     def logout(self):
         from game.world.managers.objects.units.player.ChatAddonManager import ChatAddonManager
 
-        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
-        self.inventory.clear_item_read_translation_timers()
-        TradeManager.cancel_trade(self)
-        self.interrupt_looting()
-        self.online = False
-        self.logout_timer = -1
-        self.mirror_timers_manager.stop_all()
+        if self.logout_in_progress:
+            return
 
-        duel_arbiter = self.get_duel_arbiter()
-        if duel_arbiter:
-            duel_arbiter.force_duel_end(self)
+        self.logout_in_progress = True
 
-        self.spell_manager.remove_casts()
-        self.aura_manager.remove_all_auras()
-        self.pet_manager.detach_active_pets(is_logout=True)
-        self.leave_combat()
-        ChatAddonManager.clear_player_state(self.guid)
+        try:
+            try:
+                self.inventory.clear_item_read_translation_timers()
+                TradeManager.cancel_trade(self)
+                self.interrupt_looting()
+            except Exception as ex:
+                Logger.error(f'Error while preparing logout for [{self.get_name()}] ({self.player.guid}): {ex}.')
+                Logger.error(traceback.format_exc())
 
-        # Channels weren't saved on logout until Patch 0.5.5
-        ChannelManager.leave_all_channels(self, logout=True)
+            self.online = False
+            self.logout_timer = -1
 
-        self.get_map().remove_object(self)
+            try:
+                self.mirror_timers_manager.stop_all()
 
-        self.friends_manager.send_offline_notification()
-        self.session.save_character()
+                duel_arbiter = self.get_duel_arbiter()
+                if duel_arbiter:
+                    duel_arbiter.force_duel_end(self)
 
-        # Destroy all known objects to self.
-        self.destroy_all_known_objects(include_self=True)
+                self.spell_manager.remove_casts()
+                self.aura_manager.remove_all_auras()
+                self.pet_manager.detach_active_pets(is_logout=True)
+                self.leave_combat()
+            except Exception as ex:
+                Logger.error(f'Error while tearing down logout state for [{self.get_name()}] ({self.player.guid}): {ex}.')
+                Logger.error(traceback.format_exc())
 
-        # Flush known items/objects cache.
-        self.known_items.clear()
-        self.known_objects.clear()
+            try:
+                save_ok = self.persist_character_state(reason=SaveReason.LOGOUT, full_save=True,
+                                                       allow_locked=True)
+                if not save_ok:
+                    Logger.error(f'Logout save failed for [{self.get_name()}] ({self.player.guid}).')
+            except Exception as ex:
+                Logger.error(f'Error while saving logout state for [{self.get_name()}] ({self.player.guid}): {ex}.')
+                Logger.error(traceback.format_exc())
 
-        # Destroy self and self items.
-        self.enqueue_packet(self.get_destroy_packet())
-        self.enqueue_packets(self.get_inventory_destroy_packets(requester=self).values())
+            try:
+                self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
+            except Exception as ex:
+                Logger.error(f'Error while sending logout complete for [{self.get_name()}] ({self.player.guid}): {ex}.')
+                Logger.error(traceback.format_exc())
 
-        WorldSessionStateHandler.pop_active_player(self)
-        self.session.player_mgr = None
-        self.session = None
+            try:
+                ChatAddonManager.clear_player_state(self.guid)
+
+                # Channels weren't saved on logout until Patch 0.5.5
+                ChannelManager.leave_all_channels(self, logout=True)
+
+                self.get_map().remove_object(self)
+                self.friends_manager.send_offline_notification()
+
+                # Destroy all known objects to self.
+                self.destroy_all_known_objects(include_self=True)
+
+                # Flush known items/objects cache.
+                self.known_items.clear()
+                self.known_objects.clear()
+
+                # Destroy self and self items.
+                self.enqueue_packet(self.get_destroy_packet())
+                self.enqueue_packets(self.get_inventory_destroy_packets(requester=self).values())
+            except Exception as ex:
+                Logger.error(f'Error while completing logout for [{self.get_name()}] ({self.player.guid}): {ex}.')
+                Logger.error(traceback.format_exc())
+        finally:
+            WorldSessionStateHandler.pop_active_player(self)
+            if self.session:
+                self.session.player_mgr = None
+            self.session = None
+
+    def persist_character_state(self, reason: Union[int, SaveReason]=SaveReason.MANUAL, full_save=False,
+                                min_interval_seconds=0.0, allow_locked=False):
+        return WorldSessionStateHandler.save_character(self, reason=reason, full_save=full_save,
+                                                       min_interval_seconds=min_interval_seconds,
+                                                       allow_locked=allow_locked)
 
     @staticmethod
     def get_tutorial_packet():
@@ -674,6 +718,10 @@ class PlayerManager(UnitManager):
 
         # Remove soft lock if there are no pending teleports remaining.
         self.update_lock = len(self.pending_teleport_data) > 0
+
+        teleport_distance = pending_teleport.origin_location.distance(pending_teleport.destination_location)
+        if from_long_teleport or pending_teleport.recovery_percentage != -1 or teleport_distance >= 100.0:
+            self.persist_character_state(SaveReason.TELEPORT)
 
     # override
     def attack_stop(self):
@@ -1051,6 +1099,9 @@ class PlayerManager(UnitManager):
             self.xp = self.xp + total_amount
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
 
+        if total_amount > 0 and self.online:
+            self.persist_character_state(reason=SaveReason.XP, min_interval_seconds=15.0)
+
         return total_amount
 
     def mod_level(self, level):
@@ -1111,6 +1162,7 @@ class PlayerManager(UnitManager):
                 self.set_uint32(PlayerFields.PLAYER_NEXT_LEVEL_XP, self.next_level_xp)
                 self.quest_manager.update_surrounding_quest_status()
                 self.friends_manager.send_update_to_friends()
+                self.persist_character_state(SaveReason.LEVEL_CHANGE)
 
     def player_or_group_require_quest_item(self, item_entry):
         if not self.group_manager:
@@ -1127,6 +1179,7 @@ class PlayerManager(UnitManager):
         self.player_bytes_2 = self.get_player_bytes_2()
         self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.player_bytes_2)
         self.mod_money(-slot_cost)
+        self.persist_character_state(SaveReason.BANK_SLOT)
 
     def mod_money(self, amount):
         if self.coinage + amount < 0:
@@ -1139,6 +1192,8 @@ class PlayerManager(UnitManager):
             self.coinage += amount
 
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage, force=True)
+        if self.online:
+            self.persist_character_state(reason=SaveReason.MONEY, min_interval_seconds=10.0)
 
     def on_zone_change(self, new_zone):
         is_new_zone = new_zone != self.zone
@@ -1150,6 +1205,8 @@ class PlayerManager(UnitManager):
             self.friends_manager.send_update_to_friends()
             if self.group_manager:
                 self.group_manager.send_update()
+            if self.online and not self.update_lock:
+                self.persist_character_state(reason=SaveReason.ZONE_CHANGE, min_interval_seconds=30.0)
 
         # Checks below this condition can only happen if map loading is enabled.
         if not config.Server.Settings.use_map_tiles:

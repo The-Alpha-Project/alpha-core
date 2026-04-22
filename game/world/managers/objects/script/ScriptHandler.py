@@ -26,7 +26,7 @@ from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages,
     GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes, TempSummonType, SummonCreatureFlags, \
     CreatureGroupFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
-from utils.constants.UnitCodes import UnitFlags, Genders, CreatureReactStates
+from utils.constants.UnitCodes import UnitFlags, Genders, CreatureReactStates, PowerTypes
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
     ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags, WaypointPathOrigin, \
     ScriptTarget
@@ -966,6 +966,20 @@ class ScriptHandler:
         def handle_follow():
             source.movement_manager.move_follow(command.target)
 
+        def handle_distancing():
+            if command.x <= 0:
+                return False
+
+            mana_threshold = command.datalong3
+            if mana_threshold > 0:
+                max_mana = source.get_max_power_value(PowerTypes.TYPE_MANA)
+                mana_percent = 0 if not max_mana else (source.get_power_value(PowerTypes.TYPE_MANA) / max_mana) * 100
+                if mana_percent < mana_threshold:
+                    return False
+
+            source.movement_manager.move_away_from_target(target, command.x)
+            return False
+
         # Map motion types to handler functions
         motion_handlers = {
             MotionTypes.IDLE_MOTION_TYPE: handle_idle,
@@ -977,6 +991,7 @@ class ScriptHandler:
             MotionTypes.FLEEING_MOTION_TYPE: handle_flee,
             MotionTypes.DISTRACT_MOTION_TYPE: handle_distracted,
             MotionTypes.FOLLOW_MOTION_TYPE: handle_follow,
+            MotionTypes.DISTANCING_MOTION_TYPE: handle_distancing,
         }
 
         # Execute handler or abort result for unknown types.

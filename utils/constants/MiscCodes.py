@@ -752,6 +752,7 @@ class MoveType(IntEnum):
     PET = 10
     CONFUSED = 11
     FOLLOW = 12
+    DISTANCING = 13
 
 
 class MoveFlags(IntEnum):

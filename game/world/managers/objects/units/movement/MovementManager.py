@@ -13,6 +13,7 @@ from game.world.managers.objects.units.movement.behaviors.PetMovement import Pet
 from game.world.managers.objects.units.movement.behaviors.GroupMovement import GroupMovement
 from game.world.managers.objects.units.movement.behaviors.WaypointMovement import WaypointMovement
 from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
+from game.world.managers.objects.units.movement.behaviors.DistancingMovement import DistancingMovement
 from game.world.managers.objects.units.movement.behaviors.DistractedMovement import DistractedMovement
 from game.world.managers.objects.units.movement.behaviors.EvadeMovement import EvadeMovement
 from game.world.managers.objects.units.movement.behaviors.FearMovement import FearMovement
@@ -35,6 +36,7 @@ class MovementManager:
             MoveType.FEAR: None,
             MoveType.CONFUSED: None,
             MoveType.DISTRACTED: None,
+            MoveType.DISTANCING: None,
             MoveType.CHASE: None,
             MoveType.PET: None,
             MoveType.FOLLOW: None,
@@ -151,6 +153,11 @@ class MovementManager:
             return
         self.set_behavior(ChaseMovement(spline_callback=self.spline_callback))
 
+    def move_away_from_target(self, target, distance):
+        if not self.unit.is_alive or not target:
+            return
+        self.set_behavior(DistancingMovement(target=target, distance=distance, spline_callback=self.spline_callback))
+
     def move_home(self, waypoints):
         if not self.unit.is_alive or self.movement_behaviors[MoveType.EVADE]:
             return
@@ -217,6 +224,8 @@ class MovementManager:
             return [10]
         elif current_behavior.move_type == MoveType.DISTRACTED:
             return [11]
+        elif current_behavior.move_type == MoveType.DISTANCING:
+            return [18]
         elif current_behavior.move_type == MoveType.GROUP:
             return [2, 15, 17]
         return [0]
