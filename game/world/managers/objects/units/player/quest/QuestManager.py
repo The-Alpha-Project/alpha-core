@@ -350,6 +350,57 @@ class QuestManager:
             dialog_status = QuestGiverStatus.QUEST_GIVER_TRIVIAL  # Not shown unless interacting.
         return dialog_status
 
+    def check_derived_previous_quest_requirements(self, quest_template):
+        # Some quest chains are linked through other quests' NextQuestId rather than this quest's PrevQuestId.
+        previous_quests = WorldDatabaseManager.QuestPreviousRequirementsHolder.get_previous_quests_for_entry(
+            quest_template.entry)
+        if not previous_quests:
+            return True
+
+        for previous_quest_id in previous_quests:
+            previous_quest_entry = abs(previous_quest_id)
+            previous_quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(previous_quest_entry)
+            if not previous_quest:
+                continue
+
+            if previous_quest_id > 0 and previous_quest_entry in self.completed_quests:
+                if previous_quest.ExclusiveGroup >= 0:
+                    return True
+                # Negative exclusive groups mean every quest in the group must be rewarded first.
+                if self.check_exclusive_group_reward_requirements(previous_quest.ExclusiveGroup, previous_quest_entry):
+                    return True
+                return False
+
+            if previous_quest_id < 0 and previous_quest_entry in self.active_quests:
+                if previous_quest.ExclusiveGroup >= 0:
+                    return True
+                # Negative exclusive groups also apply to active quest prerequisites.
+                if self.check_exclusive_group_active_requirements(previous_quest.ExclusiveGroup, previous_quest_entry):
+                    return True
+                return False
+
+        return False
+
+    def check_exclusive_group_reward_requirements(self, exclusive_group_id, current_quest_id):
+        # Check the other quests in the exclusive group, skipping the one that triggered this lookup.
+        exclusive_quests = WorldDatabaseManager.QuestExclusiveGroupsHolder.get_quest_for_group_id(exclusive_group_id)
+        for exclusive_quest in exclusive_quests:
+            if exclusive_quest == current_quest_id:
+                continue
+            if exclusive_quest not in self.completed_quests:
+                return False
+        return True
+
+    def check_exclusive_group_active_requirements(self, exclusive_group_id, current_quest_id):
+        # Same as above, but for quests that must still be active in the log.
+        exclusive_quests = WorldDatabaseManager.QuestExclusiveGroupsHolder.get_quest_for_group_id(exclusive_group_id)
+        for exclusive_quest in exclusive_quests:
+            if exclusive_quest == current_quest_id:
+                continue
+            if exclusive_quest not in self.active_quests:
+                return False
+        return True
+
     def check_quest_requirements(self, quest_template, quest_start=True):
         # First check if quest is disabled.
         if quest_template.Method == QuestMethod.QUEST_DISABLED:
@@ -387,7 +438,9 @@ class QuestManager:
             return True
 
         # Has the character already started the next quest in the chain.
-        if quest_template.NextQuestInChain > 0 and quest_template.NextQuestInChain in self.completed_quests:
+        if quest_template.NextQuestInChain > 0 and (
+                quest_template.NextQuestInChain in self.completed_quests
+                or quest_template.NextQuestInChain in self.active_quests):
             return False
 
         # The given quest has to be active in the quest log to get this quest.
@@ -396,6 +449,10 @@ class QuestManager:
 
         # The given quest needs to be completed prior to getting this quest.
         if quest_template.PrevQuestId > 0 and quest_template.PrevQuestId not in self.completed_quests:
+            return False
+
+        # Check any extra prerequisites we derived from reverse NextQuestId links.
+        if not self.check_derived_previous_quest_requirements(quest_template):
             return False
 
         # The given quest has alternative exclusive options.

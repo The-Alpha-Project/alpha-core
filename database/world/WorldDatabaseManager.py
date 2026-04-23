@@ -1122,6 +1122,50 @@ class WorldDatabaseManager:
                 return []
             return WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[group_id]
 
+    class QuestPreviousRequirementsHolder:
+        PREVIOUS_QUESTS: dict[int, list[int]] = {}
+
+        @staticmethod
+        def reset():
+            WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS = {}
+
+        @staticmethod
+        def add_previous_quest(quest_entry, previous_quest_id):
+            if quest_entry not in WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS:
+                WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS[quest_entry] = []
+
+            if previous_quest_id not in WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS[quest_entry]:
+                WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS[quest_entry].append(
+                    previous_quest_id)
+
+        @staticmethod
+        def load_previous_requirement(quest_template):
+            if not quest_template.NextQuestId:
+                return
+
+            next_quest_entry = abs(quest_template.NextQuestId)
+            next_quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(next_quest_entry)
+            if not next_quest:
+                Logger.warning(
+                    f'Quest {quest_template.entry} has NextQuestId {quest_template.NextQuestId}, '
+                    f'but no such quest exists.')
+                return
+
+            # alpha_world already overrides a number of chains via explicit PrevQuestId links.
+            # Only fall back to reverse NextQuestId prerequisites when the target quest does not.
+            if next_quest.PrevQuestId:
+                return
+
+            signed_quest_entry = -quest_template.entry if quest_template.NextQuestId < 0 else quest_template.entry
+            WorldDatabaseManager.QuestPreviousRequirementsHolder.add_previous_quest(
+                next_quest_entry, signed_quest_entry)
+
+        @staticmethod
+        def get_previous_quests_for_entry(quest_entry):
+            if quest_entry not in WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS:
+                return []
+            return WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS[quest_entry]
+
     class QuestItemConditionsHolder:
         QUEST_CONDITION_ITEMS = set()
 

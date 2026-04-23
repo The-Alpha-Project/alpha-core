@@ -33,6 +33,7 @@ class QuestHelpers:
                not QuestHelpers.requires_items_creatures_or_gos(quest_template)
 
     @staticmethod
+    @lru_cache
     def is_instant_requires_only_items(quest_template):
         return (QuestHelpers.is_instant_complete_quest(quest_template) and QuestHelpers.requires_items(quest_template)
                 and not QuestHelpers.requires_creatures_or_gos(quest_template))
@@ -44,22 +45,27 @@ class QuestHelpers:
         return len(req_items) > 0
 
     @staticmethod
+    @lru_cache
     def is_quest_repeatable(quest_template):
         return (quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE) != 0
 
     @staticmethod
+    @lru_cache
     def is_event_quest(quest_template):
         return (quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_SCRIPT) != 0
 
     @staticmethod
+    @lru_cache
     def is_exploration_quest(quest_template):
         return (quest_template.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION) != 0
 
     @staticmethod
+    @lru_cache
     def is_exploration_or_event(quest_template):
         return QuestHelpers.is_exploration_quest(quest_template) or QuestHelpers.is_event_quest(quest_template)
 
     @staticmethod
+    @lru_cache
     def is_timed_quest(quest_template):
         return quest_template.LimitTime > 0
 

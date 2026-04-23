@@ -653,6 +653,15 @@ class WorldLoader:
             count += 1
             Logger.progress('Loading quest templates...', count, length)
 
+        WorldDatabaseManager.QuestPreviousRequirementsHolder.reset()
+
+        count = 0
+        for quest_template in quest_templates:
+            WorldDatabaseManager.QuestPreviousRequirementsHolder.load_previous_requirement(quest_template)
+
+            count += 1
+            Logger.progress('Loading quest previous requirements...', count, length)
+
         return length
 
     @staticmethod
