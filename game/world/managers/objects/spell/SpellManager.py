@@ -2063,9 +2063,11 @@ class SpellManager:
         # TODO: More research needed on client Spell_C_SetModal and CastResultHandler:
         # if (msg == * (CDataStore **)s_modalSpellID) (msg is spell id, s_modalSpellID is set upon spell cast)
         #     Spell_C_CancelSpell(0, 0, a1, SPELL_FAILED_ERROR);
-        # This fixes item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial).
-        # Which are items with no ITEM_FLAG_PLAYERCAST which ends up displaying spell failed in the cast bar.
-        if not has_error and casting_spell.source_item and not casting_spell.source_item.is_player_cast():
+        # This fixes non-instant item casts like 5810 (Fresh Carcass) and 5867 (Etched Phial),
+        # which would otherwise show as failed in the cast bar.
+        # Instant item casts need their real spell id so the client clears the modal cast state correctly.
+        if not has_error and casting_spell.source_item and not casting_spell.source_item.is_player_cast() and \
+                not casting_spell.is_instant_cast():
             spell_id = 0
 
         # Client stops spell cast visuals/sounds for observers on SMSG_SPELL_FAILURE.
