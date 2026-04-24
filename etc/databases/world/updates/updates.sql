@@ -23327,5 +23327,12 @@ begin not atomic
         insert into applied_updates values ('210420261');
     end if;
 
+    -- 24/04/2026 1
+    if (select count(*) from applied_updates where id='240420261') = 0 then
+        -- Invalid quest chains.
+        UPDATE quest_template SET NextQuestId = 0 WHERE entry IN (18, 648, 836, 923, 235, 742);
+        insert into applied_updates values ('240420261');
+    end if;
+
 end $
 delimiter ;
