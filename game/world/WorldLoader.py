@@ -111,6 +111,7 @@ class WorldLoader:
 
             WorldLoader.load_area_trigger_quest_relations()
             WorldLoader.load_quests()
+            WorldLoader.load_quest_previous_requirements()
             WorldLoader.load_spell_chains()
             WorldLoader.load_default_profession_spells()
             WorldLoader.load_trainer_spells()
@@ -607,7 +608,6 @@ class WorldLoader:
 
         for lock in locks:
             DbcDatabaseManager.LocksHolder.load_lock(lock)
-
             count += 1
             Logger.progress('Loading locks...', count, length)
 
@@ -621,7 +621,6 @@ class WorldLoader:
 
         for faction in factions:
             DbcDatabaseManager.FactionHolder.load_faction(faction)
-
             count += 1
             Logger.progress('Loading factions...', count, length)
 
@@ -635,7 +634,6 @@ class WorldLoader:
 
         for faction_template in faction_templates:
             DbcDatabaseManager.FactionTemplateHolder.load_faction_template(faction_template)
-
             count += 1
             Logger.progress('Loading faction templates...', count, length)
 
@@ -649,16 +647,19 @@ class WorldLoader:
 
         for quest_template in quest_templates:
             WorldDatabaseManager.QuestTemplateHolder.load_quest_template(quest_template)
-
             count += 1
             Logger.progress('Loading quest templates...', count, length)
 
-        WorldDatabaseManager.QuestPreviousRequirementsHolder.reset()
+        return length
 
+    @staticmethod
+    def load_quest_previous_requirements():
+        quest_templates = WorldDatabaseManager.quest_template_get_all()
+        length = len(quest_templates)
         count = 0
+
         for quest_template in quest_templates:
             WorldDatabaseManager.QuestPreviousRequirementsHolder.load_previous_requirement(quest_template)
-
             count += 1
             Logger.progress('Loading quest previous requirements...', count, length)
 

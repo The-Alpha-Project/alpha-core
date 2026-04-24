@@ -1126,10 +1126,6 @@ class WorldDatabaseManager:
         PREVIOUS_QUESTS: dict[int, list[int]] = {}
 
         @staticmethod
-        def reset():
-            WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS = {}
-
-        @staticmethod
         def add_previous_quest(quest_entry, previous_quest_id):
             if quest_entry not in WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS:
                 WorldDatabaseManager.QuestPreviousRequirementsHolder.PREVIOUS_QUESTS[quest_entry] = []
