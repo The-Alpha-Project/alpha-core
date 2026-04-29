@@ -461,7 +461,7 @@ class MapManager:
     @staticmethod
     def on_cell_turn_inactive(map_id, adt_x, adt_y):
         # Normal Tile unload (.map)
-        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+        tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
         if tile and tile.is_ready():
             Logger.info(f'[Map] Unloading map tile, Map:{map_id} Tile:{adt_x},{adt_y}')
             tile.unload()
@@ -638,8 +638,8 @@ class MapManager:
         if src_state != MapTileStates.READY or dst_state != MapTileStates.READY:
             return True
 
-        src_tile = MapManager.get_tile_safe(map_id, src_adt_x, src_adt_y)
-        dst_tile = MapManager.get_tile_safe(map_id, dst_adt_x, dst_adt_y)
+        src_tile = MapManager.get_tile_at(map_id, src_adt_x, src_adt_y)
+        dst_tile = MapManager.get_tile_at(map_id, dst_adt_x, dst_adt_y)
         if not src_tile or not src_tile.has_navigation:
             return True
         if not dst_tile or not dst_tile.has_navigation:
@@ -810,7 +810,7 @@ class MapManager:
     @staticmethod
     def get_height_at_world(map_id, x, y):
         adt_x, adt_y = MapUtils.get_tile(x, y)
-        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+        tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
         if not tile or not tile.has_maps:
             return 0.0
         return tile.get_height_at_world(x, y)
@@ -836,14 +836,14 @@ class MapManager:
             adt_y = int(adt_y - 1)
             cell_y = int(-cell_y - 1)
 
-        # Try to get adjusted tile
-        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+        # Try to get adjusted tile.
+        tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
         if tile and tile.has_maps:
             return tile.get_height_at_cell(cell_x, cell_y)
 
-        # Fall back to original tile if adjusted coords were out of bounds
+        # Fall back to the original tile if adjusted coords were out of bounds.
         if adt_x != original_adt_x or adt_y != original_adt_y:
-            tile = MapManager.get_tile_safe(map_id, original_adt_x, original_adt_y)
+            tile = MapManager.get_tile_at(map_id, original_adt_x, original_adt_y)
             if tile and tile.has_maps:
                 cell_x = max(0, min(original_cell_x, RESOLUTION_ZMAP - 1))
                 cell_y = max(0, min(original_cell_y, RESOLUTION_ZMAP - 1))
@@ -872,7 +872,7 @@ class MapManager:
             if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
                 return None
 
-            tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+            tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
             if not tile:
                 return None
             area_information = tile.get_area_at(cell_x, cell_y)
@@ -902,7 +902,7 @@ class MapManager:
             if tile_state != MapTileStates.READY:
                 return None
 
-            tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+            tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
             if not tile:
                 return None
             liq_info = tile.get_liquids_at(cell_x, cell_y)
@@ -978,24 +978,7 @@ class MapManager:
         return True
 
     @staticmethod
-    def get_tile_safe(map_id, adt_x, adt_y) -> Optional[MapTile]:
-        """
-        Safely retrieve a MapTile, returning None if not found or inaccessible.
-
-        This helper prevents KeyError/IndexError exceptions from direct MAPS_TILES access.
-        Use this instead of MAPS_TILES[map_id][adt_x][adt_y] to handle edge cases:
-        - Map not initialized
-        - Invalid coordinates
-        - Race conditions during shutdown
-
-        Args:
-            map_id: Map ID
-            adt_x: ADT X coordinate (0-63)
-            adt_y: ADT Y coordinate (0-63)
-
-        Returns:
-            MapTile if exists and accessible, None otherwise
-        """
+    def get_tile_at(map_id, adt_x, adt_y) -> Optional[MapTile]:
         try:
             if map_id not in MAPS_TILES:
                 return None
@@ -1021,7 +1004,7 @@ class MapManager:
             Logger.warning(f'Wrong map, {map_id} not found.')
             return MapTileStates.UNUSABLE
 
-        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+        tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
         if not tile:
             Logger.error(f'Unable to retrieve tile for Map ID: {map_id}, '
                         f'Position: ({location_x}, {location_y}), '
