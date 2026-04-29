@@ -646,8 +646,8 @@ class MapManager:
             return True
 
         los_result = namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z, doodads)
-        # TODO: namigator's WMO/doodad-only RayCast is direction-asymmetric at cave openings;
-        #  confirm both directions here until that is fixed upstream in namigator itself.
+        # TODO: namigator's WMO/doodad-only RayCast is direction-asymmetric (both False-when-True and
+        #  True-when-False occur). Creature -> Player = False, Player -> Creature = True.
         if los_result:
             los_result = namigator.line_of_sight(dst_loc.x, dst_loc.y, dst_loc.z,
                                                  src_loc.x, src_loc.y, src_loc.z, doodads)
