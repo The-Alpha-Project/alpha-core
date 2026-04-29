@@ -461,7 +461,7 @@ class MapManager:
     @staticmethod
     def on_cell_turn_inactive(map_id, adt_x, adt_y):
         # Normal Tile unload (.map)
-        tile = MAPS_TILES[map_id][adt_x][adt_y]
+        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
         if tile and tile.is_ready():
             Logger.info(f'[Map] Unloading map tile, Map:{map_id} Tile:{adt_x},{adt_y}')
             tile.unload()
@@ -631,19 +631,27 @@ class MapManager:
         # Calculate destination adt coordinates for x,y.
         dst_adt_x, dst_adt_y = MapUtils.get_tile(dst_loc.x, dst_loc.y)
 
-        # Check if loaded or unable to load, return True if this fails.
-        initial_source_tile_state = MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y)
-        if initial_source_tile_state != MapTileStates.READY:
-            # If tile is loading return false.
-            return initial_source_tile_state != MapTileStates.LOADING
+        src_state = MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y)
+        dst_state = MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y)
+        if src_state == MapTileStates.LOADING or dst_state == MapTileStates.LOADING:
+            return False
+        if src_state != MapTileStates.READY or dst_state != MapTileStates.READY:
+            return True
 
-        # Check if loaded or unable to load, return True if this fails.
-        initial_dest_tile_state = MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y)
-        if initial_dest_tile_state != MapTileStates.READY:
-            # If tile is loading return false.
-            return initial_dest_tile_state != MapTileStates.LOADING
+        src_tile = MapManager.get_tile_safe(map_id, src_adt_x, src_adt_y)
+        dst_tile = MapManager.get_tile_safe(map_id, dst_adt_x, dst_adt_y)
+        if not src_tile or not src_tile.has_navigation:
+            return True
+        if not dst_tile or not dst_tile.has_navigation:
+            return True
 
-        return namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z, doodads)
+        los_result = namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z, doodads)
+        # TODO: namigator's WMO/doodad-only RayCast is direction-asymmetric at cave openings;
+        #  confirm both directions here until that is fixed upstream in namigator itself.
+        if los_result:
+            los_result = namigator.line_of_sight(dst_loc.x, dst_loc.y, dst_loc.z,
+                                                 src_loc.x, src_loc.y, src_loc.z, doodads)
+        return los_result
 
     @staticmethod
     def find_random_point_around_circle(map_id, vector, radius):
@@ -797,12 +805,8 @@ class MapManager:
 
     @staticmethod
     def get_height_at_world(map_id, x, y):
-        if map_id not in MAPS_TILES:
-            return 0.0
         adt_x, adt_y = MapUtils.get_tile(x, y)
-        if adt_x < 0 or adt_x >= BLOCK_SIZE or adt_y < 0 or adt_y >= BLOCK_SIZE:
-            return 0.0
-        tile = MAPS_TILES[map_id][adt_x][adt_y]
+        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
         if not tile or not tile.has_maps:
             return 0.0
         return tile.get_height_at_world(x, y)
@@ -828,26 +832,20 @@ class MapManager:
             adt_y = int(adt_y - 1)
             cell_y = int(-cell_y - 1)
 
-        if map_id not in MAPS_TILES:
-            return 0.0
+        # Try to get adjusted tile
+        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+        if tile and tile.has_maps:
+            return tile.get_height_at_cell(cell_x, cell_y)
 
-        if adt_x < 0 or adt_x >= BLOCK_SIZE or adt_y < 0 or adt_y >= BLOCK_SIZE:
-            adt_x = original_adt_x
-            adt_y = original_adt_y
-            cell_x = max(0, min(original_cell_x, RESOLUTION_ZMAP - 1))
-            cell_y = max(0, min(original_cell_y, RESOLUTION_ZMAP - 1))
+        # Fall back to original tile if adjusted coords were out of bounds
+        if adt_x != original_adt_x or adt_y != original_adt_y:
+            tile = MapManager.get_tile_safe(map_id, original_adt_x, original_adt_y)
+            if tile and tile.has_maps:
+                cell_x = max(0, min(original_cell_x, RESOLUTION_ZMAP - 1))
+                cell_y = max(0, min(original_cell_y, RESOLUTION_ZMAP - 1))
+                return tile.get_height_at_cell(cell_x, cell_y)
 
-        tile = MAPS_TILES[map_id][adt_x][adt_y]
-        if not tile or not tile.has_maps:
-            if adt_x != original_adt_x or adt_y != original_adt_y:
-                tile = MAPS_TILES[map_id][original_adt_x][original_adt_y]
-                if tile and tile.has_maps:
-                    cell_x = max(0, min(original_cell_x, RESOLUTION_ZMAP - 1))
-                    cell_y = max(0, min(original_cell_y, RESOLUTION_ZMAP - 1))
-                    return tile.get_height_at_cell(cell_x, cell_y)
-            return 0.0
-
-        return tile.get_height_at_cell(cell_x, cell_y)
+        return 0.0
 
     @staticmethod
     def get_near_height(map_id, x, y, current_z, tolerance=1.0):
@@ -870,7 +868,9 @@ class MapManager:
             if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
                 return None
 
-            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+            if not tile:
+                return None
             area_information = tile.get_area_at(cell_x, cell_y)
             return area_information if area_information else None
         except:
@@ -898,7 +898,9 @@ class MapManager:
             if tile_state != MapTileStates.READY:
                 return None
 
-            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+            if not tile:
+                return None
             liq_info = tile.get_liquids_at(cell_x, cell_y)
 
             if not liq_info:
@@ -972,25 +974,65 @@ class MapManager:
         return True
 
     @staticmethod
+    def get_tile_safe(map_id, adt_x, adt_y) -> Optional[MapTile]:
+        """
+        Safely retrieve a MapTile, returning None if not found or inaccessible.
+
+        This helper prevents KeyError/IndexError exceptions from direct MAPS_TILES access.
+        Use this instead of MAPS_TILES[map_id][adt_x][adt_y] to handle edge cases:
+        - Map not initialized
+        - Invalid coordinates
+        - Race conditions during shutdown
+
+        Args:
+            map_id: Map ID
+            adt_x: ADT X coordinate (0-63)
+            adt_y: ADT Y coordinate (0-63)
+
+        Returns:
+            MapTile if exists and accessible, None otherwise
+        """
+        try:
+            if map_id not in MAPS_TILES:
+                return None
+
+            tiles_grid = MAPS_TILES[map_id]
+            if not tiles_grid:
+                return None
+
+            # Validate bounds
+            if adt_x < 0 or adt_x >= BLOCK_SIZE or adt_y < 0 or adt_y >= BLOCK_SIZE:
+                return None
+
+            tile = tiles_grid[adt_x][adt_y]
+            return tile if tile else None
+
+        except (KeyError, IndexError, TypeError):
+            return None
+
+    @staticmethod
     def _check_tile_load(map_id, location_x, location_y, adt_x, adt_y):
         # Check if the map is valid first.
         if map_id not in MAPS or map_id not in MAPS_TILES:
             Logger.warning(f'Wrong map, {map_id} not found.')
-        else:
-            try:
-                tile = MAPS_TILES[map_id][adt_x][adt_y]
-                if tile.is_ready() and tile.can_use():
-                    return MapTileStates.READY
-                # Loaded but has no maps or navs data.
-                elif tile.is_ready() and not tile.can_use():
-                    return MapTileStates.UNUSABLE
-                # Initialized but still loading.
-                elif tile.is_loading():
-                    return MapTileStates.LOADING
-            except:
-                Logger.error(f'Error retrieving tile information for the following position: '
-                             f'Map ID: {map_id}, X: {location_x}, Y: {location_y}, '
-                             f'Tile X: {adt_x}, Tile Y: {adt_y}.')
+            return MapTileStates.UNUSABLE
+
+        tile = MapManager.get_tile_safe(map_id, adt_x, adt_y)
+        if not tile:
+            Logger.error(f'Unable to retrieve tile for Map ID: {map_id}, '
+                        f'Position: ({location_x}, {location_y}), '
+                        f'Tile: ({adt_x}, {adt_y})')
+            return MapTileStates.UNUSABLE
+
+        if tile.is_ready() and tile.can_use():
+            return MapTileStates.READY
+        # Loaded but has no maps or navs data (files missing or features disabled).
+        elif tile.is_ready() and not tile.can_use():
+            return MapTileStates.UNUSABLE
+        # Initialized but still loading.
+        elif tile.is_loading():
+            return MapTileStates.LOADING
+
         return MapTileStates.UNUSABLE
 
     @staticmethod

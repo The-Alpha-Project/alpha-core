@@ -185,13 +185,13 @@ class GridManager:
         if not load_tile_data:
             return
 
-        # Initialize ref count for this adt if needed.
-        if cell.adt_key in self.active_adt_cell_refs:
-            return
+        # Initialize ref set for this ADT and trigger tile load on the first cell using it.
+        if cell.adt_key not in self.active_adt_cell_refs:
+            self.active_adt_cell_refs[cell.adt_key] = set()
+            self.active_cell_callback(self.map_id, cell.adt_x, cell.adt_y)
 
-        self.active_adt_cell_refs[cell.adt_key] = set()
+        # Always track this cell in the ADT's ref set so unload only fires when all cells go.
         self.active_adt_cell_refs[cell.adt_key].add(cell.key)
-        self.active_cell_callback(self.map_id, cell.adt_x, cell.adt_y)
 
     def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None,
                                      update_flags=UpdateFlags.NONE, update_data=None, object_type=None):
