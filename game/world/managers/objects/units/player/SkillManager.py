@@ -871,6 +871,7 @@ class SkillManager:
         miss_chance = SkillManager.DUAL_WIELD_MAX_MISS_CHANCE - (
             (SkillManager.DUAL_WIELD_MAX_MISS_CHANCE - SkillManager.DUAL_WIELD_MIN_MISS_CHANCE) * skill_progress
         )
+        # Convert total miss chance into the extra dual-wield penalty added on top of the base 5% miss chance.
         miss_penalty = max(0.0, miss_chance - 0.05)
         # Keep the archived 19% miss floor once the skill is fully trained.
         return miss_penalty, SkillManager.DUAL_WIELD_MIN_MISS_CHANCE
