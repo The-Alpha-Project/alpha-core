@@ -226,6 +226,8 @@ class Proficiency:
 class SkillManager:
     MAX_PROFESSION_SKILL = 225
     MAX_SKILLS = 64
+    DUAL_WIELD_MAX_MISS_CHANCE = 0.24
+    DUAL_WIELD_MIN_MISS_CHANCE = 0.19
 
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
@@ -421,6 +423,18 @@ class SkillManager:
             return
 
         self.handle_offense_skill_gain_chance(skill_id)
+
+    def handle_dual_wield_skill_gain_chance(self, damage_info):
+        if damage_info.attack_type not in (AttackTypes.BASE_ATTACK, AttackTypes.OFFHAND_ATTACK):
+            return False
+
+        if not self.can_dual_wield() or not self.player_mgr.has_offhand_weapon():
+            return False
+
+        if damage_info.total_damage <= 0:
+            return False
+
+        return self.handle_offense_skill_gain_chance(SkillTypes.DUALWIELD)
 
     def handle_spell_cast_skill_gain(self, casting_spell):
         if not casting_spell:
@@ -828,25 +842,38 @@ class SkillManager:
     def get_riding_speed_bonus_percent(self) -> float:
         best_bonus = 0.0
         for skill_id in RIDING_SKILLS:
-            skill = self.skills.get(skill_id)
-            if not skill:
-                continue
-
-            max_rank = skill.max if skill.max else self.get_max_rank(skill_id)
-            if max_rank <= 0:
-                continue
-
-            value = self.get_total_skill_value(skill_id)
-            if value <= 0:
-                continue
-            if value > max_rank:
-                value = max_rank
-
-            bonus = (value / max_rank) * 100.0
+            bonus = self.get_skill_progress(skill_id) * 100.0
             if bonus > best_bonus:
                 best_bonus = bonus
 
         return best_bonus
+
+    def get_skill_progress(self, skill_id, no_bonus=False) -> float:
+        skill = self.skills.get(skill_id)
+        if not skill:
+            return 0.0
+
+        max_rank = skill.max if skill.max else self.get_max_rank(skill_id)
+        if max_rank <= 0:
+            return 0.0
+
+        value = self.get_total_skill_value(skill_id, no_bonus=no_bonus)
+        if value <= 0:
+            return 0.0
+
+        return min(value, max_rank) / max_rank
+
+    def get_dual_wield_miss_profile(self):
+        if not self.can_dual_wield():
+            return 0.0, 0.0
+
+        skill_progress = self.get_skill_progress(SkillTypes.DUALWIELD, no_bonus=True)
+        miss_chance = SkillManager.DUAL_WIELD_MAX_MISS_CHANCE - (
+            (SkillManager.DUAL_WIELD_MAX_MISS_CHANCE - SkillManager.DUAL_WIELD_MIN_MISS_CHANCE) * skill_progress
+        )
+        miss_penalty = max(0.0, miss_chance - 0.05)
+        # Keep the archived 19% miss floor once the skill is fully trained.
+        return miss_penalty, SkillManager.DUAL_WIELD_MIN_MISS_CHANCE
 
     def get_skill_id_for_weapon(self, item_template: Optional[ItemTemplate]):
         if not item_template:

@@ -830,7 +830,8 @@ class StatManager:
         return min(0.4, 0.2 - 0.002 * self._get_combat_rating_difference(attacker.level))
 
     def get_attack_result_against_self(self, attacker, attack_type,
-                                       dual_wield_penalty=0.0, invalid_result_mask: HitInfo = 0,
+                                       dual_wield_miss_penalty=0.0, dual_wield_miss_floor=0.0,
+                                       invalid_result_mask: HitInfo = 0,
                                        combat_rating=-1, roll_info: AttackRollInfo = None) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading/Sanctuary.
@@ -846,7 +847,7 @@ class StatManager:
 
         rating_difference = self._get_combat_rating_difference(attacker.level, combat_rating)
 
-        base_miss = 0.05 + dual_wield_penalty
+        base_miss = 0.05 + dual_wield_miss_penalty
         miss_chance = base_miss
         if self.unit_mgr.is_player():
             # 0.04% Bonus against players when the defender has a higher combat rating,
@@ -865,7 +866,7 @@ class StatManager:
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
         # regardless of how much +hit% gear was equipped.
-        miss_chance = max(dual_wield_penalty, miss_chance)
+        miss_chance = max(dual_wield_miss_floor, miss_chance)
 
         hit_info = HitInfo.SUCCESS
 
@@ -968,8 +969,16 @@ class StatManager:
                 cumulative += crush_chance
                 if roll < cumulative:
                     return hit_info | HitInfo.CRUSHING
-        
         return hit_info
+
+    def get_dual_wield_miss_profile(self, attack_type):
+        if attack_type == AttackTypes.RANGED_ATTACK or not self.unit_mgr.is_player():
+            return 0.0, 0.0
+
+        if not self.unit_mgr.has_offhand_weapon():
+            return 0.0, 0.0
+
+        return self.unit_mgr.skill_manager.get_dual_wield_miss_profile()
 
     @staticmethod
     def _get_attack_weapon(attacker, attack_type):

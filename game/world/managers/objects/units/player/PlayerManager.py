@@ -1447,6 +1447,7 @@ class PlayerManager(UnitManager):
     def handle_combat_skill_gain(self, damage_info, spell_id=0):
         if damage_info.attacker == self:
             self.skill_manager.handle_weapon_skill_gain_chance(damage_info.attack_type)
+            self.skill_manager.handle_dual_wield_skill_gain_chance(damage_info)
         else:
             self.skill_manager.handle_defense_skill_gain_chance(damage_info)
 

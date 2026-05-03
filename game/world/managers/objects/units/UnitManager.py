@@ -546,7 +546,7 @@ class UnitManager(ObjectManager):
          for unit in [damage_info.attacker, damage_info.target]]
 
     def calculate_melee_damage(self, victim, attack_type):
-        dual_wield_penalty = 0.19 if self.has_offhand_weapon() and attack_type != AttackTypes.RANGED_ATTACK else 0
+        dual_wield_miss_penalty, dual_wield_miss_floor = self.stat_manager.get_dual_wield_miss_profile(attack_type)
 
         damage_info = DamageInfoHolder(attacker=self, target=victim,
                                        attack_type=attack_type,
@@ -554,7 +554,8 @@ class UnitManager(ObjectManager):
 
         roll_info = AttackRollInfo()
         damage_info.attack_round_hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
-                                                                                  dual_wield_penalty=dual_wield_penalty,
+                                                                                  dual_wield_miss_penalty=dual_wield_miss_penalty,
+                                                                                  dual_wield_miss_floor=dual_wield_miss_floor,
                                                                                   roll_info=roll_info)
         damage_info.advanced_logging = AttackRoundAdvancedLogging(roll_info=roll_info)
         if attack_type == AttackTypes.OFFHAND_ATTACK:
