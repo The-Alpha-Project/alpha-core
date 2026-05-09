@@ -103,9 +103,12 @@ class GridManager:
                 self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
     def unit_should_relocate(self, world_object, destination, destination_map, destination_instance):
+        # If the unit isn't registered in a cell yet, there is nothing to relocate from.
+        current_cell = self.get_cells().get(world_object.current_cell)
+        if not current_cell:
+            return False
         destination_cells = self._get_surrounding_cells_by_location(destination.x, destination.y, destination_map,
                                                                     destination_instance)
-        current_cell = self.get_cells()[world_object.current_cell]
         return current_cell in destination_cells
 
     def is_active_cell(self, cell_key):
