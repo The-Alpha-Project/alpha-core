@@ -103,9 +103,12 @@ class GridManager:
                 self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
     def unit_should_relocate(self, world_object, destination, destination_map, destination_instance):
+        # If the unit isn't registered in a cell yet, there is nothing to relocate from.
+        current_cell = self.get_cells().get(world_object.current_cell)
+        if not current_cell:
+            return False
         destination_cells = self._get_surrounding_cells_by_location(destination.x, destination.y, destination_map,
                                                                     destination_instance)
-        current_cell = self.get_cells()[world_object.current_cell]
         return current_cell in destination_cells
 
     def is_active_cell(self, cell_key):
@@ -153,6 +156,13 @@ class GridManager:
 
         if world_object.is_player() or world_object.is_temp_summon_or_pet_or_guardian():
             self.activate_cell_by_world_object(world_object, load_tile_data=True)
+
+        # Lazy-initialize temp summons, pets and guardians once they are registered in the
+        # grid. Doing this here (rather than in CreatureBuilder.create) guarantees current_cell
+        # is set before on-spawn AI events run, and before surrounding players are notified.
+        if (world_object.is_unit() and world_object.is_temp_summon_or_pet_or_guardian()
+                and not world_object.initialized):
+            world_object.initialize_field_values()
 
         # Notify surrounding players.
         if update_players:
