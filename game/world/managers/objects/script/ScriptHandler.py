@@ -1,5 +1,6 @@
 import random
 import time
+import traceback
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -72,7 +73,8 @@ class ScriptHandler:
             try:
                 new_script.update(time.time())
             except Exception:
-                Logger.exception(f'ScriptHandler: Failed to run script {script_id} immediately, aborting instance.')
+                Logger.error(f'ScriptHandler: Failed to run script {script_id} immediately, '
+                             f'aborting instance.\n{traceback.format_exc()}')
                 new_script.abort()
             if not new_script.is_complete():
                 self.scripts_set.add(new_script)
@@ -87,8 +89,8 @@ class ScriptHandler:
             Logger.warning(f'Unknown script command: {script_command.command}.')
             return True  # Abort.
         except Exception:
-            Logger.exception(f'ScriptHandler: Script command {script_command.command} failed in '
-                             f'script {script_command.script_id}.')
+            Logger.error(f'ScriptHandler: Script command {script_command.command} failed in '
+                         f'script {script_command.script_id}.\n{traceback.format_exc()}')
             return True  # Abort.
 
     # noinspection PyMethodMayBeStatic
@@ -115,7 +117,8 @@ class ScriptHandler:
             try:
                 script.update(now)
             except Exception:
-                Logger.exception(f'ScriptHandler: Failed to update script {script.id}, aborting script instance.')
+                Logger.error(f'ScriptHandler: Failed to update script {script.id}, '
+                             f'aborting script instance.\n{traceback.format_exc()}')
                 # Abort, avoid permanent queue stalls.
                 script.abort()
             if not script.is_complete():

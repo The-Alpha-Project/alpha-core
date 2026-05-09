@@ -154,6 +154,13 @@ class GridManager:
         if world_object.is_player() or world_object.is_temp_summon_or_pet_or_guardian():
             self.activate_cell_by_world_object(world_object, load_tile_data=True)
 
+        # Lazy-initialize temp summons, pets and guardians once they are registered in the
+        # grid. Doing this here (rather than in CreatureBuilder.create) guarantees current_cell
+        # is set before on-spawn AI events run, and before surrounding players are notified.
+        if (world_object.is_unit() and world_object.is_temp_summon_or_pet_or_guardian()
+                and not world_object.initialized):
+            world_object.initialize_field_values()
+
         # Notify surrounding players.
         if update_players:
             # Immediately notify dynamic objects, temporary summons, pets or guardians to players.

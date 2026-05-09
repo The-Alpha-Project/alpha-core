@@ -71,9 +71,9 @@ class CreatureBuilder:
             creature_instance.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=True)
             summoner.possessed_unit = creature_instance
 
-        # Fully initialize temporary summons, pets or guardians.
-        if creature_instance.is_temp_summon_or_pet_or_guardian():
-            creature_instance.initialize_field_values()
+        # Note: field initialization for temp summons, pets and guardians is performed
+        # by GridManager._add_world_object after the creature is registered in its cell,
+        # so that AI on-spawn events fire with a valid current_cell.
 
         if summoner and summoner.beast_master:
             creature_instance.beast_master = True
