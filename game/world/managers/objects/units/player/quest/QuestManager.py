@@ -290,7 +290,9 @@ class QuestManager:
         elif quest_giver.is_unit() and quest_giver.is_trainer():
             text = QuestManager.get_default_greeting_text(quest_giver)
             self.send_quest_giver_quest_list(text, 0, quest_giver_guid, quest_menu.items)
-        else:
+        # Only flag NPCs that have no quests to give at all. Reaching here while quest relations exist
+        # just means none are currently available to this player (level, requirements, already completed).
+        elif not quest_giver_start_quests and not quest_giver_finish_quests:
             Logger.warning(f'Unhandled quest giver hello for quest giver entry {quest_giver.entry}')
 
     def get_quest_state(self, quest_entry):
@@ -935,11 +937,10 @@ class QuestManager:
         # Don't run scripts if not directly taken from NPC (either by sharing or .qadd command).
         # Otherwise, the quest_giver would be None and this leads to a crash.
         # Same goes for item quest starters since they have no script handler.
-        if quest_giver and not is_item:
-            script_id = quest_template.StartScript if quest_template.StartScript else quest_id
+        if quest_giver and not is_item and quest_template.StartScript:
             quest_giver.get_map().enqueue_script(source=quest_giver, target=self.player_mgr,
                                                  script_type=ScriptTypes.SCRIPT_TYPE_QUEST_START,
-                                                 script_id=script_id)
+                                                 script_id=quest_template.StartScript)
 
         # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
         if self.player_mgr.group_manager and not shared:
@@ -1109,11 +1110,10 @@ class QuestManager:
             self.cast_reward_spell(quest_giver.guid, active_quest)
 
         # Handle quest end script, if any.
-        script_id = quest.CompleteScript if quest.CompleteScript else quest_id
-        if quest_giver:
+        if quest_giver and quest.CompleteScript:
             quest_giver.get_map().enqueue_script(source=quest_giver, target=self.player_mgr,
                                                  script_type=ScriptTypes.SCRIPT_TYPE_QUEST_END,
-                                                 script_id=script_id)
+                                                 script_id=quest.CompleteScript)
 
         # Remove from active quests if needed.
         if quest.entry in self.active_quests:

@@ -23334,5 +23334,51 @@ begin not atomic
         insert into applied_updates values ('240420261');
     end if;
 
+    -- 04/06/2026 1
+    if (select count(*) from applied_updates where id='040620261') = 0 then
+        -- Quest start/end scripts used to resolve implicitly by quest entry when StartScript/CompleteScript was 0.
+        -- Make that link explicit (StartScript/CompleteScript = entry) so the server no longer needs the by-id fallback.
+        -- Affects the 34 quests with a quest_start_scripts row keyed by their own entry...
+        UPDATE `quest_template` qt
+        SET qt.`StartScript` = qt.`entry`
+        WHERE qt.`StartScript` = 0
+          AND EXISTS (SELECT 1 FROM `quest_start_scripts` s WHERE s.`id` = qt.`entry`);
+        -- ...and the 51 quests with a quest_end_scripts row keyed by their own entry.
+        UPDATE `quest_template` qt
+        SET qt.`CompleteScript` = qt.`entry`
+        WHERE qt.`CompleteScript` = 0
+          AND EXISTS (SELECT 1 FROM `quest_end_scripts` s WHERE s.`id` = qt.`entry`);
+
+        insert into applied_updates values ('040620261');
+    end if;
+
+    -- 04/06/2026 2
+    if (select count(*) from applied_updates where id='040620262') = 0 then
+        -- Clear StartScript/CompleteScript values that point at a script id with no rows in
+        -- quest_start_scripts/quest_end_scripts. These dangling references only produced "Script not found".
+        -- StartScript: quest 4023. CompleteScript: quests 499, 902, 2946, 3321, 4161, 4321, 4443.
+        UPDATE `quest_template` qt
+        SET qt.`StartScript` = 0
+        WHERE qt.`StartScript` <> 0
+          AND NOT EXISTS (SELECT 1 FROM `quest_start_scripts` s WHERE s.`id` = qt.`StartScript`);
+        UPDATE `quest_template` qt
+        SET qt.`CompleteScript` = 0
+        WHERE qt.`CompleteScript` <> 0
+          AND NOT EXISTS (SELECT 1 FROM `quest_end_scripts` s WHERE s.`id` = qt.`CompleteScript`);
+
+        insert into applied_updates values ('040620262');
+    end if;
+
+    -- 04/06/2026 3
+    if (select count(*) from applied_updates where id='040620263') = 0 then
+        -- Mogh the Undying (1060) tried to cast spell 8813 "Summon Kurzen Mindslave", which does not exist in
+        -- the 0.5.3 (build 3368) spell data (max valid spell id 7913). Remove the OOC event and its script.
+        -- His other abilities (Demon Skin, Despawn Guardians, Slave Drain) are left intact.
+        DELETE FROM `creature_ai_events` WHERE `id` = 106002;
+        DELETE FROM `creature_ai_scripts` WHERE `id` = 106002;
+
+        insert into applied_updates values ('040620263');
+    end if;
+
 end $
 delimiter ;
