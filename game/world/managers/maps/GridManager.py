@@ -20,6 +20,9 @@ class GridManager:
         self.active_cell_keys: set[str] = set()
         self.cells: dict[str, Cell] = {}
         self.active_adt_cell_refs: dict[str, set[str]] = {}
+        # ADTs a player cell pinned for navigation (its vision-radius neighborhood),
+        # so they are released together with that cell during deactivation.
+        self.player_loaded_adts: dict[str, set[str]] = {}
         self.active_cell_callback = active_cell_callback
         self.inactive_cell_callback = inactive_cell_callback
         self.detection_manager = DetectionManager(self)
@@ -136,6 +139,11 @@ class GridManager:
                 if cell.adt_key in self.active_adt_cell_refs:
                     self.active_adt_cell_refs[cell.adt_key].discard(cell.key)
 
+                # Release the ADT neighborhood this cell pinned for navigation.
+                for adt_key in self.player_loaded_adts.pop(cell_key, ()):
+                    if adt_key in self.active_adt_cell_refs:
+                        self.active_adt_cell_refs[adt_key].discard(cell_key)
+
             for adt_key, ref_count in list(self.active_adt_cell_refs.items()):
                 # If an active cell still using the adt, continue.
                 if ref_count:
@@ -143,7 +151,7 @@ class GridManager:
                 del self.active_adt_cell_refs[adt_key]
                 # No active cells for given adt, unload.
                 adt_x, adt_y = adt_key.split(',')
-                self.inactive_cell_callback(self.map_id, int(adt_x), int(adt_y))
+                self.inactive_cell_callback(self.map_id, self.instance_id, int(adt_x), int(adt_y))
 
     def _add_world_object_spawn(self, world_object_spawn):
         cell = self._get_create_cell(world_object_spawn.location, world_object_spawn.map_id,
@@ -181,6 +189,38 @@ class GridManager:
         affected_cells.add(self.cells[world_object.current_cell])
         self._activate_cells(affected_cells, load_tile_data)
 
+        # Players load every ADT overlapping their vision (+buffer), closing the gaps
+        # near ADT edges left by the surrounding-cell pass (which skips empty cells).
+        if load_tile_data and world_object.is_player():
+            self._ensure_player_adt_neighborhood(world_object)
+
+    def _ensure_player_adt_neighborhood(self, world_object):
+        # An ADT is 533yd, so vision (default 100yd) + buffer spans at most a 2x2
+        # block of ADTs; load whichever ones the player's vision box overlaps.
+        radius = VIEW_DISTANCE + 15.0
+        location = world_object.location
+        player_cell_key = world_object.current_cell
+        if player_cell_key is None:
+            return
+
+        adt_x0, adt_y0 = MapUtils.get_tile(location.x - radius, location.y - radius)
+        adt_x1, adt_y1 = MapUtils.get_tile(location.x + radius, location.y + radius)
+
+        with self.grid_lock:
+            pinned = self.player_loaded_adts.setdefault(player_cell_key, set())
+            for adt_x in range(min(adt_x0, adt_x1), max(adt_x0, adt_x1) + 1):
+                for adt_y in range(min(adt_y0, adt_y1), max(adt_y0, adt_y1) + 1):
+                    # WoW is a fixed 64x64 ADT grid.
+                    if adt_x < 0 or adt_y < 0 or adt_x > 63 or adt_y > 63:
+                        continue
+                    adt_key = f'{adt_x},{adt_y}'
+                    refs = self.active_adt_cell_refs.setdefault(adt_key, set())
+                    # First reference to this ADT triggers the (async) tile load.
+                    if not refs:
+                        self.active_cell_callback(self.map_id, self.instance_id, adt_x, adt_y)
+                    refs.add(player_cell_key)
+                    pinned.add(adt_key)
+
     def _activate_cells(self, cells: set[Cell], load_tile_data=False):
         with self.grid_lock:
             [self._activate_cell(cell, load_tile_data) for cell in cells]
@@ -198,7 +238,7 @@ class GridManager:
         # Initialize ref set for this ADT and trigger tile load on the first cell using it.
         if cell.adt_key not in self.active_adt_cell_refs:
             self.active_adt_cell_refs[cell.adt_key] = set()
-            self.active_cell_callback(self.map_id, cell.adt_x, cell.adt_y)
+            self.active_cell_callback(self.map_id, self.instance_id, cell.adt_x, cell.adt_y)
 
         # Always track this cell in the ADT's ref set so unload only fires when all cells go.
         self.active_adt_cell_refs[cell.adt_key].add(cell.key)
