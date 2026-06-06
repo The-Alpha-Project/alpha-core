@@ -43,6 +43,9 @@ LIQUIDS_CACHE = {}
 PENDING_TILE_INITIALIZATION = {}
 PENDING_TILE_INITIALIZATION_QUEUE = _queue.SimpleQueue()
 QUEUE_LOCK = RLock()
+# Which instances still need each shared (per-map_id) ADT, so it only unloads once
+# the last instance releases it. Keyed by (map_id, adt_x, adt_y) -> set(instance_id).
+ADT_INSTANCE_REFS = {}
 
 
 def _tile_loader_worker_init():
@@ -455,11 +458,25 @@ class MapManager:
         return LIQUIDS_CACHE[key]
 
     @staticmethod
-    def on_cell_turn_active(map_id, adt_x, adt_y):
+    def on_cell_turn_active(map_id, instance_id, adt_x, adt_y):
+        # Register this instance's need for the ADT (shared per map_id), then trigger
+        # the idempotent shared load.
+        with QUEUE_LOCK:
+            ADT_INSTANCE_REFS.setdefault((map_id, adt_x, adt_y), set()).add(instance_id)
         MapManager.enqueue_adt_tile_load(map_id, adt_x, adt_y)
 
     @staticmethod
-    def on_cell_turn_inactive(map_id, adt_x, adt_y):
+    def on_cell_turn_inactive(map_id, instance_id, adt_x, adt_y):
+        # The shared tile/nav may only be unloaded once the LAST instance that needs
+        # this ADT releases it; otherwise we'd pull nav out from under another instance.
+        with QUEUE_LOCK:
+            refs = ADT_INSTANCE_REFS.get((map_id, adt_x, adt_y))
+            if refs is not None:
+                refs.discard(instance_id)
+                if refs:
+                    return  # another instance still needs this ADT
+                del ADT_INSTANCE_REFS[(map_id, adt_x, adt_y)]
+
         # Normal Tile unload (.map)
         tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
         if tile and tile.is_ready():
@@ -769,13 +786,25 @@ class MapManager:
                 Logger.warning(f'[Namigator] Destination tile was loading when path requested.')
             return True, False, [dst_pos]
 
+        # READY can be true on terrain alone, so confirm nav is actually loaded before
+        # querying -- otherwise "nav not loaded" looks like "no route". Else fall back to direct move.
+        src_tile = MapManager.get_tile_at(map_id, src_adt_x, src_adt_y)
+        dst_tile = MapManager.get_tile_at(map_id, dst_adt_x, dst_adt_y)
+        if not (src_tile and src_tile.has_navigation and dst_tile and dst_tile.has_navigation):
+            Logger.debug(f'[Namigator] Navigation not loaded for path on map {map_id}: '
+                         f'src ADT({src_adt_x},{src_adt_y}) nav={bool(src_tile and src_tile.has_navigation)}, '
+                         f'dst ADT({dst_adt_x},{dst_adt_y}) nav={bool(dst_tile and dst_tile.has_navigation)}.')
+            return True, False, [dst_pos]
+
         # Calculate path.
         # TODO: Use smooth/clamp_endpoint.
         navigation_path = namigator.find_path(src_pos.x, src_pos.y, src_pos.z, dst_pos.x, dst_pos.y, dst_pos.z)
 
         if len(navigation_path) <= 1:
             if not los:
-                Logger.warning(f'[Namigator] Unable to find path, map {map_id} loc {src_pos} end {dst_pos}')
+                MapManager._log_pathfind_failure(map_id, namigator, src_pos, dst_pos,
+                                                 src_adt_x, src_adt_y, dst_adt_x, dst_adt_y,
+                                                 len(navigation_path))
             return True, False, [dst_pos]
 
         # Pop starting location, we already have that, and the client seems to crash when sending
@@ -786,6 +815,34 @@ class MapManager:
         vectors = [Vector(waypoint[0], waypoint[1], waypoint[2]) for waypoint in navigation_path]
 
         return False, False if len(vectors) > 0 else True, vectors
+
+    @staticmethod
+    def _log_pathfind_failure(map_id, namigator, src_pos, dst_pos,
+                              src_adt_x, src_adt_y, dst_adt_x, dst_adt_y, path_len):
+        # Diagnostic context for 'Unable to find path': caller + per-ADT nav state.
+        # NOTE: namigator uses inverted ADT axes -> adt_loaded(adt_y, adt_x).
+        def _tile_diag(adt_x, adt_y):
+            tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
+            has_maps = bool(tile and tile.has_maps)
+            has_nav = bool(tile and tile.has_navigation)
+            try:
+                nav_loaded = bool(namigator and namigator.adt_loaded(adt_y, adt_x))
+            except Exception:
+                nav_loaded = False
+            return f'ADT({adt_x},{adt_y}) maps={has_maps} nav={has_nav} adt_loaded={nav_loaded}'
+
+        # Identify the AI/caller action that requested the path (drop this frame + calculate_path).
+        try:
+            stack = traceback.extract_stack(limit=8)[:-2]
+            caller = ' <- '.join(f'{fr.name}:{fr.lineno}' for fr in stack[-3:])
+        except Exception:
+            caller = 'unknown'
+
+        same_adt = (src_adt_x == dst_adt_x and src_adt_y == dst_adt_y)
+        Logger.warning(
+            f'[Namigator] Unable to find path, map {map_id} (path_len={path_len}) caller=[{caller}] | '
+            f'src {src_pos} {_tile_diag(src_adt_x, src_adt_y)} | '
+            f'dst {dst_pos} {_tile_diag(dst_adt_x, dst_adt_y)} | same_adt={same_adt}')
 
     @staticmethod
     def validate_teleport_destination(map_id, x, y):
