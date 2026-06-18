@@ -23380,7 +23380,7 @@ begin not atomic
         insert into applied_updates values ('040620263');
     end if;
 
-    -- work pls
+    -- 17/08/2025 1
     if (select count(*) from applied_updates where id='170620261') = 0 then
         -- GAMEOBJECTS
         -- Initial query: Removes every single gameobject with an entry ID higher than 50469 (Thunder Bluff Forge) Victorium 17/08/2025
@@ -23654,10 +23654,12 @@ begin not atomic
         -- NPCs
 
         -- Xon: Add proper data and spawn in the empty cave in Loch Modan
-       UPDATE `creature_template` SET `level_min` = 20, `level_max` = 20, `faction` = 22, `rank` = 0, `damage_multiplier` = 1, `health_multiplier` = 1.02, `beast_family` = 3, `type_flags` = 1, `loot_id` = 1392, `spell_id1` = 744 WHERE (`entry` = 1392);
-       DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 1392) AND (`spawn_id` IN (139200));
-       INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES (139200, 1392, 0, 0, 0, 0, -5445.303, -4208.584, 390.656, 1.349, 600, 600, 0, 100, 0, 1, 0, 0, 0);
-    INSERT INTO applied_updates VALUES ('170620261');
+        UPDATE `creature_template` SET `level_min` = 20, `level_max` = 20, `faction` = 22, `rank` = 0, `damage_multiplier` = 1, `health_multiplier` = 1.02, `beast_family` = 3, `type_flags` = 1, `loot_id` = 1392, `spell_id1` = 744 WHERE (`entry` = 1392);
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 1392) AND (`spawn_id` IN (139200));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES (139200, 1392, 0, 0, 0, 0, -5445.303, -4208.584, 390.656, 1.349, 600, 600, 0, 100, 0, 1, 0, 0, 0);
+        
+        INSERT INTO applied_updates VALUES ('170620261');
+    end if;
 
 end $
 delimiter ;
