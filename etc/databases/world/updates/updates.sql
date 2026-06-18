@@ -23380,11 +23380,8 @@ begin not atomic
         insert into applied_updates values ('040620263');
     end if;
 
-    --17/08/2025 1
-
+    -- work pls
     if (select count(*) from applied_updates where id='170620261') = 0 then
-
-
         -- GAMEOBJECTS
         -- Initial query: Removes every single gameobject with an entry ID higher than 50469 (Thunder Bluff Forge) Victorium 17/08/2025
         --UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` > 50469)
@@ -23566,8 +23563,8 @@ begin not atomic
         -- Cloak of Flames: Fix spell and reduce level requirement
         UPDATE `item_template` SET `required_level` = 50, `spellid_1` = 4436 WHERE (`entry` = 3475);
 
-        -- Teebu's Blazing Longsword: Fix spell, change stats to match earliest known source (https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fh3fyuj9gjrh21.jpg)
-        UPDATE `item_template` SET `required_level` = 60, `dmg_min1` = 99, `dmg_max1` = 185, `spellid_1` = 7387 WHERE (`entry` = 1728);
+        -- Teebu's Blazing Longsword: Fix spell, change stats to match earliest known source and reduce level requirement (https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fh3fyuj9gjrh21.jpg)
+        UPDATE `item_template` SET `required_level` = 50, `dmg_min1` = 99, `dmg_max1` = 185, `spellid_1` = 7387 WHERE (`entry` = 1728);
         
         -- Orb of Deception: Change stats to match oldest known source (https://web.archive.org/web/20050424084854/http://wow.allakhazam.com/db/itemhistory.html?witem=1973)
         UPDATE `item_template` SET `quality` = 4, `item_level` = 48, `required_level` = 33, `shadow_res` = 1, `spellcategory_1` = 29 WHERE (`entry` = 1973);
@@ -23660,13 +23657,7 @@ begin not atomic
        UPDATE `creature_template` SET `level_min` = 20, `level_max` = 20, `faction` = 22, `rank` = 0, `damage_multiplier` = 1, `health_multiplier` = 1.02, `beast_family` = 3, `type_flags` = 1, `loot_id` = 1392, `spell_id1` = 744 WHERE (`entry` = 1392);
        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 1392) AND (`spawn_id` IN (139200));
        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES (139200, 1392, 0, 0, 0, 0, -5445.303, -4208.584, 390.656, 1.349, 600, 600, 0, 100, 0, 1, 0, 0, 0);
-        
-
-        INSERT INTO applied_updates VALUES ('170620261');
-    end if;
-    
-
+    INSERT INTO applied_updates VALUES ('170620261');
 
 end $
 delimiter ;
-
