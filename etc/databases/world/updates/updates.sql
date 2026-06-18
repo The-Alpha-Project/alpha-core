@@ -23380,5 +23380,288 @@ begin not atomic
         insert into applied_updates values ('040620263');
     end if;
 
+    if (select count(*) from applied_updates where id='180620261') = 0 then
+
+
+        -- GAMEOBJECTS
+        -- Initial query: Removes every single gameobject with an entry ID higher than 50469 (Thunder Bluff Forge) Victorium 17/08/2025
+        --UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` > 50469)
+        --UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE (`spawn_entry` > 300010)
+
+        -- Eliza's Tombstone: Give quest "Digging Through the Dirt", as Eliza's Grave Dirt doesn't exist, and make Eliza's Tombstone a quest giver. Also fixes Eliza being unattackable. Victorium 17/08/2025
+        --DELETE FROM `gameobject_quest_starter` WHERE (`quest` = 254) AND (`entry` IN (51708, 37));
+        --INSERT INTO `gameobject_quest_starter` (`entry`, `quest`) VALUES (37, 254);
+        --DELETE FROM `gameobject_quest_finisher` WHERE (`quest` = 254) AND (`entry` IN (51708, 37));
+        --INSERT INTO `gameobject_quest_finisher` (`entry`, `quest`) VALUES (37, 254);
+        --DELETE FROM `gameobject_template` WHERE (`entry` = 37);
+        --INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `faction`, `flags`, `size`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `mingold`, `maxgold`, `script_name`) VALUES
+        --(37, 2, 19, "Eliza's Tombstone", 84, 0, 1.32, 0, 82, 2, 722, 0, 0, 0, 0, 0, 0, 0, 0, '');
+        --SELECT `entry`, `text_id`, `script_id`, `condition_id` FROM `gossip_menu` WHERE  `entry`=722 AND `text_id`=731;
+        --INSERT INTO `alpha_world`.`npc_text` (`id`, `text0_0`, `text0_1`, `text1_0`, `text1_1`, `text2_0`, `text2_1`, `text3_0`, `text3_1`, `text4_0`, `text4_1`, `text5_0`, `text5_1`, `text6_0`, `text6_1`, `text7_0`, `text7_1`) VALUES (731, 'Greetings $N', 'Greetings $N', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+        --UPDATE `alpha_world`.`npc_text` SET `text0_0`='$B$BEliza$B$B$B$BBeloved wife, may the earth sate your hunger.', `text0_1`='$B$BEliza$B$B$B$BBeloved wife, may the earth sate your hunger.' WHERE  `id`=731;
+        --UPDATE `creature_template` SET `static_flags` = 0, `unit_flags` = 131840 WHERE (`entry` = 314);
+
+        -- Events list for Eliza Victorium 17/08/2025
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=314;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31403, 314, 0, 1, 0, 100, 0, 1000, 1000, 0, 0, 31403, 0, 0, 'Eliza - Remove Immunity Flags');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31404, 314, 0, 4, 0, 100, 0, 0, 0, 0, 0, 31404, 0, 0, 'Eliza - Cast Frostbolt and Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31412, 314, 0, 9, 0, 100, 1, 8, 15, 2900, 5900, 31412, 0, 0, 'Eliza - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31413, 314, 0, 11, 0, 100, 0, 0, 0, 0, 0, 31413, 0, 0, 'Eliza - Say on Spawn');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=31403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (31403, 0, 0, 4, 46, 131840, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Remove Pacification');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=31404;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (31404, 0, 0, 15, 205, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Cast Spell Frostbolt'),
+        (31404, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Say Aggro Text');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=31413;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (31413, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 110, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Say Spawn Text');
+
+        -- ITEMS
+
+        -- Jurassic Wristguards: Change stats to earliest known source (http://web.archive.org/web/20080530004625/http://wow.allakhazam.com/db/itemhistory.html?witem=6198)
+        UPDATE `item_template` SET `required_level` = 20, `stat_type1` = 3, `stat_value1` = 1, `stat_type2` = 6, `stat_value2` = 1, `armor` = 23 WHERE (`entry` = 6198);
+
+        -- Beaded Raptor Collar: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.allakhazam.com/web.archive.org/web/20040819193111/http:/wow.allakhazam.com/db/itemlist.html%3Fitype=6.html)
+        UPDATE `item_template` SET `required_level` = 21, `stat_type1` = 6, `stat_value1` = 1, `stat_value2` = 1, `armor` = 10 WHERE (`entry` = 4463);
+
+        -- Boots of the Enchanter: Change stats to earliest know source (http://web.archive.org/web/20060314150905/http://wow.allakhazam.com/db/itemhistory.html?witem=4325)
+        UPDATE `item_template` SET `required_level` = 25, `stat_value1` = 3, `stat_value2` = 30, `armor` = 16 WHERE (`entry` = 4325);
+
+        -- Azure Silk Gloves: Rename to Enchanted Silk Gloves and reduce level requirement in accordance with 0.5.3 data and itemization, and changes spell cast to one more accurate to its spell damage in 0.6 (https://db.thealphaproject.eu/index.php?action=show_spell&id=3854, https://classicdb.ch/?spell=8742, https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WDB/version_3596_items3.html)
+        UPDATE `item_template` SET `name` = 'Enchanted Silk Gloves', `required_level` = 19, `spellid_1` = 2230 WHERE (`entry` = 4319);
+
+        -- Green Leather Belt: Change stats to earliest known source (https://web.archive.org/web/20060321180842/http://wow.allakhazam.com/db/itemhistory.html?witem=4257)
+        UPDATE `item_template` SET `required_level` = 22, `stat_value1` = 2, `stat_value2` = 28, `armor` = 19 WHERE (`entry` = 4257);
+
+        -- Ghoulfang: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=202.html)
+        UPDATE `item_template` SET `required_level` = 9, `dmg_min1` = 46, `dmg_max1` = 63 WHERE (`entry` = 1387);
+
+        -- Heavy Gnoll War Club: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 11, `dmg_min1` = 51, `dmg_max1` = 69 WHERE (`entry` = 1218);
+
+        -- Dragonmaw Shortsword: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 18, `dmg_min1` = 31, `dmg_max1` = 48 WHERE (`entry` = 753);
+
+        -- Dark Iron Walking Stick: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 17, `stat_value1` = 3, `stat_value2` = 4, `dmg_min1` = 45, `dmg_max1` = 62 WHERE (`entry` = 2280);
+
+        -- Small Hand Blade: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 1, `dmg_min1` = 10, `dmg_max1` = 16 WHERE (`entry` = 816);
+
+        -- Brutish Riverpaw Axe: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 5, `dmg_min1` = 26, `dmg_max1` = 40 WHERE (`entry` = 826);
+
+        -- Rockslicer: Change stats to earliest known source (https://web.archive.org/web/20050524100924/http://wow.allakhazam.com/db/itemhistory.html?witem=872)
+        UPDATE `item_template` SET `buy_price` = 8746, `sell_price` = 1749, `item_level` = 20, `required_level` = 15, `stat_type1` = 0, `stat_value1` = 0, `dmg_min1` = 31, `dmg_max1` = 47 WHERE (`entry` = 872);
+
+        -- Red Linen Vest: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-cloth-armor-2004.txt, https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WoWPython/wowpython-24-10-2004-items.txt)
+        UPDATE `item_template` SET `item_level` = 12, `required_level` = 2, `stat_type1` = 6, `stat_value1` = 2, `armor` = 13 WHERE (`entry` = 6239);
+
+        -- Rough Boomstick: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 1, `dmg_min1` = 9, `dmg_max1` = 14 WHERE (`entry` = 4362);
+
+        -- Rodentia Shortsword: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 1, `delay` = 2000, `dmg_min1` = 12, `dmg_max1` = 19 WHERE (`entry` = 2282);
+
+        -- Frostmane Sceptre: Change stats to earliest known source (https://web.archive.org/web/20041113124252/http://wow.allakhazam.com/db/itemhistory.html?witem=3223)
+        UPDATE `item_template` SET `required_level` = 1, `dmg_min1` = 16, `dmg_max1` = 24 WHERE (`entry` = 3223);
+
+        -- Heavy Shortbow: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 2, `dmg_min1` = 11, `dmg_max1` = 17 WHERE (`entry` = 3036);
+
+        -- Nightblade: Change stats to earliest known source (https://web.archive.org/web/20070106074844/http://wow.allakhazam.com/db/itemhistory.html?witem=1982)
+        UPDATE `item_template` SET `buy_price` = 159373, `sell_price` = 31874, `item_level` = 45, `required_level` = 30, `max_count` = 1, `stat_type1` = 6, `stat_value1` = 18, `spellid_1` = 0, `spelltrigger_1` = 0 WHERE (`entry` = 1982);
+
+        -- Blunt Claymore: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3D2hweapons%26class%3DSwords.html)
+        UPDATE `item_template` SET `required_level` = 7, `dmg_min1` = 23, `dmg_max1` = 32 WHERE (`entry` = 1811);
+
+        -- Taut Compound Bow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DBows.html)
+        UPDATE `item_template` SET `required_level` = 21, `dmg_max1` = 21 WHERE (`entry` = 3778);
+
+        -- Polished Shortbow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DBows.html)
+        UPDATE `item_template` SET `dmg_max1` = 6 WHERE (`entry` = 2505);
+
+        -- Mishandled Recurve Bow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DBows.html)
+        UPDATE `item_template` SET `required_level` = 14, `dmg_min1` = 11, `dmg_max1` = 17 WHERE (`entry` = 2782);
+
+        -- Lunaris Bow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DBows.html)
+        UPDATE `item_template` SET `required_level` = 20, `dmg_min1` = 23, `dmg_max1` = 35 WHERE (`entry` = 5817);
+
+        -- Light Bow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DBows.html)
+        UPDATE `item_template` SET `required_level` = 3, `dmg_min1` = 8, `dmg_max1` = 13 WHERE (`entry` = 4576);
+
+        -- Heavy Recurve Bow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DBows.html)
+        UPDATE `item_template` SET `dmg_min1` = 16, `dmg_max1` = 25 WHERE (`entry` = 3027);
+
+        -- Feeble Shortbow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DBows.html)
+        UPDATE `item_template` SET `required_level` = 3, `dmg_min1` = 5, `dmg_max1` = 9 WHERE (`entry` = 2777);
+
+        -- Steelarrow Crossbow: Change to Dark Iron Crossbow (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http%3A/wc3.ogresnet.com/html/wow/items.php%3Ftype%3Drweapons%26class%3DCrossbows.html)
+        UPDATE `item_template` SET `name` = 'Dark Iron Crossbow', `required_level` = 17, `dmg_min1` = 27, `dmg_max1` = 41 WHERE (`entry` = 6315);
+
+        -- Barbaric War Axe: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=201.html)
+        UPDATE `item_template` SET `required_level` = 9, `dmg_min1` = 46, `dmg_max1` = 63, `random_property` = 0 WHERE (`entry` = 3195);
+
+        -- Skullchipper: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=201.html)
+        UPDATE `item_template` SET `required_level` = 10, `stat_value1` = 2, `dmg_min1` = 47, `dmg_max1` = 64 WHERE (`entry` = 5626);
+
+        -- Miner's Revenge: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=201.html)
+        UPDATE `item_template` SET `required_level` = 10, `dmg_min1` = 47, `dmg_max1` = 64, `bonding` = 0 WHERE (`entry` = 1893);
+
+        -- Guerilla Cleaver: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite%3Ditems%26group%3D1%26type%3D101.html)
+        UPDATE `item_template` SET `item_level` = 34, `required_level` = 24 WHERE (`entry` = 4126);
+
+        -- Skullchipper: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=201.html)
+        UPDATE `item_template` SET `required_level` = 10, `stat_value1` = 2, `dmg_min1` = 47, `dmg_max1` = 64 WHERE (`entry` = 5626);
+
+        -- Barbaric Leggings: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-leather-armor-2004.txt)
+        UPDATE `item_template` SET `required_level` = 24, `stat_value1` = 9, `armor` = 40 WHERE (`entry` = 5963);
+
+        -- Gauntlets of Ogre Strength: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-mail-armor-2004.txt)
+        UPDATE `item_template` SET `sell_price` = 561, `item_level` = 22, `required_level` = 12, `armor` = 29 WHERE (`entry` = 3341);
+
+        -- Black Metal Greatsword: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=202.html)
+        UPDATE `item_template` SET `required_level` = 19, `stat_value2` = 5, `dmg_min1` = 56, `dmg_max1` = 76 WHERE (`entry` = 2014);
+
+        -- Stitches' Femur: Change name and stats to match earliest known source (https://web.archive.org/web/20050528194238/http://wow.allakhazam.com/db/itemhistory.html?witem=3360)
+        UPDATE `item_template` SET `name` = 'Abominable Femur', `required_level` = 20, `armor` = 6, `sheath` = 7 WHERE (`entry` = 3360);
+
+        -- Monk's Staff: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=251.html)
+        UPDATE `item_template` SET `required_level` = 23, `dmg_min1` = 42, `dmg_max1` = 58, `armor` = 5 WHERE (`entry` = 866);
+
+        -- Whipwood Recurve Bow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=211.html)
+        UPDATE `item_template` SET `required_level` = 24, `dmg_min1` = 17, `dmg_max1` = 27 WHERE (`entry` = 3037);
+        
+        -- Ravenwood Bow: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=211.html)
+        UPDATE `item_template` SET `required_level` = 22, `dmg_min1` = 17, `dmg_max1` = 26 WHERE (`entry` = 4474);
+
+        -- Brutal War Axe: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 23, `dmg_min1` = 69, `dmg_max1` = 94 WHERE (`entry` = 3210);
+
+        -- Mage-Eye Blunderbuss: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/goblinworkshop.com/web.archive.org/web/20040806111029/http:/www.goblinworkshop.com/items.html%3FCategoryID=39.html)
+        UPDATE `item_template` SET `item_level` = 23, `required_level` = 13, `dmg_min1` = 16, `dmg_max1` = 31 WHERE (`entry` = 3041);
+
+        -- Heavy Ogre War Axe: Change stats to earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-weapons-2004.txt)
+        UPDATE `item_template` SET `required_level` = 17 WHERE (`entry` = 2227);
+
+        -- Dread Mage Hat: Fix displayID
+        UPDATE `item_template` SET `display_id` = 4688 WHERE (`entry` = 3556);
+
+        -- Fen Keeper Robe: Fix displayID
+        UPDATE `item_template` SET `display_id` = 9986 WHERE (`entry` = 3558);
+
+        -- Forest Chain: Fix displayID
+        UPDATE `item_template` SET `display_id` = 1511 WHERE (`entry` = 1273);
+
+        -- Freezing Band: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-accessories-2004.txt)
+        UPDATE `item_template` SET `item_level` = 30, `required_level` = 15, `stat_value1` = 35, `frost_res` = 1 WHERE (`entry` = 942);
+
+        -- Ring of Saviors: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-accessories-2004.txt)
+        UPDATE `item_template` SET `buy_price` = 9110, `sell_price` = 2277, `item_level` = 39, `required_level` = 24, `stat_value1` = 9, `stat_type2` = 1, `stat_value2` = 47, `spellid_1` = 0, `spellcooldown_1` = 0, `spellcategory_1` = 0, `spellcategorycooldown_1` = 0 WHERE (`entry` = 1447);
+
+        -- Cloak of Flames: Fix spell and reduce level requirement
+        UPDATE `item_template` SET `required_level` = 50, `spellid_1` = 4436 WHERE (`entry` = 3475);
+
+        -- Teebu's Blazing Longsword: Fix spell, change stats to match earliest known source (https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fh3fyuj9gjrh21.jpg)
+        UPDATE `item_template` SET `required_level` = 60, `dmg_min1` = 99, `dmg_max1` = 185, `spellid_1` = 7387 WHERE (`entry` = 1728);
+        
+        -- Orb of Deception: Change stats to match oldest known source (https://web.archive.org/web/20050424084854/http://wow.allakhazam.com/db/itemhistory.html?witem=1973)
+        UPDATE `item_template` SET `quality` = 4, `item_level` = 48, `required_level` = 33, `shadow_res` = 1, `spellcategory_1` = 29 WHERE (`entry` = 1973);
+
+        -- Scarlet Kris: Change stats to match oldest known source (https://web.archive.org/web/20050424040448/http://wow.allakhazam.com/db/itemhistory.html?witem=5267)
+        UPDATE `item_template` SET `display_id` = 6249, `buy_price` = 145737, `sell_price` = 29147, `item_level` = 50, `required_level` = 40, `stat_type1` = 0, `stat_value1` = 0, `stat_type2` = 0, `stat_value2` = 0, `dmg_min1` = 32, `dmg_max1` = 60 WHERE (`entry` = 5267);
+
+        -- Lapidis Tankard of Tidesippe: Change stats to match oldest known source (https://web.archive.org/web/20070103133711/http://wow.allakhazam.com/db/itemhistory.html?witem=4696)
+        UPDATE `item_template` SET `item_level` = 50, `required_level` = 40, `stat_value1` = -5, `stat_value2` = 5, `stat_type3` = 0, `stat_value3` = 50, `fire_res` = 2, `spellid_1` = 1133, `bonding` = 2 WHERE (`entry` = 4696);
+
+        -- Axe of the Deep Woods: Change stats to match earliest known source (https://web.archive.org/web/20050316234845/http://wow.allakhazam.com/db/itemhistory.html?witem=811)
+        UPDATE `item_template` SET `buy_price` = 214355, `sell_price` = 42871, `item_level` = 53, `required_level` = 38, `spellid_1` = 0, `spelltrigger_1` = 0 WHERE (`entry` = 811);
+
+        -- Lifestone Medallion: Change stats to match earliest known source (https://web.archive.org/web/20050420150715/http://wow.allakhazam.com/db/itemhistory.html?witem=833)
+        UPDATE `item_template` SET `name` = 'Lifestone Medallion', `item_level` = 59, `required_level` = 44, `max_count` = 1, `stat_type1` = 7, `stat_value1` = 22, `spellid_1` = 2024, `spellid_2` = 0 WHERE (`entry` = 833);
+
+        -- Robes of Insight: Change stats to match earliest known source (https://web.archive.org/web/20050421232527/http://wow.allakhazam.com/db/itemhistory.html?witem=940)
+        UPDATE `item_template` SET `display_id` = 9978, `buy_price` = 72606, `sell_price` = 14521, `item_level` = 49, `required_level` = 34, `stat_value1` = 8, `stat_value2` = 13, `armor` = 36, `spellid_1` = 0 WHERE (`entry` = 940);
+
+        -- Fiery War Axe: Change stats to match earliest known source (http://web.archive.org/web/20050316234932/http://wow.allakhazam.com/db/itemhistory.html?witem=870)
+        UPDATE `item_template` SET `item_level` = 44, `required_level` = 29, `dmg_min1` = 88, `dmg_max1` = 133 WHERE (`entry` = 870);
+
+        -- Faerie Mantle: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-cloth-armor-2004.txt)
+        UPDATE `item_template` SET `required_level` = 17, `stat_type1` = 0, `stat_value1` = 25, `stat_value2` = 0, `armor` = 16 WHERE (`entry` = 5820);
+
+        -- Shield of the Spider Princess: Remove deprecated status and add to Xon loot table
+        DELETE FROM `creature_loot_template` WHERE (`entry` = 1392) AND (`item` IN (2170));
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES (1392, 2170, 100, 0, 1, 1, 1);
+
+        -- Goblin Power Shovel: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http:/wc3.ogresnet.com/html/wow/items.php%3Ftype=2hweapons&class=Maces.html)
+        UPDATE `item_template` SET `required_level` = 24 WHERE (`entry` = 1991);
+
+        -- Pressed Felt Robe: Change Stats to match earleist known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-cloth-armor-2004.txt)
+        UPDATE `item_template` SET `required_level` = 24, `stat_value1` = 5, `stat_value2` = 5, `armor` = 23 WHERE (`entry` = 1997);
+
+        -- Shepherd's Girdle: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-leather-armor-2004.txt)
+        UPDATE `item_template` SET `required_level` = 24, `stat_value1` = 3, `armor` = 20 WHERE (`entry` = 3753);
+
+        -- Shepherd's Gloves: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Database/WorldOfWar/items-details-leather-armor-2004.txt)
+        UPDATE `item_template` SET `required_level` = 23, `stat_value1` = 4, `armor` = 25 WHERE (`entry` = 3754);
+
+        -- Emil's Brand: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=202.html)
+        UPDATE `item_template` SET `required_level` = 22, `stat_value1` = 3, `dmg_min1` = 56, `dmg_max1` = 77 WHERE (`entry` = 5813);
+
+        --Splitting Hatchet: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http:/wc3.ogresnet.com/html/wow/items.php%3Ftype=1hweapons&class=Axes.html)
+        UPDATE `item_template` SET `dmg_min1` = 42, `dmg_max1` = 64 WHERE (`entry` = 2522);
+
+        --Gigantic War Axe: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=201.html)
+        UPDATE `item_template` SET `dmg_min1` = 73, `dmg_max1` = 99 WHERE (`entry` = 2523);
+
+        --Hefty Battlehammer: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=1&type=103.html)
+        UPDATE `item_template` SET `dmg_min1` = 39, `dmg_max1` = 59 WHERE (`entry` = 2524);
+
+        -- Grimoire of Doom: Change to Grimoire of Lesser Infernal as Doom does not exist and it teaches Lesser Infernal, and make it match the other unused spell books
+        UPDATE `item_template` SET `name` = 'Grimoire of Lesser Infernal', `quality` = 1, `bonding` = 0 WHERE (`entry` = 4213);
+
+        -- Mesh Pants: Fix displayID
+        UPDATE `item_template` SET `display_id` = 9787 WHERE (`entry` = 3957);
+
+        -- Mesh Armor: Fix displayID
+        UPDATE `item_template` SET `display_id` = 9889 WHERE (`entry` = 3959);
+        
+        -- QUESTS
+
+        -- WANTED: Chok'Sul: Adjust level requirement to match period sources and relocate Gauntlets of Ogre Strength this quest as a reward (http://web.archive.org/web/20040917223541/http://wow.allakhazam.com/db/quest.html?wquest=256)
+        UPDATE `quest_template` SET `MinLevel` = 15, `RewChoiceItemId3` = 3341, `RewChoiceItemCount3` = 1, `parse_timestamp` = '2004-06-22' WHERE (`entry` = 256);
+        DELETE FROM `reference_loot_template` WHERE  `entry`=30113 AND `item`=3341;
+
+        -- Resting in Pieces: Adjust level requirement and add Embossed Leather Boots as a reward to match period sources (https://web.archive.org/web/20040908182339/http://www.goblinworkshop.com/quests/resting-in-pieces.html, https://web.archive.org/web/20070727020237im_/http://www.blizzard.com/wow/images/screens/quests/ss04.jpg)
+        UPDATE `quest_template` SET `MinLevel` = 9, `RewItemId1` = 2309, `RewItemCount1` = 1, `parse_timestamp` = '2004-09-08' WHERE (`entry` = 460);
+
+        -- The Weathered Grave (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/ultimategamers/web.archive.org/web/20040529080132/http:/www.ultimategamers.com/worldofwarcraft/quests/duskwoodquests.html)
+        UPDATE `quest_template` SET `MinLevel` = 25, `parse_timestamp` = '2004-05-29' WHERE (`entry` = 225);
+
+        -- Morgan Ladimore (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/ultimategamers/web.archive.org/web/20040529080132/http:/www.ultimategamers.com/worldofwarcraft/quests/duskwoodquests.html)
+        UPDATE `quest_template` SET `MinLevel` = 25, `parse_timestamp` = '2004-05-29' WHERE (`entry` = 227);
+
+        -- Mor'Ladim (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/ultimategamers/web.archive.org/web/20040529080132/http:/www.ultimategamers.com/worldofwarcraft/quests/duskwoodquests.html)
+        UPDATE `quest_template` SET `MinLevel` = 25, `RewOrReqMoney` = 2240, `parse_timestamp` = '2004-05-29' WHERE (`entry` = 228);
+
+        -- The Daughter Who Lived (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/ultimategamers/web.archive.org/web/20040529080132/http:/www.ultimategamers.com/worldofwarcraft/quests/duskwoodquests.html)
+        UPDATE `quest_template` SET `MinLevel` = 25, `parse_timestamp` = '2004-05-29' WHERE (`entry` = 229);
+
+        -- A Daughter's Love (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/ultimategamers/web.archive.org/web/20040529080132/http:/www.ultimategamers.com/worldofwarcraft/quests/duskwoodquests.html)
+        UPDATE `quest_template` SET `MinLevel` = 25, `parse_timestamp` = '2004-05-29' WHERE (`entry` = 231);
+        
+        -- NPCs
+
+        -- Xon: Add proper data and spawn in the empty cave in Loch Modan
+       UPDATE `creature_template` SET `level_min` = 20, `level_max` = 20, `faction` = 22, `rank` = 0, `damage_multiplier` = 1, `health_multiplier` = 1.02, `beast_family` = 3, `type_flags` = 1, `loot_id` = 1392, `spell_id1` = 744 WHERE (`entry` = 1392);
+       DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 1392) AND (`spawn_id` IN (139200));
+       INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES (139200, 1392, 0, 0, 0, 0, -5445.303, -4208.584, 390.656, 1.349, 600, 600, 0, 100, 0, 1, 0, 0, 0);
+        
+
+        INSERT INTO applied_updates VALUES ('180620261');
+    end if;
+
 end $
 delimiter ;
