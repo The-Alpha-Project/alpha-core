@@ -23388,6 +23388,9 @@ begin not atomic
         --UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` > 50469)
         --UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE (`spawn_entry` > 300010)
 
+		-- Solution to Doom (709): restore the Ancient Chest that drops Tablet of Ryun'eh
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 126260;
+
         -- Eliza's Tombstone: Give quest "Digging Through the Dirt", as Eliza's Grave Dirt doesn't exist, and make Eliza's Tombstone a quest giver. Also fixes Eliza being unattackable. Victorium 17/08/2025
         --DELETE FROM `gameobject_quest_starter` WHERE (`quest` = 254) AND (`entry` IN (51708, 37));
         --INSERT INTO `gameobject_quest_starter` (`entry`, `quest`) VALUES (37, 254);
