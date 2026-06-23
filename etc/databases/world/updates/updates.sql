@@ -23385,8 +23385,8 @@ begin not atomic
 
         -- GAMEOBJECTS
         -- Initial query: Removes every single gameobject with an entry ID higher than 50469 (Thunder Bluff Forge) Victorium 17/08/2025
-        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` > 50469)
-        UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE (`spawn_entry` > 300010)
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` > 50469);
+        UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE (`spawn_entry` > 300010);
 
 		-- Solution to Doom (709): restore the Ancient Chest that drops Tablet of Ryun'eh
 		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 126260;
