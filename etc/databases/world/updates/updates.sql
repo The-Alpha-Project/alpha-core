@@ -23385,11 +23385,26 @@ begin not atomic
 
         -- GAMEOBJECTS
         -- Initial query: Removes every single gameobject with an entry ID higher than 50469 (Thunder Bluff Forge) Victorium 17/08/2025
-        --UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` > 50469)
-        --UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE (`spawn_entry` > 300010)
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` > 50469)
+        UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE (`spawn_entry` > 300010)
 
 		-- Solution to Doom (709): restore the Ancient Chest that drops Tablet of Ryun'eh
 		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 126260;
+		-- Eliza's Grave Dirt
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 51708;
+		-- Samophlange
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 61936;
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 61935;
+		-- Dusty Shelf
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 112888;
+		-- Intrepid's Locked Strongbox
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 112948;
+		-- Shards of Myzrael
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 138492;
+		-- Sealed Barrel
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 142151;
+		-- Syndicate Documents
+		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 186420;
 
         -- Eliza's Tombstone: Give quest "Digging Through the Dirt", as Eliza's Grave Dirt doesn't exist, and make Eliza's Tombstone a quest giver. Also fixes Eliza being unattackable. Victorium 17/08/2025
         --DELETE FROM `gameobject_quest_starter` WHERE (`quest` = 254) AND (`entry` IN (51708, 37));
