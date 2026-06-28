@@ -23406,36 +23406,6 @@ begin not atomic
 		-- Syndicate Documents
 		UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 186420;
 
-        -- Eliza's Tombstone: Give quest "Digging Through the Dirt", as Eliza's Grave Dirt doesn't exist, and make Eliza's Tombstone a quest giver. Also fixes Eliza being unattackable. Victorium 17/08/2025
-        --DELETE FROM `gameobject_quest_starter` WHERE (`quest` = 254) AND (`entry` IN (51708, 37));
-        --INSERT INTO `gameobject_quest_starter` (`entry`, `quest`) VALUES (37, 254);
-        --DELETE FROM `gameobject_quest_finisher` WHERE (`quest` = 254) AND (`entry` IN (51708, 37));
-        --INSERT INTO `gameobject_quest_finisher` (`entry`, `quest`) VALUES (37, 254);
-        --DELETE FROM `gameobject_template` WHERE (`entry` = 37);
-        --INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `faction`, `flags`, `size`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `mingold`, `maxgold`, `script_name`) VALUES
-        --(37, 2, 19, "Eliza's Tombstone", 84, 0, 1.32, 0, 82, 2, 722, 0, 0, 0, 0, 0, 0, 0, 0, '');
-        --SELECT `entry`, `text_id`, `script_id`, `condition_id` FROM `gossip_menu` WHERE  `entry`=722 AND `text_id`=731;
-        --INSERT INTO `npc_text` (`id`, `text0_0`, `text0_1`, `text1_0`, `text1_1`, `text2_0`, `text2_1`, `text3_0`, `text3_1`, `text4_0`, `text4_1`, `text5_0`, `text5_1`, `text6_0`, `text6_1`, `text7_0`, `text7_1`) VALUES (731, 'Greetings $N', 'Greetings $N', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
-        --UPDATE `npc_text` SET `text0_0`='$B$BEliza$B$B$B$BBeloved wife, may the earth sate your hunger.', `text0_1`='$B$BEliza$B$B$B$BBeloved wife, may the earth sate your hunger.' WHERE  `id`=731;
-        --UPDATE `creature_template` SET `static_flags` = 0, `unit_flags` = 131840 WHERE (`entry` = 314);
-
-        -- Events list for Eliza Victorium 17/08/2025
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=314;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31403, 314, 0, 1, 0, 100, 0, 1000, 1000, 0, 0, 31403, 0, 0, 'Eliza - Remove Immunity Flags');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31404, 314, 0, 4, 0, 100, 0, 0, 0, 0, 0, 31404, 0, 0, 'Eliza - Cast Frostbolt and Say on Aggro');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31412, 314, 0, 9, 0, 100, 1, 8, 15, 2900, 5900, 31412, 0, 0, 'Eliza - Cast Frost Nova');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (31413, 314, 0, 11, 0, 100, 0, 0, 0, 0, 0, 31413, 0, 0, 'Eliza - Say on Spawn');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=31403;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (31403, 0, 0, 4, 46, 131840, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Remove Pacification');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=31404;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (31404, 0, 0, 15, 205, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Cast Spell Frostbolt'),
-        (31404, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Say Aggro Text');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=31413;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (31413, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 110, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Say Spawn Text');
-
         -- ITEMS
 
         -- Jurassic Wristguards: Change stats to earliest known source (http://web.archive.org/web/20080530004625/http://wow.allakhazam.com/db/itemhistory.html?witem=6198)
