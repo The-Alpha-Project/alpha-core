@@ -23677,15 +23677,15 @@ begin not atomic
         UPDATE `item_template` SET `required_level` = 22, `stat_value1` = 3, `dmg_min1` = 56, `dmg_max1` = 77 WHERE (`entry` = 5813);
 		INSERT INTO `applied_item_updates` (`entry`, `version`, `comment`) VALUES (5813, 4149, 'Difficult to date, but follows 0.5-era itemization. Taken from wow.gamona.de');
 
-        --Splitting Hatchet: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http:/wc3.ogresnet.com/html/wow/items.php%3Ftype=1hweapons&class=Axes.html)
+        -- Splitting Hatchet: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/kingofazeroth.com/web.archive.org/web/20040607053311/http:/wc3.ogresnet.com/html/wow/items.php%3Ftype=1hweapons&class=Axes.html)
         UPDATE `item_template` SET `dmg_min1` = 42, `dmg_max1` = 64 WHERE (`entry` = 2522);
 		UPDATE `applied_item_updates` SET `version`=4149, `comment`='Difficult to date, but follows 0.5-era itemization. Taken from KingOfAzeroth.' WHERE  `entry`=2522;
 
-        --Gigantic War Axe: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=201.html)
+        -- Gigantic War Axe: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=2&type=201.html)
         UPDATE `item_template` SET `dmg_min1` = 73, `dmg_max1` = 99 WHERE (`entry` = 2523);
 		UPDATE `applied_item_updates` SET `version`=4149, `comment`='Difficult to date, but follows 0.5-era itemization. Taken from wow.gamona.de' WHERE  `entry`=2523;
 
-        --Hefty Battlehammer: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=1&type=103.html)
+        -- Hefty Battlehammer: Change stats to match earliest known source (https://crawler.thealphaproject.eu/mnt/crawler/media/Website/wow.gamona.de/web.archive.org/web/20041222212102/http:/wow.gamona.de/index.php%3Fseite=items&group=1&type=103.html)
         UPDATE `item_template` SET `dmg_min1` = 39, `dmg_max1` = 59 WHERE (`entry` = 2524);
 		UPDATE `applied_item_updates` SET `version`=4149, `comment`='Difficult to date, but follows 0.5-era itemization. Taken from wow.gamona.de' WHERE  `entry`=2524;
 
