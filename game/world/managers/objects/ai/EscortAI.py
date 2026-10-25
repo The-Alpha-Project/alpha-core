@@ -66,13 +66,14 @@ class EscortAI(BasicCreatureAI):
             if players:
                 # Sort by distance to self.
                 players.sort(key=lambda player: player.location.distance(self.creature.location))
-                victim = next((self._get_player_victim(p) for p in players), None)
+                # Closest member with a victim.
+                victim = next((v for v in map(self._get_player_victim, players) if v), None)
         else:
             victim = self._get_player_victim(self.player_mgr)
         return victim
 
     def _get_player_victim(self, player_mgr):
-        if self.creature.location.distance(self.player_mgr.location) > DEFAULT_MAX_ASSIST_DISTANCE:
+        if self.creature.location.distance(player_mgr.location) > DEFAULT_MAX_ASSIST_DISTANCE:
             return None
         victim = player_mgr.combat_target if player_mgr.combat_target else player_mgr.threat_manager.get_hostile_target()
         if not victim:
