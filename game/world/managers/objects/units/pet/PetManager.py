@@ -321,6 +321,9 @@ class PetManager:
             return
 
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
+            if action_id not in active_pet.get_pet_data().spells:
+                return  # Pet doesn't know this spell.
+
             if active_pet_unit.spell_manager.is_spell_active(action_id):
                 # If using an area aura spell that's already active (and not on autocast),
                 # cancel it instead of recasting.
