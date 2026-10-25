@@ -82,13 +82,17 @@ class LootManager:
         split_group_chance = 0
         if group_id > 0:
             equal_chance_entries_length = 0
+            explicit_chance_total = 0
             for loot_item in group_loot_items:
                 if not requester.player_or_group_require_quest_item(loot_item.item):
                     continue
                 if loot_item.ChanceOrQuestChance == 0:
                     equal_chance_entries_length += 1
+                else:
+                    explicit_chance_total += abs(loot_item.ChanceOrQuestChance)
+            # Equal-chanced entries share what is left after the explicitly-chanced ones.
             if equal_chance_entries_length > 0:
-                split_group_chance = 100 / equal_chance_entries_length
+                split_group_chance = max(0, 100 - explicit_chance_total) / equal_chance_entries_length
 
         current_roll = uniform(0.0, 100)
         for loot_item in group_loot_items:
@@ -98,7 +102,7 @@ class LootManager:
             item_chance = abs(loot_item.ChanceOrQuestChance)
             chance = item_chance if item_chance > 0 else split_group_chance
 
-            if current_roll < item_chance:
+            if current_roll < chance:
                 if loot_item.mincountOrRef < 0:
                     reference_loot_template = WorldDatabaseManager.ReferenceLootTemplateHolder\
                         .reference_loot_template_get_by_entry(-loot_item.mincountOrRef)
