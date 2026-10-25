@@ -106,8 +106,9 @@ class VendorUtils:
             player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_NOT_ENOUGH_MONEY, item_id, vendor.guid, real_count)
             return
 
-        # Check if this is a depleted limited item.
-        if vendor_data.is_limited_item(item_id) and vendor_data.is_limited_item_locked(item_id):
+        # Check if this is a depleted limited item or there is not enough stock left.
+        if vendor_data.is_limited_item(item_id) and (vendor_data.is_limited_item_locked(item_id) or
+                                                     count > vendor_data.get_max_count(item_id)):
             player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_ITEM_SOLD_OUT, item_id, vendor.guid, real_count)
             return
 
