@@ -1701,7 +1701,7 @@ class PlayerManager(UnitManager):
             if self.spirit_release_timer < 300:  # 5 min.
                 self.spirit_release_timer += elapsed
             else:
-                self.resurrect()
+                self.resurrect(release_spirit=True)
 
         # Update timers (Breath, Fatigue, Feign Death).
         if self.is_alive:
@@ -1829,15 +1829,13 @@ class PlayerManager(UnitManager):
         self.aura_manager.cancel_auras_by_spell_id(self.get_res_sickness_spell())
 
     def resurrect(self, release_spirit=False):
-        # Spawn its corpse.
-        if not self.resurrect_data:
-            from game.world.managers.objects.corpse.CorpseManager import CorpseManager
-            CorpseManager(owner=self).spawn()
-
         if self.resurrect_data and not release_spirit:
             self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location,
                           self.resurrect_data.recovery_percentage)
         else:
+            # Spawn its corpse.
+            from game.world.managers.objects.corpse.CorpseManager import CorpseManager
+            CorpseManager(owner=self).spawn()
             deathbind_map, deathbind_location = self.get_deathbind_coordinates()
             self.teleport(deathbind_map, deathbind_location, recovery=1)
 
