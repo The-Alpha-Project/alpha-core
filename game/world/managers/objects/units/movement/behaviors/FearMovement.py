@@ -108,7 +108,7 @@ class FearMovement(BaseMovement):
             return path
 
         # Above failed, search for random points using fear point as source.
-        for search_range in range(0, int(SEARCH_RANDOM_RADIUS)):
+        for search_range in range(1, int(SEARCH_RANDOM_RADIUS) + 1):
             destination = fear_point.get_random_point_in_radius(search_range, self.unit.map_id)
 
             # Avoid slopes above 2.5 (Units running off cliffs).
