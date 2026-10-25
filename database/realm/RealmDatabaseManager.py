@@ -719,14 +719,6 @@ class RealmDatabaseManager:
         realm_db_session.close()
 
     @staticmethod
-    def group_update_player(group_member):
-        realm_db_session = SessionHolder()
-        realm_db_session.merge(group_member)
-        realm_db_session.flush()
-        realm_db_session.commit()
-        realm_db_session.close()
-
-    @staticmethod
     def group_destroy(group):
         realm_db_session = SessionHolder()
         realm_db_session.delete(group)
@@ -847,13 +839,14 @@ class RealmDatabaseManager:
         return petition
 
     @staticmethod
-    def guild_petition_update(petition):
+    def guild_petition_add_signature(petition, signer):
+        # Do not merge() the petition, its joined owner, charter item and signer rows would be written back too.
         realm_db_session = SessionHolder()
-        realm_db_session.merge(petition)
+        realm_db_session.execute(t_petition_sign.insert().values(petition_id=petition.petition_id,
+                                                                 player_guid=signer.guid))
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.close()
-        return petition
 
     @staticmethod
     def guild_petition_destroy(petition):

@@ -59,7 +59,7 @@ class PetitionManager:
             return
 
         petition.characters.append(signer_player.player)
-        RealmDatabaseManager.guild_petition_update(petition)
+        RealmDatabaseManager.guild_petition_add_signature(petition, signer_player.player)
         PetitionManager.send_petition_sign_result(signer_player, PetitionError.PETITION_SUCCESS)
         if petition_owner_player:
             PetitionManager.send_petition_sign_result(petition_owner_player, PetitionError.PETITION_SUCCESS)
