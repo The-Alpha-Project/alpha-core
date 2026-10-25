@@ -171,18 +171,19 @@ class ThreatManager:
 
         return None if not self.current_holder else self.current_holder.unit
 
-    def select_attacking_target(self, attacking_target: AttackingTarget) -> Optional[UnitManager]:
+    def select_attacking_target(self, attacking_target: AttackingTarget, position=0) -> Optional[UnitManager]:
         if len(self.holders) == 0:
             return None
 
+        # Sorted from highest to lowest threat.
         relevant_holders = self._get_sorted_threat_collection()
         if not relevant_holders:
             return None
 
         if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:
-            return relevant_holders[-1].unit
+            return relevant_holders[position].unit if position < len(relevant_holders) else None
         if attacking_target == AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO:
-            return relevant_holders[0].unit
+            return relevant_holders[-1].unit
         elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
             return random.choice(relevant_holders).unit
         elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
@@ -190,7 +191,7 @@ class ThreatManager:
             if len(relevant_holders) == 1:
                 return None
             # Random, not top.
-            return random.choice(relevant_holders[:-1]).unit
+            return random.choice(relevant_holders[1:]).unit
         # Farthest or Nearest targets.
         else:
             surrounding_units = self.unit.get_map().get_surrounding_units(self.unit, include_players=True)

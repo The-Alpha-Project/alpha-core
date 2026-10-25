@@ -48,7 +48,7 @@ class ScriptManager:
 
     @staticmethod
     def resolve_hostile_second_aggro(caster, target=None, param1=None, param2=None, spell_template=None):
-        return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
+        return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO, position=1)
 
     @staticmethod
     def resolve_hostile_last_aggro(caster, target=None, param1=None, param2=None, spell_template=None):
