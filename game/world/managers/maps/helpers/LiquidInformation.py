@@ -39,7 +39,7 @@ class LiquidInformation:
 
     def is_slime(self):
         if not self._is_wmo:
-            return self._liquid_type == LiquidTypes.MAGMA
+            return False  # ADT liquids have no slime flag.
         return self._liquid_type == WmoGroupLiquidType.SLIME
 
     def get_for_z(self, z):

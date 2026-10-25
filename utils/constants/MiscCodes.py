@@ -1038,7 +1038,7 @@ class LiquidTypes(IntEnum):
     IMPASS = 2
     RIVER = 4
     OCEAN = 8
-    MAGMA = 10
+    MAGMA = 16
     DEEP = 20
 
 
