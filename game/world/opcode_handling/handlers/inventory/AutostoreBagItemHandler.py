@@ -31,7 +31,8 @@ class AutostoreBagItemHandler:
 
         dest_slot = dest_container.next_available_slot()
         if dest_slot == -1:
-            if inventory.can_store_item(source_item.item_template, amount) == InventoryError.BAG_OK:
+            error = inventory.can_store_item(source_item.item_template, amount, check_max_count=False)
+            if error == InventoryError.BAG_OK:
                 dest_bag_slot, dest_slot = inventory.get_next_available_inventory_slot()
             else:
                 inventory.send_equip_error(InventoryError.BAG_INV_FULL, source_item, dest_container)

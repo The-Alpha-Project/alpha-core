@@ -29,7 +29,8 @@ class SplitItemHandler:
             return 0
 
         if not inventory.add_item_to_slot(dest_bag_slot, dest_slot, item=source_item,
-                                          item_template=source_item.item_template, count=count):
+                                          item_template=source_item.item_template, count=count,
+                                          check_max_count=False):
             return 0
         new_stack_count = source_item.item_instance.stackcount - count
         source_item.set_stack_count(new_stack_count)

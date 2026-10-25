@@ -238,7 +238,7 @@ class InventoryManager:
             self.owner.end_inventory_operation()
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
-                         handle_error=True):
+                         handle_error=True, check_max_count=True):
         created_by = 0 if not item else item.item_instance.creator
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
@@ -254,7 +254,7 @@ class InventoryManager:
 
         dest_item = dest_container.get_item(dest_slot)
 
-        error = self.can_store_item(item_template, count)
+        error = self.can_store_item(item_template, count, check_max_count=check_max_count)
         if error != InventoryError.BAG_OK:
             if handle_error:
                 self.send_equip_error(error)
@@ -544,11 +544,13 @@ class InventoryManager:
                 empty_slots += container.get_empty_slots()
         return empty_slots
 
-    def can_store_item(self, item_template, count, on_bank=False):
+    # check_max_count is False when moving items the player already owns.
+    def can_store_item(self, item_template, count, on_bank=False, check_max_count=True):
         amount = count
 
         # Reached unique limit
-        if 0 < item_template.max_count <= self.get_item_count(item_template.entry, include_bank=True):
+        if check_max_count and \
+                0 < item_template.max_count < self.get_item_count(item_template.entry, include_bank=True) + count:
             return InventoryError.BAG_ITEM_MAX_COUNT_EXCEEDED
 
         # Check bags
@@ -698,7 +700,8 @@ class InventoryManager:
             source_is_2h = source_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
             # Equipping 2H with OH equipped but inv is full
             if current_oh and source_is_2h:
-                error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
+                error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount,
+                                            check_max_count=False)
                 if error != InventoryError.BAG_OK:
                     self.send_equip_error(InventoryError.BAG_CANT_SWAP, source_item, dest_item)
                     return False
@@ -727,7 +730,8 @@ class InventoryManager:
             dest_is_2h = dest_item and dest_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
             # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
             if current_oh and (source_is_2h or dest_is_2h):
-                error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
+                error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount,
+                                            check_max_count=False)
                 if error != InventoryError.BAG_OK:
                     return
 
