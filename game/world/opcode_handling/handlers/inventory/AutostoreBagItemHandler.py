@@ -38,7 +38,7 @@ class AutostoreBagItemHandler:
                 return 0
         if dest_slot == -1:
             # Case when there are no available slots but the item can fit in other stacks.
-            source_container.remove_item_in_slot(source_slot)
+            inventory.remove_item(source_bag_slot, source_slot, clear_slot=True)
             inventory.add_item(item_template=source_item.item_template, count=amount,
                                looted=False, show_item_get=False)
             return 0
