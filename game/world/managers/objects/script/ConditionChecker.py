@@ -780,7 +780,7 @@ class ConditionChecker:
         # Condition_value4 = distance.
         if not target:
             return False
-        return source.location.distance(condition.value1, condition.value2, condition.value3) <= condition.value4
+        return target.location.distance(x=condition.value1, y=condition.value2, z=condition.value3) <= condition.value4
 
     @staticmethod
     def check_condition_object_go_state(condition, _source, target):
