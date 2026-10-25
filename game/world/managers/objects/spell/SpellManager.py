@@ -924,7 +924,7 @@ class SpellManager:
                 return
 
     def remove_colliding_casts(self, current_cast):
-        for casting_spell in self.casting_spells:
+        for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING or casting_spell.is_channeled():
                 self.remove_cast(casting_spell, interrupted=True)
                 continue
