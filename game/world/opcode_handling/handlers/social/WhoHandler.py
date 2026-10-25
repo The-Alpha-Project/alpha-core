@@ -83,7 +83,8 @@ class WhoHandler:
                     continue
                 if player_name and player_name.lower() not in player_mgr.get_name().lower():
                     continue
-                if player_mgr.guild_manager and guild_name and guild_name.lower() not in player_mgr.guild_manager.guild.name.lower():
+                if guild_name and (not player_mgr.guild_manager or
+                                   guild_name.lower() not in player_mgr.guild_manager.guild.name.lower()):
                     continue
                 if class_mask != 0xFFFFFFFF and class_mask & player_mgr.class_mask != player_mgr.class_mask:
                     continue
