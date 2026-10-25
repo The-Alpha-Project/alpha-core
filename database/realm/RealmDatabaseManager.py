@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 
+from database.SafeScopedSession import SafeScopedSession
 from database.realm.RealmModels import *
 from utils.ConfigManager import *
 from utils.constants.ItemCodes import InventorySlots
@@ -15,7 +16,7 @@ DB_REALM_NAME = config.Database.Realm.db_name
 
 realm_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_REALM_NAME}?charset=utf8mb4',
                                 pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autoflush=False))
+SessionHolder = SafeScopedSession(sessionmaker(bind=realm_db_engine, autoflush=False))
 
 CHARACTER_UPDATE_COLUMNS = tuple(
     (attr.key, attr.columns[0])
@@ -92,18 +93,11 @@ class RealmDatabaseManager:
             }
 
         realm_db_session = SessionHolder()
-        try:
-            update_values = get_character_update_values()
-            realm_db_session.query(Character).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).update(update_values)
-            realm_db_session.flush()
-            realm_db_session.commit()
-        except Exception:
-            # Without this, a single DB error leaves this thread's scoped session invalid and every later save on the
-            # same thread fails with PendingRollbackError.
-            realm_db_session.rollback()
-            raise
-        finally:
-            realm_db_session.close()
+        update_values = get_character_update_values()
+        realm_db_session.query(Character).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).update(update_values)
+        realm_db_session.flush()
+        realm_db_session.commit()
+        realm_db_session.close()
 
     @staticmethod
     def character_get_addon_settings(guid):

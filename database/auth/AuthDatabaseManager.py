@@ -1,8 +1,9 @@
 import hashlib
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 
+from database.SafeScopedSession import SafeScopedSession
 from database.auth.AuthModels import RealmList, Account
 from game.realm.AccountManager import AccountManager
 from utils.ConfigManager import *
@@ -15,7 +16,7 @@ DB_AUTH_NAME = config.Database.Auth.db_name
 
 auth_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_AUTH_NAME}?charset=utf8mb4',
                                pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=auth_db_engine, autoflush=False))
+SessionHolder = SafeScopedSession(sessionmaker(bind=auth_db_engine, autoflush=False))
 
 
 class AuthDatabaseManager:
