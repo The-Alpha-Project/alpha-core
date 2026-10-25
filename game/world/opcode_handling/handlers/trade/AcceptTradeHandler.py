@@ -1,3 +1,5 @@
+from threading import RLock
+
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
@@ -6,6 +8,20 @@ from utils.constants.MiscCodes import TradeStatus
 
 
 class AcceptTradeHandler:
+    # Both players can accept at the same time from their own threads, don't let both complete the trade.
+    LOCK = RLock()
+
+    @staticmethod
+    def _trade_items_are_valid(trade_owner, trade_data):
+        # Items can be moved, sold or destroyed while they are in the trade window.
+        for item in trade_data.items:
+            if not item:
+                continue
+            bag, slot = item.item_instance.bag, item.current_slot
+            if trade_owner.inventory.get_item(bag, slot) is not item or trade_owner.inventory.is_bank_slot(bag, slot):
+                return False
+        return True
+
     @staticmethod
     def _resolve_enchant_target_item_guids(player_trade, other_player_trade):
         target_item_guids = set()
@@ -35,6 +51,11 @@ class AcceptTradeHandler:
 
     @staticmethod
     def handle(world_session, reader):
+        with AcceptTradeHandler.LOCK:
+            return AcceptTradeHandler._handle(world_session, reader)
+
+    @staticmethod
+    def _handle(world_session, reader):
         # Validate world session.
         player, res = HandlerValidator.validate_session(world_session, reader.opcode)
         if not player:
@@ -89,6 +110,11 @@ class AcceptTradeHandler:
                 return 0
 
         if other_player_trade.is_accepted:
+            for trade_owner, trade_data in ((player, player_trade), (other_player, other_player_trade)):
+                if not AcceptTradeHandler._trade_items_are_valid(trade_owner, trade_data):
+                    TradeManager.cancel_trade(trade_owner)
+                    return 0
+
             # Inventory checks.
             for slot in range(TradeManager.TRADE_SLOT_COUNT):
                 player_item = player_trade.items[slot]
