@@ -137,8 +137,11 @@ class LootManager:
             if slot >= len(self.current_loot) or not self.current_loot[slot]:
                 return
             loot = self.current_loot[slot]
-            if not loot or not loot.item or not requester.inventory.add_item(item_template=loot.item.item_template,
-                                                                             count=loot.quantity, looted=True):
+            # Multi-drop items are only lootable once by each of their recipients.
+            if not loot or not loot.item or not loot.is_visible_to_player(requester):
+                return
+            if not requester.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity,
+                                                looted=True):
                 return
             # Mark as looted by requester and delete if item is not visible to anyone else.
             if self.current_loot[slot].set_looted_by(requester):

@@ -38,18 +38,21 @@ class LootMoneyHandler:
                 return
 
             loot_manager = player_mgr.loot_selection.get_loot_manager(world_object)
-            if loot_manager.has_money():
-                # If party is formed, try to split money.
-                # TODO: Currently not splitting money when looting a chest, investigate if this is the correct
-                #  behavior or not.
-                if world_object.is_unit() and player_mgr.group_manager and player_mgr.group_manager.is_party_formed():
-                    # Try to split money and finish on success.
-                    if player_mgr.group_manager.reward_group_money(player_mgr, world_object):
-                        return
+            # Serialize, otherwise concurrent requests can pay the same money more than once.
+            with loot_manager.loot_lock:
+                if loot_manager.has_money():
+                    # If party is formed, try to split money.
+                    # TODO: Currently not splitting money when looting a chest, investigate if this is the correct
+                    #  behavior or not.
+                    if world_object.is_unit() and player_mgr.group_manager and \
+                            player_mgr.group_manager.is_party_formed():
+                        # Try to split money and finish on success.
+                        if player_mgr.group_manager.reward_group_money(player_mgr, world_object):
+                            return
 
-                # Not able to split money or no group, loot money to self only.
-                player_mgr.mod_money(loot_manager.current_money)
-                loot_manager.clear_money()
-                packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
-                for looter in loot_manager.get_active_looters():
-                    looter.enqueue_packet(packet)
+                    # Not able to split money or no group, loot money to self only.
+                    player_mgr.mod_money(loot_manager.current_money)
+                    loot_manager.clear_money()
+                    packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
+                    for looter in loot_manager.get_active_looters():
+                        looter.enqueue_packet(packet)
