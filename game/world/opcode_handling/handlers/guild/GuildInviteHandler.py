@@ -50,5 +50,8 @@ class GuildInviteHandler:
                 )
 
                 target_player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INVITE, data))
+            else:
+                GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
+                                                       GuildCommandResults.ALREADY_INVITED_TO_GUILD)
 
         return 0

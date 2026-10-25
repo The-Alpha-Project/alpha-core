@@ -358,6 +358,7 @@ class PlayerManager(UnitManager):
 
     def logout(self):
         from game.world.managers.objects.units.player.ChatAddonManager import ChatAddonManager
+        from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 
         if self.logout_in_progress:
             return
@@ -369,6 +370,8 @@ class PlayerManager(UnitManager):
                 self.inventory.clear_item_read_translation_timers()
                 TradeManager.cancel_trade(self)
                 self.interrupt_looting()
+                # Drop any unanswered guild invite, otherwise the player can't be invited again.
+                GuildManager.PENDING_INVITES.pop(self.guid, None)
             except Exception as ex:
                 Logger.error(f'Error while preparing logout for [{self.get_name()}] ({self.player.guid}): {ex}.')
                 Logger.error(traceback.format_exc())
