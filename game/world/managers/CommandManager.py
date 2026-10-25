@@ -1094,7 +1094,7 @@ class CommandManager:
             player_mgr = CommandManager._target_or_self(world_session, only_players=True)
             if player_mgr.quest_manager.is_quest_log_full():
                 return -1, 'quest log is full.'
-            player_mgr.quest_manager.handle_accept_quest(quest_id, 0)
+            player_mgr.quest_manager.handle_accept_quest(quest_id, 0, validate=False)
 
             return 0, ''
         except ValueError:

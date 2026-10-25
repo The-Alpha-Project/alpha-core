@@ -36,6 +36,7 @@ class QuestManager:
         self.last_timer_update = 0
         self.active_quests = {}
         self.completed_quests = set()
+        self.pending_shared_quests = set()  # Quests offered by party members.
 
     def load_quests(self):
         quest_db_states = RealmDatabaseManager.character_get_quests(self.player_mgr.guid)
@@ -882,7 +883,8 @@ class QuestManager:
         data.extend(pack('<I', quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney))
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_OFFER_REWARD, data))
 
-    def handle_accept_quest(self, quest_id, quest_giver_guid, shared=False, quest_giver=None, is_item=False):
+    def handle_accept_quest(self, quest_id, quest_giver_guid, shared=False, quest_giver=None, is_item=False,
+                            validate=True):
         quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)
         if not quest_template:
             return
@@ -896,6 +898,17 @@ class QuestManager:
         if self.has_timed_quest():
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
+
+        # Don't trust the client, it could request any quest.
+        if validate:
+            # Shared quests must have been offered by a party member.
+            if shared:
+                if quest_id not in self.pending_shared_quests:
+                    return
+                self.pending_shared_quests.discard(quest_id)
+            if not self.check_quest_requirements(quest_template):
+                self.send_cant_take_quest_response(QuestFailedReasons.QUEST_MISSING_REQ)
+                return
 
         quest_item_starter = None if not is_item else quest_giver
         # Look for unit quest giver if it was not provided.
@@ -979,6 +992,7 @@ class QuestManager:
                 if active_quest.quest.entry in player_mgr.quest_manager.completed_quests:
                     continue
 
+                player_mgr.quest_manager.pending_shared_quests.add(active_quest.quest.entry)
                 player_mgr.enqueue_packet(packet)
 
     def handle_remove_quest(self, slot):
