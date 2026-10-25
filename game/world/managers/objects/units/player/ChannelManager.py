@@ -162,7 +162,7 @@ class ChannelManager:
         channel.toggle_moderation()
 
         flag = channel.is_moderated()
-        notify = ChannelNotifications.MODERATION_ON if not flag else ChannelNotifications.MODERATION_OFF
+        notify = ChannelNotifications.MODERATION_ON if flag else ChannelNotifications.MODERATION_OFF
         packet = ChannelManager.build_notify_packet(channel.name, notify, target1=sender)
         if channel.should_announce():
             channel.broadcast_to_channel(sender, packet)
@@ -177,7 +177,7 @@ class ChannelManager:
         channel.toggle_announce()
 
         flag = channel.should_announce()
-        notify = ChannelNotifications.ANNOUNCEMENTS_ON if not flag else ChannelNotifications.ANNOUNCEMENTS_OFF
+        notify = ChannelNotifications.ANNOUNCEMENTS_ON if flag else ChannelNotifications.ANNOUNCEMENTS_OFF
         packet = ChannelManager.build_notify_packet(channel.name, notify, target1=sender)
         if flag:
             channel.broadcast_to_channel(sender, packet)
@@ -186,7 +186,7 @@ class ChannelManager:
 
     @staticmethod
     def add_mute(channel, sender, target_player):
-        if not ChannelManager.default_checks(channel.name, sender, check_owner=True, check_moderator=True,
+        if not ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True,
                                              target_player=target_player):
             return
         if channel.is_muted(target_player):  # Already muted, ignore.
@@ -323,7 +323,7 @@ class ChannelManager:
             # Send to target
             ChannelManager.send_to_player(target_player, packet)
 
-            if channel.is_moderator(channel.name, target_player):
+            if channel.is_moderator(target_player):
                 ChannelManager.remove_mod(channel, sender, target_player)
 
             ChannelManager.kick_player(channel, sender, target_player, banned=True)
