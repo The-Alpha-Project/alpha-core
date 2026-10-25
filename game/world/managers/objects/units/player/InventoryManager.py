@@ -751,9 +751,9 @@ class InventoryManager:
 
     def is_bank_slot(self, bag_slot, slot):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:
-            if slot >= BankSlots.BANK_SLOT_ITEM_START < BankSlots.BANK_SLOT_ITEM_END:
+            if BankSlots.BANK_SLOT_ITEM_START <= slot < BankSlots.BANK_SLOT_ITEM_END:
                 return True
-            if slot >= BankSlots.BANK_SLOT_BAG_START < BankSlots.BANK_SLOT_BAG_END:
+            if BankSlots.BANK_SLOT_BAG_START <= slot < BankSlots.BANK_SLOT_BAG_END:
                 return True
 
         if BankSlots.BANK_SLOT_BAG_START <= bag_slot < BankSlots.BANK_SLOT_BAG_END:
