@@ -903,7 +903,7 @@ class QuestManager:
         if validate:
             # Shared quests must have been offered by a party member.
             if shared:
-                if quest_id not in self.pending_shared_quests:
+                if not self.player_mgr.group_manager or quest_id not in self.pending_shared_quests:
                     return
                 self.pending_shared_quests.discard(quest_id)
             if not self.check_quest_requirements(quest_template):

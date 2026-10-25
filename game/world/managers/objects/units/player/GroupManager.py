@@ -228,6 +228,7 @@ class GroupManager:
                         member_player.has_pending_group_invite = False
                         member_player.group_manager = None
                         member_player.group_status = WhoPartyStatus.WHO_PARTY_STATUS_NOT_IN_PARTY
+                        member_player.quest_manager.pending_shared_quests.clear()
 
                     if member.guid == self.group.leader_guid:
                         GroupManager._remove_leader_flag(member)
