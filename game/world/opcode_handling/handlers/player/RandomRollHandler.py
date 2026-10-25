@@ -18,6 +18,8 @@ class RandomRollHandler:
         if not HandlerValidator.validate_packet_length(reader, min_length=8):
             return 0
         minimum, maximum = unpack('<2I', reader.data[:8])
+        if minimum > maximum:
+            return 0
 
         roll = randint(minimum, maximum)
 
