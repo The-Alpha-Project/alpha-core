@@ -1,5 +1,6 @@
 from struct import unpack, pack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter
 from utils.Formulas import Distances
@@ -51,6 +52,9 @@ class ActivateTaxiHandler:
         elif not ActivateTaxiHandler._is_known_taxi_node(player_mgr, start_node) \
                 or not ActivateTaxiHandler._is_known_taxi_node(player_mgr, dest_node):
             result = ActivateTaxiReplies.ERR_TAXINOTVISITED
+        # Flight must start at the node the player is at.
+        elif start_node != TaxiManager.get_nearest_taxi_node(player_mgr):
+            result = ActivateTaxiReplies.ERR_TAXITOOFARAWAY
 
         taxi_path = None
         if result == ActivateTaxiReplies.ERR_TAXIOK:
