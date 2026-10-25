@@ -1,3 +1,5 @@
+import traceback
+
 from game.world.managers.objects.script.ScriptedEvent import ScriptedEvent
 from utils.constants.ScriptCodes import SetMapScriptDataOptions
 from utils.Logger import Logger
@@ -15,7 +17,8 @@ class MapEventManager:
             try:
                 scripted_event.update(now)
             except Exception:
-                Logger.exception(f'MapEventManager: Failed to update scripted event {event_id}, removing event.')
+                Logger.error(f'MapEventManager: Failed to update scripted event {event_id}, removing event.')
+                Logger.error(traceback.format_exc())
                 scripted_event.ended = True
             if scripted_event.ended:
                 self.scripted_events.pop(event_id, None)
