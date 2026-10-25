@@ -345,7 +345,7 @@ class ScriptHandler:
             flag_equivalences_5875_to_3368[9] = FlagEquivalence(
                 GameObjectFields.GAMEOBJECT_FLAGS,
                 command.source.flags,
-                command.source.set_uint32
+                command.source.set_flag
             )
             flag_equivalences_5875_to_3368[19] = FlagEquivalence(
                 GameObjectFields.GAMEOBJECT_DYN_FLAGS,
@@ -412,6 +412,7 @@ class ScriptHandler:
             return command.should_abort()
 
         special_fields = {
+            GameObjectFields.GAMEOBJECT_FLAGS,
             UnitFields.UNIT_FIELD_BYTES_1,
             UnitFields.UNIT_FIELD_FLAGS,
             UnitFields.UNIT_DYNAMIC_FLAGS,

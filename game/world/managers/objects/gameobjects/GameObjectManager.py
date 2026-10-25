@@ -197,7 +197,7 @@ class GameObjectManager(ObjectManager):
         self.state = state
         self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state, force=force)
 
-    def set_flag(self, flag, state):
+    def set_flag(self, flag, state=True):
         if state:
             self.flags |= flag
         else:
