@@ -464,8 +464,8 @@ class ScriptHandler:
             return command.should_abort()
         if command.datalong2:
             command.source.spell_manager.remove_cast_by_id(command.datalong2, interrupted=True)
-        else:  # No spell_id, interrupt all casts.
-            command.source.spell_manager.remove_casts(remove_active=command.datalong != 0)
+        else:  # No spell_id, interrupt all casts but keep active area auras.
+            command.source.spell_manager.remove_casts(remove_active=False)
 
         return False
 
