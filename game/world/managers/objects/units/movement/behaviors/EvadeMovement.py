@@ -39,12 +39,18 @@ class EvadeMovement(BaseMovement):
 
     # override
     def on_removed(self):
-        if not self.unit.is_at_home():
-            return
+        at_home = self.unit.is_at_home()
+        if not at_home:
+            if not self.unit.is_alive:
+                return
+            # The path ended short of home (partial path, blocked unit, etc.), snap it home like evade() does when no
+            # path is available, otherwise it would stay evading forever. near_teleport() handles on_at_home().
+            self.unit.near_teleport(self.unit.get_home_position())
         self.unit.tmp_home_position = None
         self.unit.is_evading = False
         self.unit.swim_checks_enabled = False
-        self.unit.on_at_home()
+        if at_home:
+            self.unit.on_at_home()
         self.unit.attack_stop()
         self.unit.threat_manager.reset()
 
