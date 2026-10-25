@@ -1,7 +1,6 @@
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from struct import unpack
 
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 
@@ -35,9 +34,9 @@ class GroupLootMethodHandler:
             group_manager.set_loot_method(loot_method)
             return 0
 
-        target_player_mgr = RealmDatabaseManager.character_get_by_guid(loot_master)
-        if target_player_mgr:
-            group_manager.set_loot_method(loot_method, master_looter_guid=target_player_mgr.guid)
+        # Master looter must be a group member.
+        if group_manager.is_party_member(loot_master):
+            group_manager.set_loot_method(loot_method, master_looter_guid=loot_master)
             return 0
 
         group_manager.set_loot_method(loot_method)

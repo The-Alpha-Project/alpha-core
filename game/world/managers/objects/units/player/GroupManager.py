@@ -307,7 +307,7 @@ class GroupManager:
 
     # Called once upon victim dead.
     def set_allowed_looters(self, victim):
-        self.allowed_looters[victim.guid] = self._fill_allowed_looters()
+        self.allowed_looters[victim.guid] = self._fill_allowed_looters(victim)
 
     # Get allowed looters for specific creature.
     def get_allowed_looters(self, victim):
@@ -460,16 +460,16 @@ class GroupManager:
         self.group = None
         self._last_looter = None
 
-    def _fill_allowed_looters(self):
+    def _fill_allowed_looters(self, victim):
         if self.group.loot_method == LootMethods.LOOT_METHOD_MASTERLOOTER:
-            return [self.group.loot_master]
+            # Master looter might have left the group, don't lock the loot for everyone.
+            if self.group.loot_master in self.members:
+                return [self.group.loot_master]
+            return list(self.members.keys())
         elif self.group.loot_method == LootMethods.LOOT_METHOD_FREEFORALL:
             return list(self.members.keys())
         elif self.group.loot_method == LootMethods.LOOT_METHOD_ROUNDROBIN:
-            if not self._last_looter:
-                self._last_looter = self.group.leader_guid
-                return [self._last_looter]
-            return [self._get_next_looter(self._last_looter)]
+            return [self._get_next_looter(victim)]
         return []
 
     def _set_previous_looter(self, player_guid):
@@ -481,16 +481,19 @@ class GroupManager:
         else:
             self._last_looter = _list[-1]
 
-    def _get_next_looter(self, player_guid):
+    def _get_next_looter(self, victim):
         _list = list(self.members.keys())
-        _index = list.index(_list, player_guid)
-
-        if _index + 1 < len(_list):
-            self._last_looter = _list[_index + 1]
-            return _list[_index + 1]
+        # Cycle starts at leader.
+        if self._last_looter in _list:
+            _index = _list.index(self._last_looter)
         else:
-            self._last_looter = _list[0]
-            return _list[0]
+            _index = _list.index(self.group.leader_guid) - 1
+
+        # Skip members that are offline or too far from the victim, else nobody would be able to loot it.
+        candidates = [_list[(_index + i) % len(_list)] for i in range(1, len(_list) + 1)]
+        self._last_looter = next((guid for guid in candidates if self.is_close_member(
+            victim, WorldSessionStateHandler.find_player_by_guid(guid))), candidates[0])
+        return self._last_looter
 
     @staticmethod
     def load_group(raw_group):
