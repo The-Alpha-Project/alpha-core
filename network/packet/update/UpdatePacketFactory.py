@@ -6,6 +6,7 @@ from utils.Logger import Logger
 from utils.constants.UpdateFields import EncapsulationType, ObjectFields
 
 FIELDS_ENCAPSULATION = {}  # { field_type : { index : encapsulation} }
+FIELDS_DYNAMIC_PRIVATE = {}  # { field_type : (dynamic_fields, private_fields) }
 DEBUG_INFORMATION = {}  # Debug.
 
 
@@ -27,10 +28,14 @@ class UpdatePacketFactory:
         self.update_values_bytes = bytearray(self.fields_size * 4)
         self.update_mask.set_count(self.fields_size)
 
-        # Cache dynamic and private fields for faster lookups.
-        encapsulation = self._load_encapsulation(fields_type)
-        self.dynamic_fields = {i for i, enc in encapsulation.items() if enc == EncapsulationType.DYNAMIC}
-        self.private_fields = {i for i, enc in encapsulation.items() if enc == EncapsulationType.PRIVATE}
+        # Cache dynamic and private fields for faster lookups, shared by all objects of the same fields type.
+        if fields_type not in FIELDS_DYNAMIC_PRIVATE:
+            encapsulation = self._load_encapsulation(fields_type)
+            FIELDS_DYNAMIC_PRIVATE[fields_type] = (
+                frozenset(i for i, enc in encapsulation.items() if enc == EncapsulationType.DYNAMIC),
+                frozenset(i for i, enc in encapsulation.items() if enc == EncapsulationType.PRIVATE)
+            )
+        self.dynamic_fields, self.private_fields = FIELDS_DYNAMIC_PRIVATE[fields_type]
 
     @staticmethod
     def _load_encapsulation(fields_type):
