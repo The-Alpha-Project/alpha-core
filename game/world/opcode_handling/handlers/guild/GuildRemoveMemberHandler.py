@@ -20,7 +20,7 @@ class GuildRemoveMemberHandler:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_QUIT_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
         # Player does not exist.
-        if not target_player_mgr:
+        elif not target_player_mgr:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_QUIT_S, target_name,
                                                    GuildCommandResults.GUILD_PLAYER_NOT_FOUND)
         # Member does not exist in the Guild.
@@ -31,8 +31,8 @@ class GuildRemoveMemberHandler:
         elif player_mgr.guild_manager.get_rank(player_mgr.guid) > GuildRank.GUILDRANK_OFFICER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
-        # Officers can't kick the Guild Master or another Officer.
-        elif player_mgr.guild_manager.get_rank(target_player_mgr.guid) == GuildRank.GUILDRANK_OFFICER and player_mgr.guild_manager.get_rank(player_mgr.guid) <= GuildRank.GUILDRANK_OFFICER:
+        # Only the Guild Master can kick an Officer, nobody can kick the Guild Master.
+        elif player_mgr.guild_manager.get_rank(target_player_mgr.guid) <= GuildRank.GUILDRANK_OFFICER and player_mgr.guild_manager.get_rank(player_mgr.guid) != GuildRank.GUILDRANK_GUILD_MASTER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
         # GM self kick attempt.
