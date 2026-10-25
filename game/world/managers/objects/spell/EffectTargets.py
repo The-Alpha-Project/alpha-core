@@ -369,7 +369,7 @@ class EffectTargets:
             if closest_info[0] == -1 or new_distance_sqrd < closest_info[0]:
                 closest_info = new_distance_sqrd, unit
 
-        if closest_info[0] > casting_spell.range_entry.RangeMax ** 2:
+        if not closest_info[1] or closest_info[0] > casting_spell.range_entry.RangeMax ** 2:
             return []
 
         return closest_info[1]
