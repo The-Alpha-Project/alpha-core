@@ -23,11 +23,14 @@ class AcceptTradeHandler:
         return True
 
     @staticmethod
-    def _can_store_items(inventory, items):
+    def _can_store_items(inventory, items, outgoing_guids):
         # can_store_item() checks one item at a time, so several items could each fit in the same free slot.
         free_slots = inventory.get_remaining_space()
         stack_room = {}
         for owned in inventory.get_all_items():
+            # Stacks leaving in this trade can't take merges.
+            if owned.guid in outgoing_guids:
+                continue
             entry = owned.item_template.entry
             stack_room[entry] = stack_room.get(entry, 0) + \
                 max(0, owned.item_template.stackable - owned.item_instance.stackcount)
@@ -139,9 +142,12 @@ class AcceptTradeHandler:
                     return 0
 
             # Inventory checks.
-            for receiver, sender_trade in ((player, other_player_trade), (other_player, player_trade)):
+            for receiver, receiver_trade, sender_trade in ((player, player_trade, other_player_trade),
+                                                           (other_player, other_player_trade, player_trade)):
                 items = [item for item in sender_trade.items if item and item.guid not in enchant_target_item_guids]
-                if not AcceptTradeHandler._can_store_items(receiver.inventory, items):
+                outgoing = {item.guid for item in receiver_trade.items
+                            if item and item.guid not in enchant_target_item_guids}
+                if not AcceptTradeHandler._can_store_items(receiver.inventory, items, outgoing):
                     receiver.inventory.send_equip_error(InventoryError.BAG_INV_FULL)
                     TradeManager.cancel_trade(receiver)
                     return 0
