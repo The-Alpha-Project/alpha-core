@@ -3,6 +3,7 @@ from struct import unpack
 
 from network.packet.PacketWriter import PacketWriter
 from utils.Formulas import Distances
+from utils.constants.MiscCodes import NpcFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 
@@ -29,7 +30,7 @@ class BinderActivateHandler:
             return 0
 
         binder = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, binder_guid)
-        if not binder:
+        if not binder or not binder.get_npc_flags() & NpcFlags.NPC_FLAG_BINDER:
             return 0
         if not Distances.is_within_bind_distance(player_mgr, binder):
             return 0
