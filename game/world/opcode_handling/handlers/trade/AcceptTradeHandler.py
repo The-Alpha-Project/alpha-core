@@ -23,6 +23,29 @@ class AcceptTradeHandler:
         return True
 
     @staticmethod
+    def _can_store_items(inventory, items):
+        # can_store_item() checks one item at a time, so several items could each fit in the same free slot.
+        free_slots = inventory.get_remaining_space()
+        stack_room = {}
+        for owned in inventory.get_all_items():
+            entry = owned.item_template.entry
+            stack_room[entry] = stack_room.get(entry, 0) + \
+                max(0, owned.item_template.stackable - owned.item_instance.stackcount)
+
+        for item in items:
+            # Ammo and special bags, handled by the per item check.
+            if item.item_template.bag_family:
+                continue
+            entry = item.item_template.entry
+            merged = min(stack_room.get(entry, 0), item.item_instance.stackcount)
+            stack_room[entry] = stack_room.get(entry, 0) - merged
+            # Traded stacks never exceed the max stack size, so at most one new slot is needed.
+            if merged < item.item_instance.stackcount:
+                free_slots -= 1
+
+        return free_slots >= 0
+
+    @staticmethod
     def _resolve_enchant_target_item_guids(player_trade, other_player_trade):
         target_item_guids = set()
 
@@ -116,6 +139,13 @@ class AcceptTradeHandler:
                     return 0
 
             # Inventory checks.
+            for receiver, sender_trade in ((player, other_player_trade), (other_player, player_trade)):
+                items = [item for item in sender_trade.items if item and item.guid not in enchant_target_item_guids]
+                if not AcceptTradeHandler._can_store_items(receiver.inventory, items):
+                    receiver.inventory.send_equip_error(InventoryError.BAG_INV_FULL)
+                    TradeManager.cancel_trade(receiver)
+                    return 0
+
             for slot in range(TradeManager.TRADE_SLOT_COUNT):
                 player_item = player_trade.items[slot]
                 other_player_item = other_player_trade.items[slot]
