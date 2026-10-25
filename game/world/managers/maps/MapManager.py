@@ -703,13 +703,6 @@ class MapManager:
 
     @staticmethod
     def can_reach_location(map_id, src_vector, dst_vector, smooth=False, clamp_endpoint=False):
-        # If nav tiles disabled or unable to load Namigator, return as True.
-        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
-            return True
-
-        if map_id not in MAPS_NAMIGATOR:
-            return True
-
         failed, in_place, path_ = MapManager.calculate_path(map_id, src_vector, dst_vector, True, smooth, clamp_endpoint)
         return failed, path_
 
