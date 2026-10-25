@@ -1241,6 +1241,8 @@ class QuestManager:
         if not item_template:
             return False
 
+        # Every active quest needing this item gets credit.
+        rewarded = False
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.still_needs_item(item_template):
                 active_quest.update_item_count(item_entry, item_count)
@@ -1248,13 +1250,15 @@ class QuestManager:
                 # If by this item we complete the quest, update surrounding so NPC can display new complete status.
                 if active_quest.can_complete_quest():
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
-                return True
-        return False
+                rewarded = True
+        return rewarded
 
     def handle_goober_use(self, gameobject, quest_id=0):
         return self.reward_creature_or_go(gameobject, quest_id)
 
     def reward_creature_or_go(self, world_object, to_quest_id=0):
+        # Every active quest requiring this creature or gameobject gets credit.
+        rewarded = False
         for quest_id, active_quest in self.active_quests.items():
             if to_quest_id and quest_id != to_quest_id:
                 continue
@@ -1265,8 +1269,8 @@ class QuestManager:
             # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
             if active_quest.can_complete_quest():
                 self.complete_quest(active_quest, update_surrounding=True, notify=True)
-            return True
-        return False
+            rewarded = True
+        return rewarded
 
     def reward_quest_exploration(self, area_trigger_id):
         for quest_id, active_quest in self.active_quests.items():
