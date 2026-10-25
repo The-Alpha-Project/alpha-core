@@ -78,7 +78,8 @@ class DuelArbiterManager(GameObjectManager):
         if not duel_info:
             return
         winner_reason = DuelWinner.DUEL_WINNER_RETREAT if retreat else DuelWinner.DUEL_WINNER_KNOCKOUT
-        self.end_duel(winner_reason, DuelComplete.DUEL_FINISHED, duel_info.target)
+        # Only a started duel has a winner, a pending request is just canceled.
+        self.end_duel(winner_reason, self._get_canceled_flag(), duel_info.target)
 
     def end_duel(self, duel_winner_flag, duel_complete_flag, winner: Optional[PlayerManager]):
         if winner and not winner.is_player():
