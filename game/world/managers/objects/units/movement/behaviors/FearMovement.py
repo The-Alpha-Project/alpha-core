@@ -116,7 +116,7 @@ class FearMovement(BaseMovement):
             if diff > 2.5:
                 continue
 
-            failed, path = _map.can_reach_location(src_vector=self.unit.location, dst_vector=fear_point,
+            failed, path = _map.can_reach_location(src_vector=self.unit.location, dst_vector=destination,
                                                    smooth=True, clamp_endpoint=True)
             if not failed:
                 return path
