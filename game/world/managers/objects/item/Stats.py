@@ -41,6 +41,12 @@ class SpellStat:
         self.spell_id = spell_id
         self.trigger = trigger
         self.charges = charges
+        # Category 0 means no category, but the client applies its category cooldown to every spell without one,
+        # locking the whole spellbook (e.g. Soulstone). Send it as a regular spell cooldown instead.
+        if category == 0 and category_cooldown > 0:
+            if cooldown <= 0:
+                cooldown = category_cooldown
+            category_cooldown = -1
         self.cooldown = cooldown
         self.category = category
         self.category_cooldown = category_cooldown
