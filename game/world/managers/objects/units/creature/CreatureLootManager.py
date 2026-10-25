@@ -36,7 +36,8 @@ class CreatureLootManager(LootManager):
         # TODO: Only doing it if a normal template exists to avoid adding loot to creatures like critters. Try to find
         #  out if this is correct and critters didn't drop leather back in the day. Might be a hard thing to prove.
         if len(creature_loot_template) > 0:
-            creature_loot_template += WorldDatabaseManager.SkinningLootTemplateHolder\
+            # Build a new list, extending in place would grow the cached template on every spawn.
+            creature_loot_template = creature_loot_template + WorldDatabaseManager.SkinningLootTemplateHolder\
                 .skinning_loot_template_get_by_loot_id(self.world_object.creature_template.skinning_loot_id)
         return creature_loot_template
 
