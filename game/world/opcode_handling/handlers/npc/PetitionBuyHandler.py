@@ -52,7 +52,7 @@ class PetitionBuyHandler:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_NAME_INVALID)
             return 0
-        if guild_name in GuildManager.GUILDS or RealmDatabaseManager.guild_petition_get_by_name(guild_name):
+        if GuildManager.guild_name_exists(guild_name) or RealmDatabaseManager.guild_petition_get_by_name(guild_name):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
                                                    GuildCommandResults.GUILD_NAME_EXISTS)
             return 0

@@ -388,12 +388,19 @@ class GuildManager:
             GuildManager.GUILDS[raw_guild.name] = guild
 
     @staticmethod
+    def guild_name_exists(guild_name):
+        # Case insensitive, like character and petition names.
+        guild_name = guild_name.lower()
+        return any(name.lower() == guild_name for name in GuildManager.GUILDS)
+
+    @staticmethod
     def create_guild(player_mgr, guild_name, petition=None):
         if not TextChecker.valid_text(guild_name, is_guild=True):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_NAME_INVALID)
             return False
-        if guild_name in GuildManager.GUILDS or not petition and RealmDatabaseManager.guild_petition_get_by_name(guild_name):
+        if GuildManager.guild_name_exists(guild_name) or \
+                not petition and RealmDatabaseManager.guild_petition_get_by_name(guild_name):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
                                                    GuildCommandResults.GUILD_NAME_EXISTS)
             return False
