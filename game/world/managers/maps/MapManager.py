@@ -996,7 +996,7 @@ class MapManager:
 
         # Circular ref.
         from game.world.managers.abstractions.Vector import Vector
-        start_range = min(2, min_range)
+        start_range = max(2, min_range)
         start_location = world_object.location
         map_ = world_object.get_map()
         liquids_vectors = []
