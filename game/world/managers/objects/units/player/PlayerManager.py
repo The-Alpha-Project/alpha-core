@@ -1702,7 +1702,8 @@ class PlayerManager(UnitManager):
         if not self.is_alive:
             if self.spirit_release_timer < 300:  # 5 min.
                 self.spirit_release_timer += elapsed
-            else:
+            # Wait for an already queued release teleport.
+            elif not self.pending_teleport_data:
                 self.resurrect(release_spirit=True)
 
         # Update timers (Breath, Fatigue, Feign Death).
