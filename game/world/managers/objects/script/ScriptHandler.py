@@ -1216,17 +1216,18 @@ class ScriptHandler:
         else:
             result = True
 
+        if result:
+            command.script.abort()
+
+        # No quest to fail.
         if not command.datalong2:
-            return command.should_abort()
+            return False
 
         _target = None
         if ConditionChecker.is_player(command.source):
             _target = command.source
         elif ConditionChecker.is_player(command.target):
             _target = command.target
-
-        if result:
-            command.script.abort()
 
         if not _target:
             Logger.warning(f'ScriptHandler: Invalid target, {command.get_info()}.')
