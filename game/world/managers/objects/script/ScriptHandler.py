@@ -2038,12 +2038,12 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 
-        if isinstance(command.source.gameobject_instance, DoorManager):
-            command.source.gameobject_instance.reset_door_state()
-        elif isinstance(command.source.gameobject_instance, ButtonManager):
-            command.source.gameobject_instance.reset_button_state()
-        elif isinstance(command.source.gameobject_instance, GooberManager):
-            command.source.gameobject_instance.reset_goober_state()
+        if isinstance(command.source, DoorManager):
+            command.source.reset_door_state()
+        elif isinstance(command.source, ButtonManager):
+            command.source.reset_button_state()
+        elif isinstance(command.source, GooberManager):
+            command.source.reset_goober_state()
 
         return False
 
