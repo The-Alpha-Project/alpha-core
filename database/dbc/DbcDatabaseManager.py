@@ -3,8 +3,9 @@ from functools import lru_cache
 from typing import Optional, Dict
 
 from sqlalchemy import create_engine, func
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 
+from database.SafeScopedSession import SafeScopedSession
 from database.dbc.DbcModels import *
 from game.world.managers.maps.helpers.AreaInformation import AreaInformation
 from game.world.managers.objects.locks.LockHolder import LockHolder
@@ -20,7 +21,7 @@ DB_DBC_NAME = config.Database.DBC.db_name
 
 dbc_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DBC_NAME}?charset=utf8mb4',
                               pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine, autoflush=True))
+SessionHolder = SafeScopedSession(sessionmaker(bind=dbc_db_engine, autoflush=True))
 
 
 # noinspection PyUnresolvedReferences

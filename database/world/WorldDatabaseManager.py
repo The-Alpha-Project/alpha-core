@@ -5,6 +5,7 @@ from difflib import SequenceMatcher
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+from database.SafeScopedSession import SafeScopedSession
 from database.world.WorldModels import *
 from database.world.WorldModels import Condition
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
@@ -21,7 +22,7 @@ DB_WORLD_NAME = config.Database.World.db_name
 
 world_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_WORLD_NAME}?charset=utf8mb4',
                                 pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autoflush=True))
+SessionHolder = SafeScopedSession(sessionmaker(bind=world_db_engine, autoflush=True))
 
 
 # noinspection PyUnresolvedReferences
