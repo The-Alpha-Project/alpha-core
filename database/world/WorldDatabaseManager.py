@@ -2,7 +2,7 @@ from functools import lru_cache
 from typing import Optional, Dict, List, Union
 from difflib import SequenceMatcher
 
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.SafeScopedSession import SafeScopedSession
@@ -552,7 +552,8 @@ class WorldDatabaseManager:
     @staticmethod
     def creature_movement_get_all() -> list[CreatureMovement]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureMovement).all()
+        # Read-only, plain rows use a fraction of the memory of mapped instances.
+        res = world_db_session.execute(select(CreatureMovement.__table__)).all()
         world_db_session.close()
         return res
 
@@ -816,7 +817,8 @@ class WorldDatabaseManager:
     @staticmethod
     def creature_get_loot_templates() -> Optional[list[CreatureLootTemplate]]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureLootTemplate).all()
+        # Read-only, plain rows use a fraction of the memory of mapped instances.
+        res = world_db_session.execute(select(CreatureLootTemplate.__table__)).all()
         world_db_session.close()
         return res
 
