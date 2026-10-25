@@ -28,6 +28,11 @@ class GuildPromoteHandler:
         elif not player_mgr.guild_manager.has_member(target_player_mgr.guid):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
+        # Members can only be promoted to a rank lower than the promoter's own rank.
+        elif player_mgr.guild_manager.get_rank(player_mgr.guid) + 1 >= \
+                player_mgr.guild_manager.get_rank(target_player_mgr.guid):
+            GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
+                                                   GuildCommandResults.GUILD_PERMISSIONS)
         elif not player_mgr.guild_manager.promote_rank(target_player_mgr.guid):
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_INTERNAL)
