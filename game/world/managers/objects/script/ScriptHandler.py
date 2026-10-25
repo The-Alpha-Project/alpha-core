@@ -461,7 +461,10 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, {command.get_info()}.')
             return command.should_abort()
-        command.source.spell_manager.remove_cast_by_id(command.datalong2, interrupted=True)
+        if command.datalong2:
+            command.source.spell_manager.remove_cast_by_id(command.datalong2, interrupted=True)
+        else:  # No spell_id, interrupt all casts.
+            command.source.spell_manager.remove_casts(remove_active=command.datalong != 0)
 
         return False
 
@@ -1074,21 +1077,18 @@ class ScriptHandler:
         if not command.source.is_alive:
             return command.should_abort()
 
-        display_id = command.datalong2
         creature_or_model_entry = command.datalong
-
-        if not creature_or_model_entry and not display_id:
-            if command.source.creature_template.mount_display_id:
-                command.source.mount(display_id)
-            else:
-                command.source.unmount()
-        elif creature_or_model_entry:
+        display_id = creature_or_model_entry
+        if creature_or_model_entry and not command.datalong2:
             creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
                 creature_or_model_entry)
-            if creature_template and creature_template.display_id1:
-                command.source.mount(creature_template.display_id1)
-            else:
-                command.source.unmount()
+            display_id = creature_template.display_id1 if creature_template else 0
+
+        # No display id, dismount.
+        if display_id:
+            command.source.mount(display_id)
+        else:
+            command.source.unmount()
 
         return False
 
