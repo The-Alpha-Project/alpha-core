@@ -233,11 +233,9 @@ class SpellManager:
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)
 
-        data = bytearray(pack('<BH', 0, len(self.spells)))
-        for spell_id, spell in self.spells.items():
-            if not spell.active:
-                continue
-
+        active_spells = [spell for spell in self.spells.values() if spell.active]
+        data = bytearray(pack('<BH', 0, len(active_spells)))
+        for spell in active_spells:
             index = spell_buttons[spell.spell] if spell.spell in spell_buttons else 0
             data.extend(pack('<2h', spell.spell, index))
         data.extend(pack('<H', 0))
