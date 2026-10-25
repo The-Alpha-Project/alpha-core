@@ -615,9 +615,11 @@ class CreatureManager(UnitManager):
             self.swim_checks_enabled = False
             return
 
-        # If Namigator fails, swimming and heading to land, try to locate a near
+        # If Namigator fails, in water and heading to land, try to locate a near
         # land point in the direction of home position.
-        if failed and self.is_swimming() and self.get_map().is_land_location(vector=return_position):
+        # Check liquid instead of is_swimming(), creatures that can't swim never get the swimming move flag.
+        if failed and not self.get_map().is_land_location(vector=self.location) and \
+                self.get_map().is_land_location(vector=return_position):
             land = self.get_map().find_land_location_in_angle(self, return_position)
             if land:
                 # Path from land to home.
