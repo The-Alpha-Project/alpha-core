@@ -19,6 +19,15 @@ class CharDeleteHandler:
             return 0
         guid = unpack('<Q', reader.data[:8])[0]
 
+        # Character must exist and belong to this account.
+        character = RealmDatabaseManager.character_get_by_guid(guid)
+        if not character or character.account_id != world_session.account_mgr.account.id:
+            Logger.anticheat(f'Account {world_session.account_mgr.account.id} tried to delete character with '
+                             f'wrong guid ({guid}).')
+            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHAR_DELETE,
+                                                                 pack('<B', CharDelete.CHAR_DELETE_FAILED)))
+            return 0
+
         res = CharDelete.CHAR_DELETE_SUCCESS
         # Prevent Guild Masters from deleting their character.
         if RealmDatabaseManager.character_is_guild_master(guid):

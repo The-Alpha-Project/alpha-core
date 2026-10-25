@@ -27,15 +27,15 @@ class PlayerLoginHandler:
 
         guid = unpack('<Q', reader.data[:8])[0]
 
-        world_session.player_mgr = PlayerManager(
-            RealmDatabaseManager.character_get_by_guid(guid), world_session)
-        player_mgr = world_session.player_mgr
-
-        if not world_session.player_mgr.player:
+        character = RealmDatabaseManager.character_get_by_guid(guid)
+        # Character must exist and belong to this account.
+        if not character or character.account_id != world_session.account_mgr.account.id:
             Logger.anticheat(f'Character with wrong guid ({guid}) tried to login.')
             return -1
-        else:
-            WorldSessionStateHandler.push_active_player_session(world_session)
+
+        world_session.player_mgr = PlayerManager(character, world_session)
+        player_mgr = world_session.player_mgr
+        WorldSessionStateHandler.push_active_player_session(world_session)
 
         # Disabled race & class checks (only if not a GM).
         if not world_session.account_mgr.is_gm():
