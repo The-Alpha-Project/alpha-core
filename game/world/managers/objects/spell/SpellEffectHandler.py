@@ -149,7 +149,7 @@ class SpellEffectHandler:
         # Handle caster already on a duel, forfeit.
         duel_arbiter = caster.get_duel_arbiter()
         if duel_arbiter:
-            duel_arbiter.force_end_duel(caster)
+            duel_arbiter.force_duel_end(caster)
 
         # New duel arbiter.
         duel_arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0],
