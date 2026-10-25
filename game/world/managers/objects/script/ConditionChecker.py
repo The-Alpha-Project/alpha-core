@@ -744,7 +744,11 @@ class ConditionChecker:
         # Condition_value2 = db_guid (optional).
         # Condition_value3 = db_guid (optional).
         # Condition_value4 = db_guid (optional).
-        if not ConditionChecker.is_gameobject(source) or not ConditionChecker.is_creature(target):
+        if not ConditionChecker.is_gameobject(source) and not ConditionChecker.is_creature(source):
+            return False
+
+        # Summoned objects have no db guid.
+        if not source.spawn_id:
             return False
 
         if condition.value1 == source.spawn_id:
