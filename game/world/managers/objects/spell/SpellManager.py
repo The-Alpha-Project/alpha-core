@@ -1268,6 +1268,23 @@ class SpellManager:
     def is_casting(self):
         return self.get_casting_spell(ignore_melee=True) is not None
 
+    @staticmethod
+    def _matches_script_target(entry, target):
+        if entry.target_type == SpellScriptTarget.TARGET_GAMEOBJECT:
+            req_type = ObjectTypeIds.ID_GAMEOBJECT
+        elif entry.target_type == SpellScriptTarget.TARGET_PLAYER:
+            req_type = ObjectTypeIds.ID_PLAYER
+        else:
+            req_type = ObjectTypeIds.ID_UNIT
+
+        if target.get_type_id() != req_type or entry.target_entry != target.entry:
+            return False
+        if entry.target_type == SpellScriptTarget.TARGET_DEAD:
+            return not target.is_alive
+        if entry.target_type in {SpellScriptTarget.TARGET_UNIT, SpellScriptTarget.TARGET_PLAYER}:
+            return target.is_alive
+        return True
+
     def validate_cast(self, casting_spell) -> bool:
         if not casting_spell.creature_spell and self.is_on_cooldown(casting_spell.spell_entry):
             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
@@ -1433,25 +1450,11 @@ class SpellManager:
             spell_script_targets_get_by_spell(casting_spell.spell_entry.ID)
 
         if script_target_entries and validation_target != self.caster:
-            for entry in script_target_entries:
-                if entry.target_type == SpellScriptTarget.TARGET_GAMEOBJECT:
-                    req_type = ObjectTypeIds.ID_GAMEOBJECT
-                elif entry.target_type == SpellScriptTarget.TARGET_PLAYER:
-                    req_type = ObjectTypeIds.ID_PLAYER
-                else:
-                    req_type = ObjectTypeIds.ID_UNIT
-
-                if validation_target.get_type_id() != req_type or entry.target_entry != validation_target.entry:
-                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-                    return False
-
-                if entry.target_type == SpellScriptTarget.TARGET_DEAD and validation_target.is_alive:
-                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-                    return False
-                elif entry.target_type in {SpellScriptTarget.TARGET_UNIT, SpellScriptTarget.TARGET_PLAYER} and \
-                        not validation_target.is_alive:
-                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-                    return False
+            # The target is valid if it matches any of the script target entries.
+            if not any(SpellManager._matches_script_target(entry, validation_target)
+                       for entry in script_target_entries):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
 
         # Unit target checks.
         if casting_spell.initial_target_is_unit_or_player():
