@@ -92,11 +92,18 @@ class RealmDatabaseManager:
             }
 
         realm_db_session = SessionHolder()
-        update_values = get_character_update_values()
-        realm_db_session.query(Character).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).update(update_values)
-        realm_db_session.flush()
-        realm_db_session.commit()
-        realm_db_session.close()
+        try:
+            update_values = get_character_update_values()
+            realm_db_session.query(Character).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).update(update_values)
+            realm_db_session.flush()
+            realm_db_session.commit()
+        except Exception:
+            # Without this, a single DB error leaves this thread's scoped session invalid and every later save on the
+            # same thread fails with PendingRollbackError.
+            realm_db_session.rollback()
+            raise
+        finally:
+            realm_db_session.close()
 
     @staticmethod
     def character_get_addon_settings(guid):
@@ -797,8 +804,11 @@ class RealmDatabaseManager:
 
     @staticmethod
     def guild_update_member(guild_member):
+        # Do not merge(): guild_member.character is a stale snapshot taken when the guild was loaded, and the merge
+        # cascade would write its old level/xp/money/etc. back over the live character row (#1683).
         realm_db_session = SessionHolder()
-        realm_db_session.merge(guild_member)
+        realm_db_session.query(GuildMember).filter_by(guild_id=guild_member.guild_id, guid=guild_member.guid).update(
+            {GuildMember.rank: guild_member.rank})
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.close()

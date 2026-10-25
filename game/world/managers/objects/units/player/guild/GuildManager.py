@@ -149,6 +149,8 @@ class GuildManager:
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
+        # character_update() writes every column, refresh the db player from live state first.
+        player_mgr.synchronize_db_player()
         RealmDatabaseManager.character_update(player_mgr.player)
 
     def remove_member(self, player_guid):
