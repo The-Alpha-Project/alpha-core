@@ -115,18 +115,9 @@ class InventoryManager:
             if self.owner.level < item_template.required_level:
                 return InventoryError.BAG_LEVEL_MISMATCH
 
-        # Get player race/class masks.
-        race_mask = 1 << self.owner.race - 1
-        class_mask = 1 << self.owner.class_ - 1
-
-        item_race_mask = item_template.allowable_race if item_template.allowable_race > 0 else 0
-        item_class_mask = item_template.allowable_class if item_template.allowable_class > 0 else 0
-        # Race / Class.
-        if item_class_mask or race_mask:
-            if item_race_mask and not race_mask & item_race_mask:
-                return InventoryError.BAG_RACE_NOTALLOWED
-            if item_class_mask and not class_mask & item_class_mask:
-                return InventoryError.BAG_RACE_NOTALLOWED
+        race_class_result = self.can_race_and_class_use_item(item_template)
+        if race_class_result != InventoryError.BAG_OK:
+            return race_class_result
 
         if item_template.required_skill:
             skill_id = item_template.required_skill
@@ -139,6 +130,20 @@ class InventoryManager:
         if item_template.required_spell:
             if not self.owner.spell_manager.has_spell(item_template.required_spell):
                 return InventoryError.BAG_PROFICIENCY_NEEDED
+
+        return InventoryError.BAG_OK
+
+    def can_race_and_class_use_item(self, item_template):
+        # Get player race/class masks.
+        race_mask = 1 << self.owner.race - 1
+        class_mask = 1 << self.owner.class_ - 1
+
+        item_race_mask = item_template.allowable_race if item_template.allowable_race > 0 else 0
+        item_class_mask = item_template.allowable_class if item_template.allowable_class > 0 else 0
+        if item_race_mask and not race_mask & item_race_mask:
+            return InventoryError.BAG_RACE_NOTALLOWED
+        if item_class_mask and not class_mask & item_class_mask:
+            return InventoryError.BAG_RACE_NOTALLOWED
 
         return InventoryError.BAG_OK
 
@@ -651,6 +656,11 @@ class InventoryManager:
             # Check if the player has the required level.
             if source_template.required_level > self.owner.level:
                 self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
+                return False
+            # Check if the player race and class can use the item.
+            race_class_result = self.can_race_and_class_use_item(source_template)
+            if race_class_result != InventoryError.BAG_OK:
+                self.send_equip_error(race_class_result, source_item, dest_item)
                 return False
             # Check if the player has the required proficiency/skill.
             equip_result = self.owner.skill_manager.get_equip_result_for(source_template)
