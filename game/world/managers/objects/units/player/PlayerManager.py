@@ -1243,10 +1243,9 @@ class PlayerManager(UnitManager):
 
         if self.level < config.Unit.Player.Defaults.max_level:
             # The following calculations are taken from VMaNGOS core.
-            xp_rate = int(config.Server.Settings.xp_rate)
             diff = self.level - area_information.level
             if diff < -5:
-                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(self.level + 5) * xp_rate
+                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(self.level + 5)
             elif diff > 5:
                 exploration_percent = (100 - ((diff - 5) * 5))
                 if exploration_percent > 100:
@@ -1254,9 +1253,9 @@ class PlayerManager(UnitManager):
                 elif exploration_percent < 0:
                     exploration_percent = 0
                 base_xp = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level)
-                xp_gain = base_xp * exploration_percent / 100 * xp_rate
+                xp_gain = base_xp * exploration_percent / 100
             else:
-                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * xp_rate
+                xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level)
             self.give_xp([xp_gain], notify=False)
         else:
             xp_gain = 0
