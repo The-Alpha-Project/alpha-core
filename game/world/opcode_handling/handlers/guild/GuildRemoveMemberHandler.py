@@ -32,11 +32,13 @@ class GuildRemoveMemberHandler:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
         # Only the Guild Master can kick an Officer, nobody can kick the Guild Master.
-        elif player_mgr.guild_manager.get_rank(target_player_mgr.guid) <= GuildRank.GUILDRANK_OFFICER and player_mgr.guild_manager.get_rank(player_mgr.guid) != GuildRank.GUILDRANK_GUILD_MASTER:
+        elif player_mgr.guild_manager.get_rank(target_player_mgr.guid) <= GuildRank.GUILDRANK_OFFICER and \
+                player_mgr.guild_manager.get_rank(player_mgr.guid) != GuildRank.GUILDRANK_GUILD_MASTER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
                                                    GuildCommandResults.GUILD_PERMISSIONS)
         # GM self kick attempt.
-        elif player_mgr.guild_manager.get_rank(target_player_mgr.guid) == GuildRank.GUILDRANK_GUILD_MASTER and player_mgr.guild_manager.get_rank(player_mgr.guid) == GuildRank.GUILDRANK_GUILD_MASTER:
+        elif player_mgr.guild_manager.get_rank(target_player_mgr.guid) == GuildRank.GUILDRANK_GUILD_MASTER and \
+                player_mgr.guild_manager.get_rank(player_mgr.guid) == GuildRank.GUILDRANK_GUILD_MASTER:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_QUIT_S, '',
                                                    GuildCommandResults.GUILD_LEADER_LEAVE)
         else:
