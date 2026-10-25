@@ -280,7 +280,7 @@ class WorldDatabaseManager:
     @staticmethod
     def pickpocketing_loot_template_get_all() -> list[PickpocketingLootTemplate]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(PickpocketingLootTemplate).all()
+        res = world_db_session.execute(select(PickpocketingLootTemplate.__table__)).all()  # Read-only, plain rows.
         world_db_session.close()
         return res
 
@@ -371,7 +371,7 @@ class WorldDatabaseManager:
     @staticmethod
     def gameobject_get_loot_templates() -> List[GameobjectLootTemplate]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(GameobjectLootTemplate).all()
+        res = world_db_session.execute(select(GameobjectLootTemplate.__table__)).all()  # Read-only, plain rows.
         world_db_session.close()
         return res
 
@@ -522,7 +522,7 @@ class WorldDatabaseManager:
     @staticmethod
     def pool_gameobject_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(PoolGameobject).all()
+        res = world_db_session.execute(select(PoolGameobject.__table__)).all()  # Read-only, plain rows.
         world_db_session.close()
         return res
 
@@ -560,7 +560,7 @@ class WorldDatabaseManager:
     @staticmethod
     def creature_movement_template_get_all() -> list[CreatureMovementTemplate]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureMovementTemplate).all()
+        res = world_db_session.execute(select(CreatureMovementTemplate.__table__)).all()  # Read-only, plain rows.
         world_db_session.close()
         return res
 
@@ -793,7 +793,7 @@ class WorldDatabaseManager:
     @staticmethod
     def creature_model_info_get_all() -> list[CreatureModelInfo]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureModelInfo).all()
+        res = world_db_session.execute(select(CreatureModelInfo.__table__)).all()  # Read-only, plain rows.
         world_db_session.close()
         return res
 
