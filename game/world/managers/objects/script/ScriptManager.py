@@ -346,8 +346,8 @@ class ScriptManager:
         search_range: Optional[float] = param1
         # Set range if not provided.
         search_range = ScriptManager._get_search_range(search_range, spell_template)
-        # Surrounding units.
-        players = ScriptManager._get_surrounding_units(caster, search_range, alive=True)
+        # Surrounding players.
+        players = ScriptManager._get_surrounding_players(caster, search_range, alive=True)
         # No surrounding units found.
         if not players:
             return None
