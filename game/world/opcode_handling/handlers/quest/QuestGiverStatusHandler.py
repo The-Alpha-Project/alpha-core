@@ -36,7 +36,8 @@ class QuestGiverStatusHandler:
                 quest_giver = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
 
         if not quest_giver:
-            Logger.error(f'Error in {reader.opcode_str()}, could not find quest giver with guid of: {guid}')
+            # Expected when the query crosses our destroy packet (out of range, teleport, despawn).
+            Logger.debug(f'Error in {reader.opcode_str()}, could not find quest giver with guid of: {guid}')
             return 0
 
         # Only units are able to provide quest status.
