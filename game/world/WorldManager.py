@@ -25,7 +25,8 @@ STARTUP_TIME = time()
 WORLD_ON = True
 SERVER_SEED = os.urandom(4)
 MAX_PACKET_BYTES = 4096
-BUFFER_SIZE = 65536
+MAX_SEND_BATCH_BYTES = 65536
+MAX_PENDING_OUTGOING_PACKETS = 32768
 
 
 def get_seconds_since_startup():
@@ -37,10 +38,8 @@ class WorldServerSessionHandler:
         self.client_socket = client_socket
         self.client_address = client_address
 
-        # Optimize socket for low latency and throughput.
+        # Disable Nagle for low latency. Buffer sizes are left to the OS, since setting them disables autotuning.
         self.client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        self.client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
-        self.client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, BUFFER_SIZE)
 
         self.account_mgr = None
         self.player_mgr: Optional[PlayerManager] = None
@@ -93,11 +92,21 @@ class WorldServerSessionHandler:
         WorldSessionStateHandler.save_character(self.player_mgr)
 
     def enqueue_packets(self, packets):
-        [self.outgoing_pending.put_nowait(packet) for packet in packets if self.keep_alive]
+        for packet in packets:
+            self.enqueue_packet(packet)
 
     def enqueue_packet(self, data):
-        if self.keep_alive:
+        if not self.keep_alive:
+            return
+        if self.outgoing_pending.qsize() < MAX_PENDING_OUTGOING_PACKETS:
             self.outgoing_pending.put_nowait(data)
+            return
+        # Client isn't reading what we send, drop it instead of growing the queue forever. Shutting the socket down
+        # makes the session threads disconnect through their usual error paths.
+        try:
+            self.client_socket.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
 
     def process_outgoing(self):
         try:
@@ -105,8 +114,23 @@ class WorldServerSessionHandler:
                 packet = self.outgoing_pending.get(block=True, timeout=None)
                 # We've been blocking, by now keep_alive might be false.
                 # data can be None if we shut down the thread.
-                if packet and self.keep_alive:
-                    self.client_socket.sendall(packet)
+                if not packet or not self.keep_alive:
+                    continue
+                # Coalesce whatever else is already queued into a single send, since with TCP_NODELAY each
+                # sendall() would otherwise become its own syscall and TCP segment.
+                batch = [packet]
+                batch_size = len(packet)
+                while batch_size < MAX_SEND_BATCH_BYTES:
+                    try:
+                        packet = self.outgoing_pending.get_nowait()
+                    except _queue.Empty:
+                        break
+                    if not packet:
+                        break
+                    batch.append(packet)
+                    batch_size += len(packet)
+                if self.keep_alive:
+                    self.client_socket.sendall(batch[0] if len(batch) == 1 else b''.join(batch))
         except OSError:
             self.disconnect()
         finally:
@@ -184,8 +208,8 @@ class WorldServerSessionHandler:
         except socket.timeout:  # Can't check this inside Auth handler.
             try:
                 data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
-                sck.client_socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
-            except AttributeError:
+                sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+            except OSError:
                 pass
             return False
         except (OSError, ConnectionResetError, ValueError):
