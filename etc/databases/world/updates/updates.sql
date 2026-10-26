@@ -23774,5 +23774,96 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('261020262');
     end if;
 
+    -- 26/10/2026 3
+    if (select count(*) from applied_updates where id='261020263') = 0 then
+        -- Point gameobject pool slots to the right spawn. pool_gameobject came from VMaNGOS (9 Aug 2024) and kept its guids;
+        -- these slots point to a missing or ignored spawn, while our spawn with the same entry sits at the exact position
+        -- VMaNGOS has for that guid.
+
+        -- These spawns sit in a pool slot meant for another object; they move to their own slot below.
+        DELETE FROM `pool_gameobject` WHERE `guid` IN (
+            17035, 17036, 17037, 17038, 17039, 17040, 17041, 17042, 17043, 17044, 17045, 17046, 17047, 17048,
+            17049, 17050, 17051, 17052, 17053, 17054, 17055, 17056, 17057, 17058, 17059, 17060, 17061, 17062,
+            17063, 17064, 17065, 17066, 17067, 17068, 18596
+        );
+
+        UPDATE `pool_gameobject` SET `guid` = 16962 WHERE `guid` = 362185 AND `pool_entry` = 17242;
+        UPDATE `pool_gameobject` SET `guid` = 16963 WHERE `guid` = 362181 AND `pool_entry` = 17238;
+        UPDATE `pool_gameobject` SET `guid` = 16990 WHERE `guid` = 362190 AND `pool_entry` = 17247;
+        UPDATE `pool_gameobject` SET `guid` = 16991 WHERE `guid` = 362182 AND `pool_entry` = 17239;
+        UPDATE `pool_gameobject` SET `guid` = 17031 WHERE `guid` = 362253 AND `pool_entry` = 17310;
+        UPDATE `pool_gameobject` SET `guid` = 17032 WHERE `guid` = 362249 AND `pool_entry` = 17306;
+        UPDATE `pool_gameobject` SET `guid` = 17035 WHERE `guid` = 362224 AND `pool_entry` = 17281;
+        UPDATE `pool_gameobject` SET `guid` = 17036 WHERE `guid` = 362242 AND `pool_entry` = 17299;
+        UPDATE `pool_gameobject` SET `guid` = 17037 WHERE `guid` = 362215 AND `pool_entry` = 17272;
+        UPDATE `pool_gameobject` SET `guid` = 17038 WHERE `guid` = 362232 AND `pool_entry` = 17289;
+        UPDATE `pool_gameobject` SET `guid` = 17039 WHERE `guid` = 362273 AND `pool_entry` = 17226;
+        UPDATE `pool_gameobject` SET `guid` = 17040 WHERE `guid` = 362290 AND `pool_entry` = 17243;
+        UPDATE `pool_gameobject` SET `guid` = 17041 WHERE `guid` = 362296 AND `pool_entry` = 17249;
+        UPDATE `pool_gameobject` SET `guid` = 17042 WHERE `guid` = 362284 AND `pool_entry` = 17237;
+        UPDATE `pool_gameobject` SET `guid` = 17043 WHERE `guid` = 362276 AND `pool_entry` = 17229;
+        UPDATE `pool_gameobject` SET `guid` = 17044 WHERE `guid` = 362263 AND `pool_entry` = 17216;
+        UPDATE `pool_gameobject` SET `guid` = 17045 WHERE `guid` = 362305 AND `pool_entry` = 17258;
+        UPDATE `pool_gameobject` SET `guid` = 17046 WHERE `guid` = 362256 AND `pool_entry` = 17209;
+        UPDATE `pool_gameobject` SET `guid` = 17047 WHERE `guid` = 362257 AND `pool_entry` = 17210;
+        UPDATE `pool_gameobject` SET `guid` = 17048 WHERE `guid` = 362338 AND `pool_entry` = 17291;
+        UPDATE `pool_gameobject` SET `guid` = 17049 WHERE `guid` = 362339 AND `pool_entry` = 17292;
+        UPDATE `pool_gameobject` SET `guid` = 17050 WHERE `guid` = 362384 AND `pool_entry` = 17233;
+        UPDATE `pool_gameobject` SET `guid` = 17051 WHERE `guid` = 362405 AND `pool_entry` = 17254;
+        UPDATE `pool_gameobject` SET `guid` = 17052 WHERE `guid` = 362422 AND `pool_entry` = 17271;
+        UPDATE `pool_gameobject` SET `guid` = 17053 WHERE `guid` = 362372 AND `pool_entry` = 17221;
+        UPDATE `pool_gameobject` SET `guid` = 17054 WHERE `guid` = 362373 AND `pool_entry` = 17222;
+        UPDATE `pool_gameobject` SET `guid` = 17055 WHERE `guid` = 362453 AND `pool_entry` = 17302;
+        UPDATE `pool_gameobject` SET `guid` = 17056 WHERE `guid` = 362437 AND `pool_entry` = 17286;
+        UPDATE `pool_gameobject` SET `guid` = 17057 WHERE `guid` = 362424 AND `pool_entry` = 17273;
+        UPDATE `pool_gameobject` SET `guid` = 17058 WHERE `guid` = 362431 AND `pool_entry` = 17280;
+        UPDATE `pool_gameobject` SET `guid` = 17059 WHERE `guid` = 362419 AND `pool_entry` = 17268;
+        UPDATE `pool_gameobject` SET `guid` = 17060 WHERE `guid` = 362500 AND `pool_entry` = 17245;
+        UPDATE `pool_gameobject` SET `guid` = 17061 WHERE `guid` = 362469 AND `pool_entry` = 17214;
+        UPDATE `pool_gameobject` SET `guid` = 17062 WHERE `guid` = 362510 AND `pool_entry` = 17255;
+        UPDATE `pool_gameobject` SET `guid` = 17063 WHERE `guid` = 362540 AND `pool_entry` = 17285;
+        UPDATE `pool_gameobject` SET `guid` = 17064 WHERE `guid` = 362578 AND `pool_entry` = 17219;
+        UPDATE `pool_gameobject` SET `guid` = 17065 WHERE `guid` = 362653 AND `pool_entry` = 17294;
+        UPDATE `pool_gameobject` SET `guid` = 17066 WHERE `guid` = 362571 AND `pool_entry` = 17212;
+        UPDATE `pool_gameobject` SET `guid` = 17067 WHERE `guid` = 362635 AND `pool_entry` = 17276;
+        UPDATE `pool_gameobject` SET `guid` = 17068 WHERE `guid` = 362618 AND `pool_entry` = 17259;
+        UPDATE `pool_gameobject` SET `guid` = 17069 WHERE `guid` = 362636 AND `pool_entry` = 17277;
+        UPDATE `pool_gameobject` SET `guid` = 17070 WHERE `guid` = 362641 AND `pool_entry` = 17282;
+        UPDATE `pool_gameobject` SET `guid` = 17071 WHERE `guid` = 362616 AND `pool_entry` = 17257;
+        UPDATE `pool_gameobject` SET `guid` = 17072 WHERE `guid` = 362698 AND `pool_entry` = 17235;
+        UPDATE `pool_gameobject` SET `guid` = 17073 WHERE `guid` = 362681 AND `pool_entry` = 17218;
+        UPDATE `pool_gameobject` SET `guid` = 17074 WHERE `guid` = 362676 AND `pool_entry` = 17213;
+        UPDATE `pool_gameobject` SET `guid` = 17075 WHERE `guid` = 362674 AND `pool_entry` = 17211;
+        UPDATE `pool_gameobject` SET `guid` = 17076 WHERE `guid` = 362761 AND `pool_entry` = 17298;
+        UPDATE `pool_gameobject` SET `guid` = 17077 WHERE `guid` = 362709 AND `pool_entry` = 17246;
+        UPDATE `pool_gameobject` SET `guid` = 17078 WHERE `guid` = 362741 AND `pool_entry` = 17278;
+        UPDATE `pool_gameobject` SET `guid` = 17079 WHERE `guid` = 362751 AND `pool_entry` = 17288;
+        UPDATE `pool_gameobject` SET `guid` = 18596 WHERE `guid` = 27773 AND `pool_entry` = 1025;
+        UPDATE `pool_gameobject` SET `guid` = 55892 WHERE `guid` = 66888 AND `pool_entry` = 1029;
+        UPDATE `pool_gameobject` SET `guid` = 170089 WHERE `guid` = 362193 AND `pool_entry` = 17250;
+        UPDATE `pool_gameobject` SET `guid` = 170090 WHERE `guid` = 362417 AND `pool_entry` = 17266;
+        UPDATE `pool_gameobject` SET `guid` = 170091 WHERE `guid` = 362315 AND `pool_entry` = 17268;
+        UPDATE `pool_gameobject` SET `guid` = 170092 WHERE `guid` = 362544 AND `pool_entry` = 17289;
+        UPDATE `pool_gameobject` SET `guid` = 170093 WHERE `guid` = 362223 AND `pool_entry` = 17280;
+        UPDATE `pool_gameobject` SET `guid` = 170094 WHERE `guid` = 362745 AND `pool_entry` = 17282;
+        UPDATE `pool_gameobject` SET `guid` = 170110 WHERE `guid` = 362547 AND `pool_entry` = 17292;
+        UPDATE `pool_gameobject` SET `guid` = 170111 WHERE `guid` = 362752 AND `pool_entry` = 17289;
+        UPDATE `pool_gameobject` SET `guid` = 170112 WHERE `guid` = 362647 AND `pool_entry` = 17288;
+        UPDATE `pool_gameobject` SET `guid` = 170113 WHERE `guid` = 362205 AND `pool_entry` = 17262;
+        UPDATE `pool_gameobject` SET `guid` = 170114 WHERE `guid` = 362211 AND `pool_entry` = 17268;
+        UPDATE `pool_gameobject` SET `guid` = 170115 WHERE `guid` = 362727 AND `pool_entry` = 17264;
+        UPDATE `pool_gameobject` SET `guid` = 170116 WHERE `guid` = 362167 AND `pool_entry` = 17224;
+        UPDATE `pool_gameobject` SET `guid` = 399302 WHERE `guid` = 31533 AND `pool_entry` = 16966;
+        UPDATE `pool_gameobject` SET `guid` = 399303 WHERE `guid` = 31548 AND `pool_entry` = 16981;
+        UPDATE `pool_gameobject` SET `guid` = 399304 WHERE `guid` = 31549 AND `pool_entry` = 16982;
+        UPDATE `pool_gameobject` SET `guid` = 399305 WHERE `guid` = 31543 AND `pool_entry` = 16976;
+        UPDATE `pool_gameobject` SET `guid` = 399306 WHERE `guid` = 31538 AND `pool_entry` = 16971;
+        UPDATE `pool_gameobject` SET `guid` = 399307 WHERE `guid` = 31542 AND `pool_entry` = 16975;
+        UPDATE `pool_gameobject` SET `guid` = 399308 WHERE `guid` = 31537 AND `pool_entry` = 16970;
+        UPDATE `pool_gameobject` SET `guid` = 399309 WHERE `guid` = 31534 AND `pool_entry` = 16967;
+
+        INSERT INTO applied_updates VALUES ('261020263');
+    end if;
+
 end $
 delimiter ;
