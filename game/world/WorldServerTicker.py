@@ -39,6 +39,7 @@ class WorldServerTicker:
 
             for task in self.tasks:
                 if batch_start >= task.next_run:
+                    task_start = _now()
                     try:
                         task.target()
                     except Exception as e:
@@ -56,7 +57,9 @@ class WorldServerTicker:
                     now = _now()
                     if task.next_run < now:
                         delay_ms = (now - task.next_run) * 1000
-                        Logger.warning(f'Ticker task {task.name} is lagging by {delay_ms:.1f}ms.')
+                        # Lag counts from batch start, so it includes earlier tasks of this batch.
+                        Logger.warning(f'Ticker task {task.name} is lagging by {delay_ms:.1f}ms '
+                                       f'(task took {(now - task_start) * 1000:.1f}ms).')
 
                 # Time until this task needs to run again.
                 time_until_next = task.next_run - _now()
