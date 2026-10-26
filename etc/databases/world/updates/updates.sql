@@ -23734,5 +23734,13 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('180620261');
     end if;
 
+    -- 26/10/2026 1
+    if (select count(*) from applied_updates where id='261020261') = 0 then
+        -- Whaldak Darbenk: Fix name typo (https://crawler.thealphaproject.eu/search/Whaldak%20Darbenk, https://www.wowhead.com/tbc/npc=2872/unused-whaldak-darbenk)
+        UPDATE `creature_template` SET `name` = 'Whaldak Darbenk' WHERE (`entry` = 2872);
+
+        INSERT INTO applied_updates VALUES ('261020261');
+    end if;
+
 end $
 delimiter ;
