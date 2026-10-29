@@ -70,7 +70,9 @@ class GuildManager:
         previous_gm = self.guild_master
 
         member.rank = int(GuildRank.GUILDRANK_GUILD_MASTER)
-        previous_gm.rank = int(GuildRank.GUILDRANK_OFFICER)
+        if previous_gm:
+            previous_gm.rank = int(GuildRank.GUILDRANK_OFFICER)
+        self.guild_master = member
 
         if previous_gm:
             data = pack('<2B', GuildEvents.GUILD_EVENT_LEADER_CHANGED, 2)
@@ -93,6 +95,10 @@ class GuildManager:
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
         if player_mgr:
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, member.rank)
+        if previous_gm:
+            previous_player_mgr = WorldSessionStateHandler.find_player_by_guid(previous_gm.guid)
+            if previous_player_mgr:
+                previous_player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, previous_gm.rank)
 
     def update_db_guild_members(self):
         for member in self.members.values():
