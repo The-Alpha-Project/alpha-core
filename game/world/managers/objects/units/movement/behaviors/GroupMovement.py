@@ -80,7 +80,9 @@ class GroupMovement(BaseMovement):
         return not self.unit.creature_group or not self.unit.is_alive
 
     def _can_perform_waypoint(self, now):
-        if self.speed_dirty and self.unit.creature_group.waypoints and self.unit.creature_group.is_leader(self.unit):
+        # Speed changed while travelling, update the ongoing waypoint.
+        if self.speed_dirty and self.spline and self.spline.pending_waypoints and \
+                self.unit.creature_group.waypoints and self.unit.creature_group.is_leader(self.unit):
             return True
         return self.unit.creature_group.waypoints and not self.spline and self.unit.creature_group.is_leader(self.unit)\
             and now > self.last_waypoint_movement + self.wait_time_seconds
@@ -189,18 +191,10 @@ class GroupMovement(BaseMovement):
         return new_location, base_speed + self._lagging_speed_mod
 
     def _get_waypoint(self):
-        # Updating ongoing wp.
-        if self.speed_dirty:
-            self._waypoint_push_front()
-
+        # The ongoing waypoint is always the first one, completed ones are pushed back.
         return self.unit.creature_group.waypoints[0]
 
     def _waypoint_push_back(self):
         waypoint = self.unit.creature_group.waypoints[0]
         self.unit.creature_group.waypoints.remove(waypoint)
         self.unit.creature_group.waypoints.append(waypoint)
-
-    def _waypoint_push_front(self):
-        waypoint = self.unit.creature_group.waypoints[-1]
-        self.unit.creature_group.waypoints.remove(waypoint)
-        self.unit.creature_group.waypoints.insert(0, waypoint)
