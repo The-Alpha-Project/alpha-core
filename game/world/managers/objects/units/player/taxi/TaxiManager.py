@@ -135,7 +135,7 @@ class TaxiManager:
     def handle_query_node(self, node, flight_master_guid):
         # Destination nodes are reachable from the current node; known nodes are the full discovered mask.
         # Client ORs them for display, but expects them as separate masks.
-        dest_nodes_mask = bitarray(len(self.available_taxi_nodes))
+        dest_nodes_mask = bitarray(len(self.available_taxi_nodes), 'little')
         dest_nodes_mask.setall(0)
         for taxi_node_id, _node in DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_id(
                 self.owner.map_id):
