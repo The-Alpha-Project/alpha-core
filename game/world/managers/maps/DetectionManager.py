@@ -13,6 +13,7 @@ class DetectionManager:
         self.units = {}  # key: guid, value: unit object.
         self.world_bounds = BoundingBox(x=-ORIGIN, y=-ORIGIN, width=ORIGIN * 2, height=ORIGIN * 2)
         self.unit_visibility_bounds = BoundingBox(0, 0, 0, 0)
+        self.detection_bounds = BoundingBox(0, 0, 0, 0)
         self.quadtree = QuadTree(self.world_bounds, self.unit_visibility_bounds, 4)
         self.pending_placement_updates: Dict[int, UnitManager] = {}
         self.pending_adds: Dict[int, UnitManager] = {}
@@ -39,9 +40,18 @@ class DetectionManager:
             if unit_a.is_player():
                 continue
             # Query potential targets within visibility range using spatial partitioning.
-            unit_a.update_visibility_bounds(self.unit_visibility_bounds)
-            potential_targets_guids = self.quadtree.query_guids(self.unit_visibility_bounds)
             ooc_events = unit_a.has_ooc_events()
+            if ooc_events:
+                unit_a.update_visibility_bounds(self.unit_visibility_bounds)
+                search_bounds = self.unit_visibility_bounds
+            else:
+                # Only units within detection range matter, which is at most 25 yards over the template range.
+                search_range = max(unit_a.creature_template.detection_range + 25, 45)
+                search_bounds = self.detection_bounds
+                search_bounds.x = unit_a.location.x - search_range
+                search_bounds.y = unit_a.location.y - search_range
+                search_bounds.width = search_bounds.height = search_range * 2
+            potential_targets_guids = self.quadtree.query_guids(search_bounds)
 
             for unit_b_guid in potential_targets_guids:
                 unit_b = self.units.get(unit_b_guid, None)
