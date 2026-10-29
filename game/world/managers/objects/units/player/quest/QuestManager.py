@@ -1101,8 +1101,8 @@ class QuestManager:
             return
 
         # Negative money is a fee required to complete the quest.
+        # TODO: Send the 0.5.3 'not enough money' reason, its value is unknown (1.12 uses 23).
         if quest.RewOrReqMoney < 0 and self.player_mgr.coinage < -quest.RewOrReqMoney:
-            self.send_cant_take_quest_response(QuestFailedReasons.QUEST_FAILED_NOT_ENOUGH_MONEY)
             return
 
         given_xp = active_quest.reward_xp()
