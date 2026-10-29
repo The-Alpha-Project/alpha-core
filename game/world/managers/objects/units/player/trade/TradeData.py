@@ -208,6 +208,8 @@ class TradeData:
         if self._is_enchant_slot_taken(slot):
             TradeManager.cancel_trade(self.player)
             return
+        self.set_accepted(False)
+        self.other_player.trade_data.set_accepted(False)
         self.update_trade_status()
 
     def set_money(self, money):
