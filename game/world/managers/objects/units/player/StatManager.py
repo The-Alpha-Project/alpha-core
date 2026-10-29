@@ -263,8 +263,8 @@ class StatManager:
             stat_map = {
                 UnitStats.HEALTH: int(max(1, cls.health * creature_template.health_multiplier)),
                 UnitStats.MANA: int(cls.mana * creature_template.mana_multiplier),
-                UnitStats.STRENGTH: cls.agility,
-                UnitStats.AGILITY: cls.strength,
+                UnitStats.STRENGTH: cls.strength,
+                UnitStats.AGILITY: cls.agility,
                 UnitStats.STAMINA: cls.stamina,
                 UnitStats.INTELLECT: cls.intellect,
                 UnitStats.SPIRIT: cls.spirit,
