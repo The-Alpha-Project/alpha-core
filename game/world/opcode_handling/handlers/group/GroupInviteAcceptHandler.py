@@ -15,6 +15,8 @@ class GroupInviteAcceptHandler:
             return 0
 
         group_manager.remove_member_invite(player_mgr.guid)
-        group_manager.try_add_member(player_mgr, False)
+        # Group got full or the leader went offline, drop the invite state or the player can't be invited again.
+        if not group_manager.try_add_member(player_mgr, False):
+            group_manager.remove_invitation(player_mgr.guid)
 
         return 0
