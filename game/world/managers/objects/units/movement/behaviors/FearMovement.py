@@ -49,8 +49,8 @@ class FearMovement(BaseMovement):
 
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
-        # Was seeking for assist and found it, end timer.
-        if self.assist_unit and self.assist_unit.combat_target.guid == self.unit.combat_target.guid:
+        # Was seeking for assist and found it, end timer once it fights (our combat target is cleared while fleeing).
+        if self.assist_unit and self.assist_unit.in_combat:
             self.fear_duration = 0
 
     def on_spline_finished(self):
