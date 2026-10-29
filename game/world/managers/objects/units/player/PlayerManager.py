@@ -474,6 +474,12 @@ class PlayerManager(UnitManager):
         for guid in list(self.known_objects.keys()):
             self.update_manager.destroy_known_object(guid)
 
+        # Undetected stealth units are not known objects, release them too or they stay active forever.
+        for unit, _ in list(self.known_stealth_units.values()):
+            if unit.is_unit():
+                unit.known_players.pop(self.guid, None)
+        self.known_stealth_units.clear()
+
         if include_self:
             self.update_manager.destroy_self()
 

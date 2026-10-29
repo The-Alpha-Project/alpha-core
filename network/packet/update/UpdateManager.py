@@ -150,7 +150,7 @@ class UpdateManager:
                 if not self.player_mgr.can_detect_target(world_object)[0]:
                     self.player_mgr.known_stealth_units[world_object.guid] = (world_object, True)
                     if object_type == ObjectTypeIds.ID_UNIT:
-                        world_object.known_players[self.player_mgr.guid] = self
+                        world_object.known_players[self.player_mgr.guid] = self.player_mgr
                     return
                 elif world_object.guid in self.player_mgr.known_stealth_units:
                     del self.player_mgr.known_stealth_units[world_object.guid]
