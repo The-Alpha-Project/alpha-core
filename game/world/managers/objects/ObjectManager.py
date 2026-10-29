@@ -308,10 +308,12 @@ class ObjectManager:
             mask = update_data.update_bit_mask.copy()
 
             data = bytearray()
-            for field_index in range(self.update_packet_factory.update_mask.field_count):
-                # Partial packets only care for fields that had changes.
-                if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(field_index):
-                    continue
+            factory = self.update_packet_factory
+            field_count = factory.update_mask.field_count
+            # Partial packets only care for fields that had changes, plus dynamic fields which are always sent.
+            field_indexes = range(field_count) if is_create else \
+                sorted(index for index in set(mask.search(1)) | factory.dynamic_fields if index < field_count)
+            for field_index in field_indexes:
                 # Check for encapsulation, turn off the bit if the requester has no read access.
                 if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
                     mask[field_index] = 0
