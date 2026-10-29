@@ -4,7 +4,6 @@ import os
 import signal
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache
-from threading import RLock
 from multiprocessing import RLock
 from os import path
 import time
