@@ -22,6 +22,7 @@ class ResurrectResponseHandler:
 
         # Resurrection request declined.
         if status == 0:
+            player_mgr.resurrect_data = None
             return 0
 
         # Resurrection request data not available.
