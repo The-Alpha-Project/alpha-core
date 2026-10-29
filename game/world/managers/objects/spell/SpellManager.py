@@ -839,6 +839,15 @@ class SpellManager:
             if self.caster.is_player():
                 self.caster.set_far_sight(0)
 
+        # Bind sight (Mind Vision) ends with its channel, stop viewing through the target.
+        if self.caster.is_player() and casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_BIND_SIGHT):
+            camera = FarSightManager.get_camera_for_player(self.caster)
+            if camera:
+                camera.pop_player(self.caster)
+                self.caster.update_manager.enqueue_object_update()
+                if not camera.players:
+                    FarSightManager.remove_camera(camera.world_object)
+
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.despawn()
         [effect.area_aura_holder.destroy() for effect in casting_spell.get_effects() if effect.area_aura_holder]

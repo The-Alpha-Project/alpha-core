@@ -812,6 +812,13 @@ class SpellEffectHandler:
         FarSightManager.add_camera(dyn_object, caster)
 
     @staticmethod
+    def handle_bind_sight(casting_spell, effect, caster, target):
+        if not caster.is_player() or not target.is_unit(by_mask=True):
+            return
+        # See through the target's eyes until the channel ends, see SpellManager.remove_cast.
+        FarSightManager.add_camera(target, caster)
+
+    @staticmethod
     def handle_skill_step(casting_spell, effect, caster, target):
         if not target.is_player():
             return
@@ -1040,6 +1047,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
     SpellEffects.SPELL_EFFECT_ADD_FARSIGHT: SpellEffectHandler.handle_add_farsight,
+    SpellEffects.SPELL_EFFECT_BIND_SIGHT: SpellEffectHandler.handle_bind_sight,
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
     SpellEffects.SPELL_EFFECT_SUMMON_GUARDIAN: SpellEffectHandler.handle_summon_guardian,
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
