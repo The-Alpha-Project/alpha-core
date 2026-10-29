@@ -1366,10 +1366,11 @@ class UnitManager(ObjectManager):
         self.in_combat = False
 
         # Make sure pet/guardians leave combat if they have no aggro or no longer able to attack current target.
+        # Pets of creatures always follow their owner, otherwise their threat keeps the victim in combat.
         for pet_or_guardian in self.pet_manager.get_pet_and_guardians():
             combat_target = pet_or_guardian.combat_target
             can_attack = combat_target and pet_or_guardian.can_attack_target(combat_target)
-            if not pet_or_guardian.has_aggro() or not can_attack:
+            if not self.is_player() or not pet_or_guardian.has_aggro() or not can_attack:
                 pet_or_guardian.spell_manager.remove_casts()
                 pet_or_guardian.leave_combat()
 
