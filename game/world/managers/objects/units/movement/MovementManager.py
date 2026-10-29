@@ -290,9 +290,10 @@ class MovementManager:
         if not self.spline_events:
             return
 
-        for idx, spline_event in enumerate(list(self.spline_events)):
-            if spline_event.update(elapsed):
-                self.spline_events.pop(idx)
+        for spline_event in list(self.spline_events):
+            # Remove by identity, indexes shift once an event is removed (or events change during the update).
+            if spline_event.update(elapsed) and spline_event in self.spline_events:
+                self.spline_events.remove(spline_event)
 
     def _handle_ooc_pause(self, elapsed):
         if self.pause_ooc_timer:
