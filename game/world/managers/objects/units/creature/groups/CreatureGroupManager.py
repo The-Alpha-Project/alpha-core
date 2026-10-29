@@ -9,12 +9,13 @@ from utils.constants.MiscCodes import ZSource
 from utils.constants.MiscCodes import CreatureGroupFlags
 
 
-CREATURE_GROUPS = {}
+CREATURE_GROUPS = {}  # { (leader_spawn_id, instance_id) : CreatureGroupManager }
 
 
 class CreatureGroupManager:
     def __init__(self):
         self.original_leader_spawn_id = 0
+        self.group_key = None
         self.waypoints: list[MovementWaypoint] = []
         self.leader = None
         self.creature_group = None
@@ -24,13 +25,16 @@ class CreatureGroupManager:
         self._respawn_guard = False
 
     @staticmethod
-    def get_create_group(creature_group):
-        if creature_group.leader_guid not in CREATURE_GROUPS:
+    def get_create_group(creature_group, instance_id):
+        # Instances share spawn ids, so each instance needs its own group.
+        group_key = (creature_group.leader_guid, instance_id)
+        if group_key not in CREATURE_GROUPS:
             creature_group_mgr = CreatureGroupManager()
             creature_group_mgr.creature_group = creature_group
             creature_group_mgr.original_leader_spawn_id = creature_group.leader_guid
-            CREATURE_GROUPS[creature_group.leader_guid] = creature_group_mgr
-        return CREATURE_GROUPS[creature_group.leader_guid]
+            creature_group_mgr.group_key = group_key
+            CREATURE_GROUPS[group_key] = creature_group_mgr
+        return CREATURE_GROUPS[group_key]
 
     def is_leader(self, creature_mgr):
         return self.leader and self.leader.guid == creature_mgr.guid
@@ -187,7 +191,7 @@ class CreatureGroupManager:
         if not self.original_leader_spawn_id:
             Logger.error(f'Orphan creature group with no leader. Leader Spawn ID: {self.creature_group.leader_guid}.')
             return
-        CREATURE_GROUPS.pop(self.original_leader_spawn_id, None)
+        CREATURE_GROUPS.pop(self.group_key, None)
 
     def get_alive_count(self):
         alive = 0

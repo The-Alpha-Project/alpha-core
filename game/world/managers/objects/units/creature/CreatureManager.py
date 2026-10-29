@@ -272,7 +272,7 @@ class CreatureManager(UnitManager):
         # Creature group.
         creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
         if creature_group:
-            self.creature_group = CreatureGroupManager.get_create_group(creature_group)
+            self.creature_group = CreatureGroupManager.get_create_group(creature_group, self.instance_id)
             self.creature_group.add_member(self, dist=creature_group.dist,
                                            angle=creature_group.angle, flags=creature_group.flags)
 

@@ -1927,7 +1927,7 @@ class ScriptHandler:
                 dist=command.x,
                 angle=command.o,
                 flags=options
-            ))
+            ), command.target.instance_id)
             command.target.creature_group = creature_group_mgr
             creature_group_mgr.add_member(command.target, dist=0, angle=0, flags=options)
 
