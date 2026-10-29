@@ -84,7 +84,7 @@ class LootManager:
             equal_chance_entries_length = 0
             explicit_chance_total = 0
             for loot_item in group_loot_items:
-                if not LootManager._can_drop(loot_item, requester):
+                if not self._can_drop(loot_item, requester):
                     continue
                 if loot_item.ChanceOrQuestChance == 0:
                     equal_chance_entries_length += 1
@@ -96,7 +96,7 @@ class LootManager:
 
         current_roll = uniform(0.0, 100)
         for loot_item in group_loot_items:
-            if not LootManager._can_drop(loot_item, requester):
+            if not self._can_drop(loot_item, requester):
                 continue
 
             item_chance = abs(loot_item.ChanceOrQuestChance)
@@ -125,10 +125,10 @@ class LootManager:
 
         return loot_item_result
 
-    @staticmethod
-    def _can_drop(loot_item, requester):
+    def _can_drop(self, loot_item, requester):
         from game.world.managers.objects.script.ConditionChecker import ConditionChecker
-        if not ConditionChecker.validate(loot_item.condition_id, requester, requester):
+        # The loot source is the condition source, like vmangos.
+        if not ConditionChecker.validate(loot_item.condition_id, self.world_object, requester):
             return False
         return requester.player_or_group_require_quest_item(loot_item.item)
 
