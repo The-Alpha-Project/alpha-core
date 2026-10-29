@@ -1234,17 +1234,21 @@ class StatManager:
             self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = base_damage
 
     def get_attack_power_from_attributes(self):
-        # TODO: Using Vanilla formulas.
-
-        attack_power = 0
         strength = self.get_total_stat(UnitStats.STRENGTH)
         agility = self.get_total_stat(UnitStats.AGILITY)
-        level = self.unit_mgr.level
-        class_ = self.unit_mgr.class_
+        if self.unit_mgr.is_player():
+            return self._get_attack_power_for_attributes(strength, agility)
 
-        # TODO: Should this match case be for players only?
-        #  We never reach creatures code at the bottom.
-        match class_:
+        # Creatures base attack power already includes their base attributes, only count changes over them.
+        base_strength = self.get_base_stat(UnitStats.STRENGTH)
+        base_agility = self.get_base_stat(UnitStats.AGILITY)
+        return self._get_attack_power_for_attributes(strength, agility) - \
+            self._get_attack_power_for_attributes(base_strength, base_agility)
+
+    def _get_attack_power_for_attributes(self, strength, agility):
+        # TODO: Using Vanilla formulas.
+        level = self.unit_mgr.level
+        match self.unit_mgr.class_:
             case Classes.CLASS_WARRIOR | Classes.CLASS_PALADIN:
                 return (strength * 2) + (level * 3) - 20
             case Classes.CLASS_DRUID:
@@ -1257,10 +1261,7 @@ class StatManager:
                 return strength + ((agility * 2) - 20) + (level * 2) - 20
             case Classes.CLASS_SHAMAN:
                 return strength - 10 + ((agility * 2) - 20) + (level * 2)
-
-        # Creatures have base attack power which includes gain from base stats.
-        base_attack_power = self.get_base_stat(UnitStats.ATTACK_POWER)
-        return max(attack_power - base_attack_power, 0)
+        return 0
 
     def update_defense_bonuses(self):
         self.update_base_dodge_chance()
