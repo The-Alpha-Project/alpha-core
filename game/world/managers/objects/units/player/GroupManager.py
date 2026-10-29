@@ -308,6 +308,9 @@ class GroupManager:
 
     # Called once upon victim dead.
     def set_allowed_looters(self, victim):
+        # Invite still pending, the killer loots alone.
+        if not self.is_party_formed():
+            return
         self.allowed_looters[victim.guid] = self._fill_allowed_looters(victim)
 
     # Get allowed looters for specific creature.
@@ -324,6 +327,9 @@ class GroupManager:
         return player_guid in self.members
 
     def get_close_members(self, requester):
+        # Invite still pending, the requester is effectively alone.
+        if not self.is_party_formed():
+            return [requester] if requester else []
         close_members = []
         for guid in [*self.members]:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
