@@ -83,7 +83,9 @@ class AIEventHandler:
             return
 
         script_event = ScriptAIEvent(event, self.creature)
-        scripts = script_event.pick_scripts()
+        # Roll the chance once the event triggered (like vmangos), it still locks or consumes its repeat time.
+        chance_failed = event.event_chance != 100 and randint(1, 100) > event.event_chance
+        scripts = [] if chance_failed else script_event.pick_scripts()
         event_delay_seconds = script_event.get_delay_seconds()
 
         if not script_event.can_repeat() or script_event.has_repeat_time():
@@ -544,13 +546,6 @@ class AIEventHandler:
 
         # Apply lock checks for both periodic and callback-triggered events.
         if self._is_event_locked(event):
-            return False
-
-        # Use a 1..100 roll window so chance values map directly to percentages.
-        if event.event_chance != 100 and randint(1, 100) > event.event_chance:
-            if not event.event_flags & EventFlags.REPEATABLE:
-                # Locked until events are flushed.
-                self._lock_event(event.id, 0, False)
             return False
 
         return True
