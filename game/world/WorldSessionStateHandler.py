@@ -151,7 +151,12 @@ class WorldSessionStateHandler:
         for session in WORLD_SESSIONS:
             if (session.player_mgr and session.player_mgr.online and not session.player_mgr.update_lock
                     and not session.player_mgr.logout_in_progress):
-                session.player_mgr.update(now)
+                # A failing player must not stop the update of every player after it.
+                try:
+                    session.player_mgr.update(now)
+                except Exception as ex:
+                    Logger.error(f'Error while updating [{session.player_mgr.get_name()}]: {ex}.')
+                    Logger.error(traceback.format_exc())
 
     @staticmethod
     def save_characters(reason=SaveReason.PERIODIC, allow_locked=False):

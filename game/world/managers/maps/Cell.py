@@ -1,8 +1,10 @@
 from game.world.managers.maps.helpers.CellUtils import  CellUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
+import traceback
 from threading import RLock
 
 from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.MiscCodes import UpdateFlags
 
 
@@ -70,11 +72,20 @@ class Cell:
         if camera:
             FarSightManager.update_camera_cell_placement(world_object, self)
 
+    @staticmethod
+    def _update_object(world_object, now):
+        # A failing object must not stop the update of every object after it.
+        try:
+            world_object.update(now)
+        except Exception as ex:
+            Logger.error(f'Error while updating {world_object}: {ex}.')
+            Logger.error(traceback.format_exc())
+
     def update_creatures(self, now):
         with self.cell_lock:
             # Update creature instances.
             for guid, creature in list(self.creatures.items()):
-                creature.update(now)
+                Cell._update_object(creature, now)
 
     def stop_movement(self):
         with self.cell_lock:
@@ -87,34 +98,34 @@ class Cell:
             # Update gameobject instances.
             for guid, gameobject in list(self.gameobjects.items()):
                 if guid not in self.transports:
-                    gameobject.update(now)
+                    Cell._update_object(gameobject, now)
 
     def update_transports(self, now):
         with self.cell_lock:
             # Update transport instances.
             for guid, transport in list(self.transports.items()):
-                transport.update(now)
+                Cell._update_object(transport, now)
 
     def update_dynobjects(self, now):
         with self.cell_lock:
             # Update dynobject instances.
             for guid, dynobject in list(self.dynamic_objects.items()):
-                dynobject.update(now)
+                Cell._update_object(dynobject, now)
 
     def update_spawns(self, now):
         with self.cell_lock:
             # Update creatures spawn points.
             for spawn_id, spawn_creature in list(self.creatures_spawns.items()):
-                spawn_creature.update(now)
+                Cell._update_object(spawn_creature, now)
 
             # Update gameobject spawn points.
             for spawn_id, spawn_gameobject in list(self.gameobject_spawns.items()):
-                spawn_gameobject.update(now)
+                Cell._update_object(spawn_gameobject, now)
 
     def update_corpses(self, now):
         with self.cell_lock:
             for guid, corpse in list(self.corpses.items()):
-                corpse.update(now)
+                Cell._update_object(corpse, now)
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
     def update_players_surroundings(self, world_object=None, update_flags=UpdateFlags.NONE,
