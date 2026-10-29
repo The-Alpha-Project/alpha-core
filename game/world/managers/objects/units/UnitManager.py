@@ -650,8 +650,10 @@ class UnitManager(ObjectManager):
             damage_info.advanced_logging.scaled_armor_reduction *= 1.5
             damage_info.advanced_logging.max_damage_reduction *= 1.5
 
-        # Handle school absorb.
-        damage_info.absorb = victim.get_school_absorb_for_damage(damage_info)
+        # Handle school absorb, avoided hits (and immunities, flagged as ABSORBED) don't touch absorb shields.
+        avoided = damage_info.attack_round_hit_info & (HitInfo.MISS | HitInfo.DODGE | HitInfo.PARRY |
+                                                       HitInfo.BLOCK | HitInfo.ABSORBED)
+        damage_info.absorb = 0 if avoided or victim.is_evading else victim.get_school_absorb_for_damage(damage_info)
         if damage_info.absorb:
             damage_info.attack_round_hit_info |= HitInfo.ABSORBED
 
