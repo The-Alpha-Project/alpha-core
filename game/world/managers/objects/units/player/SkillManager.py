@@ -349,10 +349,13 @@ class SkillManager:
             return False
 
         skill = self.skills[skill_id]
-        skill.value = current_value
+        new_max_value = max_value if max_value > 0 else skill.max
+        # Nothing changed, avoid a database write (max values are refreshed for every skill quite often).
+        if skill.value == current_value and skill.max == new_max_value:
+            return True
 
-        if max_value > 0:
-            skill.max = max_value
+        skill.value = current_value
+        skill.max = new_max_value
 
         RealmDatabaseManager.character_update_skill(skill)
 
