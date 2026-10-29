@@ -19,6 +19,9 @@ class GridManager:
         self.instance_id = instance_id
         self.active_cell_keys: set[str] = set()
         self.cells: dict[str, Cell] = {}
+        # Surrounding cells by (cell_x, cell_y, map_id, instance_id, range), cleared when a cell is created.
+        self._surrounding_cells_cache: dict[tuple, frozenset[Cell]] = {}
+        self._cells_generation = 0
         self.active_adt_cell_refs: dict[str, set[str]] = {}
         # ADTs a player cell pinned for navigation (its vision-radius neighborhood),
         # so they are released together with that cell during deactivation.
@@ -279,6 +282,12 @@ class GridManager:
             map_id = cell.map_id
             instance_id = cell.instance_id
 
+        cache_key = (cell_x, cell_y, map_id, instance_id, range_)
+        cached_cells = self._surrounding_cells_cache.get(cache_key)
+        if cached_cells is not None:
+            return set(cached_cells)  # Callers may modify the result.
+        generation = self._cells_generation
+
         view_distance = VIEW_DISTANCE if not range_ else range_
         # Calculate how many cells to include in each direction given the view distance, at least 1.
         max_cells_radius = max(1, int(view_distance // CELL_SIZE))
@@ -296,6 +305,10 @@ class GridManager:
                     continue
                 surrounding_cells.add(self.cells[cell_key])
 
+        self._surrounding_cells_cache[cache_key] = frozenset(surrounding_cells)
+        # A cell was created meanwhile, the result could be missing it.
+        if generation != self._cells_generation:
+            self._surrounding_cells_cache.pop(cache_key, None)
         return surrounding_cells
 
     def _get_surrounding_cells_by_object(self, world_object, range_=0):
@@ -487,6 +500,8 @@ class GridManager:
             cell_x, cell_y = CellUtils.generate_coord_data(vector.x, vector.y)
             cell = Cell(cell_x, cell_y, map_, instance_id)
             self.cells[cell.key] = cell
+            self._cells_generation += 1
+            self._surrounding_cells_cache.clear()
         return cell
 
     def get_cells(self):
