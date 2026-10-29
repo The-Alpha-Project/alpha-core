@@ -757,7 +757,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_trigger_spell(casting_spell, effect, caster, target):
-        if not target.is_unit():
+        if not target.is_unit(by_mask=True):
             return
 
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(effect.trigger_spell_id)
