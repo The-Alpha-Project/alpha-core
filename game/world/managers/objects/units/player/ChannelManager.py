@@ -283,7 +283,7 @@ class ChannelManager:
 
     @staticmethod
     def set_owner(channel, sender, target_player):
-        if not ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True,
+        if not ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=False,
                                              target_player=target_player):
             return
         packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.OWNER_CHANGED, target_player)
@@ -436,13 +436,13 @@ class ChannelManager:
             packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)
             return False
-        # Check owner rights
-        elif check_owner and not channel.is_owner(sender):
+        # Check owner rights, for owner only actions.
+        elif check_owner and not check_moderator and not channel.is_owner(sender):
             packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.NOT_OWNER)
             ChannelManager.send_to_player(sender, packet)
             return False
-        # Check moderator rights
-        elif check_moderator and not channel.is_moderator(sender):
+        # Check moderator rights, the owner has them too.
+        elif check_moderator and not channel.is_moderator(sender) and not channel.is_owner(sender):
             packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.NOT_MODERATOR)
             ChannelManager.send_to_player(sender, packet)
             return False
