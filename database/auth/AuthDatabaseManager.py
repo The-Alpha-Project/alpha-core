@@ -7,6 +7,7 @@ from database.SafeScopedSession import SafeScopedSession
 from database.auth.AuthModels import RealmList, Account
 from game.realm.AccountManager import AccountManager
 from utils.ConfigManager import *
+from utils.Srp6 import Srp6
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Auth.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Auth.password)
@@ -149,6 +150,10 @@ class AuthDatabaseManager:
 
             hashed_new_password = hashlib.sha256(new_password.encode('utf-8')).hexdigest()
             account.password = hashed_new_password
+            # SRP login uses the salt and verifier, update them too.
+            salt = Srp6.generate_salt()
+            account.salt = salt.hex()
+            account.verifier = Srp6.calculate_password_verifier(account.name, new_password, salt).hex()
 
             auth_db_session.merge(account)
             auth_db_session.flush()
