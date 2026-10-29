@@ -1425,7 +1425,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source or source is dead, {command.get_info()}')
             return command.should_abort()
 
-        command.source.object_ai.script_phase = random.randrange(command.datalong, command.datalong2)
+        command.source.object_ai.script_phase = random.randint(command.datalong, command.datalong2)
 
         return False
 
