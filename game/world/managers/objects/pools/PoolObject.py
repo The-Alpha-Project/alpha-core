@@ -50,14 +50,13 @@ class PoolObject:
                                        if not chanced_entry.spawn.is_spawned()]
 
         if available_to_spawn_explicit:
-            # Select without replacement to avoid duplicate spawns in a single pass.
-            count = min(len(available_to_spawn_explicit), max_limit)
-            choices = self._weighted_sample_without_replacement(available_to_spawn_explicit, count)
-
-            for choice in choices:
-                roll = random.random()
-                if roll > choice.chance / 100:
+            # Explicit chances are a percent of the whole pool, roll them once per slot (like vmangos). If no entry
+            # wins, the slot is left to the equal chanced entries.
+            for _ in range(min(len(available_to_spawn_explicit), max_limit)):
+                choice = self._roll_explicit_chanced(available_to_spawn_explicit)
+                if not choice:
                     continue
+                available_to_spawn_explicit.remove(choice)
                 spawned += 1
                 max_limit -= 1
                 choice.spawn.spawn(from_pool=True)
@@ -118,21 +117,10 @@ class PoolObject:
         return spawned_count < self.max_limit
 
     @staticmethod
-    def _weighted_sample_without_replacement(entries, count):
-        remaining = list(entries)
-        selected = []
-        count = min(count, len(remaining))
-        for _ in range(count):
-            total_weight = sum(max(0, entry.chance) for entry in remaining)
-            if total_weight <= 0:
-                selected.extend(random.sample(remaining, k=count - len(selected)))
-                break
-            roll = random.uniform(0, total_weight)
-            upto = 0.0
-            for idx, entry in enumerate(remaining):
-                upto += max(0, entry.chance)
-                if roll <= upto:
-                    selected.append(entry)
-                    del remaining[idx]
-                    break
-        return selected
+    def _roll_explicit_chanced(entries):
+        roll = random.uniform(0, 100)
+        for entry in entries:
+            roll -= entry.chance
+            if roll < 0:
+                return entry
+        return None
