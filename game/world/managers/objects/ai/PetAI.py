@@ -51,8 +51,11 @@ class PetAI(CreatureAI):
                         self.pending_spell_cast.reset()
 
         if owner.is_player():
-            if ((self.creature.combat_target and not self.creature.combat_target.is_alive)
-                    or (not self.creature.combat_target and self.creature.in_combat)):
+            # After the owner clicked Follow, don't pick a new target until the pet is back.
+            returning = self.move_state == PetMoveState.RETURNING \
+                and self._get_command_state() == PetCommandState.COMMAND_FOLLOW
+            if not returning and ((self.creature.combat_target and not self.creature.combat_target.is_alive)
+                                  or (not self.creature.combat_target and self.creature.in_combat)):
                 new_target = self.select_next_target()
                 if new_target:
                     self.creature.attack(new_target)
