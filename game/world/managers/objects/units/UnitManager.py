@@ -1771,6 +1771,9 @@ class UnitManager(ObjectManager):
     def mount(self, mount_display_id):
         if mount_display_id > 0 and \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
+            # Later clients keep the pet while mounted with its actions disabled (SMSG_PET_MODE, after 1.5.1). That
+            # opcode doesn't exist in 0.5.3, so the pet is dismissed instead.
+            # TODO: Investigate if the SMSG_PET_SPELLS enabled byte (0x8) can disable the pet bar in 0.5.3.
             self.pet_manager.detach_active_pets()
             self.mount_display_id = mount_display_id
             self.set_unit_flag(UnitFlags.UNIT_MASK_MOUNTED, active=True)
