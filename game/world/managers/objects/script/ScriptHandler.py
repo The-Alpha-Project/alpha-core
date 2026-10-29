@@ -2116,6 +2116,10 @@ class ScriptHandler:
         return WorldDatabaseManager.CreatureAIScriptHolder.creature_ai_scripts_get_by_id(script_id)
 
     @staticmethod
+    def handle_script_type_creature_spell(script_id):
+        return WorldDatabaseManager.CreatureSpellsScriptHolder.creature_spells_scripts_get_by_id(script_id)
+
+    @staticmethod
     def handle_script_type_creature_movement(script_id):
         return WorldDatabaseManager.CreatureMovementScriptHolder.creature_movement_scripts_get_by_id(script_id)
 
@@ -2137,9 +2141,9 @@ SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
     ScriptTypes.SCRIPT_TYPE_EVENT_SCRIPT: ScriptHandler.handle_script_type_event_script,
-    ScriptTypes.SCRIPT_TYPE_AREA_TRIGGER: ScriptHandler.handle_script_type_area_trigger
+    ScriptTypes.SCRIPT_TYPE_AREA_TRIGGER: ScriptHandler.handle_script_type_area_trigger,
+    ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell
     # Unused in 0.5.3.
-    # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     # ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,
     # ScriptTypes.SCRIPT_TYPE_SPELL: ScriptHandler.handle_script_type_spell
 }

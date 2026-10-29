@@ -1301,6 +1301,28 @@ class WorldDatabaseManager:
         def creature_movement_scripts_get_by_id(script_id):
             return WorldDatabaseManager.CreatureMovementScriptHolder.SCRIPTS.get(script_id, [])
 
+    # Creature spells scripts.
+
+    @staticmethod
+    def creature_spells_scripts_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_creature_spells_scripts).all()
+        world_db_session.close()
+        return res
+
+    class CreatureSpellsScriptHolder:
+        SCRIPTS: Dict[int, List[t_creature_spells_scripts]] = {}
+
+        @staticmethod
+        def load_creature_spells_script(spells_script):
+            if spells_script.id not in WorldDatabaseManager.CreatureSpellsScriptHolder.SCRIPTS:
+                WorldDatabaseManager.CreatureSpellsScriptHolder.SCRIPTS[spells_script.id] = []
+            WorldDatabaseManager.CreatureSpellsScriptHolder.SCRIPTS[spells_script.id].append(spells_script)
+
+        @staticmethod
+        def creature_spells_scripts_get_by_id(script_id):
+            return WorldDatabaseManager.CreatureSpellsScriptHolder.SCRIPTS.get(script_id, [])
+
     # Creature AI scripts.
 
     @staticmethod

@@ -74,6 +74,7 @@ class WorldLoader:
             # Creature spawns
             if config.Server.Settings.load_creatures:
                 WorldLoader.load_creature_movement_scripts()
+                WorldLoader.load_creature_spells_scripts()
                 WorldLoader.load_creature_ai_events()
                 WorldLoader.load_creature_ai_scripts()
                 WorldLoader.load_creature_movement()
@@ -210,6 +211,19 @@ class WorldLoader:
             WorldDatabaseManager.CreatureMovementScriptHolder.load_creature_movement_script(creature_movement_script)
             count += 1
             Logger.progress('Loading creature movement scripts...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_spells_scripts():
+        creature_spells_scripts = WorldDatabaseManager.creature_spells_scripts_get_all()
+        length = len(creature_spells_scripts)
+        count = 0
+
+        for creature_spells_script in creature_spells_scripts:
+            WorldDatabaseManager.CreatureSpellsScriptHolder.load_creature_spells_script(creature_spells_script)
+            count += 1
+            Logger.progress('Loading creature spells scripts...', count, length)
 
         return length
 

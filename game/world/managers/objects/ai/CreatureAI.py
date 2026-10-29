@@ -12,6 +12,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
+from utils.constants.MiscCodes import ScriptTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
@@ -346,6 +347,12 @@ class CreatureAI:
 
                 # Trigger the cast.
                 self.creature.spell_manager.start_spell_cast(initialized_spell=casting_spell)
+
+                # Run the spell slot script, if any (yells, extra actions).
+                if creature_spell.script_id:
+                    self.creature.get_map().enqueue_script(self.creature, unit_target,
+                                                           ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL,
+                                                           creature_spell.script_id)
             elif cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
                 # Chance roll failed, so we set a new random cooldown.
                 self._set_spell_slot_cooldown(slot_index, creature_spell.delay_repeat_min, creature_spell.delay_repeat_max)
