@@ -372,6 +372,8 @@ class StatManager:
         self.update_base_mana_regen()
         self.update_base_health_regen()
 
+        self.update_base_proc_chance()
+        self.update_base_melee_critical_chance()
         self.update_defense_bonuses()
 
         self.send_attributes()
