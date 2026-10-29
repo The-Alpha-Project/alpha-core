@@ -1116,7 +1116,7 @@ class QuestManager:
             '<4I',
             quest_id,
             0,  # status/flags, unused by client.
-            int(given_xp * config.Server.Settings.xp_rate),
+            int(given_xp),  # Already includes the xp rate.
             given_gold
         ))
 
