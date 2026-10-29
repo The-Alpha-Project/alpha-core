@@ -9,7 +9,12 @@ class GuardAI(CreatureAI):
     # override
     def update_ai(self, elapsed, now):
         super().update_ai(elapsed, now)
-        if not self.creature or not self.creature.combat_target:
+        if not self.creature:
+            return
+
+        self.ai_event_handler.update(elapsed)
+
+        if not self.creature.combat_target:
             return
 
         if self.has_spell_list():
@@ -32,7 +37,8 @@ class GuardAI(CreatureAI):
 
     # override
     def enter_combat(self, source=None):
-        pass
+        # Run combat events, guards don't summon other guards.
+        super().enter_combat(source)
 
     # Returns whether the Unit is currently attacking other players or friendly units.
     def is_attacking_friendly_or_player(self, unit):
