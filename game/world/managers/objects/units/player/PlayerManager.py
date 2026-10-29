@@ -1174,7 +1174,7 @@ class PlayerManager(UnitManager):
                 self.persist_character_state(SaveReason.LEVEL_CHANGE)
 
     def player_or_group_require_quest_item(self, item_entry):
-        if not self.group_manager or not self.group_manager.is_party_formed():
+        if not self.group_manager or not self.group_manager.is_active_member(self):
             return self.quest_manager.item_needed_by_quests(item_entry)
         else:
             for member in list(self.group_manager.members.values()):

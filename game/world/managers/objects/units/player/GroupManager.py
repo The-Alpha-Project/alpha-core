@@ -308,8 +308,9 @@ class GroupManager:
 
     # Called once upon victim dead.
     def set_allowed_looters(self, victim):
-        # Invite still pending, the killer loots alone.
-        if not self.is_party_formed():
+        # Killer is only invited, it loots alone.
+        if not self.is_active_member(victim.killed_by):
+            self.allowed_looters[victim.guid] = [victim.killed_by.guid] if victim.killed_by else []
             return
         self.allowed_looters[victim.guid] = self._fill_allowed_looters(victim)
 
@@ -326,9 +327,13 @@ class GroupManager:
     def is_party_member(self, player_guid):
         return player_guid in self.members
 
+    # Member of a formed party, not only invited.
+    def is_active_member(self, player_mgr):
+        return player_mgr and self.is_party_formed() and self.is_party_member(player_mgr.guid)
+
     def get_close_members(self, requester):
-        # Invite still pending, the requester is effectively alone.
-        if not self.is_party_formed():
+        # Requester is only invited, it is effectively alone.
+        if not self.is_active_member(requester):
             return [requester] if requester else []
         close_members = []
         for guid in [*self.members]:
