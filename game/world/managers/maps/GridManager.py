@@ -1,5 +1,6 @@
 from __future__ import annotations
 from threading import RLock
+import math
 import time
 from game.world.managers.maps.Cell import Cell
 from game.world.managers.maps.helpers.CellUtils import CELL_SIZE, CellUtils, VIEW_DISTANCE, NUM_CELLS
@@ -290,7 +291,9 @@ class GridManager:
 
         view_distance = VIEW_DISTANCE if not range_ else range_
         # Calculate how many cells to include in each direction given the view distance, at least 1.
-        max_cells_radius = max(1, int(view_distance // CELL_SIZE))
+        # An explicit range can reach ceil(range / CELL_SIZE) cells away from the source cell.
+        cells_radius = math.ceil(view_distance / CELL_SIZE) if range_ else int(view_distance // CELL_SIZE)
+        max_cells_radius = max(1, cells_radius)
         surrounding_cells = set()
 
         for dx in range(-max_cells_radius, max_cells_radius + 1):
@@ -422,7 +425,8 @@ class GridManager:
 
     def get_surrounding_units_by_location(self, vector, target_map, target_instance, range_, include_players=False):
         units = [{}, {}]
-        for cell in self._get_surrounding_cells_by_location(vector.x, vector.y, target_map, target_instance):
+        for cell in self._get_surrounding_cells_by_location(vector.x, vector.y, target_map, target_instance,
+                                                            range_=min(range_, VIEW_DISTANCE)):
             for guid, creature in list(cell.creatures.items()):
                 if creature.location.distance(vector) <= range_:
                     units[0][guid] = creature
@@ -435,7 +439,8 @@ class GridManager:
 
     def get_surrounding_players_by_location(self, vector, target_map, target_instance, range_):
         players = {}
-        for cell in self._get_surrounding_cells_by_location(vector.x, vector.y, target_map, target_instance):
+        for cell in self._get_surrounding_cells_by_location(vector.x, vector.y, target_map, target_instance,
+                                                            range_=min(range_, VIEW_DISTANCE)):
             for guid, player in list(cell.players.items()):
                 if player.location.distance(vector) <= range_:
                     players[guid] = player
