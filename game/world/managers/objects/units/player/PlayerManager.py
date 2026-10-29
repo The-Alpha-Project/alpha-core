@@ -12,6 +12,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.InstancesManager import InstancesManager
 from game.world.managers.maps.helpers.PendingTeleportDataHolder import PendingTeleportDataHolder
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
@@ -388,6 +389,9 @@ class PlayerManager(UnitManager):
 
                 self.spell_manager.remove_casts()
                 self.aura_manager.remove_all_auras()
+                # Release players seeing through us (Mind Vision).
+                if FarSightManager.object_is_camera_view_point(self):
+                    FarSightManager.remove_camera(self)
                 self.pet_manager.detach_active_pets(is_logout=True)
                 self.leave_combat()
             except Exception as ex:
@@ -1925,6 +1929,10 @@ class PlayerManager(UnitManager):
     # override
     def on_cell_change(self):
         self.quest_manager.update_surrounding_quest_status()
+        # Refresh players seeing through us (Mind Vision).
+        camera = FarSightManager.get_camera_by_object(self)
+        if camera:
+            camera.update_camera_on_players()
 
     # override
     def can_attack_target(self, target):

@@ -8,6 +8,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.aura.AuraManager import AuraManager
 from game.world.managers.objects.units.AttackRollInfo import AttackRollInfo
@@ -2282,6 +2283,10 @@ class UnitManager(ObjectManager):
         if self.spell_manager:
             self.spell_manager.remove_casts()
             self.aura_manager.remove_all_auras()
+
+        # Release players seeing through this unit (Mind Vision).
+        if FarSightManager.object_is_camera_view_point(self):
+            FarSightManager.remove_camera(self)
 
         charmer = self.get_charmer_or_summoner()
         # (Game objects can spawn creatures, but they don't have a PetManager).

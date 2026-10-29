@@ -1,3 +1,4 @@
+from utils.constants.SpellCodes import SpellEffects
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -47,5 +48,6 @@ class Camera:
             self.pop_player(player_mgr)
             player_mgr.update_manager.enqueue_object_update()
             spell = player_mgr.spell_manager.get_casting_spell()
-            if spell and spell.is_far_sight() and spell.is_channeled():
+            if spell and spell.is_channeled() and \
+                    (spell.is_far_sight() or spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_BIND_SIGHT)):
                 player_mgr.spell_manager.interrupt_casting_spell()
