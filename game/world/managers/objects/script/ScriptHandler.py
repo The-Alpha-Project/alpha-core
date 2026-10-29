@@ -1168,7 +1168,8 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
             return command.should_abort()
 
-        if command.datalong == 8:  #  SO_MODIFYTHREAT_ALL_ATTACKERS.
+        # SO_MODIFYTHREAT_ALL_ATTACKERS, 6 with our target numbering (8 in vmangos, where TARGET_T_OWNER_OR_SELF is 8).
+        if command.datalong == 6:
             for unit in command.source.threat_manager.get_threat_holder_units():
                 command.source.threat_manager.modify_thread_percent(unit, command.x)
         else:
