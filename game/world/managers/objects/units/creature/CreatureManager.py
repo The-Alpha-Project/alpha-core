@@ -31,7 +31,8 @@ from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity, AuraTypes
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
-from utils.constants.MiscCodes import UpdateFlags
+from utils.constants.MiscCodes import UpdateFlags, MapTileStates
+from utils.ConfigManager import config
 
 
 # noinspection PyCallByClass
@@ -61,6 +62,7 @@ class CreatureManager(UnitManager):
         self.react_state = CreatureReactStates.REACT_PASSIVE
         self.npc_flags = 0
         self.static_flags = 0
+        self.spawned_in_water = None
         self.spell_list_id = 0
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
@@ -103,6 +105,7 @@ class CreatureManager(UnitManager):
         self.class_ = self.creature_template.unit_class
         self.npc_flags = self.creature_template.npc_flags
         self.static_flags = self.creature_template.static_flags
+        self.spawned_in_water = None  # Unknown until the spawn tile is loaded, see can_swim().
         self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
         self.base_attack_time = self.creature_template.base_attack_time
@@ -521,9 +524,35 @@ class CreatureManager(UnitManager):
             camera.update_camera_on_players()
 
     def can_swim(self):
+        if self.spawned_in_water is None:
+            self._check_spawned_in_water()
         # Amphibious or Aquatic.
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) != 0 or (
                     self.static_flags & CreatureStaticFlags.AQUATIC) != 0
+
+    # HACKFIX: Some creatures spawned inside water (some murlocs, crabs and nagas) lack the amphibious flag, so they
+    # dropped threat whenever their target swam. Flag them as amphibious at runtime. Checked once per spawn, as soon
+    # as the spawn tile is loaded.
+    def _check_spawned_in_water(self):
+        spawn_position = self.spawn_position
+        if not config.Server.Settings.use_map_tiles or not spawn_position:
+            self.spawned_in_water = False
+            return
+
+        map_ = self.get_map()
+        tile_state = map_.get_tile_state(spawn_position.x, spawn_position.y)
+        if tile_state == MapTileStates.LOADING:
+            return  # Check again once loaded.
+        if tile_state != MapTileStates.READY:
+            self.spawned_in_water = False
+            return
+
+        liquid_information = map_.get_liquid_information(spawn_position.x, spawn_position.y, spawn_position.z)
+        model_height = self.model_height if self.model_height else 1.8
+        self.spawned_in_water = bool(liquid_information and spawn_position.z + (self.current_scale * model_height)
+                                     < liquid_information.get_height())
+        if self.spawned_in_water:
+            self.static_flags |= CreatureStaticFlags.AMPHIBIOUS
 
     def can_exit_water(self):
         # Amphibious and NOT Aquatic.

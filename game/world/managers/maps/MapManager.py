@@ -1029,6 +1029,17 @@ class MapManager:
             return False
         return True
 
+    # Unlike _check_tile_load, tiles not loaded yet report LOADING, only missing or empty tiles are UNUSABLE.
+    @staticmethod
+    def get_tile_state(map_id, x, y):
+        adt_x, adt_y = MapUtils.get_tile(x, y)
+        tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
+        if not tile:
+            return MapTileStates.UNUSABLE
+        if not tile.is_ready():
+            return MapTileStates.LOADING
+        return MapTileStates.READY if tile.can_use() else MapTileStates.UNUSABLE
+
     @staticmethod
     def get_tile_at(map_id, adt_x, adt_y) -> Optional[MapTile]:
         try:

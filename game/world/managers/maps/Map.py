@@ -202,6 +202,9 @@ class Map:
     def get_liquid_information(self, x, y, z, ignore_z=False):
         return self.map_manager.get_liquid_information(self.map_id, x, y, z, ignore_z=ignore_z)
 
+    def get_tile_state(self, x, y):
+        return self.map_manager.get_tile_state(self.map_id, x, y)
+
     def get_area_number_by_zone_id(self, zone_id):
         return self.map_manager.get_area_number_by_zone_id(zone_id)
 
