@@ -33,6 +33,8 @@ class AIFactory:
             # 'PetEventAI': PetEventAI(None),
             # 'GuardEventAI': GuardEventAI(None)
         }
+    # AI classes by name.
+    AI_CLASSES = {type(ai).__name__: type(ai) for ai in AI_REGISTRY.values()}
 
     # TODO: scripted AI's, EventAI.
     @staticmethod
@@ -93,8 +95,8 @@ class AIFactory:
         if selected_ai_name and creature.object_ai and type(creature.object_ai).__name__ == selected_ai_name:
             return creature.object_ai
 
-        if selected_ai_name:
-            return eval(f'{selected_ai_name}(creature)')
+        if selected_ai_name in AIFactory.AI_CLASSES:
+            return AIFactory.AI_CLASSES[selected_ai_name](creature)
 
         # Return NullCreatureAI.
         return NullCreatureAI(creature)
