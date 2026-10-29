@@ -994,6 +994,8 @@ class CreatureManager(UnitManager):
 
         self.movement_manager.reset()
         self.location = location.copy()
+        # Swim checks only run in combat, refresh the swim state for the new position.
+        self._update_swimming_state()
         self.set_has_moved(has_moved=True, has_turned=True)
         self.get_map().send_surrounding(self.get_heartbeat_packet(), self, False)
 
