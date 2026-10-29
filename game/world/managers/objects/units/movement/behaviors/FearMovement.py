@@ -57,13 +57,14 @@ class FearMovement(BaseMovement):
         self.can_move = self.fear_duration > 0
 
     def _trigger_fear(self):
+        # Pick the fear point (and assist unit) while the combat target is still known.
+        if not self.waypoints:
+            self.waypoints = self._get_path(self._get_fear_point())
         if self.unit.combat_target:
             target_guid = self.unit.combat_target.guid
             self.unit.combat_target = None
             self.unit.send_attack_stop(target_guid)
         speed = self.unit.running_speed
-        if not self.waypoints:
-            self.waypoints = self._get_path(self._get_fear_point())
         self.can_move = False
         waypoint = self._get_waypoint()
 
