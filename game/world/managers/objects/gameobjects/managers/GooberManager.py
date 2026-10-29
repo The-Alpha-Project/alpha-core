@@ -29,7 +29,7 @@ class GooberManager(GameObjectManager):
         self.is_consumable = self.get_data_field(5, bool)
         self.cooldown = self.get_data_field(6, int)
         self.page_text = self.get_data_field(7, int)
-        self.total_cooldown = time.time() + self.cooldown
+        self.total_cooldown = 0
 
     def update(self, now):
         if now <= self.last_tick or self.last_tick <= 0:
@@ -81,7 +81,8 @@ class GooberManager(GameObjectManager):
         else:
             self.switch_goober_state(active=True)
 
-        self.cooldown = time_to_restore + time.time()
+        # Stays in use until it auto closes, and can't be used again before its cooldown.
+        self.total_cooldown = time.time() + max(time_to_restore, self.cooldown)
 
         if self.spell_id:
             self.cast_spell(self.spell_id, unit)
