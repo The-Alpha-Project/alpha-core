@@ -227,7 +227,8 @@ class ConditionChecker:
     def check_condition_active_game_event(_condition, _source, _target):
         # Checks if a game event is active.
         # Event_id = condition_value1.
-        Logger.warning('CONDITION_ACTIVE_GAME_EVENT is not implemented.')
+        # Debug only, loot rows are checked on every kill.
+        Logger.debug('CONDITION_ACTIVE_GAME_EVENT is not implemented.')
         return False
 
     @staticmethod
