@@ -632,7 +632,8 @@ class SpellManager:
                 return
 
     def handle_damage_event_procs(self, damage_info: DamageInfoHolder):
-        if not damage_info.spell_id and \
+        # Called for both attacker and victim, only roll daze once.
+        if self.caster is damage_info.attacker and not damage_info.spell_id and \
                 damage_info.total_damage + damage_info.absorb > 0:  # Dazed applied through absorb until 0.5.5.
             damage_info.target.handle_melee_daze_chance(damage_info.attacker)
 
