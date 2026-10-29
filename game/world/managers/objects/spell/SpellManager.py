@@ -41,6 +41,8 @@ class SpellManager:
     def __init__(self, caster):
         self.caster = caster  # GameObject, Unit or Player.
         self.spells: dict[int, CharacterSpell] = {}
+        # Cooldowns are not saved, they reset on relog. That's accurate to 0.5.3, so character_spell_cooldown stays
+        # unused on purpose.
         self.cooldowns: dict[int, CooldownEntry] = {}
         self.casting_spells: list[CastingSpell] = []
 
