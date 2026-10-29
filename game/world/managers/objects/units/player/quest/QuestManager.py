@@ -334,10 +334,15 @@ class QuestManager:
 
         # Quest start.
         for quest_entry in quest_giver_start_quests:
-            if quest_entry in self.completed_quests:
+            if quest_entry in self.active_quests:
                 continue
-            quest_status = self.get_quest_state(quest_entry)
-            if quest_status == QuestState.QUEST_OFFER:
+            quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
+            if not quest:
+                continue
+            # Repeatable quests can be taken again once rewarded.
+            if quest_entry in self.completed_quests and not QuestHelpers.is_quest_repeatable(quest):
+                continue
+            if self.check_quest_requirements(quest) and self.check_quest_level(quest, False):
                 quest_num += 1
 
         return quest_num
