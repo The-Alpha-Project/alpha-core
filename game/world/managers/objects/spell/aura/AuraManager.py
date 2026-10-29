@@ -47,6 +47,10 @@ class AuraManager:
             self.check_aura_interrupts(negative_aura_applied=True)
 
         applied_similar_auras = self.get_similar_applied_auras(aura, accept_all_ranks=False, accept_all_sources=False)
+        # Finishing moves depend on the combo points of the new cast, replace the old aura instead of refreshing it.
+        if applied_similar_auras and aura.source_spell.requires_combo_points():
+            [self.remove_aura(similar_aura) for similar_aura in applied_similar_auras]
+            applied_similar_auras = []
         is_refresh = len(applied_similar_auras) > 0
         if is_refresh:
             # Only one similar aura from the same source can be applied.

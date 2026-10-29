@@ -170,6 +170,9 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         damage = aura.get_effect_points()
+        # Finishing moves (Rupture, Garrote) deal their tick damage per combo point, as their tooltips say.
+        if aura.caster.is_player() and aura.source_spell.requires_combo_points():
+            damage *= aura.source_spell.spent_combo_points
         aura.caster.apply_spell_damage(effect_target, damage, aura.spell_effect)
 
     @staticmethod
