@@ -180,6 +180,9 @@ class PetMovement(BaseMovement):
         # Return home.
         if current_distance <= PET_FOLLOW_DISTANCE and not charmer_or_summoner.is_moving():
             self._is_lagging = False
+            # Already next to the owner, no spline will report the arrival.
+            if self.unit.object_ai.move_state == PetMoveState.RETURNING:
+                self.unit.object_ai.movement_inform(data=PetMoveState.AT_HOME)
             return False, None
 
         orientation = self.unit.location.get_angle_towards_vector(target_location)
