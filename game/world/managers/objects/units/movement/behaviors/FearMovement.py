@@ -140,7 +140,7 @@ class FearMovement(BaseMovement):
         if attacker:
             distance_from_caster = self.unit.location.distance(attacker.location)
             if distance_from_caster > 0.2:
-                angle_to_caster = self.unit.location.angle(vector=attacker.location)
+                angle_to_caster = attacker.location.get_angle_towards_vector(self.unit.location)
             else:
                 angle_to_caster = random.uniform(0, 2 * math.pi)
         else:
