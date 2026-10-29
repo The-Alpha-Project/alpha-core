@@ -325,6 +325,9 @@ class QuestManager:
 
         # Quest finish.
         for quest_entry in quest_giver_finish_quests:
+            # Rewarded quests also report QUEST_REWARD, only count pending turn-ins.
+            if quest_entry not in self.active_quests:
+                continue
             quest_status = self.get_quest_state(quest_entry)
             if quest_status == QuestState.QUEST_REWARD:
                 quest_num += 1
