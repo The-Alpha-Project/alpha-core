@@ -34,7 +34,7 @@ class GuildSaveEmblemHandler:
                                             GuildEmblemResult.ERR_GUILDEMBLEM_NOTGUILDMASTER)
             return 0
 
-        if player_mgr.coinage <= EMBLEM_COST:
+        if player_mgr.coinage < EMBLEM_COST:
             GuildManager.send_emblem_result(player_mgr,
                                             GuildEmblemResult.ERR_GUILDEMBLEM_NOTENOUGHMONEY)
             return 0
