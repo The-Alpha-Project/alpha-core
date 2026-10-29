@@ -100,9 +100,8 @@ class ActiveQuest:
             if entry.item not in needed_items:
                 continue
             index = needed_items.index(entry.item)
-            req_count = req_count[index]
             count = self._get_db_item_count(index)
-            if count < req_count:
+            if count < req_count[index]:
                 return True
 
         return False
