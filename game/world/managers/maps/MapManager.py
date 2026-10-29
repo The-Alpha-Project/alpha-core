@@ -4,6 +4,7 @@ import os
 import signal
 from concurrent.futures import ProcessPoolExecutor
 from functools import lru_cache
+from threading import RLock
 from multiprocessing import RLock
 from os import path
 import time
@@ -62,6 +63,7 @@ class MapManager:
     TILE_LOAD_MAX_INFLIGHT = TILE_LOAD_WORKERS * 2  # Max in-flight tile load jobs (queued + running).
     TILE_LOAD_IDLE_TIMEOUT = 10.0  # Seconds, shutdown workers quickly when no tiles are loading.
     TILE_LOAD_MAX_RESULTS_PER_TICK = 1  # Max completed tile results to apply per tick.
+    INSTANCE_MAPS_LOCK = RLock()  # Group members entering at once must not build the same instance twice.
     _TILE_LOAD_POOL = None  # ProcessPoolExecutor instance for tile parsing.
     _TILE_LOAD_FUTURES = {}  # Tile loading result futures.
     _TILE_LOAD_INFLIGHT = {}  # Current loading tile data.
@@ -422,14 +424,15 @@ class MapManager:
 
     @staticmethod
     def get_or_create_instance_map(instance_token) -> Map:
-        if instance_token.map_id not in MAPS:
-            MAPS[instance_token.map_id] = dict()
-        # If the instance does not exist, create it.
-        if instance_token.id not in MAPS[instance_token.map_id]:
-            instance_map = MapManager._build_map(instance_token.map_id, instance_token.id)
-        else:
-            instance_map = MAPS[instance_token.map_id][instance_token.id]
-        return instance_map
+        with MapManager.INSTANCE_MAPS_LOCK:
+            if instance_token.map_id not in MAPS:
+                MAPS[instance_token.map_id] = dict()
+            # If the instance does not exist, create it.
+            if instance_token.id not in MAPS[instance_token.map_id]:
+                instance_map = MapManager._build_map(instance_token.map_id, instance_token.id)
+            else:
+                instance_map = MAPS[instance_token.map_id][instance_token.id]
+            return instance_map
 
     @staticmethod
     def initialize_area_tables():
