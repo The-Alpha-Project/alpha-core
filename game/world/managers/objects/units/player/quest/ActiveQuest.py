@@ -115,9 +115,10 @@ class ActiveQuest:
             self.owner.reputation_manager.modify_reputation(faction, gain)
 
     def reward_gold(self):
-        if self.quest.RewOrReqMoney > 0:
+        # Negative values are a fee, charged on completion.
+        if self.quest.RewOrReqMoney:
             self.owner.mod_money(self.quest.RewOrReqMoney)
-        return self.quest.RewOrReqMoney
+        return max(0, self.quest.RewOrReqMoney)
 
     def reward_xp(self):
         xp = Formulas.PlayerFormulas.quest_xp_reward(self.quest.QuestLevel, self.owner.level, self.quest.RewXP)

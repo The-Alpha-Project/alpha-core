@@ -693,7 +693,7 @@ class QuestManager:
             data.extend(self._gen_item_struct(item, rew_count_list[index]))
 
         # Reward money
-        data.extend(pack('<I', quest_template.RewOrReqMoney))
+        data.extend(pack('<i', quest_template.RewOrReqMoney))
 
         # Emotes
         data.extend(pack('<I', 4))
@@ -706,7 +706,7 @@ class QuestManager:
 
     def send_quest_query_response(self, quest):
         data = bytearray(pack(
-            f'<3Ii4I',
+            f'<3Ii2IiI',
             quest.entry,
             quest.Method,
             quest.QuestLevel,
@@ -1090,6 +1090,11 @@ class QuestManager:
         remaining_inventory_space = self.player_mgr.inventory.get_remaining_space()
         if len(reward_items) > remaining_inventory_space:
             self.player_mgr.inventory.send_equip_error(InventoryError.BAG_INV_FULL)
+            return
+
+        # Negative money is a fee required to complete the quest.
+        if quest.RewOrReqMoney < 0 and self.player_mgr.coinage < -quest.RewOrReqMoney:
+            self.send_cant_take_quest_response(QuestFailedReasons.QUEST_FAILED_NOT_ENOUGH_MONEY)
             return
 
         given_xp = active_quest.reward_xp()
