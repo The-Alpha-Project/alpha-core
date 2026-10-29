@@ -1,6 +1,6 @@
 from game.world.managers.objects.units.pet.PetData import PetData
 from utils.Logger import Logger
-from utils.constants.PetCodes import PetSlot
+from utils.constants.PetCodes import PetSlot, PetCommandState
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -74,7 +74,10 @@ class ActivePet:
         self.creature.stat_manager.apply_bonuses(replenish=replenish)
 
     def attach(self):
-        self.get_pet_data().set_active(True)
+        pet_data = self.get_pet_data()
+        pet_data.set_active(True)
+        # A new pet creature always starts following, Stay is only applied through the pet bar.
+        pet_data.command_state = PetCommandState.COMMAND_FOLLOW
 
         if self.is_permanent() or not self.is_controlled():
             # Permanent pet/totem/guardian.
