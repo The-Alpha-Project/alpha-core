@@ -49,6 +49,8 @@ class CreatureSpawn:
         if self.creature_instance:
             if creature.guid == self.creature_instance.guid:
                 self.creature_instance.spawn_id = 0
+                # No longer bound to a spawn, despawn it instead of releasing it back to the world on detach.
+                self.creature_instance.is_dynamic_spawn = True
                 self.creature_instance = None
                 return True
         return False
