@@ -604,7 +604,7 @@ class QuestManager:
                 gameobject = world_object
                 types = [GameObjectTypes.TYPE_CHEST, GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER]
                 if gameobject.gobject_template.type in types:
-                    gameobject.get_map().update_object(gameobject, update_flags=UpdateFlags.DYNAMIC_FLAGS)
+                    self.player_mgr.update_manager.update_world_object_on_self(gameobject, UpdateFlags.DYNAMIC_FLAGS)
 
     # Send item query details and return item struct byte segments.
     def _gen_item_struct(self, item_entry, count):
