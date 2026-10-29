@@ -297,7 +297,10 @@ class CommandManager:
 
             x, y, z = args.split()
             tel_location = Vector(float(x), float(y), float(z))
-            success = unit.near_teleport(tel_location)
+            if unit.is_player():
+                success = unit.teleport(unit.map_id, tel_location)
+            else:
+                success = unit.near_teleport(tel_location)
 
             if success:
                 return 0, ''
@@ -1121,9 +1124,10 @@ class CommandManager:
     @staticmethod
     def kick(world_session, args):
         player = CommandManager._target_or_self(world_session, only_players=True)
-        if player:
-            player.session.disconnect()
+        if not player or player == world_session.player_mgr:
+            return -1, 'invalid player selection.'
 
+        player.session.disconnect()
         return 0, ''
 
     @staticmethod
