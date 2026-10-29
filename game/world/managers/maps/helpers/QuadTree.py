@@ -15,11 +15,16 @@ class QuadTree:
 
     def remove_unit(self, unit_guid):
         unit_object = self.all_units.get(unit_guid)
+        node = unit_object.quadtree_node if unit_object else None
 
         if unit_object:
             unit_object.quadtree_node = None
 
-        self.root.remove(unit_guid)
+        # Remove from its known node, only search the whole tree if it isn't there.
+        if node and unit_guid in node.units:
+            node.units.remove(unit_guid)
+        else:
+            self.root.remove(unit_guid)
 
         if unit_guid in self.all_units:
             del self.all_units[unit_guid]

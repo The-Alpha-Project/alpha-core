@@ -59,8 +59,8 @@ class QuadTreeNode:
         for unit_guid in units_to_reinsert_guids:
             unit_object = all_units_dict.get(unit_guid)
             if unit_object:
-                unit_object.quadtree_node = None  # Make sure unit is not stuck at Root after division.
-                self.insert(all_units_dict, unit_object)
+                # Make sure unit is not stuck at Root after division.
+                unit_object.quadtree_node = self.insert(all_units_dict, unit_object)
 
     def query(self, all_units_dict, search_box, found_unit_guids):
         if not self.bounds.intersects(search_box):
