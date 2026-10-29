@@ -262,6 +262,11 @@ class ChannelManager:
         if not ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True,
                                              target_player=target_player):
             return
+        # Only the owner can kick or ban the owner.
+        if channel.is_owner(target_player) and not channel.is_owner(sender):
+            packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.NOT_OWNER)
+            ChannelManager.send_to_player(sender, packet)
+            return
         packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.KICKED, target_player, sender)
         if channel.should_announce():
             channel.broadcast_to_channel(sender, packet, ignore=[target_player])
@@ -310,6 +315,11 @@ class ChannelManager:
         if not ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True,
                                              target_player=target_player):
             return
+        # Only the owner can kick or ban the owner.
+        if channel.is_owner(target_player) and not channel.is_owner(sender):
+            packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.NOT_OWNER)
+            ChannelManager.send_to_player(sender, packet)
+            return
 
         if not channel.is_banned(target_player):
             packet = ChannelManager.build_notify_packet(channel.name, ChannelNotifications.BANNED, target_player, sender)
@@ -323,8 +333,9 @@ class ChannelManager:
             # Send to target
             ChannelManager.send_to_player(target_player, packet)
 
+            # Banned members lose moderator rights, remove_mod is owner only.
             if channel.is_moderator(target_player):
-                ChannelManager.remove_mod(channel, sender, target_player)
+                channel.remove_moderator(target_player)
 
             ChannelManager.kick_player(channel, sender, target_player, banned=True)
 
