@@ -63,6 +63,7 @@ class SellItemHandler:
         if sell_amount < stack_count:
             new_stack_count = item.item_instance.stackcount - sell_amount
             item.set_stack_count(new_stack_count)
+            player_mgr.quest_manager.pop_item(item.item_template.entry)
         else:
             player_mgr.inventory.remove_item(container_slot, slot)
 

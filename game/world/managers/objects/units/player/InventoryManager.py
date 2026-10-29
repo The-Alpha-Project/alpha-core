@@ -471,6 +471,8 @@ class InventoryManager:
             item.set_stack_count(new_stack_count)
             if item.item_instance.stackcount == 0:
                 self.remove_item(container_slot, item_slot, True)
+            else:
+                self.owner.quest_manager.pop_item(item.item_template.entry)
             item_count = new_stack_count
 
         return item_count  # Return the amount of items not removed
@@ -492,6 +494,7 @@ class InventoryManager:
                 if item_count < item.item_instance.stackcount:
                     new_stack_count = item.item_instance.stackcount - item_count
                     item.set_stack_count(new_stack_count)
+                    self.owner.quest_manager.pop_item(item_entry)
                     item_count = 0
                     break
                 elif item_count >= item.item_instance.stackcount:
