@@ -895,7 +895,7 @@ class QuestManager:
             return
 
         # Only one timed quest can be active.
-        if self.has_timed_quest():
+        if QuestHelpers.is_timed_quest(quest_template) and self.has_timed_quest():
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
 
