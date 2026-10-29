@@ -115,7 +115,7 @@ class PetManager:
                                         replenish_on_summon=True)
 
     def get_guardian_count(self) -> int:
-        return len([pet for pet in self.active_pets.values() if pet and pet.creature.is_guardian])
+        return len([pet for pet in self.active_pets.values() if pet and pet.creature.is_guardian()])
 
     def add_guardian_from_spell(self, creature: CreatureManager, spell: CastingSpell,
                                 guardian_level: int = -1) -> Optional[ActivePet]:
