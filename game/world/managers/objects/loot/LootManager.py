@@ -107,7 +107,9 @@ class LootManager:
                     reference_loot_template = WorldDatabaseManager.ReferenceLootTemplateHolder\
                         .reference_loot_template_get_by_entry(-loot_item.mincountOrRef)
                     loot_groups = self.generate_loot_groups(reference_loot_template)
-                    loot_item_result += self.process_loot_groups(loot_groups, requester)
+                    # For references, maxcount is how many times the reference is rolled (like vmangos).
+                    for _ in range(max(1, loot_item.maxcount)):
+                        loot_item_result += self.process_loot_groups(loot_groups, requester)
                 else:
                     loot_item_result.append(loot_item)
 
