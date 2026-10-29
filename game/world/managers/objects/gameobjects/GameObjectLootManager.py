@@ -29,7 +29,15 @@ class GameObjectLootManager(LootManager):
             return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_loot_id(loot_template_id)
 
         if self.world_object.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-            return WorldDatabaseManager.FishingLootTemplateHolder.fishing_loot_template_get_by_loot_id(self.world_object.zone)
+            from game.world.managers.maps.MapManager import MapManager
+            zone = self.world_object.zone
+            loot_template = WorldDatabaseManager.FishingLootTemplateHolder.fishing_loot_template_get_by_loot_id(zone)
+            # Most sub areas have no loot of their own, fall back to their parent zone like vmangos.
+            if not loot_template:
+                parent_zone = MapManager.get_parent_zone_id(zone, self.world_object.map_id)
+                loot_template = WorldDatabaseManager.FishingLootTemplateHolder\
+                    .fishing_loot_template_get_by_loot_id(parent_zone)
+            return loot_template
 
         return []
 
