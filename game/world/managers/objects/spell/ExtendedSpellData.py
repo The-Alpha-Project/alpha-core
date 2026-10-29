@@ -92,7 +92,7 @@ class AuraSourceRestrictions:
     PALADIN_SEALS = {
         94, 5645, 7325,  # Seal of Wisdom
         636, 645, 6739,  # Seal of Might
-        48, 1034,  # Seal of Wrath
+        648, 1034,  # Seal of Wrath
         1022, 5599,  # Seal of Protection
         1036,  # Seal of Fury
         1038,  # Seal of Salvation
