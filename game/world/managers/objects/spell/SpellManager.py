@@ -1296,7 +1296,11 @@ class SpellManager:
         return True
 
     def validate_cast(self, casting_spell) -> bool:
-        if not casting_spell.creature_spell and self.is_on_cooldown(casting_spell.spell_entry):
+        # Like vmangos, cooldowns only restrict players and what they control, creatures are paced by their scripts and
+        # spell lists.
+        owner = self.caster.get_charmer_or_summoner(include_self=True)
+        if (not casting_spell.creature_spell and owner and owner.is_player()
+                and self.is_on_cooldown(casting_spell.spell_entry)):
             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
