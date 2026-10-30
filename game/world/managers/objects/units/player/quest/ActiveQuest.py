@@ -24,6 +24,7 @@ class ActiveQuest:
         self.failed = False
         self.saved_values = None  # Column values last written to db.
         self.save_lock = RLock()
+        self.removed = False
         self.load_area_triggers()
         self.set_quest_givers_entries()
 
@@ -232,12 +233,20 @@ class ActiveQuest:
         # Saves can come from different threads. Serialize them and take the values before writing, so a change made
         # while writing always differs from saved_values and gets written later instead of being skipped.
         with self.save_lock:
+            # Once removed its row may be deleted, a late periodic save would insert it again.
+            if self.removed:
+                return
             db_values = self._get_db_values()
             if is_new:
                 RealmDatabaseManager.character_add_quest_status(self.db_state)
             else:
                 RealmDatabaseManager.character_update_quest_status(self.db_state)
             self.saved_values = db_values
+
+    def set_removed(self):
+        # Waits for any save in progress, so the caller can safely delete the row afterwards.
+        with self.save_lock:
+            self.removed = True
 
     def save_if_changed(self):
         # Progress is written as it happens, so periodic saves only find changed timers. Comparing values instead of

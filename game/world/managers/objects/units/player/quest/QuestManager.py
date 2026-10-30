@@ -114,10 +114,6 @@ class QuestManager:
 
     def remove_quest(self, quest_id):
         quest_db_state = RealmDatabaseManager.character_get_quest_by_id(self.player_mgr.guid, quest_id)
-        # Remove from db if needed.
-        if quest_db_state:
-            RealmDatabaseManager.character_delete_quest(quest_db_state.guid, quest_id)
-
         should_update_status = quest_db_state or quest_id in self.completed_quests or quest_id in self.active_quests
         # Remove from completed if needed.
         if quest_id in self.completed_quests:
@@ -126,6 +122,10 @@ class QuestManager:
         # Remove from quest log if needed.
         if quest_id in self.active_quests:
             self.remove_from_quest_log(quest_id)
+
+        # Remove from db if needed, after the quest log so no pending save can insert it again.
+        if quest_db_state:
+            RealmDatabaseManager.character_delete_quest(quest_db_state.guid, quest_id)
 
         # Update surrounding quests.
         if should_update_status:
@@ -1231,6 +1231,7 @@ class QuestManager:
         if quest_giver_starter and quest_giver_starter.is_escort():
             quest_giver_starter.object_ai.detach_escort_link(self.player_mgr)
 
+        active_quest.set_removed()
         del self.active_quests[quest_id]
         self.build_update()
         self.update_surrounding_quest_status()
