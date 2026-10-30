@@ -81,8 +81,8 @@ class GooberManager(GameObjectManager):
         else:
             self.switch_goober_state(active=True)
 
-        # Stays in use until it auto closes, and can't be used again before its cooldown.
-        self.total_cooldown = time.time() + max(time_to_restore, self.cooldown)
+        # Stays in use until it auto closes. Like vmangos, the auto close time replaces the template cooldown.
+        self.total_cooldown = time.time() + time_to_restore
 
         if self.spell_id:
             self.cast_spell(self.spell_id, unit)
