@@ -41,11 +41,14 @@ class AuthDatabaseManager:
     @staticmethod
     def realm_set_online_player_count(realm_id, player_count):
         auth_db_session = SessionHolder()
-        realmlist_entry = auth_db_session.query(RealmList).filter_by(realm_id=realm_id).first()
-        realmlist_entry.online_player_count = player_count
-        auth_db_session.flush()
-        auth_db_session.commit()
-        auth_db_session.close()
+        # Called from a long lived writer thread, always close so a failed write can't keep the row locked.
+        try:
+            auth_db_session.query(RealmList).filter_by(realm_id=realm_id).update(
+                {RealmList.online_player_count: player_count})
+            auth_db_session.flush()
+            auth_db_session.commit()
+        finally:
+            auth_db_session.close()
 
     @staticmethod
     def realm_get_online_player_count(realm_id):

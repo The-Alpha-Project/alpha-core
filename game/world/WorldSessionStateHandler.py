@@ -1,7 +1,7 @@
 import random
 import time
 import traceback
-from threading import RLock
+from threading import Event, RLock, Thread
 
 from database.auth.AuthDatabaseManager import AuthDatabaseManager
 from database.realm.RealmDatabaseManager import *
@@ -40,6 +40,8 @@ QUIET_SAVE_REASONS = {
 class WorldSessionStateHandler:
     _online_count_written = None
     _online_count_written_at = 0.0
+    _online_count_changed = Event()
+    _online_count_writer = None
 
     @staticmethod
     def _get_player_save_lock(player_guid):
@@ -212,10 +214,21 @@ class WorldSessionStateHandler:
             # Set before writing, so a failing write is retried after an interval instead of every tick.
             WorldSessionStateHandler._online_count_written = online_player_count
             WorldSessionStateHandler._online_count_written_at = now
-            # Must not raise, the shutdown save is followed by disconnecting every session.
+            # The auth db can be on another machine, a background thread writes it so the ticker never waits for it.
+            if not WorldSessionStateHandler._online_count_writer:
+                WorldSessionStateHandler._online_count_writer = Thread(
+                    target=WorldSessionStateHandler._write_online_player_count, daemon=True)
+                WorldSessionStateHandler._online_count_writer.start()
+            WorldSessionStateHandler._online_count_changed.set()
+
+    @staticmethod
+    def _write_online_player_count():
+        while True:
+            WorldSessionStateHandler._online_count_changed.wait()
+            WorldSessionStateHandler._online_count_changed.clear()
             try:
                 AuthDatabaseManager.realm_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
-                                                                  online_player_count)
+                                                                  WorldSessionStateHandler._online_count_written)
             except Exception as ex:
                 Logger.error(f'Error while writing the online player count: {ex}.')
 
