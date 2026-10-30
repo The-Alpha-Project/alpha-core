@@ -3,6 +3,7 @@ from typing import Callable, Any
 from utils.Logger import Logger
 
 _now = time.perf_counter  # Local reference so it's even faster to access.
+_cpu_now = time.thread_time  # Wall time above cpu time was spent waiting (db/io, or the GIL held by another thread).
 
 
 class TickerTask:
@@ -40,6 +41,7 @@ class WorldServerTicker:
             for task in self.tasks:
                 if batch_start >= task.next_run:
                     task_start = _now()
+                    cpu_start = _cpu_now()
                     try:
                         task.target()
                     except Exception as e:
@@ -55,11 +57,14 @@ class WorldServerTicker:
 
                     # Check if this task is lagging behind and throw a warning if so.
                     now = _now()
+                    took = f'took {(now - task_start) * 1000:.1f}ms, cpu {(_cpu_now() - cpu_start) * 1000:.1f}ms'
                     if task.next_run < now:
                         delay_ms = (now - task.next_run) * 1000
                         # Lag counts from batch start, so it includes earlier tasks of this batch.
-                        Logger.warning(f'Ticker task {task.name} is lagging by {delay_ms:.1f}ms '
-                                       f'(task took {(now - task_start) * 1000:.1f}ms).')
+                        Logger.warning(f'Ticker task {task.name} is lagging by {delay_ms:.1f}ms (task {took}).')
+                    # Long interval tasks never lag themselves, but still delay the next tick.
+                    elif now - task_start > 0.1:
+                        Logger.warning(f'Ticker task {task.name} {took}.')
 
                 # Time until this task needs to run again.
                 time_until_next = task.next_run - _now()
