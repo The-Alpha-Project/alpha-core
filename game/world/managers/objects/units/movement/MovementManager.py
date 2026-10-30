@@ -72,6 +72,9 @@ class MovementManager:
         current_spline = self.unit.movement_spline
         if current_spline and current_spline is not spline and not current_spline.is_complete():
             current_spline.update_to_now()
+        # The new spline starts at the server position, so a swim flag heartbeat here can't stop the client midway.
+        if not self.is_player:
+            self.unit._update_swimming_state()
         spline.initialize()
         self.unit.movement_spline = spline
         movement_packet = spline.try_build_movement_packet()
@@ -269,6 +272,11 @@ class MovementManager:
             return True
         spline = self._get_current_spline()
         return True if spline and not spline.is_complete() else False
+
+    # Unlike unit_is_moving(), a spline waiting its extra time at the last waypoint has no pending waypoints.
+    def has_pending_waypoints(self):
+        spline = self._get_current_spline()
+        return bool(spline and spline.pending_waypoints)
 
     def try_build_movement_packet(self):
         spline = self._get_current_spline()

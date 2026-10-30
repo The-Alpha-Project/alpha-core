@@ -217,6 +217,9 @@ class Map:
     def get_tile_state(self, x, y):
         return self.map_manager.get_tile_state(self.map_id, x, y)
 
+    def get_height_at_world(self, x, y):
+        return self.map_manager.get_height_at_world(self.map_id, x, y)
+
     def get_area_number_by_zone_id(self, zone_id):
         return self.map_manager.get_area_number_by_zone_id(zone_id)
 

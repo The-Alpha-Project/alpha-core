@@ -549,8 +549,9 @@ class CreatureManager(UnitManager):
             return
 
         liquid_information = map_.get_liquid_information(spawn_position.x, spawn_position.y, spawn_position.z)
+        # Model height already includes the native scale.
         model_height = self.model_height if self.model_height else 1.8
-        self.spawned_in_water = bool(liquid_information and spawn_position.z + (self.current_scale * model_height)
+        self.spawned_in_water = bool(liquid_information and spawn_position.z + model_height
                                      < liquid_information.get_height())
         if self.spawned_in_water:
             self.static_flags |= CreatureStaticFlags.AMPHIBIOUS
@@ -590,7 +591,6 @@ class CreatureManager(UnitManager):
         if self.is_player_controlled_pet() or self.is_guardian():
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, True)
         self.object_ai.enter_combat(source)
-        self.swim_checks_enabled = True
 
         if self.has_virtual_equipment():
             if self.has_mainhand_weapon() or self.has_offhand_weapon():
@@ -642,7 +642,6 @@ class CreatureManager(UnitManager):
             self.movement_manager.face_angle(return_position.o)
             self.is_evading = False
             self.tmp_home_position = None
-            self.swim_checks_enabled = False
             return
 
         # If Namigator fails, in water and heading to land, try to locate a near
@@ -668,7 +667,6 @@ class CreatureManager(UnitManager):
             self.near_teleport(return_position)
             self.is_evading = False
             self.tmp_home_position = None
-            self.swim_checks_enabled = False
         else:
             self.movement_manager.move_home(waypoints)
 
@@ -761,7 +759,8 @@ class CreatureManager(UnitManager):
                     self.threat_manager.call_for_help(self.combat_target)
                 self.call_for_help_timer = 0
 
-            if self.swim_checks_enabled:
+            # Not mid spline, a swim flag change sends a heartbeat which stops the client movement at that point.
+            if self.has_moved and not self.movement_manager.has_pending_waypoints():
                 self._update_swimming_state()
 
         has_changes = self.has_pending_updates()
@@ -1026,7 +1025,7 @@ class CreatureManager(UnitManager):
 
         self.movement_manager.reset()
         self.location = location.copy()
-        # Swim checks only run in combat, refresh the swim state for the new position.
+        # Not moving anymore, refresh the swim state for the new position.
         self._update_swimming_state()
         self.set_has_moved(has_moved=True, has_turned=True)
         self.get_map().send_surrounding(self.get_heartbeat_packet(), self, False)
@@ -1098,20 +1097,46 @@ class CreatureManager(UnitManager):
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
-        if not self.can_swim():
+        # Possessed units movement flags come from the client.
+        if not self.can_swim() or self.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED:
             return
 
         if not self.get_map().is_active_cell_for_location(self.location):
             return
 
-        is_under_water = self.is_under_water()
+        # Aquatic creatures can only be in water.
+        if self.static_flags & CreatureStaticFlags.AQUATIC:
+            is_swimming = True
+        else:
+            is_swimming = self._is_in_swimmable_water()
+            if is_swimming is None:
+                return  # Tile not loaded yet.
 
-        if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+        if is_swimming and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=True)
             self.movement_manager.set_speed_dirty()
-        elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+        elif not is_swimming and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=False)
             self.movement_manager.set_speed_dirty()
+
+    # Like vmangos, swim when the water column is deeper than 3/4 of the model height, the depth at which the client
+    # switches to the swim animation. Measured from the ground, so units chasing up to the surface keep swimming.
+    def _is_in_swimmable_water(self):
+        map_ = self.get_map()
+        x, y, z = self.location.x, self.location.y, self.location.z
+        liquid_information = map_.get_liquid_information(x, y, z)
+        if not liquid_information:
+            return None if map_.get_tile_state(x, y) == MapTileStates.LOADING else False
+
+        # Model height already includes the native scale.
+        model_height = self.model_height if self.model_height else 1.8
+        min_depth = 0.75 * model_height * (self.current_scale / self.native_scale if self.native_scale else 1)
+        surface = liquid_information.get_height()
+        if surface - z > min_depth:
+            return True
+        # ADT liquids lower bound is below the terrain, only WMO liquids bounds are meaningful as ground.
+        ground = max(map_.get_height_at_world(x, y), liquid_information.get_bounds()[0])
+        return surface - ground > min_depth
 
     def has_virtual_equipment(self):
         equipment_entries = self.get_virtual_equipment_entries()

@@ -195,9 +195,8 @@ class UnitManager(ObjectManager):
         # Cheat flags, used by Players.
         self.beast_master = False
 
-        # Call for help and swim updates (Creatures).
+        # Call for help updates (Creatures).
         self.call_for_help_timer = 0
-        self.swim_checks_enabled = False
 
         # Defensive passive spells are not handled through the aura system.
         # The effects will instead flag the unit with these fields.
@@ -2228,7 +2227,6 @@ class UnitManager(ObjectManager):
 
         self.set_has_moved(False, False, True)
         self.call_for_help_timer = 0
-        self.swim_checks_enabled = False
 
         if self.object_ai:
             self.object_ai.just_died(killer)

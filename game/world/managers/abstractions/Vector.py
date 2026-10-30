@@ -146,6 +146,15 @@ class Vector:
         if not vector:
             vector = Vector(x=x, y=y, z=z)
 
+        # Swimming units move in a straight line, don't snap them to the terrain below.
+        if unit.is_swimming():
+            general_distance = self.distance(vector)
+            if general_distance <= offset:
+                return vector
+            result = self.lerp(vector, offset / general_distance)
+            result.set_orientation(self.o if self.o != 0 else self.get_angle_towards_vector(result))
+            return result
+
         # Namigator.
         point_in_between = unit.get_map().find_point_in_between_vectors(offset, unit.location, vector)
         if point_in_between:

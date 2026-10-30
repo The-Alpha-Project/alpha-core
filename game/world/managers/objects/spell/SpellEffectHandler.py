@@ -554,6 +554,10 @@ class SpellEffectHandler:
         distance = caster.location.distance(target.location) - Distances.combat_distance(leaper, target)
         charge_location = caster.location.get_point_in_between(caster, distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
+        # A swimming caster gets a straight line point, snap it to the ground if the target is out of the water.
+        if caster.is_swimming() and not target.is_swimming():
+            charge_location.z, _ = caster.get_map().calculate_z(charge_location.x, charge_location.y,
+                                                                 target.location.z)
 
         # Always increase Z when not using namigator to protect players from falling off world.
         if config.Server.Settings.use_map_tiles and not config.Server.Settings.use_nav_tiles:

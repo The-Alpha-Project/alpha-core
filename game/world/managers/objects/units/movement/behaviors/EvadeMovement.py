@@ -48,7 +48,6 @@ class EvadeMovement(BaseMovement):
             self.unit.near_teleport(self.unit.get_home_position())
         self.unit.tmp_home_position = None
         self.unit.is_evading = False
-        self.unit.swim_checks_enabled = False
         if at_home:
             self.unit.on_at_home()
         self.unit.attack_stop()
