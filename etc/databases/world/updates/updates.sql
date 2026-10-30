@@ -24376,5 +24376,24 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('301020263');
     end if;
 
+    -- 30/10/2026 4
+    if (select count(*) from applied_updates where id='301020264') = 0 then
+        -- Events whose script was missing. VMaNGOS casts spells that do not exist in 0.5.3, recreate the scripts using
+        -- the 0.5.3 version of the same spell, rank by creature level.
+        INSERT INTO `creature_ai_scripts` VALUES
+        (381501, 0, 0, 15, 4512, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blink Dragon - Cast Spell Phase Shift'),
+        (433103, 0, 0, 15, 2601, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Firemane Ash Tail - Cast Spell Fire Shield III'),
+        (586101, 0, 0, 15, 2602, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Fire Guard - Cast Spell Fire Shield IV');
+        UPDATE `creature_ai_events` SET `event_param1` = 2601 WHERE `id` = 433103;
+        UPDATE `creature_ai_events` SET `event_param1` = 2602 WHERE `id` = 586102;
+
+        -- The rest summon or cast spells added after 0.5.3 with no 0.5.3 equivalent, are not in VMaNGOS (Whitemane) or
+        -- belong to a creature that does not exist (Timbermaw Ancestor).
+        DELETE FROM `creature_ai_events` WHERE `id` IN (73101, 156406, 180802, 268601, 397071, 438002, 452002, 452201,
+            453202, 465101, 484202, 522802, 527103, 545002, 545102, 545202, 545302, 545402, 1572001);
+
+        INSERT INTO applied_updates VALUES ('301020264');
+    end if;
+
 end $
 delimiter ;
