@@ -3,7 +3,7 @@ import signal
 import socket
 import threading
 import traceback
-from time import time
+from time import time, sleep
 from typing import Any
 
 from game.world.WorldServerTicker import WorldServerTicker
@@ -84,10 +84,21 @@ class WorldServerSessionHandler:
 
     @staticmethod
     def disconnect_sessions():
+        # Logouts already running in session threads would die with the process, let them finish saving first.
+        deadline = time() + 10.0
+        while time() < deadline and any(getattr(session.player_mgr, 'logout_in_progress', False)
+                                        for session in WorldSessionStateHandler.get_world_sessions()):
+            sleep(0.1)
+
         for session in WorldSessionStateHandler.get_world_sessions():
-            if session.player_mgr and session.player_mgr.online and not session.player_mgr.logout_in_progress:
-                session.player_mgr.logout()
-            session.disconnect()
+            # A single failing session must not stop the rest from being disconnected.
+            try:
+                if session.player_mgr and session.player_mgr.online and not session.player_mgr.logout_in_progress:
+                    session.player_mgr.logout()
+                session.disconnect()
+            except Exception as ex:
+                Logger.error(f'Error while disconnecting a session on shutdown: {ex}.')
+                Logger.error(traceback.format_exc())
 
     def save_character(self):
         WorldSessionStateHandler.save_character(self.player_mgr)

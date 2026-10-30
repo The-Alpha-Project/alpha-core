@@ -209,8 +209,12 @@ class WorldSessionStateHandler:
             # Set before writing, so a failing write is retried after an interval instead of every tick.
             WorldSessionStateHandler._online_count_written = online_player_count
             WorldSessionStateHandler._online_count_written_at = now
-            AuthDatabaseManager.realm_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
-                                                              online_player_count)
+            # Must not raise, the shutdown save is followed by disconnecting every session.
+            try:
+                AuthDatabaseManager.realm_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
+                                                                  online_player_count)
+            except Exception as ex:
+                Logger.error(f'Error while writing the online player count: {ex}.')
 
     @staticmethod
     def save_character(player_mgr, reason=SaveReason.MANUAL, full_save=False, min_interval_seconds=0.0, allow_locked=False):
