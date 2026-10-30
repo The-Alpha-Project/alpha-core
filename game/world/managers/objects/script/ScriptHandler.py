@@ -1581,7 +1581,10 @@ class ScriptHandler:
             ScriptHandler._validate_spell_id(command)
             return command.should_abort()
 
-        command.source.spell_manager.set_on_cooldown(spell, command.datalong2 * 1000)
+        # set_on_cooldown expects a CastingSpell, not a Spell entry.
+        casting_spell = command.source.spell_manager.try_initialize_spell(spell, command.source, SpellTargetMask.SELF,
+                                                                          validate=False)
+        command.source.spell_manager.set_on_cooldown(casting_spell, command.datalong2 * 1000)
         return False
 
     @staticmethod
