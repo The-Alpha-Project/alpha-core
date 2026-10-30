@@ -1059,6 +1059,9 @@ class CreatureManager(UnitManager):
     def respawn(self):
         self.initialize_from_creature_template(self.creature_template)
         super().respawn()
+        # Template auras applied while reinitializing were rejected, the unit was still dead.
+        if self.fully_loaded:
+            self.apply_default_auras()
         if self.creature_group:
             self.creature_group.on_member_respawn(self)
 

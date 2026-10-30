@@ -23920,5 +23920,23 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('301020261');
     end if;
 
+    -- 30/10/2026 2
+    if (select count(*) from applied_updates where id='301020262') = 0 then
+        -- On spawn casts of spells these creatures already have as template auras: Battle Stance (rejected, the stance
+        -- is already applied) or spells missing in 0.5.3 (10255, 16345, 16577).
+        DELETE FROM `creature_ai_events` WHERE `id` IN (233901, 265301, 373701, 442001, 443601, 463601, 560001, 560201,
+            582401, 585901, 707601, 707701, 730901, 854501, 1041402, 1188501);
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (233901, 265301, 373701, 442001, 443601, 463601, 560001, 560201,
+            582401, 585901, 707601, 707701, 730901, 854501, 1041402, 1188501);
+
+        -- Template auras missing in 0.5.3 (8876, 10255, 16345, 16577).
+        UPDATE `creature_template` SET `auras` = NULL WHERE `entry` IN (7076, 7077, 7309, 8545, 10414, 11885);
+
+        -- Moonstalker Matriarch, Summon Moonstalker Runt (8594) does not exist in 0.5.3 and the event has no script.
+        DELETE FROM `creature_ai_events` WHERE `id` = 207101;
+
+        INSERT INTO applied_updates VALUES ('301020262');
+    end if;
+
 end $
 delimiter ;
