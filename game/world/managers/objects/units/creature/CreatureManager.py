@@ -13,6 +13,7 @@ from game.world.managers.objects.units.creature.CreaturePickPocketLootManager im
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
+from game.world.managers.objects.units.creature.utils.VendorUtils import VendorUtils
 from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -788,6 +789,8 @@ class CreatureManager(UnitManager):
 
         self.time_to_live_timer = 0
         self.time_to_live = 0
+        # Vendor stock is kept by guid, drop it so despawned vendors do not leak it.
+        VendorUtils.VENDOR_DATA.pop(self.guid, None)
 
         # Notify summoner EventAI before detach logic can clear the summon relation.
         self._notify_summoner_ai_summoned_creature_despawned()
