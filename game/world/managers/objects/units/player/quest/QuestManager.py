@@ -412,6 +412,8 @@ class QuestManager:
                 return False
         return True
 
+    # Reputation objectives and requirements (RepObjective*, RequiredMinRep*, RequiredMaxRep*) are 1.12 data, the 0.5.3
+    # client quest record has no reputation fields at all, so they are intentionally ignored.
     def check_quest_requirements(self, quest_template, quest_start=True):
         # First check if quest is disabled.
         if quest_template.Method == QuestMethod.QUEST_DISABLED:

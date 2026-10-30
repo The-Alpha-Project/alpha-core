@@ -46,6 +46,10 @@ class ReputationManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_SET_FACTION_VISIBLE, pack('<I', faction.index))
         self.player_mgr.enqueue_packet(packet)
 
+    # The 0.5.3 reputation system was very barebones: factions only have an index, race/class masks, base standing
+    # and a name, with 7 tiers (Hated to Revered, see reaction_by_standing). The MaxStanding columns of
+    # creature_onkill_reputation are 1.12 rank caps (up to Honored/Exalted) with no 0.5.3 equivalent, so kill
+    # reputation is intentionally left uncapped.
     def reward_reputation_on_kill(self, creature, rate=1.0):
         reputation_on_kill_entry = WorldDatabaseManager.CreatureOnKillReputationHolder.\
             creature_on_kill_reputation_get_by_entry(creature.entry)
