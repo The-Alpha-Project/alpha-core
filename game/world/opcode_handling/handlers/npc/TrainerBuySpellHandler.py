@@ -5,7 +5,7 @@ from game.world.managers.objects.units.creature.utils.TrainerUtils import Traine
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Formulas import Distances
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, SpellEffects
 from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes, TrainingFailReasons
@@ -56,6 +56,11 @@ class TrainerBuySpellHandler:
                 trainer_spell = t_template
                 break
 
+        if not trainer_spell:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
+            return
+
         talent_cost = TalentManager.get_talent_cost_from_training_spell(trainer_spell)
 
         fail_reason = None
@@ -81,7 +86,8 @@ class TrainerBuySpellHandler:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             player_mgr.talent_manager.send_talent_list()
 
-        if fail_reason:
+        # TRAIN_FAIL_UNAVAILABLE is 0, check against None.
+        if fail_reason is not None:
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
             return
     
@@ -126,6 +132,10 @@ class TrainerBuySpellHandler:
 
         spell_money_cost = trainer_spell.spellcost
         spell_skill_cost = trainer_spell.skillpointcost
+        # Pet abilities are checked against the pet by get_training_list_spell_status, not the player.
+        trainer_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell)
+        is_taught_to_pet = (trainer_spell_entry and
+                            trainer_spell_entry.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL)
 
         fail_reason = None
         anti_cheat = False
@@ -140,46 +150,48 @@ class TrainerBuySpellHandler:
         elif trainer_spell.reqlevel > player_mgr.level:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
-        elif trainer_spell.playerspell in player_mgr.spell_manager.spells:
+        elif not is_taught_to_pet and trainer_spell.playerspell in player_mgr.spell_manager.spells:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-        elif not player_mgr.spell_manager.can_learn_spell(player_spell.ID):
+        elif not is_taught_to_pet and not player_mgr.spell_manager.can_learn_spell(player_spell.ID):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
         elif not player_mgr.is_gm and not Distances.is_within_shop_distance(player_mgr, unit):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
 
-        # If this is a profession trainer, do checks that apply only to profession trainers.
-        if creature_template.trainer_type == TrainerTypes.TRAINER_TYPE_TRADESKILLS:
-            default_spells = WorldDatabaseManager.DefaultProfessionSpellHolder\
-                .default_profession_spells_get_by_trainer_spell_id(training_spell_id)
-
-            # Check for any spells that should be learned by default with profession and learn them.
-            if len(default_spells) > 0:
-                for profession_spell_entry in default_spells:
-                    player_mgr.spell_manager.learn_spell(profession_spell_entry.default_spell)
-
-            # Get data required to verify spell status.
-            spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.playerspell)
+        # Verify the status again with the same rules send_trainer_list uses, for every trainer type.
+        if fail_reason is None:
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(
-                spell.ID)
+                player_spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
-            req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
+            req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else player_spell.BaseLevel
+            fulfill_skill_reqs = True
+            if trainer_spell.reqskill:
+                skill_value = player_mgr.skill_manager.get_total_skill_value(trainer_spell.reqskill, no_bonus=True)
+                fulfill_skill_reqs = skill_value >= trainer_spell.reqskillvalue
 
-            # Get spell status again to verify that client check was correct.
-            verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, player_mgr,
-                                                                        preceded_spell=preceded_spell)
-
-            # Check spell status, fail if spell should be unavailable.
-            if verify_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
+            verify_status = TrainerUtils.get_training_list_spell_status(player_spell, trainer_spell, req_level,
+                                                                        player_mgr, fulfill_skill_reqs,
+                                                                        preceded_spell=preceded_spell,
+                                                                        req_spell_2=trainer_spell.req_spell_2,
+                                                                        req_spell_3=trainer_spell.req_spell_3)
+            # Also refuses spells the pet already knows (TRAINER_SERVICE_USED).
+            if verify_status != TrainerServices.TRAINER_SERVICE_AVAILABLE:
                 fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
                 TrainerUtils.send_trainer_list(unit, player_mgr)
 
-        if fail_reason:
+        # TRAIN_FAIL_UNAVAILABLE is 0, check against None.
+        if fail_reason is not None:
             if anti_cheat:
                 Logger.anticheat(f'Player {player_mgr.guid} tried to train spell {trainer_spell.playerspell} '
                                  f'(entry {trainer_spell.template_entry}) from NPC {unit.entry}.')
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
             return
+
+        # Profession trainers teach the profession default spells, only once the request is valid.
+        if creature_template.trainer_type == TrainerTypes.TRAINER_TYPE_TRADESKILLS:
+            for profession_spell_entry in WorldDatabaseManager.DefaultProfessionSpellHolder \
+                    .default_profession_spells_get_by_trainer_spell_id(training_spell_id):
+                player_mgr.spell_manager.learn_spell(profession_spell_entry.default_spell)
 
         if spell_money_cost > 0:
             player_mgr.mod_money(-spell_money_cost)
