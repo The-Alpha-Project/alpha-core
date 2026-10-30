@@ -96,7 +96,7 @@ class WorldSessionStateHandler:
         PLAYERS_BY_GUID[session.player_mgr.guid] = session.player_mgr
         # Start the periodic full save at a random point within the interval, otherwise players logging in together
         # (e.g. after a restart) would keep being saved in the same tick.
-        interval = config.Server.Settings.realm_saving_interval_seconds
+        interval = WorldSessionStateHandler.get_saving_interval()
         WorldSessionStateHandler._set_last_full_save_at(session.player_mgr.guid,
                                                         time.monotonic() - random.uniform(0, interval))
         PLAYER_BY_NAME[lowercase_name] = session.player_mgr
@@ -176,12 +176,17 @@ class WorldSessionStateHandler:
                     Logger.error(traceback.format_exc())
 
     @staticmethod
+    def get_saving_interval():
+        # Zero or negative would save every player on every ticker loop without ever sleeping.
+        return max(1.0, config.Server.Settings.realm_saving_interval_seconds)
+
+    @staticmethod
     def save_due_characters():
         # Saving every player at once froze the world ticker for the whole batch once per interval. Instead, this runs
         # every few seconds and only saves the players whose last full save is older than the interval, so each player
         # is still saved once per interval but the work is spread across ticks.
         WorldSessionStateHandler.save_characters(
-            min_interval_seconds=config.Server.Settings.realm_saving_interval_seconds)
+            min_interval_seconds=WorldSessionStateHandler.get_saving_interval())
 
     @staticmethod
     def save_characters(reason=SaveReason.PERIODIC, allow_locked=False, min_interval_seconds=0.0):
@@ -200,7 +205,7 @@ class WorldSessionStateHandler:
         now = time.monotonic()
         if (online_player_count != WorldSessionStateHandler._online_count_written
                 or now - WorldSessionStateHandler._online_count_written_at
-                >= config.Server.Settings.realm_saving_interval_seconds):
+                >= WorldSessionStateHandler.get_saving_interval()):
             # Set before writing, so a failing write is retried after an interval instead of every tick.
             WorldSessionStateHandler._online_count_written = online_player_count
             WorldSessionStateHandler._online_count_written_at = now

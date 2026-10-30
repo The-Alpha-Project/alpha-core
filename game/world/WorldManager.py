@@ -274,7 +274,7 @@ class WorldServerSessionHandler:
         ticker = WorldServerTicker()
         # Checks often, but each player is only saved once per interval (see save_due_characters).
         ticker.add_task('Realm Saving', WorldSessionStateHandler.save_due_characters,
-                        min(5.0, config.Server.Settings.realm_saving_interval_seconds))
+                        min(5.0, WorldSessionStateHandler.get_saving_interval()))
         ticker.add_task('Player', WorldSessionStateHandler.update_players, 0.1)
         ticker.add_task('Creature', MapManager.update_creatures, 0.2)
         ticker.add_task('Gameobject', MapManager.update_gameobjects, 1.0)
