@@ -166,13 +166,14 @@ class WorldSessionStateHandler:
     def update_players():
         now = time.time()
         for session in WORLD_SESSIONS:
-            if (session.player_mgr and session.player_mgr.online and not session.player_mgr.update_lock
-                    and not session.player_mgr.logout_in_progress):
+            # Read once, a logout on another thread can set it to None at any time.
+            player_mgr = session.player_mgr
+            if player_mgr and player_mgr.online and not player_mgr.update_lock and not player_mgr.logout_in_progress:
                 # A failing player must not stop the update of every player after it.
                 try:
-                    session.player_mgr.update(now)
+                    player_mgr.update(now)
                 except Exception as ex:
-                    Logger.error(f'Error while updating [{session.player_mgr.get_name()}]: {ex}.')
+                    Logger.error(f'Error while updating [{player_mgr.get_name()}]: {ex}.')
                     Logger.error(traceback.format_exc())
 
     @staticmethod
@@ -192,11 +193,13 @@ class WorldSessionStateHandler:
     def save_characters(reason=SaveReason.PERIODIC, allow_locked=False, min_interval_seconds=0.0):
         online_player_count = 0
         for session in WorldSessionStateHandler.get_world_sessions():
-            if not session.player_mgr or not session.player_mgr.online or session.player_mgr.logout_in_progress:
+            # Read once, a logout on another thread can set it to None at any time.
+            player_mgr = session.player_mgr
+            if not player_mgr or not player_mgr.online or player_mgr.logout_in_progress:
                 continue
 
             online_player_count += 1
-            WorldSessionStateHandler.save_character(session.player_mgr, reason=reason, full_save=True,
+            WorldSessionStateHandler.save_character(player_mgr, reason=reason, full_save=True,
                                                     min_interval_seconds=min_interval_seconds,
                                                     allow_locked=allow_locked)
 

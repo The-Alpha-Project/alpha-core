@@ -18,8 +18,9 @@ class InstancesManager:
 
     @staticmethod
     def unload_empty_instances():
-        occupied_instances = {(session.player_mgr.map_id, session.player_mgr.instance_id)
-                              for session in WorldSessionStateHandler.get_world_sessions() if session.player_mgr}
+        # Read player_mgr once per session, a logout on another thread can set it to None at any time.
+        players = [session.player_mgr for session in WorldSessionStateHandler.get_world_sessions()]
+        occupied_instances = {(player_mgr.map_id, player_mgr.instance_id) for player_mgr in players if player_mgr}
         # Tokens go together with their maps, so nobody can rebuild an instance id that is being unloaded.
         with InstancesManager.LOCK:
             empty_maps = MapManager.pop_empty_instance_maps(occupied_instances, InstancesManager.INSTANCE_UNLOAD_DELAY)

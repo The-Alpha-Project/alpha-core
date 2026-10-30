@@ -93,8 +93,10 @@ class WorldServerSessionHandler:
         for session in WorldSessionStateHandler.get_world_sessions():
             # A single failing session must not stop the rest from being disconnected.
             try:
-                if session.player_mgr and session.player_mgr.online and not session.player_mgr.logout_in_progress:
-                    session.player_mgr.logout()
+                # Read once, a logout on another thread can set it to None at any time.
+                player_mgr = session.player_mgr
+                if player_mgr and player_mgr.online and not player_mgr.logout_in_progress:
+                    player_mgr.logout()
                 session.disconnect()
             except Exception as ex:
                 Logger.error(f'Error while disconnecting a session on shutdown: {ex}.')
