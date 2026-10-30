@@ -1,5 +1,6 @@
 import time
 from struct import pack
+from threading import RLock
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
@@ -21,6 +22,8 @@ class ActiveQuest:
         self.quest = quest
         self.area_triggers = None
         self.failed = False
+        self.saved_values = None  # Column values last written to db.
+        self.save_lock = RLock()
         self.load_area_triggers()
         self.set_quest_givers_entries()
 
@@ -226,10 +229,25 @@ class ActiveQuest:
         self.save()
 
     def save(self, is_new=False):
-        if is_new:
-            RealmDatabaseManager.character_add_quest_status(self.db_state)
-        else:
-            RealmDatabaseManager.character_update_quest_status(self.db_state)
+        # Saves can come from different threads. Serialize them and take the values before writing, so a change made
+        # while writing always differs from saved_values and gets written later instead of being skipped.
+        with self.save_lock:
+            db_values = self._get_db_values()
+            if is_new:
+                RealmDatabaseManager.character_add_quest_status(self.db_state)
+            else:
+                RealmDatabaseManager.character_update_quest_status(self.db_state)
+            self.saved_values = db_values
+
+    def save_if_changed(self):
+        # Progress is written as it happens, so periodic saves only find changed timers. Comparing values instead of
+        # flagging changes means no update path can be missed.
+        with self.save_lock:
+            if self._get_db_values() != self.saved_values:
+                self.save()
+
+    def _get_db_values(self):
+        return tuple(getattr(self.db_state, column.key) for column in self.db_state.__table__.columns)
 
     def can_complete_quest(self):
         if self.failed:

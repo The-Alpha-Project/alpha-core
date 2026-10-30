@@ -1060,8 +1060,10 @@ class QuestManager:
                 if db_quest:
                     self.active_quests[quest_id] = ActiveQuest(db_quest, self.player_mgr, quest)
                 else:
-                    self.active_quests[quest_id] = self._create_db_quest_status(quest)
-                    self.active_quests[quest_id].save(is_new=True)
+                    # Insert before publishing it, so periodic saves never see it mid insert.
+                    active_quest = self._create_db_quest_status(quest)
+                    active_quest.save(is_new=True)
+                    self.active_quests[quest_id] = active_quest
             # Client will send multiple CMSG_QUESTGIVER_CHOOSE_REWARD packets if player spams the quest complete button,
             # resulting in the quest not being active anymore after it has been completed once (of course). Silently
             # ignoring this case. AKA the nefarious Dovah bug.
@@ -1440,7 +1442,7 @@ class QuestManager:
             self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
     def save(self):
-        [quest.save() for quest in list(self.active_quests.values())]
+        [quest.save_if_changed() for quest in list(self.active_quests.values())]
 
     def _create_db_quest_status(self, quest):
         db_quest_status = CharacterQuestState()

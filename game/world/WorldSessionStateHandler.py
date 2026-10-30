@@ -1,3 +1,4 @@
+import random
 import time
 import traceback
 from threading import RLock
@@ -18,6 +19,7 @@ SESSION_BY_GUID = {}
 SESSION_BY_NAME = {}
 PLAYER_SAVE_LOCKS = {}
 PLAYER_LAST_SAVE_AT = {}
+PLAYER_LAST_FULL_SAVE_AT = {}
 PLAYER_SAVE_STATE_LOCK = RLock()
 INFO_SAVE_REASONS = {
     SaveReason.LOGOUT,
@@ -36,6 +38,8 @@ QUIET_SAVE_REASONS = {
 
 
 class WorldSessionStateHandler:
+    _online_count_written = None
+    _online_count_written_at = 0.0
 
     @staticmethod
     def _get_player_save_lock(player_guid):
@@ -45,14 +49,22 @@ class WorldSessionStateHandler:
             return PLAYER_SAVE_LOCKS[player_guid]
 
     @staticmethod
-    def _get_last_save_at(player_guid):
+    def _get_last_save_at(player_guid, full_save=False):
+        # Core saves (xp, money...) happen often, so full saves track their own time or they would never be due.
         with PLAYER_SAVE_STATE_LOCK:
-            return PLAYER_LAST_SAVE_AT.get(player_guid, 0.0)
+            return (PLAYER_LAST_FULL_SAVE_AT if full_save else PLAYER_LAST_SAVE_AT).get(player_guid, 0.0)
 
     @staticmethod
-    def _set_last_save_at(player_guid, save_timestamp):
+    def _set_last_save_at(player_guid, save_timestamp, full_save=False):
         with PLAYER_SAVE_STATE_LOCK:
             PLAYER_LAST_SAVE_AT[player_guid] = save_timestamp
+            if full_save:
+                PLAYER_LAST_FULL_SAVE_AT[player_guid] = save_timestamp
+
+    @staticmethod
+    def _set_last_full_save_at(player_guid, save_timestamp):
+        with PLAYER_SAVE_STATE_LOCK:
+            PLAYER_LAST_FULL_SAVE_AT[player_guid] = save_timestamp
 
     @staticmethod
     def _log_save_success(player_mgr, reason, elapsed_ms, full_save):
@@ -82,6 +94,11 @@ class WorldSessionStateHandler:
 
         # This is filled upon player successful login (in-world).
         PLAYERS_BY_GUID[session.player_mgr.guid] = session.player_mgr
+        # Start the periodic full save at a random point within the interval, otherwise players logging in together
+        # (e.g. after a restart) would keep being saved in the same tick.
+        interval = config.Server.Settings.realm_saving_interval_seconds
+        WorldSessionStateHandler._set_last_full_save_at(session.player_mgr.guid,
+                                                        time.monotonic() - random.uniform(0, interval))
         PLAYER_BY_NAME[lowercase_name] = session.player_mgr
         SESSION_BY_GUID[session.player_mgr.guid] = session
         SESSION_BY_NAME[lowercase_name] = session
@@ -159,7 +176,15 @@ class WorldSessionStateHandler:
                     Logger.error(traceback.format_exc())
 
     @staticmethod
-    def save_characters(reason=SaveReason.PERIODIC, allow_locked=False):
+    def save_due_characters():
+        # Saving every player at once froze the world ticker for the whole batch once per interval. Instead, this runs
+        # every few seconds and only saves the players whose last full save is older than the interval, so each player
+        # is still saved once per interval but the work is spread across ticks.
+        WorldSessionStateHandler.save_characters(
+            min_interval_seconds=config.Server.Settings.realm_saving_interval_seconds)
+
+    @staticmethod
+    def save_characters(reason=SaveReason.PERIODIC, allow_locked=False, min_interval_seconds=0.0):
         online_player_count = 0
         for session in WorldSessionStateHandler.get_world_sessions():
             if not session.player_mgr or not session.player_mgr.online or session.player_mgr.logout_in_progress:
@@ -167,10 +192,20 @@ class WorldSessionStateHandler:
 
             online_player_count += 1
             WorldSessionStateHandler.save_character(session.player_mgr, reason=reason, full_save=True,
+                                                    min_interval_seconds=min_interval_seconds,
                                                     allow_locked=allow_locked)
 
-        AuthDatabaseManager.realm_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
-                                                          online_player_count)
+        # Only write the count when it changed, but still once per interval since the realm server resets it to 0
+        # when it restarts.
+        now = time.monotonic()
+        if (online_player_count != WorldSessionStateHandler._online_count_written
+                or now - WorldSessionStateHandler._online_count_written_at
+                >= config.Server.Settings.realm_saving_interval_seconds):
+            # Set before writing, so a failing write is retried after an interval instead of every tick.
+            WorldSessionStateHandler._online_count_written = online_player_count
+            WorldSessionStateHandler._online_count_written_at = now
+            AuthDatabaseManager.realm_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
+                                                              online_player_count)
 
     @staticmethod
     def save_character(player_mgr, reason=SaveReason.MANUAL, full_save=False, min_interval_seconds=0.0, allow_locked=False):
@@ -188,7 +223,7 @@ class WorldSessionStateHandler:
                 save_started_at = time.perf_counter()
                 now = time.monotonic()
                 if min_interval_seconds > 0.0:
-                    last_save_at = WorldSessionStateHandler._get_last_save_at(player_guid)
+                    last_save_at = WorldSessionStateHandler._get_last_save_at(player_guid, full_save)
                     if now - last_save_at < min_interval_seconds:
                         return False
 
@@ -203,7 +238,7 @@ class WorldSessionStateHandler:
                     player_mgr.pet_manager.save()
                     player_mgr.quest_manager.save()
 
-                WorldSessionStateHandler._set_last_save_at(player_guid, now)
+                WorldSessionStateHandler._set_last_save_at(player_guid, now, full_save)
                 elapsed_ms = (time.perf_counter() - save_started_at) * 1000
                 WorldSessionStateHandler._log_save_success(player_mgr, reason, elapsed_ms, full_save)
                 return True
@@ -215,4 +250,7 @@ class WorldSessionStateHandler:
                 f'Error while saving {player_name} ({player_db_guid}) into db during [{reason_label}] save: {ex}.'
             )
             Logger.error(traceback.format_exc())
+            # Periodic saves are checked every few seconds, wait a full interval before retrying (e.g. db down).
+            if full_save and min_interval_seconds > 0.0:
+                WorldSessionStateHandler._set_last_full_save_at(player_guid, time.monotonic())
             return False
