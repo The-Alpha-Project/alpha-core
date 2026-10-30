@@ -130,7 +130,7 @@ class WorldSessionStateHandler:
         if not new_session or not new_session.account_mgr:
             return
 
-        for session in WORLD_SESSIONS:
+        for session in WorldSessionStateHandler.get_world_sessions():
             if session.account_mgr and session.account_mgr.account.id == new_session.account_mgr.account.id:
                 session.disconnect()
                 break
@@ -141,7 +141,7 @@ class WorldSessionStateHandler:
 
     @staticmethod
     def get_session_by_account_id(account_id):
-        for session in WORLD_SESSIONS:
+        for session in WorldSessionStateHandler.get_world_sessions():
             if session.account_mgr and session.account_mgr.account.id == account_id:
                 return session
         return None
@@ -165,7 +165,7 @@ class WorldSessionStateHandler:
     @staticmethod
     def update_players():
         now = time.time()
-        for session in WORLD_SESSIONS:
+        for session in WorldSessionStateHandler.get_world_sessions():
             # Read once, a logout on another thread can set it to None at any time.
             player_mgr = session.player_mgr
             if player_mgr and player_mgr.online and not player_mgr.update_lock and not player_mgr.logout_in_progress:
