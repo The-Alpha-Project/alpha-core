@@ -1261,14 +1261,18 @@ class QuestManager:
 
         # Every active quest needing this item gets credit.
         rewarded = False
-        for quest_id, active_quest in self.active_quests.items():
-            if active_quest.still_needs_item(item_template):
+        for quest_id, active_quest in list(self.active_quests.items()):
+            # Credit can come from several threads at once, check and count under the quest lock.
+            with active_quest.lock:
+                if active_quest.removed or not active_quest.still_needs_item(item_template):
+                    continue
+                was_complete = active_quest.get_quest_state() == QuestState.QUEST_REWARD
                 active_quest.update_item_count(item_entry, item_count)
-                self.update_single_quest(quest_id)
-                # If by this item we complete the quest, update surrounding so NPC can display new complete status.
-                if active_quest.can_complete_quest():
-                    self.complete_quest(active_quest, update_surrounding=True, notify=True)
-                rewarded = True
+            self.update_single_quest(quest_id)
+            # If by this item we complete the quest, update surrounding so NPC can display new complete status.
+            if not was_complete and active_quest.can_complete_quest():
+                self.complete_quest(active_quest, update_surrounding=True, notify=True)
+            rewarded = True
         return rewarded
 
     def handle_goober_use(self, gameobject, quest_id=0):
@@ -1277,21 +1281,24 @@ class QuestManager:
     def reward_creature_or_go(self, world_object, to_quest_id=0):
         # Every active quest requiring this creature or gameobject gets credit.
         rewarded = False
-        for quest_id, active_quest in self.active_quests.items():
+        for quest_id, active_quest in list(self.active_quests.items()):
             if to_quest_id and quest_id != to_quest_id:
                 continue
-            if not active_quest.requires_creature_or_go(world_object):
-                continue
-            active_quest.update_creature_go_count(world_object, 1)
+            # Group kills can credit the same quest from several threads at once, check and count under the quest lock.
+            with active_quest.lock:
+                if active_quest.removed or not active_quest.requires_creature_or_go(world_object):
+                    continue
+                was_complete = active_quest.get_quest_state() == QuestState.QUEST_REWARD
+                active_quest.update_creature_go_count(world_object, 1)
             self.update_single_quest(quest_id)
             # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
-            if active_quest.can_complete_quest():
+            if not was_complete and active_quest.can_complete_quest():
                 self.complete_quest(active_quest, update_surrounding=True, notify=True)
             rewarded = True
         return rewarded
 
     def reward_quest_exploration(self, area_trigger_id):
-        for quest_id, active_quest in self.active_quests.items():
+        for quest_id, active_quest in list(self.active_quests.items()):
             if not active_quest.requires_area_trigger(area_trigger_id):
                 continue
             if not active_quest.apply_exploration_completion(area_trigger_id):
@@ -1303,7 +1310,7 @@ class QuestManager:
                 self.send_quest_complete_event(quest_id)
 
     def reward_quest_event(self, quest_entry):
-        for quest_id, active_quest in self.active_quests.items():
+        for quest_id, active_quest in list(self.active_quests.items()):
             if quest_id != quest_entry:
                 continue
             if not QuestHelpers.is_event_quest(active_quest.quest):
@@ -1422,10 +1429,14 @@ class QuestManager:
         quest_finisher_entry = 0
 
         active_quest = self.active_quests.get(quest_id, None)
+        quest_ids = list(self.active_quests.keys())
+        # Removed meanwhile (e.g. turned in on another thread), there is no slot to write.
+        if slot == -1 and (not active_quest or quest_id not in quest_ids):
+            return
         if active_quest:
             progress = active_quest.get_progress()
             timer = active_quest.get_timer()
-            slot = slot if slot != -1 else list(self.active_quests.keys()).index(quest_id)
+            slot = slot if slot != -1 else quest_ids.index(quest_id)
             quest_starter_entry = active_quest.quest_starter_entry
             quest_finisher_entry = active_quest.quest_finisher_entry
 

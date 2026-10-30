@@ -23,7 +23,7 @@ class ActiveQuest:
         self.area_triggers = None
         self.failed = False
         self.saved_values = None  # Column values last written to db.
-        self.save_lock = RLock()
+        self.lock = RLock()  # Guards progress and saves, both can come from several threads.
         self.removed = False
         self.load_area_triggers()
         self.set_quest_givers_entries()
@@ -147,7 +147,7 @@ class ActiveQuest:
         required = QuestHelpers.generate_req_unit_or_go_count_list(self.quest)[creature_go_index]
         current = self._get_db_mob_or_go_count(creature_go_index)
         # Current < Required is already validated on requires_creature_or_go().
-        self._update_db_creature_go_count(creature_go_index, 1)  # Update db memento
+        self._update_db_creature_go_count(creature_go_index, value)  # Update db memento
 
         # Notify the current objective count.
         data = pack('<4IQ',
@@ -232,7 +232,7 @@ class ActiveQuest:
     def save(self, is_new=False):
         # Saves can come from different threads. Serialize them and take the values before writing, so a change made
         # while writing always differs from saved_values and gets written later instead of being skipped.
-        with self.save_lock:
+        with self.lock:
             # Once removed its row may be deleted, a late periodic save would insert it again.
             if self.removed:
                 return
@@ -245,13 +245,13 @@ class ActiveQuest:
 
     def set_removed(self):
         # Waits for any save in progress, so the caller can safely delete the row afterwards.
-        with self.save_lock:
+        with self.lock:
             self.removed = True
 
     def save_if_changed(self):
         # Progress is written as it happens, so periodic saves only find changed timers. Comparing values instead of
         # flagging changes means no update path can be missed.
-        with self.save_lock:
+        with self.lock:
             if self._get_db_values() != self.saved_values:
                 self.save()
 
@@ -335,13 +335,15 @@ class ActiveQuest:
     def update_required_items_from_inventory(self):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
         req_count = QuestHelpers.generate_req_item_count_list(self.quest)
-        for index, item in enumerate(req_items):
-            current_count = self.owner.inventory.get_item_count(item)
-            self._update_db_item_count(index, current_count, req_count[index], override=True)
-        if self.can_complete_quest():
-            self.update_quest_state(QuestState.QUEST_REWARD)
-        else:
-            self.update_quest_state(QuestState.QUEST_ACCEPTED)
+        # Item credit can also come from the ticker (e.g. cast time create item spells).
+        with self.lock:
+            for index, item in enumerate(req_items):
+                current_count = self.owner.inventory.get_item_count(item)
+                self._update_db_item_count(index, current_count, req_count[index], override=True)
+            if self.can_complete_quest():
+                self.update_quest_state(QuestState.QUEST_REWARD)
+            else:
+                self.update_quest_state(QuestState.QUEST_ACCEPTED)
 
     def requires_item(self, item_entry):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
