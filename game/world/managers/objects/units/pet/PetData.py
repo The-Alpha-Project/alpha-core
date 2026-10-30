@@ -198,7 +198,9 @@ class PetData:
         skill_lines = [family_entry.SkillLine_1,
                        family_entry.SkillLine_2 if self.is_hunter_pet() else 0]  # Include talents for this check (if any).
 
-        skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(skill_lines)
+        skill_line_abilities = [
+            ability for skill_line in skill_lines if skill_line
+            for ability in DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_skill_id(skill_line)]
         if not skill_line_abilities:
             return []
 

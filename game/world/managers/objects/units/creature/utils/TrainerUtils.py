@@ -51,8 +51,7 @@ class TrainerUtils:
             if not spell:
                 continue
 
-            # Handle other classes training Lockpicking through rogue trainers.
-            if not is_player_class_trainer and spell.ID not in TrainerUtils.PICK_LOCK_SPELLS:
+            if not TrainerUtils.is_trainer_spell_offered(creature_mgr, player_mgr, trainer_spell, spell):
                 continue
 
             if spell.EffectItemType_1:
@@ -65,13 +64,6 @@ class TrainerUtils:
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(
                 spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
-
-            if DbcDatabaseManager.SkillLineAbilityHolder.spell_has_skill_line_ability(spell.ID):
-                skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
-                    spell.ID, player_mgr.race, player_mgr.class_, player_mgr.is_gm)
-                # Spell is not available to player.
-                if not skill_line_ability:
-                    continue
 
             # Skill step.
             skill_step: int = 0
@@ -148,13 +140,34 @@ class TrainerUtils:
         return data
 
     @staticmethod
+    def is_taught_to_pet(trainer_spell_template: TrainerTemplate) -> bool:
+        trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
+        return bool(trainer_spell) and trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
+
+    # Whether the trainer list shows this spell at all. Purchases use it too, so nothing hidden can be bought.
+    @staticmethod
+    def is_trainer_spell_offered(creature_mgr, player_mgr, trainer_spell_template: TrainerTemplate,
+                                 spell: Spell) -> bool:
+        # Other classes only get Lockpicking from rogue trainers.
+        if not TrainerUtils.is_player_class_trainer(creature_mgr, player_mgr) \
+                and spell.ID not in TrainerUtils.PICK_LOCK_SPELLS:
+            return False
+        # Like vmangos, pet spells are not filtered by the player race/class (pet skill lines exclude every race),
+        # they are checked against the pet instead.
+        if TrainerUtils.is_taught_to_pet(trainer_spell_template):
+            return True
+        if not DbcDatabaseManager.SkillLineAbilityHolder.spell_has_skill_line_ability(spell.ID):
+            return True
+        return DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+            spell.ID, player_mgr.race, player_mgr.class_, player_mgr.is_gm) is not None
+
+    @staticmethod
     def get_training_list_spell_status(spell: Spell, trainer_spell_template: TrainerTemplate, req_level: int,
                                        player_mgr, fulfills_skill: bool = True,  preceded_spell: int = 0,
                                        req_spell_2: int = 0, req_spell_3: int = 0):
-        trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
-        is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
+        is_taught_to_pet = TrainerUtils.is_taught_to_pet(trainer_spell_template)
         active_pet = player_mgr.pet_manager.get_active_permanent_pet()
-        if is_taught_to_pet and not active_pet:
+        if is_taught_to_pet and (not active_pet or not active_pet.get_pet_data().can_ever_learn_spell(spell.ID)):
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
         target_spells = active_pet.get_pet_data().spells if is_taught_to_pet else player_mgr.spell_manager.spells

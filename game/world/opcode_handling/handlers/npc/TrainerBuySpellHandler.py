@@ -5,7 +5,7 @@ from game.world.managers.objects.units.creature.utils.TrainerUtils import Traine
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Formulas import Distances
-from utils.constants.SpellCodes import SpellTargetMask, SpellEffects
+from utils.constants.SpellCodes import SpellTargetMask
 from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes, TrainingFailReasons
@@ -133,14 +133,13 @@ class TrainerBuySpellHandler:
         spell_money_cost = trainer_spell.spellcost
         spell_skill_cost = trainer_spell.skillpointcost
         # Pet abilities are checked against the pet by get_training_list_spell_status, not the player.
-        trainer_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell)
-        is_taught_to_pet = (trainer_spell_entry and
-                            trainer_spell_entry.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL)
+        is_taught_to_pet = TrainerUtils.is_taught_to_pet(trainer_spell)
 
         fail_reason = None
         anti_cheat = False
         if not unit.is_trainer() or not TrainerUtils.can_train(unit, player_mgr) or \
-                not TrainerUtils.trainer_has_spell(unit, training_spell_id):
+                not TrainerUtils.trainer_has_spell(unit, training_spell_id) or \
+                not TrainerUtils.is_trainer_spell_offered(unit, player_mgr, trainer_spell, player_spell):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
         elif spell_money_cost > 0 and spell_money_cost > player_mgr.coinage:

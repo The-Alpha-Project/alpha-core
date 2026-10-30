@@ -453,13 +453,6 @@ class DbcDatabaseManager:
                 skill_line_abilities, race, class_, gm=gm)
 
     @staticmethod
-    def skill_line_ability_get_by_skill_lines(skill_lines):
-        dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(SkillLineAbility).filter(SkillLineAbility.SkillLine.in_(skill_lines)).all()
-        dbc_db_session.close()
-        return res
-
-    @staticmethod
     def skill_line_ability_get_all():
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SkillLineAbility).all()
