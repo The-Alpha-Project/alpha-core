@@ -36,6 +36,11 @@ class CreatureGroupManager:
             CREATURE_GROUPS[group_key] = creature_group_mgr
         return CREATURE_GROUPS[group_key]
 
+    @staticmethod
+    def remove_instance_groups(instance_id):
+        for group_key in [key for key in CREATURE_GROUPS if key[1] == instance_id]:
+            CREATURE_GROUPS.pop(group_key, None)
+
     def is_leader(self, creature_mgr):
         return self.leader and self.leader.guid == creature_mgr.guid
 

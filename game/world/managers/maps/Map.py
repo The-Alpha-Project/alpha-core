@@ -25,6 +25,8 @@ class Map:
         self.script_handler = ScriptHandler(self)
         self.map_event_manager = MapEventManager()
         self.pool_manager = PoolManager()
+        # When the last player left this dungeon instance, None while occupied.
+        self.empty_since = None
 
     def initialize(self):
         # Load creatures and gameobjects.
@@ -123,6 +125,19 @@ class Map:
 
         return creature_spawn_instances
 
+    def unload(self):
+        # Circular ref.
+        from game.world.managers.objects.spell.aura.AuraManager import AuraManager
+        from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
+        from game.world.managers.objects.units.creature.utils.VendorUtils import VendorUtils
+        # Everything else this instance holds is freed with it, only drop what global registries keep.
+        for cell in list(self.grid_manager.cells.values()):
+            for creature_guid in list(cell.creatures):
+                VendorUtils.VENDOR_DATA.pop(creature_guid, None)
+        CreatureGroupManager.remove_instance_groups(self.instance_id)
+        AuraManager.remove_instance_single_target_auras(self.instance_id)
+        self.grid_manager.unload()
+
     def is_dungeon(self):
         return self.dbc_map.IsInMap == MapType.INSTANCE
 
@@ -171,9 +186,6 @@ class Map:
         self.script_handler.enqueue_script(source, target, script_type, script_id, delay=delay, event=event)
 
     # Map helpers.
-
-    def get_liquid_or_create(self, liquid_type, l_min, l_max, use_float_16, is_wmo):
-        return self.map_manager.get_liquid_or_create(liquid_type, l_min, l_max, use_float_16, is_wmo)
 
     def find_liquid_location_in_range(self, world_object, min_range, max_range):
         return self.map_manager.find_liquid_location_in_range(world_object, min_range, max_range)

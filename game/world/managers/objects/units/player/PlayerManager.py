@@ -289,14 +289,16 @@ class PlayerManager(UnitManager):
 
     def ensure_map_exists(self):
         from game.world.managers.maps.MapManager import MapManager
-        instance_token = InstancesManager.get_or_create_instance_token_by_player(self, self.map_id)
-        self.instance_id = instance_token.id
-        if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_or_create_instance_map(instance_token):
-            self.set_player_to_deathbind_location()
-            # Player might no longer be part of the group holding the instance token.
-            Logger.info(f'Unable to create instance Map {self.map_id} upon logging in, using deathbind location.')
-        else:
-            Logger.info(f'Player logging into Map {self.map_id} Instance {self.instance_id}')
+        # Hold the token lock until the map exists, so an empty instance can't be unloaded in between.
+        with InstancesManager.LOCK:
+            instance_token = InstancesManager.get_or_create_instance_token_by_player(self, self.map_id)
+            self.instance_id = instance_token.id
+            if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_or_create_instance_map(instance_token):
+                self.set_player_to_deathbind_location()
+                # Player might no longer be part of the group holding the instance token.
+                Logger.info(f'Unable to create instance Map {self.map_id} upon logging in, using deathbind location.')
+            else:
+                Logger.info(f'Player logging into Map {self.map_id} Instance {self.instance_id}')
 
     def complete_login(self, first_login=False):
         self.logout_in_progress = False
@@ -660,12 +662,14 @@ class PlayerManager(UnitManager):
             self.teleport(pending_teleport.origin_map, pending_teleport.origin_location, True)
             return
 
-        instance_token = InstancesManager.get_or_create_instance_token_by_player(self, dbc_map.ID)
-        if from_long_teleport and MapManager.is_dungeon_map_id(dbc_map.ID):
-            if not MapManager.get_or_create_instance_map(instance_token):
-                self.pending_teleport_data.pop(0)
-                self.teleport(pending_teleport.origin_map, pending_teleport.origin_location, True)
-                return
+        # Hold the token lock until the map exists, so an empty instance can't be unloaded in between.
+        with InstancesManager.LOCK:
+            instance_token = InstancesManager.get_or_create_instance_token_by_player(self, dbc_map.ID)
+            if from_long_teleport and MapManager.is_dungeon_map_id(dbc_map.ID):
+                if not MapManager.get_or_create_instance_map(instance_token):
+                    self.pending_teleport_data.pop(0)
+                    self.teleport(pending_teleport.origin_map, pending_teleport.origin_location, True)
+                    return
 
         self.map_id = pending_teleport.destination_map
         self.instance_id = instance_token.id

@@ -159,7 +159,7 @@ class MapManager:
         MAPS_TILES[map_.map_id] = [[None for _ in range(BLOCK_SIZE)] for _ in range(BLOCK_SIZE)]
         for adt_x in range(BLOCK_SIZE):
             for adt_y in range(BLOCK_SIZE):
-                MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)
+                MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_.map_id, adt_x, adt_y)
 
         Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
         return
@@ -431,7 +431,26 @@ class MapManager:
                 instance_map = MapManager._build_map(instance_token.map_id, instance_token.id)
             else:
                 instance_map = MAPS[instance_token.map_id][instance_token.id]
+            instance_map.empty_since = None
             return instance_map
+
+    @staticmethod
+    def pop_empty_instance_maps(occupied_instances, unload_delay):
+        # Detach the dungeon instances that stayed empty for unload_delay seconds.
+        now = time.time()
+        empty_maps = []
+        with MapManager.INSTANCE_MAPS_LOCK:
+            for map_id, instances in list(MAPS.items()):
+                if not MapManager.is_dungeon_map_id(map_id):
+                    continue
+                for instance_id, instance_map in list(instances.items()):
+                    if (map_id, instance_id) in occupied_instances:
+                        instance_map.empty_since = None
+                    elif not instance_map.empty_since:
+                        instance_map.empty_since = now
+                    elif now - instance_map.empty_since >= unload_delay:
+                        empty_maps.append(instances.pop(instance_id))
+        return empty_maps
 
     @staticmethod
     def initialize_area_tables():

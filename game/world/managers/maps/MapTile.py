@@ -17,9 +17,8 @@ from utils.constants.MiscCodes import ZSource
 class MapTile:
     EXPECTED_VERSION = 'ACMAP_1.76'
 
-    def __init__(self, map_, adt_x, adt_y):
-        self.map_ = map_
-        self.map_id = map_.map_id
+    def __init__(self, map_id, adt_x, adt_y):
+        self.map_id = map_id
         self.initialized = False
         self.ready = False
         self.has_maps = False
@@ -220,10 +219,12 @@ class MapTile:
         self.liquid_information = {}
         liquid_cells = map_data.liquid_cells
         if liquid_cells:
+            # Circular ref.
+            from game.world.managers.maps.MapManager import MapManager
             for cell_key, layers in liquid_cells.items():
                 liq_info = None
                 for liq_type, is_wmo, l_min, l_max in layers:
-                    current = self.map_.get_liquid_or_create(liq_type, l_min, l_max, use_float_16, is_wmo=is_wmo)
+                    current = MapManager.get_liquid_or_create(liq_type, l_min, l_max, use_float_16, is_wmo=is_wmo)
                     if liq_info is None:
                         liq_info = current
                     else:

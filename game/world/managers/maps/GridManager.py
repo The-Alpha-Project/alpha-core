@@ -157,6 +157,16 @@ class GridManager:
                 adt_x, adt_y = adt_key.split(',')
                 self.inactive_cell_callback(self.map_id, self.instance_id, int(adt_x), int(adt_y))
 
+    def unload(self):
+        # Release the shared ADTs this instance still holds.
+        with self.grid_lock:
+            for adt_key in list(self.active_adt_cell_refs):
+                adt_x, adt_y = adt_key.split(',')
+                self.inactive_cell_callback(self.map_id, self.instance_id, int(adt_x), int(adt_y))
+            self.active_adt_cell_refs.clear()
+            self.player_loaded_adts.clear()
+            self.active_cell_keys.clear()
+
     def _add_world_object_spawn(self, world_object_spawn):
         cell = self._get_create_cell(world_object_spawn.location, world_object_spawn.map_id,
                                      world_object_spawn.instance_id)

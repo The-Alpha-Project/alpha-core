@@ -23,6 +23,12 @@ class AuraManager:
         self.unit_mgr = unit_mgr
         self.active_auras = {}  # (int: Aura) to have persistent indices.
 
+    @staticmethod
+    def remove_instance_single_target_auras(instance_id):
+        for caster_guid, auras in list(AuraManager.SINGLE_TARGET_AURAS.items()):
+            if all(aura.target.instance_id == instance_id for aura in auras):
+                AuraManager.SINGLE_TARGET_AURAS.pop(caster_guid, None)
+
     def apply_spell_effect_aura(self, caster, casting_spell, spell_effect):
         aura = AppliedAura(caster, casting_spell, spell_effect, self.unit_mgr)
         self.add_aura(aura)

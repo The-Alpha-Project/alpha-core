@@ -10,6 +10,7 @@ from game.world.WorldServerTicker import WorldServerTicker
 from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.maps.InstancesManager import InstancesManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.opcode_handling.Definitions import Definitions
@@ -284,6 +285,7 @@ class WorldServerSessionHandler:
         ticker.add_task('Detection', MapManager.update_detection_range_collision, 1.0)
         ticker.add_task('Tile Loading', MapManager.initialize_pending_tiles, 0.1)
         ticker.add_task('Tile Unloading', MapManager.deactivate_cells, 300.0)
+        ticker.add_task('Instance Unloading', InstancesManager.unload_empty_instances, 60.0)
         return ticker
 
     @staticmethod
