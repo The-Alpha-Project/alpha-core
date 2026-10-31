@@ -167,6 +167,8 @@ class TrainerUtils:
                                        req_spell_2: int = 0, req_spell_3: int = 0):
         is_taught_to_pet = TrainerUtils.is_taught_to_pet(trainer_spell_template)
         active_pet = player_mgr.pet_manager.get_active_permanent_pet()
+        # Note: the spider trainer Web spells (6027, 6028) teach the pet Beast Training spells (4783, 4785) that no pet
+        # family can learn, so they are never available. Other beast trainers teach those spells to the hunter instead.
         if is_taught_to_pet and (not active_pet or not active_pet.get_pet_data().can_ever_learn_spell(spell.ID)):
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
