@@ -23,40 +23,15 @@ class TaxiManager:
         self.available_taxi_nodes = bitarray(player_mgr.player.taximask, 'little')
         self.taxi_resume_info = TaxiResumeInformation(player_mgr.player.taxi_path)
 
-    def resume_taxi_flight(self):
-        taxi_path = DbcDatabaseManager.taxi_path_get(self.taxi_resume_info.start_node, self.taxi_resume_info.dest_node)
-        if taxi_path:
-            return self.begin_taxi_flight(taxi_path,
-                                          self.taxi_resume_info.start_node,
-                                          self.taxi_resume_info.dest_node,
-                                          mount_display_id=self.taxi_resume_info.mount_display_id,
-                                          remaining_wp=self.taxi_resume_info.remaining_waypoints)
-        else:
-            return False
-
-    def begin_taxi_flight(self, taxi_path, start_node, dest_node, flight_master=None, mount_display_id=None, remaining_wp=None):
+    def begin_taxi_flight(self, taxi_path, start_node, dest_node, flight_master):
         waypoints = []
         nodes = DbcDatabaseManager.TaxiPathNodesHolder.taxi_nodes_get_by_path_id(taxi_path.ID)
 
         for i in range(len(nodes)):
             waypoints.append(Vector(nodes[i].LocX, nodes[i].LocY, nodes[i].LocZ))
 
-        if remaining_wp:
-            while len(waypoints) != remaining_wp:
-                waypoints.pop(0)
-            # If the first waypoint is already the player location, pop.
-            if len(waypoints) > 0 and self.owner.location == waypoints[0]:
-                waypoints.pop(0)
-
-        # Player is already on the last waypoint, do not trigger flight and just move him there.
-        if len(waypoints) == 0:
-            self.taxi_resume_info.flush()
-            self.owner.teleport(self.owner.map_id, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ))
-            return False
-
-        # Get mount according to Flight Master if this is an initial flight trigger.
-        if flight_master:
-            mount_display_id = self.get_mount_display_id(flight_master)
+        # Get mount according to Flight Master.
+        mount_display_id = self.get_mount_display_id(flight_master)
 
         # Detach active pets.
         self.owner.pet_manager.detach_active_pets()

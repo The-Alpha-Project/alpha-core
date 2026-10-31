@@ -310,12 +310,21 @@ class PlayerManager(UnitManager):
         # Init faction status.
         self.reputation_manager.send_initialize_factions()
 
-        # If a flight needs to be resumed, make sure create packet uses last known waypoint location.
+        # The 0.5.3 client asserts (ObjectMgrClient.cpp line 1315) when the player is created in the middle of a flight,
+        # so flights are not resumed. Log in at the departure flight master instead (bind point as fallback), never at
+        # the destination, which would allow skipping the flight time.
         taxi_resume_info = self.taxi_manager.taxi_resume_info
         if taxi_resume_info.is_valid():
-            self.location = taxi_resume_info.start_location
-            # Set player flags.
-            self.set_taxi_flying_state(True, taxi_resume_info.mount_display_id)
+            try:
+                start_node = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_id_and_node_id(
+                    self.map_id, taxi_resume_info.start_node)
+            except KeyError:
+                start_node = None
+            if start_node:
+                self.location = Vector(start_node.X, start_node.Y, start_node.Z, self.location.o)
+            else:
+                self.set_player_to_deathbind_location()
+            taxi_resume_info.flush()
 
         # Notify player with create related packets:
         self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
@@ -339,10 +348,6 @@ class PlayerManager(UnitManager):
 
         # Place player in a world cell.
         self.get_map().update_object(self)
-
-        # Try to resume pending flight once player has been created and set on a world cell.
-        if taxi_resume_info.is_valid() and not self.taxi_manager.resume_taxi_flight():
-            self.set_taxi_flying_state(False)
 
         # Notify friends about player login.
         self.friends_manager.send_online_notification()
@@ -699,6 +704,8 @@ class PlayerManager(UnitManager):
         if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             self.set_taxi_flying_state(False)
             self.pending_taxi_destination = None
+            # The flight is over, otherwise the next login would return the player to the departure flight master.
+            self.taxi_manager.taxi_resume_info.flush()
 
         # Unmount if needed.
         if self.is_mounted():
