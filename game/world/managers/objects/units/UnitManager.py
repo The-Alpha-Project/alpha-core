@@ -1960,27 +1960,28 @@ class UnitManager(ObjectManager):
         if not self.can_absorb(damage_info.damage_school_mask):
             return 0
 
-        school_mask = [mask for mask in self._school_absorbs.keys() if damage_info.damage_school_mask & mask][0]
-        total_absorbed = 0   # Merge available sources for this school mask.
+        total_absorbed = 0
         damage_to_mitigate = damage_info.base_damage
-        for aura_index, remaining in list(self._school_absorbs[school_mask].items()):
-            if remaining:
-                # Each source only gives up what it absorbs, the rest of the damage goes to the next source.
-                absorbed = min(remaining, damage_to_mitigate)
-                damage_to_mitigate -= absorbed
-                total_absorbed += absorbed
-                self._school_absorbs[school_mask][aura_index] = remaining - absorbed
+        # Every shield covering the damage school is used (e.g. Holy Word: Shield and Fire Ward on a fire hit).
+        for school_mask in [mask for mask in self._school_absorbs.keys() if damage_info.damage_school_mask & mask]:
+            for aura_index, remaining in list(self._school_absorbs[school_mask].items()):
+                if remaining:
+                    # Each source only gives up what it absorbs, the rest of the damage goes to the next source.
+                    absorbed = min(remaining, damage_to_mitigate)
+                    damage_to_mitigate -= absorbed
+                    total_absorbed += absorbed
+                    self._school_absorbs[school_mask][aura_index] = remaining - absorbed
 
-            # Cancel depleted aura.
-            if not self._school_absorbs[school_mask][aura_index]:
-                # Remove source school absorb.
-                self._school_absorbs[school_mask].pop(aura_index, None)
-                # No more sources available for this school, remove the entire school.
-                if len(self._school_absorbs[school_mask]) == 0:
-                    del self._school_absorbs[school_mask]
-                aura = self.aura_manager.get_aura_by_index(aura_index)
-                if aura:
-                    self.aura_manager.remove_aura(aura)
+                # Cancel depleted aura.
+                if not self._school_absorbs[school_mask][aura_index]:
+                    # Remove source school absorb.
+                    self._school_absorbs[school_mask].pop(aura_index, None)
+                    # No more sources available for this school, remove the entire school.
+                    if len(self._school_absorbs[school_mask]) == 0:
+                        del self._school_absorbs[school_mask]
+                    aura = self.aura_manager.get_aura_by_index(aura_index)
+                    if aura:
+                        self.aura_manager.remove_aura(aura)
 
         return int(total_absorbed)
 
