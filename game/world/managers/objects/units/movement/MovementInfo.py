@@ -18,7 +18,6 @@ class MovementInfo:
         self.collided = False
 
     def update(self, reader, unit_mover):
-        from game.world.managers.objects.units.movement.helpers.Spline import Spline
         self.collided = reader.opcode in COLLISION_DETECTION
 
         # t 'Transport' followed by unit fields.
@@ -43,10 +42,8 @@ class MovementInfo:
         unit_mover.pitch = pitch
         unit_mover.movement_flags = movement_flags
 
-        if self.owner.movement_flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
-            self.owner.movement_spline = Spline.from_bytes(self.owner, reader.data[48:])
-        else:
-            self.owner.movement_spline = None
+        # Splines sent by the client are not used.
+        self.owner.movement_spline = None
 
         self.jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
         self.moved = self.owner.movement_flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) != 0

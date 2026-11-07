@@ -1,8 +1,7 @@
 import time
-from struct import pack, unpack
+from struct import pack
 
 from game.world import WorldManager
-from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.units.movement.helpers.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
@@ -244,38 +243,6 @@ class Spline:
             num_points,
             payload_bytes
         )
-
-    @staticmethod
-    def from_bytes(unit, spline_bytes):
-        if len(spline_bytes < 42):
-            return None
-
-        bytes_read = 0
-
-        spline = Spline(unit)
-        spline.flags = unpack('<I', spline_bytes[:4])[0]
-        bytes_read += 4
-
-        if spline.flags & SplineFlags.SPLINEFLAG_SPOT:
-            spline.spot = Vector.from_bytes(spline_bytes[bytes_read:12])
-            bytes_read += 12
-        if spline.flags & SplineFlags.SPLINEFLAG_TARGET:
-            spline.guid = unpack('<Q', spline_bytes[bytes_read:8])[0]
-            bytes_read += 8
-        if spline.flags & SplineFlags.SPLINEFLAG_FACING:
-            spline.facing = unpack('<f', spline_bytes[bytes_read:4])[0]
-            bytes_read += 4
-
-        spline.elapsed, spline.total_time = unpack('<2I', spline_bytes[bytes_read:8])
-        bytes_read += 8
-
-        points_length = unpack('<I', spline_bytes[bytes_read:4])[0]
-        bytes_read += 4
-        for i in range(points_length):
-            spline.points.append(Vector.from_bytes(spline_bytes[bytes_read:12]))
-            bytes_read += 12
-
-        return spline
 
     # TODO: Fix SMSG_UPDATE_OBJECT create movement block.
     #  Client expects at least 3 waypoints for MOVEFLAG_SPLINE_MOVER.
