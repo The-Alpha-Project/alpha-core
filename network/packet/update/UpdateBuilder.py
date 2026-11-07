@@ -46,7 +46,20 @@ class UpdateBuilder:
         with self._lock:
             # Query detail, destroy, movement and SMSG_UPDATE_OBJECT packets.
             if self._has_pending_update_packets():
-                self._player_mgr.enqueue_packets(self._get_build_all_packets())
+                try:
+                    self._player_mgr.enqueue_packets(self._get_build_all_packets())
+                except Exception:
+                    # A batch that can't be built would stay queued and fail again every tick. Drop it, the objects
+                    # aren't known yet so they are created again later. Destroy packets are kept, the known objects
+                    # they belong to are still forgotten afterwards.
+                    destroy_packets = self._packets.get(PacketType.DESTROY)
+                    self._packets.clear()
+                    if destroy_packets:
+                        self._packets[PacketType.DESTROY] = destroy_packets
+                    self._create_guids.clear()
+                    self._create_linked_known_objects_updates.clear()
+                    self._create_owner_known_objects_updates.clear()
+                    raise
 
             # Relation between objects after creation.
             if self._has_create_known_objects_updates():
