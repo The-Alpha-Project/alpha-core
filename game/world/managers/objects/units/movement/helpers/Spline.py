@@ -107,7 +107,26 @@ class Spline:
         if not self.is_player and point_in_between.z_source == ZSource.CURRENT_Z:
             point_in_between = self._apply_creature_group_leader_z(point_in_between)
 
+        # The Z search only accepts heights close to the interpolated Z, which can pass below a hill between the unit
+        # and its destination. A creature on terrain would then keep following lower heights and stay underground.
+        if not self.is_player and self.unit.location.z_source == ZSource.TERRAIN \
+                and point_in_between.z_source != ZSource.WMO:
+            self._snap_up_to_terrain(point_in_between)
+
         return point_in_between
+
+    def _snap_up_to_terrain(self, location):
+        from game.world.managers.maps.MapManager import MapManager
+        from game.world.managers.maps.helpers.MapUtils import MapUtils
+        tile = MapManager.get_tile_at(self.unit.map_id, *MapUtils.get_tile(location.x, location.y))
+        if not tile or not tile.has_maps:
+            return
+        # A WMO floor closer than the terrain (mines, buildings dug into hills) means the unit is inside it, not under
+        # the hill.
+        terrain_z, z_source = tile.get_best_height_at_world(location.x, location.y, location.z)
+        if z_source == ZSource.TERRAIN and terrain_z - location.z > 2.0:
+            location.z = terrain_z
+            location.z_source = ZSource.TERRAIN
 
     def _apply_creature_group_leader_z(self, location):
         if not self.unit.creature_group:
