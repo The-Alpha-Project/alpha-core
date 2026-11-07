@@ -27,7 +27,7 @@ class RandomRollHandler:
                                               pack('<3IQ', minimum, maximum, roll, player_mgr.guid))
 
         if player_mgr.group_manager and player_mgr.group_manager.is_party_formed():
-            player_mgr.group_manager.send_packet_to_members(roll_packet, use_ignore=True)
+            player_mgr.group_manager.send_packet_to_members(roll_packet, source=player_mgr, use_ignore=True)
         else:
             player_mgr.enqueue_packet(roll_packet)
 
