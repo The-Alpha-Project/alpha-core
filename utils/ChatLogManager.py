@@ -5,6 +5,7 @@ from os import path
 
 from utils.constants.MiscCodes import ChatMsgs
 from utils.ConfigManager import config
+from utils.Logger import Logger
 
 
 class ChatLogManager:
@@ -23,7 +24,10 @@ class ChatLogManager:
         while ChatLogManager.should_process_logs:
             log = ChatLogManager.CHAT_QUEUE.get(block=True, timeout=None)
 
-            if log:
+            if not log:
+                continue
+            # An error must not end the thread, the queue would then grow (holding player objects) until shutdown.
+            try:
                 if log[0] == ChatMsgs.CHAT_MSG_SAY or log[0] == ChatMsgs.CHAT_MSG_YELL \
                     or log[0] == ChatMsgs.CHAT_MSG_EMOTE or log[0] == ChatMsgs.CHAT_MSG_PARTY \
                         or log[0] == ChatMsgs.CHAT_MSG_GUILD or log[0] == ChatMsgs.CHAT_MSG_OFFICER:
@@ -32,6 +36,8 @@ class ChatLogManager:
                     ChatLogManager._log_channel(log[1], log[2], log[3])
                 elif log[0] == ChatMsgs.CHAT_MSG_WHISPER:
                     ChatLogManager._log_whisper(log[1], log[2], log[3])
+            except Exception as ex:
+                Logger.error(f'Unable to write the chat log: {ex}.')
 
     @staticmethod
     def exit():
@@ -105,7 +111,7 @@ class ChatLogManager:
 
     @staticmethod
     def _write_to_log(msg):
-        with open(ChatLogManager.CHAT_LOG_FULL_PATH, 'a+') as log:
+        with open(ChatLogManager.CHAT_LOG_FULL_PATH, 'a+', encoding='utf-8', errors='replace') as log:
             log.write(f'{msg}\n')
             log.close()
 
