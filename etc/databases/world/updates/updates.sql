@@ -24395,5 +24395,13 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('301020264');
     end if;
 
+    -- 07/11/2026 1
+    -- Undead mage level 1 had intelligence and spirit swapped (21 / 27, as in VMaNGOS and the level 2+ progression).
+    if (select count(*) from applied_updates where id='071120261') = 0 then
+        UPDATE `player_levelstats` SET `inte` = 21, `spi` = 27 WHERE `race` = 5 AND `class` = 8 AND `level` = 1;
+
+        INSERT INTO applied_updates VALUES ('071120261');
+    end if;
+
 end $
 delimiter ;
