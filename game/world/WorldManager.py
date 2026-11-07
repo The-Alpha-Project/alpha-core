@@ -29,6 +29,7 @@ SERVER_SEED = os.urandom(4)
 MAX_PACKET_BYTES = 4096
 MAX_SEND_BATCH_BYTES = 65536
 MAX_PENDING_OUTGOING_PACKETS = 32768
+MAX_PENDING_INCOMING_PACKETS = 4096
 
 
 def get_seconds_since_startup():
@@ -175,7 +176,7 @@ class WorldServerSessionHandler:
                     elif res < 0:
                         break
                 elif not found:
-                    Logger.warning(f'[WorldServer] {self.client_address[0]} Received unknown data: {packet.data}')
+                    Logger.warning(f'[WorldServer] {self.client_address[0]} Received unknown data: {packet.data[:32]} ({len(packet.data)} bytes)')
         except:
             # Can be multiple since it includes handlers execution.
             Logger.error(traceback.format_exc())
@@ -234,6 +235,11 @@ class WorldServerSessionHandler:
         try:
             reader = self.receive_client_message(sck)
             if reader:
+                # The handler thread isn't keeping up (flood or a stuck handler), don't buffer without limit.
+                if self.incoming_pending.qsize() >= MAX_PENDING_INCOMING_PACKETS:
+                    Logger.warning(f'[WorldServer] {self.client_address[0]} incoming queue is full, disconnecting.')
+                    self.disconnect()
+                    return -1
                 self.incoming_pending.put(reader)
             else:
                 return -1
