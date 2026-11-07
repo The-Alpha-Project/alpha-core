@@ -24403,5 +24403,15 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('071120261');
     end if;
 
+    -- 07/11/2026 2
+    -- Faction 0 doesn't exist: Venture Co. Cutter, Planner and Grinder use 47 like the other Venture Co. mobs (and
+    -- VMaNGOS), Alexander Lister uses 71 like his sister and the Undercity NPCs around him.
+    if (select count(*) from applied_updates where id='071120262') = 0 then
+        UPDATE `creature_template` SET `faction` = 47 WHERE `entry` IN (3990, 4069, 4071);
+        UPDATE `creature_template` SET `faction` = 71 WHERE `entry` = 4579;
+
+        INSERT INTO applied_updates VALUES ('071120262');
+    end if;
+
 end $
 delimiter ;
