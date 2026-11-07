@@ -56,7 +56,8 @@ class ContainerManager(ItemManager):
 
     def can_set_item(self, item, slot, is_swap=False):
         if item:
-            if 0 > slot > self.max_slot:
+            # Backpack slots go up to max_slot (the last bank bag slot), bag slots up to total_slots - 1.
+            if slot < 0 or slot > self.max_slot or (not self.is_backpack and slot == self.max_slot):
                 return False
             if not self.is_backpack and not is_swap and len(self.sorted_slots) == self.total_slots:
                 return False
