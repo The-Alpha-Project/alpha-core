@@ -6,7 +6,7 @@ from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.units.player.SkillManager import get_riding_spell_ids
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError, ItemSubClasses
+from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses
 from utils.constants.MiscCodes import UnitDynamicTypes
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
@@ -504,6 +504,8 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_resistance(aura, effect_target, remove):
         if remove:
+            # Pop first, removing the stat bonus refreshes the stats.
+            effect_target.stat_manager.shield_bound_auras.pop(aura.index, None)
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
 
@@ -514,6 +516,15 @@ class AuraEffectHandler:
             stat_type = UnitStats.RESISTANCE_START << aura.spell_effect.misc_value
 
         amount = aura.get_effect_points()
+
+        # Shield Defense, only while a shield or buckler is equipped. Checked on every stats update (equipment changes).
+        spell_entry = aura.source_spell.spell_entry
+        if spell_entry.EquippedItemClass == ItemClasses.ITEM_CLASS_ARMOR and effect_target.is_player():
+            effect_target.stat_manager.shield_bound_auras[aura.index] = (stat_type, amount,
+                                                                         spell_entry.EquippedItemSubclass)
+            effect_target.stat_manager.apply_bonuses()
+            return
+
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, stat_type, amount)
 
     @staticmethod

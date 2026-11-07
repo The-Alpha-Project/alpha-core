@@ -7,7 +7,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from utils.Formulas import UnitFormulas, CreatureFormulas
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
+from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType, ItemClasses
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, SkillCategories, SpeedType
 from utils.constants.SpellCodes import SpellSchools, SpellHitFlags, SpellMissReason, SpellAttributes
 from game.world.managers.objects.units.AttackRollInfo import AttackRollInfo
@@ -128,6 +128,7 @@ class StatManager:
         self.aura_stats_percentual = {}
         self.base_resistance_auras = {}  # Aura index: amount added to a base resistance by MOD_BASE_RESISTANCE.
         self.weapon_parry_auras = {}  # Aura index: (weapon subclass mask, amount) for weapon bound parry auras.
+        self.shield_bound_auras = {}  # Aura index: (stat, amount, shield subclass mask) for shield bound auras.
 
     def init_stats(self):
         base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(self.unit_mgr.class_,
@@ -356,6 +357,7 @@ class StatManager:
             return 0, 0
 
         self.calculate_item_stats()
+        self._update_shield_bound_auras()
 
         # Always update base attack since unarmed damage should update.
         self.update_attack_base_damage(attack_type=AttackTypes.BASE_ATTACK)
@@ -515,6 +517,18 @@ class StatManager:
             self.base_stats[UnitStats.RANGED_DAMAGE_MIN] = min_dmg
             self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = max_dmg
             self.base_stats[UnitStats.RANGED_DELAY] = self.unit_mgr.ranged_attack_time
+
+    def _update_shield_bound_auras(self):
+        if not self.shield_bound_auras:
+            return
+        offhand = self.unit_mgr.inventory.get_offhand()
+        is_armor = offhand and offhand.item_template.class_ == ItemClasses.ITEM_CLASS_ARMOR
+        offhand_mask = 1 << offhand.item_template.subclass if is_armor else 0
+        for index, (stat_type, amount, subclass_mask) in self.shield_bound_auras.items():
+            if subclass_mask & offhand_mask:
+                self.aura_stats_flat[index] = (stat_type, amount, -1)
+            else:
+                self.aura_stats_flat.pop(index, None)
 
     def calculate_item_stats(self):
         if self.unit_mgr.is_unit():
