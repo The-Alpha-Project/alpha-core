@@ -242,6 +242,11 @@ class WorldSessionStateHandler:
 
         player_guid = player_mgr.guid if player_mgr.guid else player_mgr.player.guid
         save_lock = WorldSessionStateHandler._get_player_save_lock(player_guid)
+        # Throttled saves (periodic ones run on the ticker) skip a player being saved right now instead of waiting for
+        # that other thread's db writes, the player is saved on a later run.
+        throttled = min_interval_seconds > 0.0
+        if throttled and not save_lock.acquire(blocking=False):
+            return False
 
         try:
             with save_lock:
@@ -279,3 +284,6 @@ class WorldSessionStateHandler:
             if full_save and min_interval_seconds > 0.0:
                 WorldSessionStateHandler._set_last_full_save_at(player_guid, time.monotonic())
             return False
+        finally:
+            if throttled:
+                save_lock.release()
