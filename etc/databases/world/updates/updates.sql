@@ -24413,5 +24413,15 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('071120262');
     end if;
 
+    -- 07/11/2026 3
+    -- Serpent Totem V (spell 6366) had no spell list and never attacked, same list as rank IV with the rank V attack.
+    if (select count(*) from applied_updates where id='071120263') = 0 then
+        INSERT INTO `creature_spells` VALUES
+        (39050, 'Serpent Totem V', 6353, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0);
+        UPDATE `creature_template` SET `spell_list_id` = 39050 WHERE `entry` = 3905;
+
+        INSERT INTO applied_updates VALUES ('071120263');
+    end if;
+
 end $
 delimiter ;
