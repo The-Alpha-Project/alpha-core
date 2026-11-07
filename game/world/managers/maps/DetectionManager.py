@@ -78,27 +78,27 @@ class DetectionManager:
 
     def queue_add(self, unit):
         # A unit can be removed and re-added in the same tick; keep the add.
-        if unit.guid in self.pending_removes:
-            del self.pending_removes[unit.guid]
+        self.pending_removes.pop(unit.guid, None)
         self.pending_adds[unit.guid] = unit
 
     def queue_remove(self, unit):
         self.pending_removes[unit.guid] = unit
 
+    # Other threads queue units while these run, pop one at a time so none queued in between is lost.
+    @staticmethod
+    def _drain(pending):
+        while pending:
+            try:
+                yield pending.popitem()[1]
+            except KeyError:
+                return
+
     def process_add_batch(self):
-        if not self.pending_adds:
-            return
-        batch = list(self.pending_adds.values())
-        self.pending_adds.clear()
-        for unit in batch:
+        for unit in self._drain(self.pending_adds):
             self._add(unit)
 
     def process_remove_batch(self):
-        if not self.pending_removes:
-            return
-        batch = list(self.pending_removes.values())
-        self.pending_removes.clear()
-        for unit in batch:
+        for unit in self._drain(self.pending_removes):
             # Don't remove creature LoS tracking if any player still knows it and still spawned.
             if isinstance(unit, CreatureManager):
                 if unit.is_in_world() and unit.known_players:
@@ -106,11 +106,7 @@ class DetectionManager:
             self._remove(unit)
 
     def process_update_placement_batch(self):
-        if not self.pending_placement_updates:
-            return
-        batch = list(self.pending_placement_updates.values())
-        self.pending_placement_updates.clear()
-        for unit in batch:
+        for unit in self._drain(self.pending_placement_updates):
             self._update_unit_placement(unit)
 
     def _update_unit_placement(self, unit):
