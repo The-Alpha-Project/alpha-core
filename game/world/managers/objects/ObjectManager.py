@@ -124,8 +124,6 @@ class ObjectManager:
         if not self.initialized:
             self.initialize_field_values()
 
-        from game.world.managers.objects.units import UnitManager
-
         is_self = requester.guid == self.guid
 
         data = bytearray(pack('<BQB', UpdateTypes.CREATE_OBJECT, self.guid, self.get_type_id()))
@@ -134,7 +132,7 @@ class ObjectManager:
         data.extend(self._get_movement_fields())
 
         # Misc fields.
-        combat_unit = UnitManager.UnitManager(self).combat_target if self.is_unit(by_mask=True) else None
+        combat_unit = self.combat_target if self.is_unit(by_mask=True) else None
 
         data.extend(pack(
             '<3IQ',
