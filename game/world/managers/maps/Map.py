@@ -115,6 +115,8 @@ class Map:
         count = 0
         length = len(creature_spawns)
         for creature_spawn in creature_spawns:
+            if creature_spawn.spawn_flags & ObjectSpawnFlags.SPAWN_FLAG_DISABLED:
+                continue
             creature_spawn_instance = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
             if config.Server.Settings.load_pools and config.Server.Settings.load_creatures:
                 creature_spawn_instance.generate_or_add_to_pool_if_needed(self.pool_manager)
