@@ -14,7 +14,8 @@ class ScriptedEvent:
         self.source = source
         self.target = target
         self.map_id = map_id
-        self.expire_time = time.time() + max(0, expire_time or 0)
+        # A time limit of 0 means the event never expires.
+        self.expire_time = time.time() + expire_time if expire_time and expire_time > 0 else 0
         self.failure_condition = failure_condition
         self.failure_script = failure_script
         self.success_condition = success_condition
@@ -28,7 +29,7 @@ class ScriptedEvent:
         if self.ended:
             return True
 
-        if self.expire_time <= now:
+        if self.expire_time and self.expire_time <= now:
             self.end_event(False)
             return True
 
