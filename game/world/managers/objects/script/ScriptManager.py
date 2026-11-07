@@ -126,13 +126,15 @@ class ScriptManager:
     @staticmethod
     def resolve_nearest_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
+        radius = param2 if param2 else 0
 
         go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
 
-        # Only with given entry.
-        matching_objects = [obj for obj in go_objects if obj.entry == entry]
+        # Only with given entry, inside the search radius if any.
+        matching_objects = [obj for obj in go_objects if obj.entry == entry and
+                            (not radius or caster.location.distance(obj.location) <= radius)]
         if not matching_objects:
             return None
 
@@ -142,12 +144,14 @@ class ScriptManager:
 
     @staticmethod
     def resolve_random_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
-        entry: Optional[int] = param2
+        entry: Optional[int] = param1
+        radius = param2 if param2 else 0
         go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
 
-        matching_objects = [obj for obj in go_objects if obj.entry == entry]
+        matching_objects = [obj for obj in go_objects if obj.entry == entry and
+                            (not radius or caster.location.distance(obj.location) <= radius)]
         if not matching_objects:
             return None
 
