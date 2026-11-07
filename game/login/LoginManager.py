@@ -1,5 +1,3 @@
-import socket
-import threading
 import traceback
 from typing import Any
 
@@ -22,14 +20,11 @@ class LoginManager:
 
             try:
                 while shared_state.RUNNING:
-                    try:
-                        client_socket, client_address = server_socket.accept()
-                        server_handler = LoginSessionStateHandler(client_socket, client_address)
-                        auth_session_thread = threading.Thread(target=server_handler.handle)
-                        auth_session_thread.daemon = True
-                        auth_session_thread.start()
-                    except socket.timeout:
-                        pass  # Non blocking.
+                    client_socket, client_address = SocketBuilder.accept(server_socket, 'LoginServer')
+                    if not client_socket:
+                        continue
+                    server_handler = LoginSessionStateHandler(client_socket, client_address)
+                    SocketBuilder.start_session_thread(client_socket, server_handler.handle, 'LoginServer')
             except OSError:
                 Logger.warning(traceback.format_exc())
             except KeyboardInterrupt:

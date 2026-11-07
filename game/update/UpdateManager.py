@@ -1,5 +1,3 @@
-import socket
-import threading
 import traceback
 from typing import Any
 
@@ -22,15 +20,12 @@ class UpdateManager:
 
             try:
                 while shared_state.RUNNING:
-                    try:
-                        client_socket, client_address = server_socket.accept()
-                        Logger.debug(f'[UpdateServer] Accepted {client_address}')
-                        server_handler = UpdateSessionStateHandler(client_socket, client_address)
-                        update_session_thread = threading.Thread(target=server_handler.handle)
-                        update_session_thread.daemon = True
-                        update_session_thread.start()
-                    except socket.timeout:
-                        pass  # Non blocking.
+                    client_socket, client_address = SocketBuilder.accept(server_socket, 'UpdateServer')
+                    if not client_socket:
+                        continue
+                    Logger.debug(f'[UpdateServer] Accepted {client_address}')
+                    server_handler = UpdateSessionStateHandler(client_socket, client_address)
+                    SocketBuilder.start_session_thread(client_socket, server_handler.handle, 'UpdateServer')
             except OSError:
                 Logger.warning(traceback.format_exc())
             except KeyboardInterrupt:

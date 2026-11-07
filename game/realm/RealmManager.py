@@ -75,13 +75,16 @@ class RealmManager:
 
             try:
                 while shared_state.RUNNING:
+                    client_socket, client_address = SocketBuilder.accept(server_socket, 'RealmServer')
+                    if not client_socket:
+                        continue
                     try:
-                        client_socket, client_address = server_socket.accept()
                         RealmManager.serve_realmlist(client_socket)
                         client_socket.shutdown(socket.SHUT_RDWR)
+                    except OSError:
+                        pass  # The client reset the connection before it was served.
+                    finally:
                         client_socket.close()
-                    except socket.timeout:
-                        pass  # Non blocking.
             except OSError:
                 Logger.warning(traceback.format_exc())
             except KeyboardInterrupt:
@@ -100,13 +103,16 @@ class RealmManager:
 
             try:
                 while shared_state.RUNNING:
+                    client_socket, client_address = SocketBuilder.accept(server_socket, 'ProxyServer')
+                    if not client_socket:
+                        continue
                     try:
-                        client_socket, client_address = server_socket.accept()
                         RealmManager.redirect_to_world(client_socket)
                         client_socket.shutdown(socket.SHUT_RDWR)
+                    except OSError:
+                        pass  # The client reset the connection before it was served.
+                    finally:
                         client_socket.close()
-                    except socket.timeout:
-                        pass  # Non blocking.
             except OSError:
                 Logger.warning(traceback.format_exc())
             except KeyboardInterrupt:
