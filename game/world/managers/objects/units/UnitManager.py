@@ -1206,6 +1206,10 @@ class UnitManager(ObjectManager):
         return True
 
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):
+        # Heals can't critically hit in 0.5.3: SMSG_HEALSPELL_ON_PLAYER only carries the amount (no flags field, unlike
+        # SMSG_DAMAGE_DONE) and the client has no heal crit combat log strings (only HEALED*, no HEALEDCRIT* as in
+        # later versions). Holy Power therefore only affects holy damage spells.
+
         # Target is already at full health.
         if not target.receive_healing(value, self):
             return False
