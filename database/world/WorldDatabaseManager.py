@@ -14,6 +14,10 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import Languages
 from utils.constants.ScriptCodes import WaypointPathOrigin
 
+# The default lru_cache size (128) is below the number of keys most of these tables have (e.g. 540 spell visuals),
+# so lookups kept falling back to database queries. Text keyed lookups keep the default.
+LOOKUP_CACHE_SIZE = 8192
+
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.World.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.World.password)
 DB_HOST = os.getenv('MYSQL_HOST', config.Database.World.host)
@@ -30,7 +34,7 @@ class WorldDatabaseManager:
     # Player.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def player_create_info_get(race, class_) -> Optional[Playercreateinfo]:
         world_db_session = SessionHolder()
         res = world_db_session.query(Playercreateinfo).filter_by(race=race, _class=class_).first()
@@ -38,7 +42,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def player_create_spell_get(race, class_) -> list[PlayercreateinfoSpell]:
         world_db_session = SessionHolder()
         res = world_db_session.query(PlayercreateinfoSpell).filter_by(race=race, _class=class_).all()
@@ -46,7 +50,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def player_create_action_get(race, class_) -> list[PlayercreateinfoAction]:
         world_db_session = SessionHolder()
         res = world_db_session.query(PlayercreateinfoAction).filter_by(race=race, _class=class_).all()
@@ -63,7 +67,7 @@ class WorldDatabaseManager:
             WorldDatabaseManager.UnitClassLevelStatsHolder.CLASS_LEVEL_STATS[stats.class_][stats.level] = stats
 
         @staticmethod
-        @lru_cache
+        @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
         def get_for_class_level(class_, level) -> Optional[PlayerClasslevelstats]:
             if class_ not in WorldDatabaseManager.UnitClassLevelStatsHolder.CLASS_LEVEL_STATS:
                 return None
@@ -77,7 +81,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def player_get_level_stats(class_, level, race) -> Optional[PlayerLevelstats]:
         world_db_session = SessionHolder()
         res = world_db_session.query(PlayerLevelstats).filter_by(level=level, _class=class_, race=race).first()
@@ -87,7 +91,7 @@ class WorldDatabaseManager:
     # Pet.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def get_pet_level_stats_by_entry_and_level(entry, level):
         world_db_session = SessionHolder()
         res = world_db_session.query(PetLevelstat).filter_by(creature_entry=entry, level=level).first()
@@ -97,7 +101,7 @@ class WorldDatabaseManager:
     # Area.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def area_trigger_teleport_get_by_id(trigger_id) -> Optional[AreatriggerTeleport]:
         world_db_session = SessionHolder()
         res = world_db_session.query(AreatriggerTeleport).filter_by(id=trigger_id).first()
@@ -105,7 +109,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def area_get_by_id(area_id) -> Optional[AreaTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(AreaTemplate).filter_by(entry=area_id).first()
@@ -113,7 +117,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def area_get_by_explore_flags(explore_flags, map_id) -> Optional[AreaTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(AreaTemplate).filter_by(explore_flag=explore_flags, map_id=map_id).first()
@@ -131,7 +135,7 @@ class WorldDatabaseManager:
     # Exploration.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def exploration_base_xp_get_by_level(level) -> int:
         world_db_session = SessionHolder()
         res = world_db_session.query(ExplorationBaseXP).filter_by(level=level).first()
@@ -304,7 +308,7 @@ class WorldDatabaseManager:
     # Page text.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def page_text_get_by_id(page_id) -> Optional[PageText]:
         world_db_session = SessionHolder()
         res = world_db_session.query(PageText).filter_by(entry=page_id).first()
@@ -361,7 +365,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def gameobject_template_get_by_entry(entry) -> Optional[GameobjectTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(GameobjectTemplate).filter_by(entry=entry).first()
@@ -421,7 +425,7 @@ class WorldDatabaseManager:
 
     # Fishing skill by zone.
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def fishing_skill_get_by_entry(entry):
         world_db_session = SessionHolder()
         res = world_db_session.query(SkillFishingBaseLevel).filter_by(entry=entry).first()
@@ -699,7 +703,7 @@ class WorldDatabaseManager:
             return best_matching_creature
 
         @staticmethod
-        @lru_cache
+        @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
         def creature_trainers_by_race_class(race, class_, type_):
             trainers = []
             for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
@@ -736,7 +740,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def get_trainer_spell_price_by_level(level):
         world_db_session = SessionHolder()
         res = world_db_session.query(TrainerTemplate).filter_by(reqlevel=level).first()
@@ -871,7 +875,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def creature_get_vendor_data(entry) -> Optional[list[NpcVendor]]:
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry).order_by(NpcVendor.slot.asc()).all()
@@ -879,7 +883,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def creature_get_vendor_template_data(vendor_id) -> Optional[list[NpcVendorTemplate]]:
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendorTemplate).filter_by(entry=vendor_id).order_by(
@@ -952,7 +956,7 @@ class WorldDatabaseManager:
     # Quest.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def quest_get_greeting_for_entry(entry):
         world_db_session = SessionHolder()
         res = world_db_session.query(QuestGreeting).filter_by(entry=entry).first()
@@ -969,7 +973,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def quest_get_by_entry(entry):
         world_db_session = SessionHolder()
         res = world_db_session.query(QuestTemplate).filter_by(entry=entry).first()
@@ -1228,7 +1232,7 @@ class WorldDatabaseManager:
     # Quest scripts.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def quest_start_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
         res = world_db_session.query(t_quest_start_scripts).filter_by(id=quest_id).all()
@@ -1236,7 +1240,7 @@ class WorldDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def quest_end_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
         res = world_db_session.query(t_quest_end_scripts).filter_by(id=quest_id).all()
@@ -1246,7 +1250,7 @@ class WorldDatabaseManager:
     # Areatrigger scripts.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def area_trigger_script_get_by_id(area_trigger_id):
         world_db_session = SessionHolder()
         res = world_db_session.query(t_area_trigger_scripts).filter_by(id=area_trigger_id).all()
@@ -1428,7 +1432,7 @@ class WorldDatabaseManager:
     # Trainer.
 
     @staticmethod
-    @lru_cache
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
     def get_npc_trainer_greeting(entry):
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcTrainerGreeting).filter_by(entry=entry).first()
