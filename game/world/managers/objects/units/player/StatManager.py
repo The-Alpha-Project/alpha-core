@@ -1327,8 +1327,11 @@ class StatManager:
         if main_hand:
             subclass_mask = 1 << main_hand.item_template.subclass
 
-        for school in SpellSchools:
-            flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school) + \
+        # Damage done auras store a school mask. SPELL_SCHOOL_END is not a school, the field has one entry per school.
+        for school in range(SpellSchools.SPELL_SCHOOL_END):
+            school_mask = 1 << school
+            flat_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school_mask,
+                                                    misc_value_is_mask=True) + \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, misc_value_is_mask=True)
 
             # Check weapons enchantments.
@@ -1337,7 +1340,8 @@ class StatManager:
                                                                                            ItemEnchantmentType.DAMAGE)
                 flat_bonuses += main_hand_bonus
 
-            percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school, percentual=True) * \
+            percentual_bonuses = self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_SCHOOL, misc_value=school_mask,
+                                                          misc_value_is_mask=True, percentual=True) * \
                 self.get_aura_stat_bonus(UnitStats.DAMAGE_DONE_WEAPON, misc_value=subclass_mask, percentual=True, misc_value_is_mask=True)
 
             self.unit_mgr.set_bonus_damage_done_for_school(int(flat_bonuses * percentual_bonuses), school)
