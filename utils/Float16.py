@@ -46,8 +46,9 @@ class Float16:
         if e == 31:
             return int((s << 31) | 0x7f800000) if f == 0 else int((s << 31) | 0x7f800000 | (f << 13))
 
-        if f == 0:
-            return int(s << 31)
+        # Zero, other codes with an empty fraction are exact powers of two and go through the normal path.
+        if e == 0 and f == 0:
+            return struct.unpack('f', struct.pack('I', s << 31))[0] - F16_ENSURE_POSITIVE
 
         if e == 0:
             while not (f & 0x00000400):
