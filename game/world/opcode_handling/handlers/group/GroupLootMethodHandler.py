@@ -3,6 +3,7 @@ from struct import unpack
 
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
+from utils.constants.MiscCodes import LootMethods
 
 
 class GroupLootMethodHandler:
@@ -28,6 +29,10 @@ class GroupLootMethodHandler:
         if player_mgr.guid != group_manager.group.leader_guid:
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE,
                                                      '', PartyResults.ERR_NOT_LEADER)
+            return 0
+
+        # Unknown methods would leave nobody allowed to loot.
+        if loot_method >= LootMethods.LOOT_METHOD_MAX:
             return 0
 
         if loot_master <= 0:
