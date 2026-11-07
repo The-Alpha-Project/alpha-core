@@ -7,7 +7,8 @@ from game.world.managers.objects.spell.aura.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ProcFlags
+from utils.constants.ItemCodes import ItemClasses
+from utils.constants.MiscCodes import ProcFlags, AttackTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
     SpellAttributesEx, SpellEffects, AuraState, AuraFlags
@@ -241,6 +242,10 @@ class AuraManager:
             if not flags:
                 continue
 
+            # Weapon bound procs (weapon specializations) only trigger with the required weapon type.
+            if not is_receiver and not self._has_required_weapon_for_proc(aura, damage_info):
+                continue
+
             for proc_flag, condition in flag_cases.items():
                 if proc_flag & flags and condition and aura.proc_charges != 0:  # Proc charges are set to -1 for auras with no charges so check for 0.
                     # Remove charge before trigger to avoid infinite loops with procs.
@@ -249,6 +254,14 @@ class AuraManager:
 
                     if aura.proc_charges == 0:
                         self.remove_aura(aura)
+
+    def _has_required_weapon_for_proc(self, aura, damage_info):
+        spell_entry = aura.source_spell.spell_entry
+        if spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON or not self.unit_mgr.is_player():
+            return True
+        attack_type = damage_info.attack_type if damage_info else AttackTypes.BASE_ATTACK
+        weapon = self.unit_mgr.get_current_weapon_for_attack_type(attack_type)
+        return bool(weapon) and bool(spell_entry.EquippedItemSubclass & (1 << weapon.item_template.subclass))
 
     def remove_colliding_effects(self, aura):
         # TODO Exclusivity by aura effect type.
