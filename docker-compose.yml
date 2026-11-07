@@ -18,6 +18,7 @@ x-${PROJECT}-shared-conf: &shared-conf
   volumes:
     - .:/var/wow/
   restart: on-failure
+  stop_grace_period: 120s  # Docker kills the container after 10 seconds by default, before the world saved everybody.
 
 services:
   main:
