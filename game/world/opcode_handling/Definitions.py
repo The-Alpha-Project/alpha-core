@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 from game.world.opcode_handling.handlers.inventory.ItemQueryMultipleHandler import ItemQueryMultipleHandler
 from game.world.opcode_handling.handlers.inventory.WrapItemHandler import WrapItemHandler
 from game.world.opcode_handling.handlers.pet.PetAbandonHandler import PetAbandonHandler
@@ -173,6 +171,8 @@ from game.world.opcode_handling.handlers.NullHandler import NullHandler
 
 from utils.Logger import Logger
 from utils.constants.OpCodes import OpCode
+
+_WARNED_UNHANDLED_OPCODES = set()
 
 HANDLER_DEFINITIONS = {
     # Auth
@@ -403,15 +403,16 @@ HANDLER_DEFINITIONS = {
 class Definitions:
 
     @staticmethod
-    @lru_cache
     def get_handler_from_packet(world_session, opcode):
-        try:
-            return HANDLER_DEFINITIONS[opcode], True
-        except KeyError:
-            Logger.warning(f'[{world_session.client_address[0]}] Received {OpCode(opcode).name} '
-                           f'OpCode but is not handled.')
-        except ValueError:
+        handler = HANDLER_DEFINITIONS.get(opcode)
+        if handler:
+            return handler, True
+        if opcode not in OpCode._value2member_map_:
             # No handler, OpCode not found
             return None, False
-        # No handler, but OpCode found
+        # No handler, but OpCode found. Warn once per opcode, clients can repeat these every few milliseconds.
+        if opcode not in _WARNED_UNHANDLED_OPCODES:
+            _WARNED_UNHANDLED_OPCODES.add(opcode)
+            Logger.warning(f'[{world_session.client_address[0]}] Received {OpCode(opcode).name} '
+                           f'OpCode but is not handled.')
         return None, True
