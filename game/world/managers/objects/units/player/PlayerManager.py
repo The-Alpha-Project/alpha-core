@@ -1770,10 +1770,9 @@ class PlayerManager(UnitManager):
         # Not dirty, has a pending teleport and a teleport is not ongoing.
         elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
             self.trigger_teleport()
-        # Do normal update.
+        # Do normal update. The db player is synchronized by every save, there is no need to do it per tick.
         else:
             self.get_map().update_object(self)
-            self.synchronize_db_player()
 
         # If not teleporting, notify self movement to surrounding units for proximity aggro.
         if not self.update_lock:
