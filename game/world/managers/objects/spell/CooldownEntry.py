@@ -39,10 +39,17 @@ class CooldownEntry:
     def matches_spell(self, spell_entry):
         return self.spell_id == spell_entry.ID or self.cooldown_category == spell_entry.Category
 
+    # A spell can have its own recovery time and a category one (Intimidating Shout: 10 min and 5 s), the longest
+    # applies to the spell itself.
+    def _get_dbc_recovery(self, spell_entry):
+        if self.cooldown_category == -1:
+            return spell_entry.RecoveryTime
+        return max(spell_entry.RecoveryTime, spell_entry.CategoryRecoveryTime)
+
     # Either use normal recovery time or provided penalty.
     def _get_cooldown_length(self, spell_entry):
         penalty = self.cooldown_penalty
-        recovery = spell_entry.CategoryRecoveryTime if self.cooldown_category != -1 else spell_entry.RecoveryTime
+        recovery = self._get_dbc_recovery(spell_entry)
         is_greater_than_dbc_cd = penalty > recovery
         return penalty if penalty and (self.forced or is_greater_than_dbc_cd) else recovery
 
@@ -50,7 +57,7 @@ class CooldownEntry:
     # Non-zero values are used to override the default cooldown (e.g., for custom penalties or forced cooldowns).
     def get_cooldown(self, spell_entry):
         penalty = self.cooldown_penalty
-        recovery = spell_entry.CategoryRecoveryTime if self.cooldown_category != -1 else spell_entry.RecoveryTime
+        recovery = self._get_dbc_recovery(spell_entry)
         is_greater_than_dbc_cd = penalty > recovery
 
         if penalty and (self.forced or is_greater_than_dbc_cd):
