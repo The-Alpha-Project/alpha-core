@@ -196,7 +196,7 @@ class Cell:
     def send_all_in_range(self, packet, range_, source, include_source=True, exclude=None, use_ignore=False):
         # If range is non-positive, send to all players without filtering.
         if range_ <= 0:
-            self.send_all(packet, source, exclude)
+            self.send_all(packet, source, include_source=include_source, exclude=exclude, use_ignore=use_ignore)
             return
 
         is_yell = int(range_) == int(config.World.Chat.ChatRange.yell_range)
