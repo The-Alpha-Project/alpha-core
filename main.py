@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
 import argparse
 import signal
+import threading
 from time import sleep
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
@@ -103,17 +104,15 @@ def handle_console_commands():
             except:
                 Logger.error(f'Invalid command [{command}].')
             command = input()
-    except:
-        pass
+        SHARED_STATE.RUNNING = False
+    except EOFError:
+        # No console attached (service, container without tty), keep running until a stop signal.
+        Logger.info('Console input closed, use a stop signal to shut down.')
     Logger.info(f'Command listener released.')
-    SHARED_STATE.RUNNING = False
 
 
 def handler_stop_signals(signum, frame):
     SHARED_STATE.RUNNING = False
-    # Console mode, we need to kill stdin input() listener.
-    if SHARED_STATE.CONSOLE_LISTENING:
-        raise KeyboardInterrupt
 
 
 def _wait_for_ready(active_process, ready_check, name, should_wait=True):
@@ -177,7 +176,6 @@ if __name__ == '__main__':
     # Shared variables inside a namespace.
     SHARED_STATE = manager.Namespace()
     SHARED_STATE.RUNNING = True
-    SHARED_STATE.CONSOLE_LISTENING = False
     SHARED_STATE.WORLD_SERVER_READY = False
     SHARED_STATE.REALM_SERVER_READY = False
     SHARED_STATE.PROXY_SERVER_READY = False
@@ -234,10 +232,13 @@ if __name__ == '__main__':
 
     Logger.info('Booting Alpha Core, please wait...')
     # Start processes.
+    exit_code = 0
     for process, wait_call in ACTIVE_PROCESSES:
         process.start()
         wait_call(process)
         if not SHARED_STATE.RUNNING:
+            # Stopped during boot, by a stop signal or because this process died.
+            exit_code = 0 if process.is_alive() else 1
             break
 
     if SHARED_STATE.RUNNING:
@@ -250,14 +251,20 @@ if __name__ == '__main__':
         # Bell sound character.
         Logger.info('Alpha Core is now running.\a')
 
-        # Handle console mode.
+        # Handle console mode, the listener thread blocks on input() and ends with the process.
         if console_mode:
-            SHARED_STATE.CONSOLE_LISTENING = True
-            handle_console_commands()
-        else:
-            # Wait on main thread for stop signal or 'exit' command.
-            while SHARED_STATE.RUNNING:
-                sleep(2)
+            threading.Thread(target=handle_console_commands, daemon=True).start()
+
+        # Wait on main thread for a stop signal, the 'exit' command or a crashed process. Exiting with an error lets
+        # supervisors (docker's restart on-failure, systemd) restart the server.
+        while SHARED_STATE.RUNNING:
+            dead_process = next((process for process, _ in ACTIVE_PROCESSES if not process.is_alive()), None)
+            if dead_process:
+                Logger.error(f'{dead_process.name} exited unexpectedly (exit code {dead_process.exitcode}).')
+                exit_code = 1
+                SHARED_STATE.RUNNING = False
+                break
+            sleep(2)
 
     # Exit.
     Logger.info('Shutting down the core, please wait...')
@@ -287,4 +294,4 @@ if __name__ == '__main__':
 
     manager.shutdown()
     Logger.success('Core gracefully shut down.')
-    exit()
+    exit(exit_code)
