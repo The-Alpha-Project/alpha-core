@@ -1224,16 +1224,24 @@ class StatManager:
             self._set_creature_base_damage(base_ranged_dmg[0], base_ranged_dmg[1], AttackTypes.RANGED_ATTACK)
             return
 
-        base_damage = self.get_attack_power_from_attributes() / 14
+        # Attack power adds AP / 14 damage per second of weapon speed (VMaNGOS), slow weapons get more per hit.
+        damage_per_second = self.get_attack_power_from_attributes() / 14
         if attack_type == AttackTypes.BASE_ATTACK:
+            base_damage = damage_per_second * self._get_weapon_speed(UnitStats.MAIN_HAND_DELAY)
             self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = base_damage
             self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = base_damage
         elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            base_damage = damage_per_second * self._get_weapon_speed(UnitStats.OFF_HAND_DELAY)
             self.base_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = base_damage * 0.5  # Dual wield penalty.
             self.base_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = base_damage * 0.5
         else:
+            base_damage = damage_per_second * self._get_weapon_speed(UnitStats.RANGED_DELAY)
             self.base_stats[UnitStats.RANGED_DAMAGE_MIN] = base_damage
             self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = base_damage
+
+    # Weapon speed in seconds, unarmed uses the default attack time.
+    def _get_weapon_speed(self, delay_stat):
+        return self.item_stats.get(delay_stat, config.Unit.Defaults.base_attack_time) / 1000
 
     def get_attack_power_from_attributes(self):
         strength = self.get_total_stat(UnitStats.STRENGTH)
@@ -1260,9 +1268,9 @@ class StatManager:
             case Classes.CLASS_MAGE | Classes.CLASS_PRIEST | Classes.CLASS_WARLOCK:
                 return strength - 10
             case Classes.CLASS_ROGUE:
-                return strength + ((agility * 2) - 20) + (level * 2) - 20
+                return strength + agility + (level * 2) - 20
             case Classes.CLASS_SHAMAN:
-                return strength - 10 + ((agility * 2) - 20) + (level * 2)
+                return (strength * 2) + (level * 2) - 20
         return 0
 
     def update_defense_bonuses(self):
