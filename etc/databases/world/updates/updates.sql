@@ -24423,5 +24423,13 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('071120263');
     end if;
 
+    -- 07/11/2026 4
+    -- Turian had an extra 9 in his X position (99772.4), placing him outside the map. 9772.4 matches the floor at his Z.
+    if (select count(*) from applied_updates where id='071120264') = 0 then
+        UPDATE `spawns_creatures` SET `position_x` = 9772.4 WHERE `spawn_id` = 46571 AND `position_x` > 99772 AND `position_x` < 99773;
+
+        INSERT INTO applied_updates VALUES ('071120264');
+    end if;
+
 end $
 delimiter ;
