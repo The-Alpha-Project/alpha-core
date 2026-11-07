@@ -34,8 +34,14 @@ class WorldServerTicker:
     def run(self, shared_state: Any):
         self.running = True
 
-        while self.running and shared_state.RUNNING:
+        # shared_state is a manager proxy, each read is a round trip to the manager process, check it once per second.
+        next_running_check = 0.0
+        while self.running:
             batch_start = _now()
+            if batch_start >= next_running_check:
+                if not shared_state.RUNNING:
+                    break
+                next_running_check = batch_start + 1.0
             next_wake = None
 
             for task in self.tasks:
