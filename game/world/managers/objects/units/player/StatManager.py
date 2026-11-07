@@ -127,6 +127,7 @@ class StatManager:
         self.aura_stats_flat = {}
         self.aura_stats_percentual = {}
         self.base_resistance_auras = {}  # Aura index: amount added to a base resistance by MOD_BASE_RESISTANCE.
+        self.weapon_parry_auras = {}  # Aura index: (weapon subclass mask, amount) for weapon bound parry auras.
 
     def init_stats(self):
         base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(self.unit_mgr.class_,
@@ -900,7 +901,7 @@ class StatManager:
             if roll < cumulative:
                 return hit_info | HitInfo.DODGE
 
-        parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
+        parry_chance = self.get_total_parry_chance() + rating_difference * 0.0004
         can_parry = not (invalid_result_mask & HitInfo.PARRY) and self.unit_mgr.can_parry(attacker.location, in_combat=True)
         if can_parry:
             parry_chance = max(0.0, parry_chance)
@@ -1374,6 +1375,14 @@ class StatManager:
         value = max(0, value)
         self.unit_mgr.set_block_chance(value)
 
+    def get_total_parry_chance(self):
+        parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True)
+        if not self.weapon_parry_auras:
+            return parry_chance
+        weapon = self.unit_mgr.get_current_weapon_for_attack_type(AttackTypes.BASE_ATTACK)
+        weapon_mask = 1 << weapon.item_template.subclass if weapon else 0
+        return parry_chance + sum(amount for mask, amount in self.weapon_parry_auras.values() if mask & weapon_mask)
+
     def send_parry_percentage(self):
         if not self.unit_mgr.is_player():
             return
@@ -1381,7 +1390,7 @@ class StatManager:
             self.unit_mgr.set_parry_chance(0)
             return
 
-        value = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) * 100
+        value = self.get_total_parry_chance() * 100
 
         # Penalty against player of same level with max skill
         value += self._get_combat_rating_difference() * 0.04

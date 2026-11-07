@@ -826,9 +826,19 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_parry_chance(aura, effect_target, remove):
         if remove:
+            # Pop first, removing the stat bonus refreshes the character sheet.
+            effect_target.stat_manager.weapon_parry_auras.pop(aura.index, None)
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
             return
         amount_percent = aura.get_effect_points() / 100
+
+        # Finesse talents, only with the required weapon type. Checked when parry is used, as weapons can change.
+        spell_entry = aura.source_spell.spell_entry
+        if spell_entry.EquippedItemClass == 2:
+            effect_target.stat_manager.weapon_parry_auras[aura.index] = (spell_entry.EquippedItemSubclass,
+                                                                         amount_percent)
+            effect_target.stat_manager.send_parry_percentage()
+            return
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.PARRY_CHANCE,
                                                          amount_percent, percentual=False)
 
