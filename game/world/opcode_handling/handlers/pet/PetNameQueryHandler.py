@@ -15,6 +15,9 @@ class PetNameQueryHandler:
 
         pet_creature = world_session.player_mgr.get_map().get_surrounding_unit_by_guid(world_session.player_mgr,
                                                                                        pet_guid)
+        # Not around anymore (despawned, out of range).
+        if not pet_creature:
+            return 0
         owner = pet_creature.get_charmer_or_summoner()
         if not owner:
             return 0
