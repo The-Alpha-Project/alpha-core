@@ -92,8 +92,10 @@ class PetManager:
         # Set level and initialize pet stats.
         active_pet.set_level(pet_level, replenish=replenish_on_summon)
 
-        # Apply passive effects.
+        # Apply passive effects, only the highest known rank.
         for spell in active_pet.get_pet_data().spells:
+            if active_pet.get_pet_data().is_spell_superseded(spell):
+                continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell)
             creature.spell_manager.apply_passive_spell_effects(spell_template)
 

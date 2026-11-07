@@ -1,3 +1,4 @@
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.units.pet.PetData import PetData
 from utils.Logger import Logger
 from utils.constants.PetCodes import PetSlot, PetCommandState
@@ -36,6 +37,12 @@ class ActivePet:
 
         if not pet_data.add_spell(spell_id):
             return False
+
+        # Passives (pet talents, spells learned at taming) are otherwise only applied on the next summon. A new rank
+        # replaces the aura of the previous one, as they share the name.
+        if self.creature.is_alive and not pet_data.is_spell_superseded(spell_id):
+            self.creature.spell_manager.apply_passive_spell_effects(
+                DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id))
 
         if update:
             self._pet_manager.send_pet_spell_info()

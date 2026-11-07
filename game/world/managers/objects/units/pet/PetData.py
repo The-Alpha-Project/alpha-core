@@ -184,7 +184,7 @@ class PetData:
     def _get_xp_to_next_level_for(level: int) -> int:
         return int(Formulas.PlayerFormulas.xp_to_level(level) / 4)
 
-    def get_available_spells(self, ignore_level=False, level_override=-1) -> list[int]:
+    def get_available_spells(self, ignore_level=False, level_override=-1, include_talents=False) -> list[int]:
         creature_family = self.creature_template.beast_family
         if not creature_family:
             return []
@@ -208,15 +208,21 @@ class PetData:
         line_spells = [DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell) for line in skill_line_abilities]
 
         # Filter spells by pet level,
-        # ignore spells with no level information (pet talents).
+        # ignore spells with no level information (pet talents) unless they are taught explicitly.
         level = level_override if level_override != -1 else self._level
-        return [spell.ID for spell in line_spells if spell.SpellLevel and (ignore_level or spell.SpellLevel <= level)]
+        return [spell.ID for spell in line_spells if (include_talents and not spell.SpellLevel) or
+                (spell.SpellLevel and (ignore_level or spell.SpellLevel <= level))]
+
+    # Ranks don't always have ascending ids (Tough Shell 4115 is superseded by 4114).
+    def is_spell_superseded(self, spell_id) -> bool:
+        line_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+        return bool(line_entries) and line_entries[0].SupercededBySpell in self.spells
 
     def can_learn_spell(self, spell_id):
-        return spell_id in self.get_available_spells()
+        return spell_id in self.get_available_spells(include_talents=True)
 
     def can_ever_learn_spell(self, spell_id):
-        return spell_id in self.get_available_spells(ignore_level=True)
+        return spell_id in self.get_available_spells(ignore_level=True, include_talents=True)
 
     def get_default_action_bar_values(self) -> List[int]:
         pet_bar = [
@@ -229,8 +235,7 @@ class PetData:
 
         spells = []
         for spell_id in self.spells:
-            line_entry = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)[0]
-            if line_entry.SupercededBySpell in self.spells:
+            if self.is_spell_superseded(spell_id):
                 continue  # Only place the highest ranks on action bar.
 
             template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
