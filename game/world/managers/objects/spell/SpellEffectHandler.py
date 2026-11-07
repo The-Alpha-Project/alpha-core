@@ -457,8 +457,10 @@ class SpellEffectHandler:
         if not caster.spell_manager.remove_cast_by_id(698):
             return  # Don't summon if the player interrupted the ritual channeling (couldn't remove the cast).
 
+        # The selected player can be gone (logged out) by the end of the ritual.
         player = WorldSessionStateHandler.find_player_by_guid(caster.current_selection)
-        player.teleport(caster.map_id, caster.location)
+        if player:
+            player.teleport(caster.map_id, caster.location)
 
     @staticmethod
     def handle_script_effect(casting_spell, effect, caster, target):
