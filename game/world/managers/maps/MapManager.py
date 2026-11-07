@@ -3,6 +3,7 @@ import math
 import os
 import signal
 from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
 from functools import lru_cache
 from multiprocessing import RLock
 from os import path
@@ -66,6 +67,7 @@ class MapManager:
     _TILE_LOAD_POOL = None  # ProcessPoolExecutor instance for tile parsing.
     _TILE_LOAD_FUTURES = {}  # Tile loading result futures.
     _TILE_LOAD_INFLIGHT = {}  # Current loading tile data.
+    _TILE_LOAD_RETRIED = set()  # Tiles requeued once after their worker died.
     _TILE_LOAD_IDLE_SINCE = None  # Timestamp when the pool became idle.
 
     @staticmethod
@@ -187,6 +189,22 @@ class MapManager:
         MapManager._TILE_LOAD_INFLIGHT.clear()
         MapManager._TILE_LOAD_IDLE_SINCE = None
 
+    # A worker died (killed by the OS, native crash), the pool is broken and every tile in flight lost its result.
+    # Requeue them once, so a tile that keeps killing its worker can't loop forever, and replace the pool.
+    @staticmethod
+    def _recover_tile_loader():
+        Logger.error('[Maps] Tile loader worker died, restarting the worker pool.')
+        for key in list(MapManager._TILE_LOAD_INFLIGHT):
+            if key in MapManager._TILE_LOAD_RETRIED:
+                MapManager._apply_tile_load_result(key, None)
+                continue
+            MapManager._TILE_LOAD_RETRIED.add(key)
+            map_id, adt_x, adt_y = MapManager._split_tile_key(key)
+            if map_id in MAPS_TILES:
+                MAPS_TILES[map_id][adt_x][adt_y].initialized = False
+                PENDING_TILE_INITIALIZATION_QUEUE.put(key)
+        MapManager.shutdown_tile_loader(wait=False)
+
     @staticmethod
     def _ensure_tile_loader():
         if MapManager.TILE_LOADER_FAILED:
@@ -247,15 +265,21 @@ class MapManager:
             filename = f'{map_id:03}{adt_x:02}{adt_y:02}.map'
             Logger.info(f'[Maps] Loading map tile, Map:{map_id} Tile:{adt_x},{adt_y}, File: {filename}')
 
-            future = MapManager._TILE_LOAD_POOL.submit(
-                load_map_tile_data,
-                maps_path,
-                map_id,
-                adt_x,
-                adt_y,
-                use_float_16,
-                expected_version,
-            )
+            try:
+                future = MapManager._TILE_LOAD_POOL.submit(
+                    load_map_tile_data,
+                    maps_path,
+                    map_id,
+                    adt_x,
+                    adt_y,
+                    use_float_16,
+                    expected_version,
+                )
+            except BrokenProcessPool:
+                tile.initialized = False
+                PENDING_TILE_INITIALIZATION_QUEUE.put(key)
+                MapManager._recover_tile_loader()
+                return
             MapManager._TILE_LOAD_FUTURES[future] = key
             MapManager._TILE_LOAD_INFLIGHT[key] = future
             MapManager._TILE_LOAD_IDLE_SINCE = None
@@ -316,6 +340,12 @@ class MapManager:
             if not future.cancelled():
                 try:
                     map_data = future.result()
+                    MapManager._TILE_LOAD_RETRIED.discard(key)
+                except BrokenProcessPool:
+                    if key:
+                        MapManager._TILE_LOAD_INFLIGHT[key] = future
+                    MapManager._recover_tile_loader()
+                    return
                 except:
                     Logger.error('[Maps] Error while loading map tile data.')
                     Logger.error(traceback.format_exc())
