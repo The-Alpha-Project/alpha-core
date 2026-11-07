@@ -532,14 +532,17 @@ class AuraEffectHandler:
         else:
             stat_type = UnitStats.RESISTANCE_START << aura.spell_effect.misc_value
 
-        base_stat = effect_target.stat_manager.get_base_stat(stat_type)
+        stat_manager = effect_target.stat_manager
+        base_stat = stat_manager.get_base_stat(stat_type)
 
-        if remove:
-            new_value = max(base_stat - amount, 0)  # Avoid <0, though it should never occur.
-        else:
-            new_value = base_stat + amount
+        # Passives are applied again (as a refresh) on resurrection, undo what this aura added before.
+        previous_amount = stat_manager.base_resistance_auras.pop(aura.index, 0)
+        base_stat = max(base_stat - previous_amount, 0)
+        if not remove:
+            base_stat += amount
+            stat_manager.base_resistance_auras[aura.index] = amount
 
-        effect_target.stat_manager.base_stats[stat_type] = new_value
+        stat_manager.base_stats[stat_type] = base_stat
 
         # Update character sheet.
         effect_target.stat_manager.send_resistances()

@@ -126,6 +126,7 @@ class StatManager:
 
         self.aura_stats_flat = {}
         self.aura_stats_percentual = {}
+        self.base_resistance_auras = {}  # Aura index: amount added to a base resistance by MOD_BASE_RESISTANCE.
 
     def init_stats(self):
         base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(self.unit_mgr.class_,
