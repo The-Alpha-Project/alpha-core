@@ -1961,19 +1961,15 @@ class UnitManager(ObjectManager):
             return 0
 
         school_mask = [mask for mask in self._school_absorbs.keys() if damage_info.damage_school_mask & mask][0]
-        absorb_capability = 0   # Merge available sources for this school mask.
+        total_absorbed = 0   # Merge available sources for this school mask.
         damage_to_mitigate = damage_info.base_damage
         for aura_index, remaining in list(self._school_absorbs[school_mask].items()):
             if remaining:
-                absorb_capability += remaining
-                absorb = absorb_capability - damage_to_mitigate
-                self._school_absorbs[school_mask][aura_index] = max(0, absorb)
-                # Complete absorb.
-                if absorb >= 0:
-                    damage_to_mitigate = 0
-                # Source depleted.
-                else:
-                    damage_to_mitigate -= remaining
+                # Each source only gives up what it absorbs, the rest of the damage goes to the next source.
+                absorbed = min(remaining, damage_to_mitigate)
+                damage_to_mitigate -= absorbed
+                total_absorbed += absorbed
+                self._school_absorbs[school_mask][aura_index] = remaining - absorbed
 
             # Cancel depleted aura.
             if not self._school_absorbs[school_mask][aura_index]:
@@ -1986,10 +1982,7 @@ class UnitManager(ObjectManager):
                 if aura:
                     self.aura_manager.remove_aura(aura)
 
-        # Calculate absorb.
-        absorb = absorb_capability - damage_info.base_damage
-        damage = damage_info.base_damage
-        return int(damage if absorb >= 0 else damage - abs(absorb))
+        return int(total_absorbed)
 
     def set_immunity(self, immunity_type: SpellImmunity, immunity_mask: int, source_id = -1):
         # Note: source ID can be an aura slot or -1 for an innate immunity.
