@@ -225,7 +225,8 @@ class EffectTargets:
                 continue
 
             # Unit type.
-            if unit_type_restriction and not unit_type_restriction & (1 << unit.creature_type - 1):
+            if unit_type_restriction and (not unit.creature_type or
+                                          not unit_type_restriction & (1 << unit.creature_type - 1)):
                 continue
 
             if target_entries and (not unit.is_unit() or unit.entry not in target_entries):

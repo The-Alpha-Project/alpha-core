@@ -1522,7 +1522,9 @@ class SpellManager:
             # Creature type check.
             if validation_target is not self.caster:
                 req_creature_type_mask = casting_spell.spell_entry.TargetCreatureType
-                target_creature_type_mask = 1 << (validation_target.creature_type - 1)
+                # Creature type 0 (not specified) has no mask.
+                creature_type = validation_target.creature_type
+                target_creature_type_mask = 1 << (creature_type - 1) if creature_type else 0
                 if req_creature_type_mask and not req_creature_type_mask & target_creature_type_mask:
                     error = SpellCheckCastResult.SPELL_FAILED_TARGET_IS_PLAYER if \
                         validation_target.is_player() \
