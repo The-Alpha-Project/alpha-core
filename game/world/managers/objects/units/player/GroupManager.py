@@ -233,7 +233,8 @@ class GroupManager:
                     if member.guid == self.group.leader_guid:
                         GroupManager._remove_leader_flag(member)
 
-                    if not disband:
+                    # Only step the round robin back if the leaver was the last looter, else the cycle shifts.
+                    if not disband and member.guid == self._last_looter:
                         self._set_previous_looter(member.guid)
 
                     RealmDatabaseManager.group_remove_member(member)
