@@ -88,8 +88,13 @@ class EnchantmentManager:
 
         new_charges = max(0, charges - 1)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2, new_charges)
-        item.enchantments[enchantment_slot].charges = new_charges
-        self._update_item_enchantments(item)
+        enchantment = item.enchantments[enchantment_slot]
+        enchantment.charges = new_charges
+        # Don't run the periodic update here, it would subtract the time pending for the next tick on every charge. The
+        # charges are saved with the item on the next periodic update or character save, not on every proc.
+        if not new_charges and not enchantment.duration:
+            self.set_item_enchantment(item, enchantment_slot, 0, 0, 0, expired=True)
+            self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)
 
     def apply_enchantments(self, load=False):
         for container_slot, container in list(self.unit_mgr.inventory.containers.items()):
