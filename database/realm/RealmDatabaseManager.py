@@ -14,8 +14,10 @@ DB_HOST = os.getenv('MYSQL_HOST', config.Database.Realm.host)
 DB_PORT = os.getenv('MYSQL_TCP_PORT', config.Database.Realm.port)
 DB_REALM_NAME = config.Database.Realm.db_name
 
+# Every session thread and the ticker saves share this engine. With the default 5 + 10 connections, queries past 15 at
+# once wait for a free one (and fail after 30 seconds).
 realm_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_REALM_NAME}?charset=utf8mb4',
-                                pool_pre_ping=True)
+                                pool_pre_ping=True, pool_size=10, max_overflow=30)
 SessionHolder = SafeScopedSession(sessionmaker(bind=realm_db_engine, autoflush=False))
 
 CHARACTER_UPDATE_COLUMNS = tuple(
