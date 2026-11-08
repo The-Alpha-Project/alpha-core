@@ -617,8 +617,10 @@ class ChatAddonManager:
                 online_count += 1
 
             name = ChatAddonManager._sanitize_csv_field(member.character.name if member.character else '?')
-            level = member.character.level if member.character else 0
-            class_id = member.character.class_ if member.character else 0
+            # member.character is a snapshot taken when the guild was loaded, use the live player when online.
+            source = online_player if online_player else member.character
+            level = source.level if source else 0
+            class_id = source.class_ if source else 0
             rank = int(member.rank)
 
             member_lines.append(f'gm,{name},{level},{class_id},{rank},{is_online}')

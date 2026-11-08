@@ -263,6 +263,12 @@ class WorldSessionStateHandler:
                 player_mgr.synchronize_db_player()
                 RealmDatabaseManager.character_update(player_mgr.player)
 
+                # The guild keeps a snapshot of its members characters (loaded with the guild), keep its level current
+                # for the roster of offline members. Never saved, see RealmDatabaseManager.guild_update_member.
+                guild_member = player_mgr.guild_manager.members.get(player_mgr.guid) if player_mgr.guild_manager else None
+                if guild_member and guild_member.character:
+                    guild_member.character.level = player_mgr.level
+
                 if full_save:
                     player_mgr.enchantment_manager.save()  # Enchantments plus item duration.
                     player_mgr.pet_manager.save()
