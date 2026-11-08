@@ -836,6 +836,17 @@ class PlayerManager(UnitManager):
         return (form_entry.Flags & 1) == 0
 
     # override
+    def set_display_id(self, display_id):
+        if not super().set_display_id(display_id):
+            return False
+        # TODO: Likely a 0.5.3 client bug. Rebuilding the model on a display change (CGPlayer_C::PostReinitializeArtwork)
+        #  re-adds the tabard texture without the guild emblem, which is only applied when the guild id field is
+        #  received (even unchanged). Send it again, it goes after the display id in the same update.
+        if self.get_uint32(PlayerFields.PLAYER_GUILDID):
+            self.touch_update_field(PlayerFields.PLAYER_GUILDID)
+        return True
+
+    # override
     def mount(self, mount_display_id):
         if mount_display_id <= 0 or \
                 not DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
