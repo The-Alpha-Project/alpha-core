@@ -6,7 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
-from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates
+from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import GameObjectFields
 
@@ -23,6 +23,7 @@ class UpdateBuilder:
         self._destroy_owner_known_objects_updates = set()  # Only the player knows about the object.
         self._destroy_known_items = set()  # Items from players no longer visible.
         self._active_objects = set()  # Objects which are active to the player (visible).
+        self._create_swimming_units = {}  # Swimming units with create update for this tick, by guid.
         self._packets = dict()
         self._lock = RLock()
 
@@ -57,6 +58,7 @@ class UpdateBuilder:
                     if destroy_packets:
                         self._packets[PacketType.DESTROY] = destroy_packets
                     self._create_guids.clear()
+                    self._create_swimming_units.clear()
                     self._create_linked_known_objects_updates.clear()
                     self._create_owner_known_objects_updates.clear()
                     raise
@@ -120,8 +122,18 @@ class UpdateBuilder:
             )
 
             # Movement packets.
+            # TODO: Likely a 0.5.3 client bug. The client moves a unit before its first update sets the unit's water
+            #  surface height (CMovementData::m_waterSurfaceElev, never initialized, 0xEEEEEEEE). A swimming unit
+            #  whose first step has a vertical component is then moved ~1e30 yards by CMovement::CollideWithWaterSurface
+            #  and the client crashes with ERROR #132 'Request for facets off edge of map' (Map.cpp line 1638).
+            #  Flat steps return before reading that height, so swimming units get their current spline flattened to
+            #  their current height (built when the batch is sent, so it is the latest one; splines broadcast before
+            #  that skip this player, who doesn't know the unit yet). Their next spline restores the depth.
             if world_object.is_unit(by_mask=True):
-                self._add_movement_update_from_unit(world_object)
+                if world_object.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+                    self._create_swimming_units[world_object.guid] = world_object
+                else:
+                    self._add_movement_update_from_unit(world_object)
 
             # Handle special doors case in which the real state is sent after create packet in order to remove collision.
             if defer_door_state and door_deferred_state_update:
@@ -236,6 +248,10 @@ class UpdateBuilder:
         return packets
 
     def _get_build_all_packets(self):
+        for unit in self._create_swimming_units.values():
+            movement_packet = unit.movement_manager.try_build_movement_packet(flat=True)
+            if movement_packet:
+                self._add_packet(movement_packet, PacketType.MOVEMENT)
         packets = self._get_query_detail_packets() + self._build_update_packets() + self._get_movement_packets() + self._get_destroy_packets()
         self._enqueue_deferred_and_flush()
         return packets
@@ -313,6 +329,7 @@ class UpdateBuilder:
         partial_deferred = self._packets.get(PacketType.PARTIAL_DEFERRED, [])
         self._packets.clear()
         self._create_guids.clear()
+        self._create_swimming_units.clear()
         # If we had partial deferred updates, move them now, so they get sent next tick.
         if partial_deferred:
             self._packets[PacketType.PARTIAL] = partial_deferred

@@ -184,7 +184,8 @@ class Spline:
             self.unit.location = new_position.copy()
             self.unit.set_has_moved(has_moved=True, has_turned=False)
 
-    def try_build_movement_packet(self):
+    # flat: all points at the unit's current height, see UpdateBuilder.add_create_update_from_object.
+    def try_build_movement_packet(self, flat=False):
         # Initialize if needed.
         if not self.initialized:
             self.initialize()
@@ -201,7 +202,7 @@ class Spline:
             case SplineType.SPLINE_TYPE_STOP:
                 pass  # No payload if stopped.
             case _:
-                data.extend(self._get_payload_bytes())
+                data.extend(self._get_payload_bytes(flat))
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
@@ -222,11 +223,14 @@ class Spline:
 
         return data
 
-    def _get_payload_bytes(self):
+    def _get_payload_bytes(self, flat=False):
         total_time_remaining = max(int(self.total_time - self.elapsed), 0)
         payload_bytes = self.waypoints_bytes
         num_points = len(self.points)
-        if (self.use_packed_deltas
+        if flat:
+            z = self.unit.location.z
+            payload_bytes = b''.join(pack('<3f', point.x, point.y, z) for point in self.points)
+        elif (self.use_packed_deltas
                 and not self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
                 and num_points > 1):
             packed_bytes = self._get_packed_delta_bytes()

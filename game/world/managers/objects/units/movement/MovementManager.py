@@ -278,9 +278,9 @@ class MovementManager:
         spline = self._get_current_spline()
         return bool(spline and spline.pending_waypoints)
 
-    def try_build_movement_packet(self):
+    def try_build_movement_packet(self, flat=False):
         spline = self._get_current_spline()
-        return spline.try_build_movement_packet() if spline else None
+        return spline.try_build_movement_packet(flat) if spline else None
 
     def add_spline_event(self, spline_event):
         self.spline_events.append(spline_event)
