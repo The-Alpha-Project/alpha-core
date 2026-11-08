@@ -1,12 +1,5 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R21LO82)
 # ![logo](.github/logo-small.png) Alpha Core
-
----
-
-## ❤️ Enjoy the Project or Want to Support?
-
-[![Ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R21LO82)
-
----
 
 ## The Alpha Project - `alpha-core`
 
