@@ -1143,57 +1143,49 @@ class MapManager:
     def _lerp(value1, value2, amount):
         return value1 + ((value2 - value1) * amount)
 
+    # One map or instance that raises must not stop the same update for every map after it.
     @staticmethod
-    def update_creatures():
+    def _update_each_map(update):
         for map_id, instances in list(MAPS.items()):
             for instance_map in list(instances.values()):
-                instance_map.update_creatures()
+                try:
+                    update(instance_map)
+                except Exception:
+                    Logger.error(traceback.format_exc())
+
+    @staticmethod
+    def update_creatures():
+        MapManager._update_each_map(Map.update_creatures)
 
     @staticmethod
     def update_gameobjects():
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.update_gameobjects()
+        MapManager._update_each_map(Map.update_gameobjects)
 
     @staticmethod
     def update_transports():
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.update_transports()
+        MapManager._update_each_map(Map.update_transports)
 
     @staticmethod
     def update_dynobjects():
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.update_dynobjects()
+        MapManager._update_each_map(Map.update_dynobjects)
 
     @staticmethod
     def update_spawns():
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.update_spawns()
+        MapManager._update_each_map(Map.update_spawns)
 
     @staticmethod
     def update_corpses():
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.update_corpses()
+        MapManager._update_each_map(Map.update_corpses)
 
     @staticmethod
     def update_map_scripts_and_events():
         now = time.time()
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.update_map_scripts_and_events(now)
+        MapManager._update_each_map(lambda instance_map: instance_map.update_map_scripts_and_events(now))
 
     @staticmethod
     def update_detection_range_collision():
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.update_detection_range_collision()
+        MapManager._update_each_map(Map.update_detection_range_collision)
 
     @staticmethod
     def deactivate_cells():
-        for map_id, instances in list(MAPS.items()):
-            for instance_map in list(instances.values()):
-                instance_map.deactivate_cells()
+        MapManager._update_each_map(Map.deactivate_cells)
