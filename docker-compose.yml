@@ -17,8 +17,13 @@ x-${PROJECT}-shared-conf: &shared-conf
   environment: *shared-env
   volumes:
     - .:/var/wow/
-  restart: on-failure
+  restart: unless-stopped  # Also comes back after a host reboot, on-failure doesn't after a clean stop.
   stop_grace_period: 120s  # Docker kills the container after 10 seconds by default, before the world saved everybody.
+  logging:  # The default json-file log is never rotated and fills the disk.
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "5"
 
 services:
   main:
@@ -85,7 +90,9 @@ services:
       - "${MYSQL_HOST_PORT}:${MYSQL_PORT}"
     volumes:
       - ./etc/databases/:/etc/databases/
-    restart: on-failure
+    # A blocked row lock fails after 10 seconds instead of 50, and connections skip the reverse DNS lookup.
+    command: --innodb-lock-wait-timeout=10 --skip-name-resolve
+    restart: unless-stopped
 
   phpmyadmin:
     image: ${PHPAD_TAG}

@@ -262,7 +262,7 @@ if __name__ == '__main__':
             threading.Thread(target=handle_console_commands, daemon=True).start()
 
         # Wait on main thread for a stop signal, the 'exit' command or a crashed process. Exiting with an error lets
-        # supervisors (docker's restart on-failure, systemd) restart the server.
+        # supervisors (docker's restart policy, systemd) restart the server. With docker, stop it with docker stop.
         last_heartbeat, last_heartbeat_change = 0.0, monotonic()
         while SHARED_STATE.RUNNING:
             dead_process = next((process for process, _ in ACTIVE_PROCESSES if not process.is_alive()), None)
