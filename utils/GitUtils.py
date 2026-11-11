@@ -41,7 +41,7 @@ class GitUtils:
             download_url = f'{GitUtils.BASE_NAMIGATOR_URL}{filename}'
 
             Logger.info(f'[Namigator] Attempting to download {download_url}')
-            zip_data = requests.get(download_url)
+            zip_data = requests.get(download_url, timeout=60)
             zip_data.raise_for_status()  # Ensure we catch HTTP errors.
 
             with zipfile.ZipFile(BytesIO(zip_data.content)) as zip_file:
