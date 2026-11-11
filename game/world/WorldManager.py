@@ -149,6 +149,10 @@ class WorldServerSessionHandler:
                     self.client_socket.sendall(batch[0] if len(batch) == 1 else b''.join(batch))
         except OSError:
             self.disconnect()
+        except Exception:
+            # Any other error ended this thread silently, leaving a client that answers pings but receives nothing.
+            Logger.error(traceback.format_exc())
+            self.disconnect()
         finally:
             # Flush outgoing packets from the queue, if any.
             while not self.outgoing_pending.empty():
