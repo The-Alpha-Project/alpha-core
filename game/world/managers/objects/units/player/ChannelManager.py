@@ -133,6 +133,11 @@ class Channel:
         self.owner = None
 
 
+# The client allows 10 channels, the rest leaves room for addon channels.
+MAX_JOINED_CHANNELS_PER_PLAYER = 16
+MAX_CHANNEL_NAME_LENGTH = 50
+
+
 class ChannelManager:
     # General and Trade channels weren't zone-specific until Patch 0.5.5.
     DEFAULT_GENERAL = 'General'
@@ -379,8 +384,18 @@ class ChannelManager:
 
     @staticmethod
     def join_channel(player_mgr, channel_name, password=''):
+        channel = ChannelManager.get_channel(channel_name, player_mgr)
+        # Every channel is scanned on each leave and logout, a client must not create or join any number of them.
+        if not channel or not channel.player_in_channel(player_mgr):
+            joined = sum(1 for existing in ChannelManager.get_all_channels(player_mgr)
+                         if existing.player_in_channel(player_mgr))
+            if joined >= MAX_JOINED_CHANNELS_PER_PLAYER:
+                return
+
         # Create channel if needed.
-        if not ChannelManager._channel_exist(channel_name, player_mgr):
+        if not channel:
+            if not channel_name or len(channel_name) > MAX_CHANNEL_NAME_LENGTH:
+                return
             channel = Channel(
                     name=channel_name.capitalize(),
                     members=[],
@@ -398,9 +413,6 @@ class ChannelManager:
                 ChannelManager.ADDON_CHANNELS[channel_name] = channel
             else:
                 ChannelManager.CHANNELS[player_mgr.team][channel_name] = channel
-        # Existent channel.
-        else:
-            channel = ChannelManager.get_channel(channel_name, player_mgr)
 
         if channel.player_in_channel(player_mgr):
             if channel.is_addon():
@@ -475,9 +487,9 @@ class ChannelManager:
         if channel.members_count() == 0:
             channel.flush()
             if channel.is_addon():
-                ChannelManager.ADDON_CHANNELS.pop(channel.name)
+                ChannelManager.ADDON_CHANNELS.pop(channel.name, None)  # The last two members can leave at once.
             else:
-                ChannelManager.CHANNELS[player_mgr.team].pop(channel.name)
+                ChannelManager.CHANNELS[player_mgr.team].pop(channel.name, None)
 
     @staticmethod
     def send_channel_members_list(channel, sender):
