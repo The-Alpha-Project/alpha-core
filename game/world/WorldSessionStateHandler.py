@@ -109,21 +109,18 @@ class WorldSessionStateHandler:
     def pop_active_player(player_mgr):
         lowercase_name = player_mgr.get_name().lower()
 
-        # Flushed when player leaves the world.
-        if lowercase_name in PLAYER_BY_NAME:
-            PLAYER_BY_NAME.pop(lowercase_name)
-        if player_mgr.guid in PLAYERS_BY_GUID:
-            PLAYERS_BY_GUID.pop(player_mgr.guid)
-
-        if lowercase_name in SESSION_BY_NAME:
-            SESSION_BY_NAME.pop(lowercase_name)
-        if player_mgr.guid in SESSION_BY_GUID:
-            SESSION_BY_GUID.pop(player_mgr.guid)
+        # Flushed when player leaves the world. A logout and a disconnect can both get here, from different threads.
+        PLAYER_BY_NAME.pop(lowercase_name, None)
+        PLAYERS_BY_GUID.pop(player_mgr.guid, None)
+        SESSION_BY_NAME.pop(lowercase_name, None)
+        SESSION_BY_GUID.pop(player_mgr.guid, None)
 
     @staticmethod
     def remove(session):
-        if session in WORLD_SESSIONS:
+        try:
             WORLD_SESSIONS.remove(session)
+        except ValueError:
+            pass  # Already removed by another thread.
         if session.player_mgr:
             WorldSessionStateHandler.pop_active_player(session.player_mgr)
 
