@@ -245,6 +245,11 @@ class WorldServerSessionHandler:
                     self.disconnect()
                     return -1
                 self.incoming_pending.put(reader)
+                # Data arriving proves the client is alive. The ticker kicks players 40 seconds after the last handled
+                # ping, so a slow handler thread (database, lock) got live players kicked, all at once on a slow server.
+                player_mgr = self.player_mgr
+                if player_mgr:
+                    player_mgr.last_ping = time()
             else:
                 return -1
             return 0
