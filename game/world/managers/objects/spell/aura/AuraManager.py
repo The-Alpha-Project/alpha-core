@@ -1,3 +1,4 @@
+import traceback
 from struct import pack
 from typing import Optional, Dict, List
 
@@ -7,6 +8,7 @@ from game.world.managers.objects.spell.aura.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import ProcFlags, AttackTypes
 from utils.constants.OpCodes import OpCode
@@ -99,9 +101,18 @@ class AuraManager:
             if aura.spell_effect.area_aura_holder:
                 continue  # Area auras are updated by AreaAuraHolder.
 
-            aura.update(timestamp)  # Update duration and handle periodic effects.
-            if aura.has_duration() and aura.get_duration() <= 0 or aura.get_heartbeat_resist_result(timestamp):
-                self.remove_aura(aura)
+            try:
+                aura.update(timestamp)  # Update duration and handle periodic effects.
+                if aura.has_duration() and aura.get_duration() <= 0 or aura.get_heartbeat_resist_result(timestamp):
+                    self.remove_aura(aura)
+            except Exception:
+                # An aura that raises would raise again on every tick, stopping the rest of the unit update. Remove it
+                # (its effects too), or at least drop it if its removal raises too.
+                Logger.error(traceback.format_exc())
+                try:
+                    self.remove_aura(aura)
+                except Exception:
+                    self.active_auras.pop(aura.index, None)
 
     def can_apply_aura(self, aura) -> bool:
         # TODO Similar (stat mod?) harmful auras (2x. slows etc.) should not stack.

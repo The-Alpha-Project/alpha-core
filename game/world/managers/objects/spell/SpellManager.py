@@ -1,3 +1,4 @@
+import traceback
 import time
 from struct import pack
 from typing import Optional
@@ -671,47 +672,60 @@ class SpellManager:
     def update(self, timestamp):
         self.check_spell_cooldowns()
         for casting_spell in list(self.casting_spells):
-            # Queued spells cast on swing will be updated on call from attack handling.
-            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
-                    casting_spell.casts_on_swing():
-                continue
+            try:
+                self._update_casting_spell(casting_spell, timestamp)
+            except Exception:
+                # A cast that raises keeps its state and would raise again on every tick, stopping the rest of the
+                # unit update each time. Remove it, or at least drop it if its removal raises too.
+                Logger.error(traceback.format_exc())
+                try:
+                    self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                except Exception:
+                    if casting_spell in self.casting_spells:
+                        self.casting_spells.remove(casting_spell)
 
-            cast_finished = casting_spell.cast_end_timestamp <= timestamp and casting_spell.cast_end_timestamp != -1
-            # Channel tick/spells that need updates.
-            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
-                # Active spells can either finish because of the associated channel ending or
-                # because of their effects' duration.
-                cast_finished = self.handle_area_spell_effect_update(casting_spell, timestamp) or \
-                                (casting_spell.is_channeled() and cast_finished)
-                if cast_finished:
+    def _update_casting_spell(self, casting_spell, timestamp):
+        # Queued spells cast on swing will be updated on call from attack handling.
+        if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED and \
+                casting_spell.casts_on_swing():
+            return
+
+        cast_finished = casting_spell.cast_end_timestamp <= timestamp and casting_spell.cast_end_timestamp != -1
+        # Channel tick/spells that need updates.
+        if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
+            # Active spells can either finish because of the associated channel ending or
+            # because of their effects' duration.
+            cast_finished = self.handle_area_spell_effect_update(casting_spell, timestamp) or \
+                            (casting_spell.is_channeled() and cast_finished)
+            if cast_finished:
+                self.remove_cast(casting_spell)
+            return
+
+        if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING and not casting_spell.is_instant_cast():
+            if cast_finished:
+                self.perform_spell_cast(casting_spell)
+                # Spell finished after perform (no impact delay).
+                if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:
                     self.remove_cast(casting_spell)
-                continue
 
-            if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING and not casting_spell.is_instant_cast():
-                if cast_finished:
-                    self.perform_spell_cast(casting_spell)
-                    # Spell finished after perform (no impact delay).
-                    if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:
-                        self.remove_cast(casting_spell)
+        # Waiting for impact delay.
+        if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+            targets_due = [guid for guid, stamp
+                           in casting_spell.spell_impact_timestamps.items()
+                           if stamp <= timestamp]
+            if not targets_due:
+                return
 
-            # Waiting for impact delay.
-            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
-                targets_due = [guid for guid, stamp
-                               in casting_spell.spell_impact_timestamps.items()
-                               if stamp <= timestamp]
-                if not targets_due:
-                    continue
+            for target in targets_due:
+                casting_spell.spell_impact_timestamps.pop(target)
 
-                for target in targets_due:
-                    casting_spell.spell_impact_timestamps.pop(target)
+            # All targets finished impact delay.
+            if len(casting_spell.spell_impact_timestamps) == 0:
+                self.apply_spell_effects(casting_spell, remove=True, partial_targets=targets_due)
+                return
 
-                # All targets finished impact delay.
-                if len(casting_spell.spell_impact_timestamps) == 0:
-                    self.apply_spell_effects(casting_spell, remove=True, partial_targets=targets_due)
-                    continue
-
-                # Only some targets finished delay
-                self.apply_spell_effects(casting_spell, partial_targets=targets_due)
+            # Only some targets finished delay
+            self.apply_spell_effects(casting_spell, partial_targets=targets_due)
 
     def check_spell_interrupts(self, moved=False, turned=False, received_damage=False, hit_info=HitInfo.DAMAGE,
                                interrupted=False, received_auto_attack=False):
