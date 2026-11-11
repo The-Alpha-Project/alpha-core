@@ -102,9 +102,14 @@ class MapManager:
 
         new_map = Map(map_id, MapManager.on_cell_turn_active, MapManager.on_cell_turn_inactive, instance_id=instance_id, map_manager=MapManager)
         MAPS[map_id][instance_id] = new_map
-        new_map.initialize()
-        MapManager._build_map_namigator(new_map)
-        MapManager._build_map_adt_tiles(new_map)
+        try:
+            new_map.initialize()
+            MapManager._build_map_namigator(new_map)
+            MapManager._build_map_adt_tiles(new_map)
+        except Exception:
+            # A half built map would be handed to everyone who enters it after, let the next one build it again.
+            MAPS[map_id].pop(instance_id, None)
+            raise
         return new_map
 
     @staticmethod
