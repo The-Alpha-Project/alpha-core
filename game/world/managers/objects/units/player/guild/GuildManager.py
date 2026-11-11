@@ -100,6 +100,11 @@ class GuildManager:
             if previous_player_mgr:
                 previous_player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, previous_gm.rank)
 
+    # Members are loaded with their character, no database query needed (the guild window and addons ask often).
+    @staticmethod
+    def get_account_count(members):
+        return len({member.character.account_id for member in members if member.character})
+
     def update_db_guild_members(self):
         for member in list(self.members.values()):
             RealmDatabaseManager.guild_update_member(member)

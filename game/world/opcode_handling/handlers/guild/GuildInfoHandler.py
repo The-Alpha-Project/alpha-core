@@ -1,4 +1,3 @@
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
@@ -22,7 +21,6 @@ class GuildInfoHandler:
                 name_bytes
             )
 
-            accounts = RealmDatabaseManager.guild_get_accounts(guild_id=player.guild_manager.guild.guild_id)
             creation_date = player.guild_manager.guild.creation_date
             # Day, Month, Years, Players, Nº Accounts
             data += pack(
@@ -31,7 +29,7 @@ class GuildInfoHandler:
                 creation_date.month,
                 creation_date.year,
                 len(player.guild_manager.members),
-                len(accounts)
+                GuildManager.get_account_count(list(player.guild_manager.members.values()))
             )
             player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_GUILD_INFO, data))
 

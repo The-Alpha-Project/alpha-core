@@ -1,4 +1,3 @@
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
@@ -21,12 +20,12 @@ class GuildRosterHandler:
                 guild_name
             )
 
-            # Members count
-            data += pack('<I', len(player.guild_manager.members))
-            accounts = RealmDatabaseManager.guild_get_accounts(guild_id=player.guild_manager.guild.guild_id)
-            data += pack('<I', len(accounts))
+            # Members count. One snapshot, members can join or leave on other threads meanwhile.
+            members = list(player.guild_manager.members.values())
+            data += pack('<I', len(members))
+            data += pack('<I', GuildManager.get_account_count(members))
 
-            for member in player.guild_manager.members.values():
+            for member in members:
                 player_name = PacketWriter.string_to_bytes(member.character.name)
                 data += pack(
                     f'<{len(player_name)}sI',

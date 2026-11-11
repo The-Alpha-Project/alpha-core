@@ -783,16 +783,6 @@ class RealmDatabaseManager:
         return guilds
 
     @staticmethod
-    def guild_get_accounts(guild_id):
-        realm_db_session = SessionHolder()
-        guild_members = realm_db_session.query(GuildMember).filter_by(guild_id=guild_id).all()
-        accounts = []
-        if guild_members:
-            accounts = list(set([member.character.account_id for member in guild_members]))  # Distinct
-        realm_db_session.close()
-        return accounts
-
-    @staticmethod
     def guild_update(guild):
         realm_db_session = SessionHolder()
         realm_db_session.merge(guild)
