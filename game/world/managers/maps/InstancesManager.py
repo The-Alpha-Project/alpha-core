@@ -1,3 +1,4 @@
+import traceback
 from multiprocessing import RLock
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -29,7 +30,11 @@ class InstancesManager:
         for instance_map in empty_maps:
             Logger.info(f'[Instance] Unloading empty instance, Map:{instance_map.map_id} '
                         f'Instance:{instance_map.instance_id}')
-            instance_map.unload()
+            # These maps are already out of MAPS, one failing must not leave the rest of the batch loaded forever.
+            try:
+                instance_map.unload()
+            except Exception:
+                Logger.error(traceback.format_exc())
 
     @staticmethod
     def _remove_instance_tokens(map_id, instance_id):
