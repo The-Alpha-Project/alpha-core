@@ -30,8 +30,8 @@ class UpdateSessionStateHandler:
         self.current_fileset = None
         self.update_server_enabled = config.Patcher.update_server_enabled
         self.rsync_helper = RsyncHelper.from_config()
-        self.file_catalog = self._load_patch_catalog() if self.update_server_enabled else {}
-        self.fileset_signatures = {PATCH_FILESET: self._build_fileset_signature(self.file_catalog)}
+        self.file_catalog, signature = self._get_cached_catalog() if self.update_server_enabled else ({}, None)
+        self.fileset_signatures = {PATCH_FILESET: signature or self._build_fileset_signature(self.file_catalog)}
 
     def handle(self):
         try:
@@ -385,6 +385,28 @@ class UpdateSessionStateHandler:
             Logger.debug(f'[UpdateServer] Disconnected {self.client_address}')
         except OSError:
             pass
+
+    _catalog_cache = None  # (files stat key, catalog, signature), shared by all sessions (read only).
+
+    @staticmethod
+    def _get_cached_catalog():
+        # Handlers are built on the accept thread for every connection. Reading and hashing every patch file each time
+        # blocked all other connections, reload only when the files change.
+        stat_key = []
+        for root, _, files in os.walk(PathManager.get_patches_path()):
+            for filename in files:
+                try:
+                    stat = os.stat(os.path.join(root, filename))
+                except OSError:
+                    continue
+                stat_key.append((root, filename, stat.st_size, stat.st_mtime_ns))
+        stat_key = tuple(sorted(stat_key))
+        cached = UpdateSessionStateHandler._catalog_cache
+        if not cached or cached[0] != stat_key:
+            catalog = UpdateSessionStateHandler._load_patch_catalog()
+            cached = (stat_key, catalog, UpdateSessionStateHandler._build_fileset_signature(catalog))
+            UpdateSessionStateHandler._catalog_cache = cached
+        return cached[1], cached[2]
 
     @staticmethod
     def _load_patch_catalog() -> dict[str, UpdateFileEntry | bytes]:
