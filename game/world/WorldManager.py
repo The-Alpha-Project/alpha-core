@@ -49,6 +49,7 @@ class WorldServerSessionHandler:
         self.client_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
         self.account_mgr = None
+        self.last_bug_report_at = 0
         self.player_mgr: Optional[PlayerManager] = None
         self.keep_alive = False
 

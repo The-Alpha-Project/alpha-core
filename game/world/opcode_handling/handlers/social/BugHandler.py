@@ -1,6 +1,12 @@
+import time
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from database.realm.RealmDatabaseManager import *
 from network.packet.PacketReader import *
+
+
+# Every report is a database row written on the session thread, a client in a loop must not fill the table.
+MAX_REPORT_TEXT_LENGTH = 2000  # The client form holds far less.
+MIN_SECONDS_BETWEEN_REPORTS = 10
 
 
 class BugHandler:
@@ -12,6 +18,11 @@ class BugHandler:
             return 0
         if not world_session.account_mgr or not world_session.player_mgr:
             return 0
+
+        now = time.time()
+        if now - world_session.last_bug_report_at < MIN_SECONDS_BETWEEN_REPORTS:
+            return 0
+        world_session.last_bug_report_at = now
 
         report_type = unpack('<I', reader.data[:4])[0]
         report_len = unpack('<I', reader.data[4:8])[0]
@@ -37,7 +48,7 @@ class BugHandler:
         marker_index = report_text.find(marker)
         if marker_index != -1:
             report_text = report_text[:marker_index]
-        report_text = report_text.strip()
+        report_text = report_text.strip()[:MAX_REPORT_TEXT_LENGTH]
 
         if category_text:
             report_text = f'[{category_text}] {report_text}'
