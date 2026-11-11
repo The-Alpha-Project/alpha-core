@@ -1,3 +1,4 @@
+from math import isfinite
 from struct import pack, unpack
 
 from network.packet.PacketWriter import PacketWriter
@@ -22,6 +23,10 @@ class MovementInfo:
 
         # t 'Transport' followed by unit fields.
         t_id, t_x, t_y, t_z, t_o, x, y, z, o, pitch, movement_flags = unpack('<Q9fI', reader.data[:48])
+
+        # A NaN passes the distance check below (every comparison with NaN is false) and then breaks the cell lookup.
+        if not isfinite(t_x + t_y + t_z + t_o + x + y + z + o + pitch):
+            return None
 
         distance = self.owner.location.distance(x=x, y=y, z=z)
         # Anti cheat / elevators bug.
