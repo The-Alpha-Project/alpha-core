@@ -340,6 +340,16 @@ class RealmDatabaseManager:
             realm_db_session.close()
 
     @staticmethod
+    def character_update_skills(skills):
+        # One commit for all of them, a commit is a disk flush.
+        if skills:
+            realm_db_session = SessionHolder()
+            for skill in skills:
+                realm_db_session.merge(skill)
+            realm_db_session.commit()
+            realm_db_session.close()
+
+    @staticmethod
     def character_get_spells(guid):
         realm_db_session = SessionHolder()
         spells = realm_db_session.query(CharacterSpell).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()

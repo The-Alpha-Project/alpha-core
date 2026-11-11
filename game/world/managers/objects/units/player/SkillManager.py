@@ -344,7 +344,7 @@ class SkillManager:
         self.build_update()
         return True
 
-    def set_skill(self, skill_id, current_value, max_value=-1):
+    def set_skill(self, skill_id, current_value, max_value=-1, save=True):
         if skill_id not in self.skills:
             return False
 
@@ -357,7 +357,8 @@ class SkillManager:
         skill.value = current_value
         skill.max = new_max_value
 
-        RealmDatabaseManager.character_update_skill(skill)
+        if save:
+            RealmDatabaseManager.character_update_skill(skill)
 
         self._refresh_riding_speed()
         return True
@@ -369,6 +370,8 @@ class SkillManager:
         self.player_mgr.change_speed(SpeedType.RUN, base_speed)
 
     def update_skills_max_value(self):
+        # A level up changes the max of most skills, write them in one commit instead of one each.
+        changed_skills = []
         for skill_id, skill in self.skills.items():
             # For cases like non-default languages, they should remain at max 1 unless forcefully set
             if skill.max == 1:
@@ -376,8 +379,12 @@ class SkillManager:
             else:
                 new_max = self.get_max_rank(skill_id)
 
-            self.set_skill(skill_id, skill.value, new_max)
+            old_max = skill.max
+            self.set_skill(skill_id, skill.value, new_max, save=False)
+            if skill.max != old_max:
+                changed_skills.append(skill)
 
+        RealmDatabaseManager.character_update_skills(changed_skills)
         self.build_update()
 
     def handle_defense_skill_gain_chance(self, damage_info):
