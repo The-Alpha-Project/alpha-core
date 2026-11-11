@@ -1,6 +1,7 @@
 from struct import unpack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterButton
+from game.world.managers.objects.units.player.PlayerManager import MAX_ACTION_BUTTONS
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
@@ -17,6 +18,9 @@ class SetActionButtonHandler:
         if not HandlerValidator.validate_packet_length(reader, min_length=5):
             return 0
         index, action = unpack('<Bi', reader.data[:5])
+        # Only the first 120 slots exist (and are ever sent back), the index is a client controlled byte.
+        if index >= MAX_ACTION_BUTTONS:
+            return 0
 
         button = RealmDatabaseManager.character_get_button(player_mgr.player.guid, index)
         if button:
