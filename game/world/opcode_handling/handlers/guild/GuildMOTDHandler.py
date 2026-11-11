@@ -17,7 +17,8 @@ class GuildMOTDHandler:
             # Avoid handling an empty or truncated packet.
             if not HandlerValidator.validate_packet_length(reader, min_length=1):
                 return 0
-            motd = PacketReader.read_string(reader.data, 0).strip()
+            # The database column holds 255 characters, a longer text would fail every later update of this guild.
+            motd = PacketReader.read_string(reader.data, 0).strip()[:255]
 
             if not player_mgr.guild_manager:
                 GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, '',
