@@ -83,6 +83,9 @@ class RealmManager:
                         client_socket.shutdown(socket.SHUT_RDWR)
                     except OSError:
                         pass  # The client reset the connection before it was served.
+                    except Exception:
+                        # A database error must not end the process, the main process then stops the whole server.
+                        Logger.error(traceback.format_exc())
                     finally:
                         client_socket.close()
             except OSError:
@@ -111,6 +114,9 @@ class RealmManager:
                         client_socket.shutdown(socket.SHUT_RDWR)
                     except OSError:
                         pass  # The client reset the connection before it was served.
+                    except Exception:
+                        # A database error must not end the process, the main process then stops the whole server.
+                        Logger.error(traceback.format_exc())
                     finally:
                         client_socket.close()
             except OSError:

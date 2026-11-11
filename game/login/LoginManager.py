@@ -23,8 +23,7 @@ class LoginManager:
                     client_socket, client_address = SocketBuilder.accept(server_socket, 'LoginServer')
                     if not client_socket:
                         continue
-                    server_handler = LoginSessionStateHandler(client_socket, client_address)
-                    SocketBuilder.start_session_thread(client_socket, server_handler.handle, 'LoginServer')
+                    SocketBuilder.start_session(LoginSessionStateHandler, client_socket, client_address, 'LoginServer')
             except OSError:
                 Logger.warning(traceback.format_exc())
             except KeyboardInterrupt:

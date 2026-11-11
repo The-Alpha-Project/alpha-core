@@ -347,8 +347,7 @@ class WorldServerSessionHandler:
                     client_socket, client_address = SocketBuilder.accept(server_socket, 'WorldServer')
                     if not client_socket:
                         continue
-                    server_handler = WorldServerSessionHandler(client_socket, client_address)
-                    SocketBuilder.start_session_thread(client_socket, server_handler.handle, 'WorldServer')
+                    SocketBuilder.start_session(WorldServerSessionHandler, client_socket, client_address, 'WorldServer')
             except OSError:
                 Logger.warning(traceback.format_exc())
             except KeyboardInterrupt:

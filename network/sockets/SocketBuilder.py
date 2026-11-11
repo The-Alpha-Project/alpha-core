@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import traceback
 
 from utils.Logger import Logger
 
@@ -31,13 +32,20 @@ class SocketBuilder:
             time.sleep(0.2)
         return None, None
 
-    # Refuse the client instead of stopping the server when no more threads can be started.
+    # Build the session handler and start its thread. A failing client is refused instead of ending the accept loop,
+    # which would end the process, and the main process then stops the whole server.
     @staticmethod
-    def start_session_thread(client_socket, target, server_name):
+    def start_session(handler_class, client_socket, client_address, server_name):
         try:
-            session_thread = threading.Thread(target=target)
+            server_handler = handler_class(client_socket, client_address)
+            session_thread = threading.Thread(target=server_handler.handle)
             session_thread.daemon = True
             session_thread.start()
+        except OSError:
+            client_socket.close()  # The client reset the connection.
         except RuntimeError as ex:
             Logger.warning(f'[{server_name}] Unable to start a session: {ex}.')
+            client_socket.close()
+        except Exception:
+            Logger.error(traceback.format_exc())
             client_socket.close()

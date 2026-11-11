@@ -24,8 +24,8 @@ class UpdateManager:
                     if not client_socket:
                         continue
                     Logger.debug(f'[UpdateServer] Accepted {client_address}')
-                    server_handler = UpdateSessionStateHandler(client_socket, client_address)
-                    SocketBuilder.start_session_thread(client_socket, server_handler.handle, 'UpdateServer')
+                    SocketBuilder.start_session(UpdateSessionStateHandler, client_socket, client_address,
+                                                'UpdateServer')
             except OSError:
                 Logger.warning(traceback.format_exc())
             except KeyboardInterrupt:
