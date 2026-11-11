@@ -17,7 +17,7 @@ if __name__ == '__main__':
 import argparse
 import signal
 import threading
-from time import sleep
+from time import sleep, monotonic
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.constants import EnvVars
@@ -72,6 +72,10 @@ parser.add_argument(
     default=False
 )
 args = parser.parse_args()
+
+
+# Seconds without a world ticker heartbeat before the world process is considered hung.
+WORLD_HEARTBEAT_TIMEOUT = 600
 
 
 def release_process(active_process):
@@ -177,6 +181,7 @@ if __name__ == '__main__':
     # Shared variables inside a namespace.
     SHARED_STATE = manager.Namespace()
     SHARED_STATE.RUNNING = True
+    SHARED_STATE.WORLD_HEARTBEAT = 0.0  # Written by the world ticker, zero until it runs.
     SHARED_STATE.WORLD_SERVER_READY = False
     SHARED_STATE.REALM_SERVER_READY = False
     SHARED_STATE.PROXY_SERVER_READY = False
@@ -258,10 +263,22 @@ if __name__ == '__main__':
 
         # Wait on main thread for a stop signal, the 'exit' command or a crashed process. Exiting with an error lets
         # supervisors (docker's restart on-failure, systemd) restart the server.
+        last_heartbeat, last_heartbeat_change = 0.0, monotonic()
         while SHARED_STATE.RUNNING:
             dead_process = next((process for process, _ in ACTIVE_PROCESSES if not process.is_alive()), None)
             if dead_process:
                 Logger.error(f'{dead_process.name} exited unexpectedly (exit code {dead_process.exitcode}).')
+                exit_code = 1
+                SHARED_STATE.RUNNING = False
+                break
+            # A world process that is alive but no longer ticking (a deadlock, or a native call that never returns
+            # while holding the interpreter lock) can't detect it itself. Restart it when its heartbeat stops.
+            # Timed here with a monotonic clock, only the change of the value matters (wall clock steps, suspends).
+            heartbeat = SHARED_STATE.WORLD_HEARTBEAT
+            if heartbeat != last_heartbeat:
+                last_heartbeat, last_heartbeat_change = heartbeat, monotonic()
+            elif heartbeat and monotonic() - last_heartbeat_change > WORLD_HEARTBEAT_TIMEOUT:
+                Logger.error(f'The world ticker has not run for {WORLD_HEARTBEAT_TIMEOUT} seconds, restarting.')
                 exit_code = 1
                 SHARED_STATE.RUNNING = False
                 break

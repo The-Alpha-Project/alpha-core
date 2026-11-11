@@ -41,6 +41,8 @@ class WorldServerTicker:
             if batch_start >= next_running_check:
                 if not shared_state.RUNNING:
                     break
+                # Proof of life for the main process, which restarts a world that stops ticking.
+                shared_state.WORLD_HEARTBEAT = time.time()
                 next_running_check = batch_start + 1.0
             next_wake = None
 
