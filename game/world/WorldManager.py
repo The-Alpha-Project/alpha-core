@@ -3,7 +3,7 @@ import signal
 import socket
 import threading
 import traceback
-from time import time, sleep
+from time import time, sleep, monotonic
 from typing import Any
 
 from game.world.WorldServerTicker import WorldServerTicker
@@ -30,6 +30,10 @@ MAX_PACKET_BYTES = 4096
 MAX_SEND_BATCH_BYTES = 65536
 MAX_PENDING_OUTGOING_PACKETS = 32768
 MAX_PENDING_INCOMING_PACKETS = 4096
+# A real client sends a few dozen packets per second. Far more is a broken or modified client, and every packet it sends
+# is handled in Python on the interpreter lock shared with every other player and the world ticker.
+PACKET_RATE_WINDOW_SECONDS = 5
+MAX_PACKETS_PER_RATE_WINDOW = 5000
 
 
 def get_seconds_since_startup():
@@ -53,6 +57,8 @@ class WorldServerSessionHandler:
 
         self._receive_buffer = bytearray(MAX_PACKET_BYTES)
         self._receive_view = memoryview(self._receive_buffer)
+        self._packet_window_start = monotonic()
+        self._packet_window_count = 0
 
     def handle(self):
         try:
@@ -239,6 +245,15 @@ class WorldServerSessionHandler:
         try:
             reader = self.receive_client_message(sck)
             if reader:
+                now = monotonic()
+                if now - self._packet_window_start >= PACKET_RATE_WINDOW_SECONDS:
+                    self._packet_window_start = now
+                    self._packet_window_count = 0
+                self._packet_window_count += 1
+                if self._packet_window_count > MAX_PACKETS_PER_RATE_WINDOW:
+                    Logger.warning(f'[WorldServer] {self.client_address[0]} sent too many packets, disconnecting.')
+                    self.disconnect()
+                    return -1
                 # The handler thread isn't keeping up (flood or a stuck handler), don't buffer without limit.
                 if self.incoming_pending.qsize() >= MAX_PENDING_INCOMING_PACKETS:
                     Logger.warning(f'[WorldServer] {self.client_address[0]} incoming queue is full, disconnecting.')
