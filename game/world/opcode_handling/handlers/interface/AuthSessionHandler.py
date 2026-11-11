@@ -216,7 +216,8 @@ class AuthSessionHandler:
             except:
                 pass
 
-        if not username:
+        # The account name column holds 250 characters, longer names raised while creating the account.
+        if not username or len(username) > 250:
             AuthSessionHandler.send_result(world_session, AuthCode.AUTH_UNKNOWN_ACCOUNT)
             return -1
 
