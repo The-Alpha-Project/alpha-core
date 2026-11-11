@@ -148,7 +148,7 @@ class FriendsManager:
     def send_friends(self):
         data = pack('<B', len(self.friends))
 
-        for entry in self.friends.values():
+        for entry in list(self.friends.values()):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.other_guid)
             # If player is offline.
             if not player_mgr or not player_mgr.online:

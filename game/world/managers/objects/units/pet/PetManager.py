@@ -117,7 +117,7 @@ class PetManager:
                                         replenish_on_summon=True)
 
     def get_guardian_count(self) -> int:
-        return len([pet for pet in self.active_pets.values() if pet and pet.creature.is_guardian()])
+        return len([pet for pet in list(self.active_pets.values()) if pet and pet.creature.is_guardian()])
 
     def add_guardian_from_spell(self, creature: CreatureManager, spell: CastingSpell,
                                 guardian_level: int = -1) -> Optional[ActivePet]:
@@ -263,7 +263,7 @@ class PetManager:
         controlled_pet = self.get_active_controlled_pet()
         if controlled_pet and controlled_pet.creature.is_alive:
             result.append(controlled_pet.creature)
-        for active_pet in self.active_pets.values():
+        for active_pet in list(self.active_pets.values()):
             if not active_pet.creature.is_alive or not active_pet.creature.is_guardian():
                 continue
             result.append(active_pet.creature)
@@ -277,7 +277,7 @@ class PetManager:
                                  (not charm or not charm.creature.is_alive)) else charm
 
     def get_active_guardian_pet(self, guid=0) -> Optional[ActivePet]:
-        for active_pet in self.active_pets.values():
+        for active_pet in list(self.active_pets.values()):
             if active_pet.creature.is_alive and active_pet.creature.is_guardian():
                 if guid and guid != active_pet.creature.guid:
                     continue
@@ -285,7 +285,7 @@ class PetManager:
         return None
 
     def get_active_pet_by_guid(self, guid) -> Optional[ActivePet]:
-        for active_pet in self.active_pets.values():
+        for active_pet in list(self.active_pets.values()):
             if active_pet.creature.guid == guid:
                 return active_pet
         return None

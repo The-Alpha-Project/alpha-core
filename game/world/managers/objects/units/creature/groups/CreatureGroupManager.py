@@ -125,7 +125,7 @@ class CreatureGroupManager:
         if not target or not self.group_flags & CreatureGroupFlags.OPTION_AGGRO_TOGETHER:
             return
 
-        for guid, member in self.members.items():
+        for guid, member in list(self.members.items()):
             if guid == creature_mgr.guid:
                 continue
             self._assist_member(member.creature, target)
@@ -140,7 +140,7 @@ class CreatureGroupManager:
                 if original_leader and original_leader.is_alive and original_leader.object_ai:
                     original_leader.object_ai.group_member_just_died(creature_mgr, is_leader=False)
         if self.group_flags & CreatureGroupFlags.OPTION_INFORM_MEMBERS_ON_ANY_DIED:
-            for guid, member in self.members.items():
+            for guid, member in list(self.members.items()):
                 if guid == creature_mgr.guid or not member.creature.is_alive:
                     continue
                 if member.creature.object_ai:
@@ -153,7 +153,7 @@ class CreatureGroupManager:
         master_evade = self.original_leader_spawn_id == creature_mgr.spawn_id
 
         if self.group_flags & CreatureGroupFlags.OPTION_EVADE_TOGETHER:
-            for guid, member in self.members.items():
+            for guid, member in list(self.members.items()):
                 if guid == creature_mgr.guid or not member.creature.is_alive or not member.creature.combat_target:
                     continue
                 if member.creature.in_combat:
@@ -184,7 +184,7 @@ class CreatureGroupManager:
 
     def disband(self):
         Logger.debug(f'Disbanding creature group.')
-        for member in self.members.values():
+        for member in list(self.members.values()):
             member.creature.creature_group = None
             if self.is_formation() and member.creature.is_alive and not member.creature.in_combat:
                 member.creature.movement_manager.initialize_or_reset()
@@ -200,7 +200,7 @@ class CreatureGroupManager:
 
     def get_alive_count(self):
         alive = 0
-        for guid, member in self.members.items():
+        for guid, member in list(self.members.items()):
             if member.creature.is_alive:
                 alive += 1
         return alive
@@ -244,7 +244,7 @@ class CreatureGroupManager:
         return points
 
     def _pick_new_leader(self):
-        for member in self.members.values():
+        for member in list(self.members.values()):
             creature = member.creature
             if creature.is_alive and (not self.leader or creature.guid != self.leader.guid):
                 return creature
@@ -255,7 +255,7 @@ class CreatureGroupManager:
         return None
 
     def _get_original_leader_member(self):
-        for member in self.members.values():
+        for member in list(self.members.values()):
             if member.creature.spawn_id == self.original_leader_spawn_id:
                 return member.creature
         return None
@@ -263,7 +263,7 @@ class CreatureGroupManager:
     def _reinitialize_alive_members(self):
         if not self.is_formation():
             return
-        for member in self.members.values():
+        for member in list(self.members.values()):
             if member.creature.is_alive and not member.creature.in_combat:
                 member.creature.movement_manager.initialize_or_reset()
 
@@ -284,7 +284,7 @@ class CreatureGroupManager:
             self._respawn_guard = False
 
     def _respawn_member_by_spawn_id(self, source_creature, spawn_id):
-        for member in self.members.values():
+        for member in list(self.members.values()):
             creature = member.creature
             if creature.spawn_id == spawn_id and creature.initialized and not creature.is_alive:
                 creature.respawn()

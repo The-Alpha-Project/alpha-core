@@ -609,7 +609,7 @@ class ChatAddonManager:
         total_count = 0
         member_lines = []
 
-        for guid, member in guild_mgr.members.items():
+        for guid, member in list(guild_mgr.members.items()):
             total_count += 1
             online_player = WorldSessionStateHandler.find_player_by_guid(guid)
             is_online = 1 if online_player and online_player.online else 0

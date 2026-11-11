@@ -106,7 +106,7 @@ class QuestManager:
                         # This go offers a quest we don't have, and we match the requirements for it.
                         return True
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
-            for quest_id, active_quest in self.active_quests.items():
+            for quest_id, active_quest in list(self.active_quests.items()):
                 if active_quest.requires_creature_or_go(game_object) and not active_quest.can_complete_quest():
                     return True
 

@@ -185,7 +185,7 @@ class SpellManager:
 
     def cast_passive_spells(self):
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
-        for spell_id in self.spells.keys():
+        for spell_id in list(self.spells.keys()):
             # Skip inactive spells.
             if not self.spells[spell_id].active:
                 continue
@@ -200,7 +200,7 @@ class SpellManager:
 
     def apply_cast_when_learned_spells(self):
         # Cast any spell with SPELL_ATTR_EX_CAST_WHEN_LEARNED flag on player.
-        for spell_id in self.spells.keys():
+        for spell_id in list(self.spells.keys()):
             # Skip inactive spells.
             if not self.spells[spell_id].active:
                 continue

@@ -14,7 +14,7 @@ class GuildQueryHandler:
         guild_id = GuildManager.extract_real_guild_id(unpack('<1I', reader.data[:4])[0])
         player = world_session.player_mgr
 
-        for guild_manager in GuildManager.GUILDS.values():
+        for guild_manager in list(GuildManager.GUILDS.values()):
             if guild_manager.guild.guild_id == guild_id:
                 if player:
                     player.enqueue_packet(guild_manager.build_guild_query())

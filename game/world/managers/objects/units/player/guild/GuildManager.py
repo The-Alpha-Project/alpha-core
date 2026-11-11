@@ -101,7 +101,7 @@ class GuildManager:
                 previous_player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, previous_gm.rank)
 
     def update_db_guild_members(self):
-        for member in self.members.values():
+        for member in list(self.members.values()):
             RealmDatabaseManager.guild_update_member(member)
 
     def update_db_guild(self):
@@ -219,7 +219,7 @@ class GuildManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_GUILD_EVENT, data)
         self.send_message_to_guild(packet, GuildChatMessageTypes.G_MSGTYPE_ALL)
 
-        for member in self.members.values():
+        for member in list(self.members.values()):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
             if player_mgr:
                 self.build_update(player_mgr, unset=True)
@@ -230,7 +230,7 @@ class GuildManager:
         RealmDatabaseManager.guild_destroy(self.guild)
 
     def send_message_to_guild(self, packet, msg_type=None, source=None, exclude=None):
-        for member in self.members.values():
+        for member in list(self.members.values()):
             if exclude and member.guid == exclude.guid:
                 continue
 
@@ -397,7 +397,7 @@ class GuildManager:
     def guild_name_exists(guild_name):
         # Case insensitive, like character and petition names.
         guild_name = guild_name.lower()
-        return any(name.lower() == guild_name for name in GuildManager.GUILDS)
+        return any(name.lower() == guild_name for name in list(GuildManager.GUILDS))
 
     @staticmethod
     def create_guild(player_mgr, guild_name, petition=None):
