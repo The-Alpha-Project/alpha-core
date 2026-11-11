@@ -3,6 +3,8 @@ from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 
+# The client asks for the items it is missing (a vendor, a bag), never for thousands at once.
+MAX_REQUESTED_ITEMS = 1024
 
 class ItemQueryMultipleHandler:
 
@@ -11,7 +13,8 @@ class ItemQueryMultipleHandler:
         # Avoid handling an empty multiple item query packet.
         if not HandlerValidator.validate_packet_length(reader, min_length=4):
             return 0
-        requested_item_count = unpack('<I', reader.data[:4])[0]
+        # A packet can hold about 16000 entries, each one is answered with its own packet.
+        requested_item_count = min(unpack('<I', reader.data[:4])[0], MAX_REQUESTED_ITEMS)
         if not requested_item_count:
             return 0
 
