@@ -47,12 +47,10 @@ class PacketReader:
 
     @staticmethod
     def read_string(packet, start, terminator='\x00'):
-        char_list = []
-        chars = 0
-        for ci in packet[start:]:
-            cc = chr(ci)
-            if cc == terminator:
-                break
-            char_list.append(cc)
-            chars += 1
-        return ''.join(char_list)
+        data = bytes(packet[start:])
+        # Only a single character can match a byte, any other terminator (e.g. 0) reads to the end, as it always did.
+        if isinstance(terminator, str) and len(terminator) == 1 and ord(terminator) < 256:
+            end = data.find(ord(terminator))
+            if end != -1:
+                data = data[:end]
+        return data.decode('latin-1')  # Byte to the same code point, like chr().
