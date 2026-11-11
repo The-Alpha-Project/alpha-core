@@ -1,6 +1,7 @@
 from struct import pack, unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import PacketWriter
@@ -20,7 +21,8 @@ class NameQueryHandler:
         if not HandlerValidator.validate_packet_length(reader, min_length=8):
             return 0
         guid = unpack('<Q', reader.data[:8])[0]
-        requested_player = player_mgr.get_map().get_surrounding_player_by_guid(world_session.player_mgr, guid)
+        # Online players (nearby or not) are answered from memory, only offline characters need the database.
+        requested_player = WorldSessionStateHandler.find_player_by_guid(guid)
 
         if requested_player:
             player = requested_player.player
