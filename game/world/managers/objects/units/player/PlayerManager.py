@@ -54,6 +54,8 @@ from utils.constants.MiscCodes import UpdateFlags
 
 MAX_ACTION_BUTTONS = 120
 MAX_EXPLORED_AREAS = 488
+# Seconds between party member stats updates, VMaNGOS sends them on each player heartbeat (13 x 400ms).
+PARTY_STATS_INTERVAL = 5.2
 
 
 class PlayerManager(UnitManager):
@@ -91,6 +93,8 @@ class PlayerManager(UnitManager):
         self.player = player
         self.online = online
         self.last_ping = time.time()
+        self.party_stats_timer = 0
+        self.party_stats_changed = False
         self.num_inv_slots = num_inv_slots
         self.xp = xp
         self.next_level_xp = next_level_xp
@@ -1757,10 +1761,17 @@ class PlayerManager(UnitManager):
 
         # Movement checks and group updates.
         has_moved = self.has_moved or self.has_turned
+        # Own stats and location for the party frames of members out of range (in range they read our fields), sent
+        # once per party stats interval if anything changed, like VMaNGOS does on each player heartbeat.
+        if self.group_manager:
+            self.party_stats_changed = self.party_stats_changed or has_moved or has_changes
+            self.party_stats_timer += elapsed
+            if self.party_stats_timer >= PARTY_STATS_INTERVAL:
+                self.party_stats_timer = 0
+                if self.party_stats_changed:
+                    self.party_stats_changed = False
+                    self.group_manager.send_party_members_stats(requester=self)
         if has_moved or has_changes:
-            # Update self stats and location to other party members.
-            if self.group_manager:
-                self.group_manager.update_party_member_stats(elapsed, requester=self)
             # Player moved, notify surrounding units for proximity aggro.
             if has_moved:
                 # Check spell and aura move interrupts.

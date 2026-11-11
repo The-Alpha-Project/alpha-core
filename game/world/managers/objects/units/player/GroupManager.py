@@ -21,7 +21,6 @@ class GroupManager:
         self.members: dict[int, GroupMember] = {}
         self.invites = {}
         self.allowed_looters = {}
-        self.last_group_update = 0
         self._last_looter = None  # For Round Robin, cycle will start at leader.
         self.instance_tokens = {}
 
@@ -195,13 +194,6 @@ class GroupManager:
         ))
 
         return PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
-
-    def update_party_member_stats(self, elapsed, requester=None):
-        self.last_group_update += elapsed
-        # Every 500ms.
-        if self.last_group_update >= 0.5:
-            self.send_party_members_stats(requester)
-            self.last_group_update = 0
 
     def send_party_members_stats(self, requester=None):
         for member in list(self.members.values()):
