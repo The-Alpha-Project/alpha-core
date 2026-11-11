@@ -64,13 +64,14 @@ class CharCreateHandler:
                 if disabled:
                     result = CharCreate.CHAR_CREATE_DISABLED
 
-            if RealmDatabaseManager.character_does_name_exist(name):
+            # Invalid names first, they need no database queries (this runs under the global creation lock).
+            if not TextUtils.TextChecker.valid_text(name, is_name=True):
+                result = CharCreate.CHAR_CREATE_ERROR
+            elif RealmDatabaseManager.character_does_name_exist(name):
                 result = CharCreate.CHAR_CREATE_NAME_IN_USE
             # Validate max allowed characters, client is unable to properly do it when flooded.
             elif len(RealmDatabaseManager.character_get_by_account(world_session.account_mgr.account.id)) >= 10:
                 result = CharCreate.CHAR_CREATE_FAILED
-            elif not TextUtils.TextChecker.valid_text(name, is_name=True):
-                result = CharCreate.CHAR_CREATE_ERROR
 
             if result == CharCreate.CHAR_CREATE_SUCCESS:
                 map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)
