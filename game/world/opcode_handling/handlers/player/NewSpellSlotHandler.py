@@ -21,6 +21,10 @@ class NewSpellSlotHandler:
         # No zero, reserved for 'hidden' spells/abilities.
         spell, index = unpack('<Ii', reader.data[:8])
 
+        # Rows are only read back for known spells, any other id would just add a database row per packet.
+        if spell and spell not in player_mgr.spell_manager.spells:
+            return 0
+
         spell_button = RealmDatabaseManager.character_get_spell_button(player_mgr.player.guid, spell)
         if spell_button:
             spell_button.index = index
