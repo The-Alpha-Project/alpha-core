@@ -465,7 +465,8 @@ class ChatAddonManager:
             return False
 
         now = monotonic()
-        command_key = str(command or '').lower()
+        # Unknown names share one key, made-up names would otherwise add a key each and never be limited.
+        command_key = str(command).lower() if command in ADDON_COMMAND_DEFINITIONS else '_unknown'
         per_command_last_request = ChatAddonManager._get_player_request_timestamps(player_mgr.guid, create=True)
         last_request = per_command_last_request.get(command_key, 0.0)
         if now - last_request < ADDON_REQUEST_MIN_INTERVAL_SECONDS:
