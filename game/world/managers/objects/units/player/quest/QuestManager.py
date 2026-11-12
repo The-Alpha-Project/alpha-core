@@ -1006,6 +1006,9 @@ class QuestManager:
                 player_mgr.enqueue_packet(packet)
 
     def handle_remove_quest(self, slot):
+        # Higher slots would read the fields after the quest log (crafted packets).
+        if slot >= MAX_QUEST_LOG:
+            return
         quest_entry = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
         if quest_entry not in self.active_quests:
             return
