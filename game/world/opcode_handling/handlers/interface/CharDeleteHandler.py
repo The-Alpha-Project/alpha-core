@@ -19,6 +19,10 @@ class CharDeleteHandler:
             return 0
         guid = unpack('<Q', reader.data[:8])[0]
 
+        # Only from the character screen, a character in world would keep playing and saving after its deletion.
+        if world_session.player_mgr:
+            return 0
+
         # Character must exist and belong to this account.
         character = RealmDatabaseManager.character_get_by_guid(guid)
         if not character or character.account_id != world_session.account_mgr.account.id:

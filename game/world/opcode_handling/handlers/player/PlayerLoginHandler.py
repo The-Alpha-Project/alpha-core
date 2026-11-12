@@ -52,6 +52,9 @@ class PlayerLoginHandler:
                     '<B', CharLogin.CHAR_LOGIN_DISABLED
                 )
                 player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHARACTER_LOGIN_FAILED, data))
+                # Back to the character screen, the player never entered the world.
+                WorldSessionStateHandler.pop_active_player(player_mgr)
+                world_session.player_mgr = None
                 return 0
 
         # Class & race allowed, continue with the login process.
