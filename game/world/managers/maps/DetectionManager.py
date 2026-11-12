@@ -1,10 +1,26 @@
+from functools import lru_cache
 from typing import Dict
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.helpers.BoundingBox import BoundingBox
 from game.world.managers.maps.helpers.CellUtils import ORIGIN
 from game.world.managers.maps.helpers.QuadTree import QuadTree
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+
+
+# False if units of this faction template can't be hostile to anyone, see ObjectManager._allegiance_status_checker: no
+# enemy group, no enemy factions and no reputation (player factions, the only other reputation source, have none).
+@lru_cache(maxsize=None)
+def faction_can_be_hostile(faction_template_id):
+    faction_template = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(faction_template_id)
+    if not faction_template:
+        return True
+    if (faction_template.EnemyGroup or faction_template.Enemies_1 or faction_template.Enemies_2
+            or faction_template.Enemies_3 or faction_template.Enemies_4):
+        return True
+    faction = DbcDatabaseManager.FactionHolder.faction_get_by_id(faction_template.Faction)
+    return not faction or faction.ReputationIndex > -1
 
 
 class DetectionManager:
@@ -45,6 +61,9 @@ class DetectionManager:
                 unit_a.update_visibility_bounds(self.unit_visibility_bounds)
                 search_bounds = self.unit_visibility_bounds
             else:
+                # Without out of combat events only units that can attack something hostile act on what they see.
+                if not unit_a.threat_manager.can_resolve_target() or not faction_can_be_hostile(unit_a.faction):
+                    continue
                 # Only units within detection range matter, which is at most 25 yards over the template range.
                 search_range = max(unit_a.creature_template.detection_range + 25, 45)
                 search_bounds = self.detection_bounds
