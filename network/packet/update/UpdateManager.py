@@ -50,7 +50,7 @@ class UpdateManager:
 
             # Destroy those known objects that are no longer found in player surroundings.
             [self.destroy_known_object(guid) for guid, object_ in list(self.player_mgr.known_objects.items())
-             if not self.update_builder.has_active_guid(guid) and object_.get_type_id() == object_type]
+             if object_.get_type_id() == object_type and not self.update_builder.has_active_guid(guid)]
 
     def destroy_known_object(self, guid):
         with self._lock:

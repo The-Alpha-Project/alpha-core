@@ -28,8 +28,8 @@ class UpdateBuilder:
         self._lock = RLock()
 
     def has_active_guid(self, guid):
-        with self._lock:
-            return guid in self._active_objects
+        # A single membership test needs no lock, this runs for every known object on every surroundings refresh.
+        return guid in self._active_objects
 
     def clear_active_objects(self):
         with self._lock:
