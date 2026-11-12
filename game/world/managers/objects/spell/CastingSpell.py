@@ -96,6 +96,7 @@ class CastingSpell:
             self.caster_spell_level = int(self.caster_spell_rank / 5) if self.caster_spell_rank > 0 else 0
             self.caster_effective_level = self.calculate_effective_level()
 
+        self.cast_start_timestamp = time.time()  # Set again when the cast starts, auras added by GM commands skip it.
         self.cast_end_timestamp = self.get_cast_time_ms() / 1000 + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
