@@ -203,6 +203,10 @@ class UpdateBuilder:
     def _add_world_object_detail_query_from_object(self, world_object):
         self._add_packet(world_object.get_query_details_packet(), PacketType.QUERY)
 
+    def add_inventory_updates_from_player(self, player_mgr):
+        with self._lock:
+            self._add_inventory_updates_from_player(player_mgr)
+
     def _add_inventory_updates_from_player(self, player_mgr):
         item_queries, item_create_packets, item_partial_packets = (
             player_mgr.get_inventory_update_packets(requester=self._player_mgr))

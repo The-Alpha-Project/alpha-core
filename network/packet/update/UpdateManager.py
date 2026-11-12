@@ -2,6 +2,12 @@ from threading import RLock
 from network.packet.update.UpdateBuilder import UpdateBuilder
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.MiscCodes import UpdateFlags
+from utils.constants.ItemCodes import InventorySlots
+from utils.constants.UpdateFields import PlayerFields
+
+# Equipped item guids of a player, two fields per slot.
+EQUIPMENT_FIELDS = slice(PlayerFields.PLAYER_FIELD_INV_SLOT_1,
+                         PlayerFields.PLAYER_FIELD_INV_SLOT_1 + InventorySlots.SLOT_BAG1 * 2)
 
 
 class UpdateManager:
@@ -116,6 +122,10 @@ class UpdateManager:
                     return
                 if has_changes:
                     self.update_builder.add_partial_update_from_object(world_object, update_data=update_data)
+                    # Items are objects of their own, the client can't draw equipment it doesn't know (only sent with
+                    # the player create). Only unknown items are created.
+                    if world_object.is_player() and update_data.update_bit_mask[EQUIPMENT_FIELDS].any():
+                        self.update_builder.add_inventory_updates_from_player(world_object)
                 if has_dyn_flags_changes:
                     self.update_builder.add_dyn_flags_update_from_object(world_object, self.player_mgr)
             elif (world_object.guid not in self.player_mgr.known_objects and can_detect and has_changes
