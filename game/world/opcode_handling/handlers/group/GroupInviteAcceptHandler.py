@@ -10,8 +10,9 @@ class GroupInviteAcceptHandler:
         if not player_mgr:
             return res
 
+        # Only a pending invite can be accepted, a member would be inserted again (duplicate key, disconnect).
         group_manager = player_mgr.group_manager
-        if not group_manager:
+        if not group_manager or player_mgr.guid not in group_manager.invites:
             return 0
 
         group_manager.remove_member_invite(player_mgr.guid)
