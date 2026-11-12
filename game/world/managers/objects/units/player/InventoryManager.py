@@ -320,6 +320,11 @@ class InventoryManager:
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
+        # Values over SLOT_BANK_END also mean the backpack (see get_container), they must not be saved as the bag.
+        if source_bag > InventorySlots.SLOT_BANK_END:
+            source_bag = InventorySlots.SLOT_INBACKPACK.value
+        if dest_bag > InventorySlots.SLOT_BANK_END:
+            dest_bag = InventorySlots.SLOT_INBACKPACK.value
         source_container = self.get_container(source_bag)
         dest_container = self.get_container(dest_bag)
         if not source_container or not dest_container:
