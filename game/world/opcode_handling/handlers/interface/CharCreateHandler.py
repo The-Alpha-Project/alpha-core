@@ -40,9 +40,10 @@ class CharCreateHandler:
             race, class_, gender, skin, face, hairstyle, haircolor, facialhair, outfit_id = unpack(
                 '<9B', reader.data[name_end_offset:name_end_offset + 9]
             )
-            # Crafted packets: race or class 0 would raise on the mask shifts and an unknown combination has no
-            # start location.
-            if gender > 1 or not WorldDatabaseManager.player_create_info_get(race, class_):
+            # Crafted packets: race or class 0 would raise on the mask shifts, an unknown combination has no
+            # start location and one without start outfit (Troll Mage) failed after the character was saved.
+            if gender > 1 or not WorldDatabaseManager.player_create_info_get(race, class_) \
+                    or not DbcDatabaseManager.char_start_outfit_get(race, class_, gender):
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE,
                                                                      pack('<B', CharCreate.CHAR_CREATE_ERROR)))
                 return 0
