@@ -62,8 +62,20 @@ class ObjectQueryUtils:
 
         return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
 
+    # Item query data only depends on the item template, which never changes at runtime, but it was rebuilt for every
+    # item of every player coming into view.
+    _item_query_data = {}
+
     @staticmethod
     def _get_item_query_details_data(item_template):
+        data = ObjectQueryUtils._item_query_data.get(item_template.entry)
+        if data is None:
+            data = bytes(ObjectQueryUtils._build_item_query_details_data(item_template))
+            ObjectQueryUtils._item_query_data[item_template.entry] = data
+        return data
+
+    @staticmethod
+    def _build_item_query_details_data(item_template):
         # Initialize stat values if none are supplied.
         stats = Stat.generate_stat_list(item_template)
         damage_stats = DamageStat.generate_damage_stat_list(item_template)
