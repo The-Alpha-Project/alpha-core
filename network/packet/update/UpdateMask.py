@@ -29,7 +29,7 @@ class UpdateMask:
         self.update_mask.setall(0)
 
     def is_empty(self):
-        return self.update_mask.count() == 0
+        return not self.update_mask.any()
 
     def set_count(self, values_count):
         self.field_count = values_count

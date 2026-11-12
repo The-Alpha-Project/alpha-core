@@ -102,8 +102,8 @@ class UpdatePacketFactory:
             self.update_mask.clear()
 
     def has_pending_updates(self):
-        with self.lock:
-            return not self.update_mask.is_empty()
+        # A single read needs no lock, players ask this for themselves, their bags and every item on every tick.
+        return not self.update_mask.is_empty()
 
     def get_value(self, index, value_type):
         with self.lock:
