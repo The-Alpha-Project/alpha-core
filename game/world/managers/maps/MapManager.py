@@ -1,7 +1,6 @@
 import traceback
 import math
 import os
-import signal
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.process import BrokenProcessPool
 from functools import lru_cache
@@ -18,7 +17,7 @@ from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP
     RESOLUTION_LIQUIDS, BLOCK_SIZE
 from game.world.managers.maps.Map import Map, MapType
 from game.world.managers.maps.MapTile import MapTile
-from game.world.managers.maps.MapTileLoader import load_map_tile_data, MapTileLoadError
+from game.world.managers.maps.MapTileLoader import load_map_tile_data, MapTileLoadError, tile_loader_worker_init
 from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.maps.helpers.Namigator import Namigator
@@ -47,11 +46,6 @@ QUEUE_LOCK = RLock()
 # Which instances still need each shared (per-map_id) ADT, so it only unloads once
 # the last instance releases it. Keyed by (map_id, adt_x, adt_y) -> set(instance_id).
 ADT_INSTANCE_REFS = {}
-
-
-def _tile_loader_worker_init():
-    # Ignore Ctrl+C in worker processes so the main process handles shutdown cleanly.
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 # noinspection PyBroadException
@@ -220,7 +214,7 @@ class MapManager:
         try:
             MapManager._TILE_LOAD_POOL = ProcessPoolExecutor(
                 max_workers=MapManager.TILE_LOAD_WORKERS,
-                initializer=_tile_loader_worker_init,
+                initializer=tile_loader_worker_init,
             )
             MapManager._TILE_LOAD_IDLE_SINCE = None
             return True

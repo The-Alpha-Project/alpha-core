@@ -1,5 +1,6 @@
 import math
 import os
+import signal
 import sys
 from array import array
 from dataclasses import dataclass
@@ -10,6 +11,12 @@ from typing import Optional
 from game.world.managers.maps.helpers.Constants import RESOLUTION_ZMAP, RESOLUTION_LIQUIDS, RESOLUTION_AREA_INFO, \
     ADT_SIZE, V8_GRID_SIZE, V9_GRID_SIZE, UNIT_SIZE
 from utils.Float16 import Float16
+
+
+# The tile loader workers only import this module (spawned processes import what they unpickle), keep it light.
+def tile_loader_worker_init():
+    # Ignore Ctrl+C in worker processes so the main process handles shutdown cleanly.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 class MapTileLoadError(IntEnum):

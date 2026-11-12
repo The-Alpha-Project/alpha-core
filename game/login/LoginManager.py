@@ -10,6 +10,9 @@ from utils.Logger import Logger
 class LoginManager:
     @staticmethod
     def start_login(shared_state: Any):
+        # Login packets use the world handlers. Load them through WorldManager first like the world process does,
+        # importing Definitions on its own is a circular import.
+        from game.world import WorldManager
         login_host = config.Server.Connection.LoginServer.host
         login_port = config.Server.Connection.LoginServer.port
         with SocketBuilder.build_socket(login_host, login_port, timeout=2) as server_socket:

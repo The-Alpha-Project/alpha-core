@@ -28,14 +28,17 @@ if config.Server.Settings.disable_sqlalchemy_cext:
 else:
     os.environ.pop('DISABLE_SQLALCHEMY_CEXT_RUNTIME', None)
 
-from game.login.LoginManager import LoginManager
-from game.realm.RealmManager import RealmManager
-from game.update.UpdateManager import UpdateManager
-from game.world import WorldManager
-from game.world.managers.CommandManager import CommandManager
-from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.maps.MapTile import MapTile
-from tools.extractors.Extractor import Extractor
+# Spawned children import this file again before running their target, only the launching process needs these. Otherwise
+# the login, update, realm and proxy processes, and the multiprocessing manager, would each load the whole game.
+if __name__ == '__main__':
+    from game.login.LoginManager import LoginManager
+    from game.realm.RealmManager import RealmManager
+    from game.update.UpdateManager import UpdateManager
+    from game.world import WorldManager
+    from game.world.managers.CommandManager import CommandManager
+    from game.world.managers.maps.MapManager import MapManager
+    from game.world.managers.maps.MapTile import MapTile
+    from tools.extractors.Extractor import Extractor
 
 
 # Initialize argument parser.
