@@ -83,6 +83,14 @@ class FearMovement(BaseMovement):
             or not self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or time.time() >= self.expected_fear_end_timestamp
 
     # override
+    def reset(self):
+        # Stopped (stun, root), drop the spline or the server keeps moving the unit, and run again from where it is.
+        if self.spline:
+            self.spline.update_to_now()
+            self.spline = None
+        self.can_move = True
+
+    # override
     def on_removed(self):
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, False)
 

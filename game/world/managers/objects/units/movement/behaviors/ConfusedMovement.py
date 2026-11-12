@@ -72,6 +72,13 @@ class ConfusedMovement(BaseMovement):
                 (not self.until_canceled and time.time() >= self.expected_confused_end_timestamp))
 
     # override
+    def reset(self):
+        # Stopped (stun, root), drop the spline or the server keeps moving the unit.
+        if self.spline:
+            self.spline.update_to_now()
+            self.spline = None
+
+    # override
     def on_removed(self):
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_CONFUSED, False)
 

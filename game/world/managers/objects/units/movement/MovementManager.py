@@ -125,8 +125,10 @@ class MovementManager:
         if not current_behavior:
             return
 
-        # Resuming or cascaded into a previous movement, reset.
-        if is_resume or movements_removed:
+        # Resuming or cascaded into a previous movement, reset. Not if its spline is the one still running (a lower
+        # behavior was removed), the client is following it and dropping it would leave the unit behind.
+        spline = current_behavior.spline
+        if (is_resume or movements_removed) and not (spline and spline is self.unit.movement_spline):
             current_behavior.reset()
 
         current_behavior.update(now, elapsed)
@@ -343,8 +345,15 @@ class MovementManager:
             break
 
     def _remove_behavior(self, movement_behavior):
+        # Removed before its spline ended (fear or confusion running out), the server stops moving the unit but the
+        # client keeps moving it to the spline end. Stop it where the server has it.
+        spline = movement_behavior.spline
+        stop = not self.is_player and self.unit.is_alive and spline and spline is self.unit.movement_spline \
+            and spline.pending_waypoints
         self.movement_behaviors[movement_behavior.move_type] = None
         self._update_active_behavior_type()
+        if stop:
+            self.stop(force=True)
         movement_behavior.on_removed()
 
     def _get_current_spline(self):

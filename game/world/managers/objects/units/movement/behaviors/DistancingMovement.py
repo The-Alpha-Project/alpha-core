@@ -47,6 +47,19 @@ class DistancingMovement(BaseMovement):
     def can_remove(self):
         return not self.unit.is_alive or (not self.waypoints and not self.spline)
 
+    # override
+    def reset(self):
+        # Stopped (cast, stun, root), drop the spline or the server keeps moving the unit.
+        if self.spline:
+            self.spline.update_to_now()
+            self.spline = None
+
+    # override
+    def on_removed(self):
+        # The target is cleared while moving away, nothing else restores it for units without combat movement.
+        if self.unit.is_alive and self.unit.combat_target and not self.unit.current_target:
+            self.unit.set_current_target(self.unit.combat_target.guid)
+
     def _can_perform_waypoint(self):
         return self.waypoints and (not self.spline or self.speed_dirty)
 
