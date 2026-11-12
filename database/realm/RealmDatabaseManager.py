@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import bindparam, create_engine
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import sessionmaker
 
@@ -25,6 +25,11 @@ CHARACTER_UPDATE_COLUMNS = tuple(
     for attr in inspect(Character).column_attrs
     if attr.key != 'guid'
 )
+
+# Built once, the ORM query().update() rebuilt and compiled the statement on every character save.
+CHARACTER_UPDATE_STATEMENT = Character.__table__.update().where(
+    Character.__table__.c.guid == bindparam('b_guid')
+).values({column: bindparam(f'v_{attr_key}') for attr_key, column in CHARACTER_UPDATE_COLUMNS})
 
 
 class RealmDatabaseManager:
@@ -88,16 +93,10 @@ class RealmDatabaseManager:
         if not character:
             return
 
-        def get_character_update_values():
-            return {
-                column: getattr(character, attr_key)
-                for attr_key, column in CHARACTER_UPDATE_COLUMNS
-            }
-
+        update_values = {f'v_{attr_key}': getattr(character, attr_key) for attr_key, _ in CHARACTER_UPDATE_COLUMNS}
+        update_values['b_guid'] = character.guid & ~HighGuid.HIGHGUID_PLAYER
         realm_db_session = SessionHolder()
-        update_values = get_character_update_values()
-        realm_db_session.query(Character).filter_by(guid=character.guid & ~HighGuid.HIGHGUID_PLAYER).update(update_values)
-        realm_db_session.flush()
+        realm_db_session.execute(CHARACTER_UPDATE_STATEMENT, update_values)
         realm_db_session.commit()
         realm_db_session.close()
 
