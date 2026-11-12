@@ -3,6 +3,7 @@ from struct import pack
 from typing import Optional, Dict, List
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.realm.RealmModels import CharacterAura
 from game.world.managers.objects.spell.ExtendedSpellData import AuraTargetRestrictions, AuraSourceRestrictions
 from game.world.managers.objects.spell.aura.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
@@ -13,9 +14,14 @@ from utils.constants.ItemCodes import ItemClasses
 from utils.constants.MiscCodes import ProcFlags, AttackTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
-    SpellAttributesEx, SpellEffects, AuraState, AuraFlags
+    SpellAttributesEx, SpellEffects, AuraState, AuraFlags, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, StandState, UnitStates
 from utils.constants.UpdateFields import UnitFields
+
+
+# Auras that are never saved on logout (control of another unit or its sight).
+UNSAVED_AURA_TYPES = {AuraTypes.SPELL_AURA_BIND_SIGHT, AuraTypes.SPELL_AURA_MOD_POSSESS, AuraTypes.SPELL_AURA_MOD_CHARM,
+                      AuraTypes.SPELL_AURA_FAR_SIGHT}
 
 
 class AuraManager:
@@ -520,6 +526,75 @@ class AuraManager:
                 AuraManager.SINGLE_TARGET_AURAS[aura.caster.guid] = source_auras
 
         self.write_aura_to_unit(aura, clear=True)
+
+    # Saved on logout only with World.Gameplay.persist_auras, in 0.5.3 auras were not saved. Like VMaNGOS
+    # Player::SaveAura, all auras except passive and channeled spells, charm and sight effects, and single target auras
+    # of other casters. Area auras and equipment effects are left out (they are applied again by their source) and so
+    # are harmful periodic auras of other casters, the restored auras have the player as caster.
+    def get_auras_to_save(self):
+        saved = {}
+        skipped = set()
+        for aura in list(self.active_auras.values()):
+            spell_id = aura.spell_id
+            if spell_id in skipped:
+                continue
+            source_spell = aura.source_spell
+            source_item = source_spell.source_item
+            other_caster = aura.caster is not self.unit_mgr
+            if source_spell.is_passive() or source_spell.is_channeled() or aura.spell_effect.area_aura_holder \
+                    or aura.spell_effect.aura_type in UNSAVED_AURA_TYPES or source_item and source_item.is_equipped() \
+                    or other_caster and (AuraTargetRestrictions.is_single_target_aura(spell_id)
+                                         or aura.harmful and aura.is_periodic()):
+                skipped.add(spell_id)
+                saved.pop(spell_id, None)
+                continue
+
+            saved_aura = saved.get(spell_id)
+            if not saved_aura:
+                duration = aura.get_duration()
+                saved_aura = CharacterAura(guid=self.unit_mgr.player.guid, spell=spell_id, stacks=aura.applied_stacks,
+                                           duration=-1 if duration == -1 else max(1, int(duration)), effect_mask=0,
+                                           points_1=0, points_2=0, points_3=0)
+                saved[spell_id] = saved_aura
+            effect_index = aura.spell_effect.effect_index
+            saved_aura.effect_mask |= 1 << effect_index
+            setattr(saved_aura, f'points_{effect_index + 1}', aura.spell_effect.effect_points)
+        return list(saved.values())
+
+    # Applies the auras saved on logout, with their effect points and remaining duration.
+    def restore_saved_auras(self, saved_auras):
+        for saved_aura in saved_auras:
+            try:
+                self._restore_saved_aura(saved_aura)
+            except Exception:
+                # One aura that can't be applied must not stop the login.
+                Logger.error(traceback.format_exc())
+
+    def _restore_saved_aura(self, saved_aura):
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(saved_aura.spell)
+        if not spell:
+            return
+        casting_spell = self.unit_mgr.spell_manager.try_initialize_spell(spell, self.unit_mgr, SpellTargetMask.SELF,
+                                                                         validate=False)
+        points = (saved_aura.points_1, saved_aura.points_2, saved_aura.points_3)
+        for effect in casting_spell.get_effects():
+            if not saved_aura.effect_mask & (1 << effect.effect_index):
+                continue
+            effect.effect_points = points[effect.effect_index]
+            # Lets the aura of each effect of a spell find the others (they show as one in the aura bar).
+            effect.targets.resolved_targets_a = [self.unit_mgr]
+            effect.start_aura_duration()
+            if saved_aura.duration != -1:
+                effect.applied_aura_duration = saved_aura.duration
+                if effect.periodic_effect_ticks:
+                    effect.periodic_effect_ticks = [tick for tick in effect.periodic_effect_ticks
+                                                    if tick < saved_aura.duration]
+            index = self.add_aura(AppliedAura(self.unit_mgr, casting_spell, effect, self.unit_mgr))
+            aura = self.active_auras.get(index)
+            if aura and saved_aura.stacks > 1:
+                aura.applied_stacks = min(saved_aura.stacks, aura.max_stacks)
+                AuraEffectHandler.handle_aura_effect_change(aura, self.unit_mgr)
+                self.write_aura_to_unit(aura, is_refresh=True)
 
     def remove_all_auras(self):
         for aura in list(self.active_auras.values()):

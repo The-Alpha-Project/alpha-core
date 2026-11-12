@@ -353,6 +353,16 @@ class PlayerManager(UnitManager):
         # Place player in a world cell.
         self.get_map().update_object(self)
 
+        # Auras saved on logout (World.Gameplay.persist_auras), applied once.
+        if config.World.Gameplay.persist_auras:
+            try:
+                saved_auras = RealmDatabaseManager.character_get_auras(self.guid)
+                if saved_auras:
+                    RealmDatabaseManager.character_set_auras(self.guid, [])
+                    self.aura_manager.restore_saved_auras(saved_auras)
+            except Exception:
+                Logger.error(traceback.format_exc())
+
         # Notify friends about player login.
         self.friends_manager.send_online_notification()
 
@@ -399,6 +409,14 @@ class PlayerManager(UnitManager):
                     duel_arbiter.force_duel_end(self)
 
                 self.spell_manager.remove_casts()
+                # Optional (World.Gameplay.persist_auras), in 0.5.3 auras were not saved and spell cooldowns were removed
+                # on logout.
+                if config.World.Gameplay.persist_auras:
+                    try:
+                        RealmDatabaseManager.character_set_auras(
+                            self.guid, self.aura_manager.get_auras_to_save() if self.is_alive else [])
+                    except Exception:
+                        Logger.error(traceback.format_exc())
                 self.aura_manager.remove_all_auras()
                 # Release players seeing through us (Mind Vision).
                 if FarSightManager.object_is_camera_view_point(self):

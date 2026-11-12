@@ -1,5 +1,5 @@
 Version:
-    current: 27
+    current: 28
 
 Database:
     Auth:
@@ -122,6 +122,9 @@ World:
         enable_slime_lava_damage: False
         enable_slime_fishing: False  # Until 0.5.4, slime was not fishable.
         enable_experimental_page_translation: False  # Enables delayed translation for readable non-universal item pages (https://github.com/vmangos/core/issues/3216).
+        # Save auras on logout and restore them on login, like 1.12 (VMaNGOS). Disabled for 0.5.3 accuracy: in 0.5.3 auras
+        # were not saved and spell cooldowns were removed on logout.
+        persist_auras: False
 
     Chat:
         ChatRange:

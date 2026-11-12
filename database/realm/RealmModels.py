@@ -151,6 +151,21 @@ class CharacterSocial(Base):
     character_other = relationship('Character', primaryjoin='CharacterSocial.other_guid == Character.guid')
 
 
+class CharacterAura(Base):
+    __tablename__ = 'character_auras'
+
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("0"))
+    spell = Column(INTEGER(11), primary_key=True, nullable=False, server_default=text("0"))
+    stacks = Column(INTEGER(11), nullable=False, server_default=text("1"))
+    duration = Column(INTEGER(11), nullable=False, server_default=text("-1"), comment='Remaining milliseconds, -1 infinite')
+    effect_mask = Column(TINYINT(3), nullable=False, server_default=text("0"))
+    points_1 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    points_2 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+    points_3 = Column(INTEGER(11), nullable=False, server_default=text("0"))
+
+    character = relationship('Character')
+
+
 class CharacterSpellCooldown(Base):
     __tablename__ = 'character_spell_cooldown'
 

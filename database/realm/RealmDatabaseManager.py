@@ -349,6 +349,22 @@ class RealmDatabaseManager:
             realm_db_session.close()
 
     @staticmethod
+    def character_get_auras(guid):
+        realm_db_session = SessionHolder()
+        auras = realm_db_session.query(CharacterAura).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return auras
+
+    # Replaces the saved auras of a character.
+    @staticmethod
+    def character_set_auras(guid, auras):
+        realm_db_session = SessionHolder()
+        realm_db_session.query(CharacterAura).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).delete()
+        realm_db_session.add_all(auras)
+        realm_db_session.commit()
+        realm_db_session.close()
+
+    @staticmethod
     def character_get_spells(guid):
         realm_db_session = SessionHolder()
         spells = realm_db_session.query(CharacterSpell).filter_by(guid=guid & ~HighGuid.HIGHGUID_PLAYER).all()
