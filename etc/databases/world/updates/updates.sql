@@ -24431,5 +24431,37 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('071120264');
     end if;
 
+    -- 12/11/2026 1
+    -- Factions missing from the 0.5.3 FactionTemplate.dbc (1.12 ids), these creatures were always neutral and never
+    -- aggroed. Hostile mobs use 16 (Monster). Alliance friendly / Horde hostile ones use 122 (Ironforge) for the
+    -- Wildhammer dwarves and gryphons and 124 (Night Elf) for the Highvale elves and the Ashenvale and Feralas ones.
+    -- Argent Dawn and Cenarion Circle NPCs use 35 (Friendly).
+    if (select count(*) from applied_updates where id='121120261') = 0 then
+        -- Highvale Scout, Marksman, Outrunner and Ranger.
+        UPDATE `creature_template` SET `faction` = 124 WHERE `faction` = 1576;
+        -- Giants (Cliff Giant, Coast Strider, Land Walker, Deepstrider, Anathemus, Gorlash, Mok'rash).
+        UPDATE `creature_template` SET `faction` = 16 WHERE `faction` = 778;
+        -- Sprite Darter.
+        UPDATE `creature_template` SET `faction` = 124 WHERE `faction` = 534;
+        -- Stone Steward.
+        UPDATE `creature_template` SET `faction` = 16 WHERE `faction` = 415;
+        -- Shrike Bat, Blind Hunter.
+        UPDATE `creature_template` SET `faction` = 16 WHERE `faction` = 411;
+        -- Qirot, Silithid Harvester.
+        UPDATE `creature_template` SET `faction` = 16 WHERE `faction` = 310;
+        -- Razorbeak Gryphon and Skylord.
+        UPDATE `creature_template` SET `faction` = 122 WHERE `faction` = 1055;
+        -- Falstad Wildhammer, Gryphon Master Talonaxe, Truk Wildbeard.
+        UPDATE `creature_template` SET `faction` = 122 WHERE `faction` = 694;
+        -- Argent Guard Thaelrid.
+        UPDATE `creature_template` SET `faction` = 35 WHERE `faction` = 794;
+        -- Geenia Sunshadow.
+        UPDATE `creature_template` SET `faction` = 35 WHERE `faction` = 994;
+        -- Krolg (furbolg) and Anilia (dryad).
+        UPDATE `creature_template` SET `faction` = 124 WHERE `faction` IN (934, 1076);
+
+        INSERT INTO applied_updates VALUES ('121120261');
+    end if;
+
 end $
 delimiter ;
