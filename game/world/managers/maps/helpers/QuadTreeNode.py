@@ -63,16 +63,22 @@ class QuadTreeNode:
                 unit_object.quadtree_node = self.insert(all_units_dict, unit_object)
 
     def query(self, all_units_dict, search_box, found_unit_guids):
-        if not self.bounds.intersects(search_box):
+        x0, y0 = search_box.x, search_box.y
+        self._query(all_units_dict, x0, y0, x0 + search_box.width, y0 + search_box.height, found_unit_guids)
+
+    # BoundingBox.intersects and contains_point inlined, every creature runs this every second.
+    def _query(self, all_units_dict, x0, y0, x1, y1, found_unit_guids):
+        bounds = self.bounds
+        if not (bounds.x < x1 and bounds.x + bounds.width > x0 and bounds.y < y1 and bounds.y + bounds.height > y0):
             return
 
         for unit_guid in self.units:
             unit_object = all_units_dict.get(unit_guid)
-            if unit_object and search_box.contains_point(unit_object.location.x, unit_object.location.y):
+            if unit_object and x0 <= unit_object.location.x <= x1 and y0 <= unit_object.location.y <= y1:
                 found_unit_guids.add(unit_guid)
 
         for child in self.children:
-            child.query(all_units_dict, search_box, found_unit_guids)
+            child._query(all_units_dict, x0, y0, x1, y1, found_unit_guids)
 
     def remove(self, unit_guid):
         if unit_guid in self.units:
