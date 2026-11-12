@@ -308,9 +308,23 @@ class ObjectManager:
             data = bytearray()
             factory = self.update_packet_factory
             field_count = factory.update_mask.field_count
+            if is_create:
+                # Create packets carry every field the requester can read. Copy the values in bulk and only visit the
+                # private (unset for other requesters) and dynamic (value per requester) fields.
+                values = update_data.update_field_values
+                mask[:field_count] = True
+                start = 0
+                for field_index in factory.special_fields:
+                    data.extend(values[start * 4:field_index * 4])
+                    start = field_index + 1
+                    if not factory.has_read_rights_for_field(field_index, requester):
+                        mask[field_index] = 0
+                        continue
+                    data.extend(self._get_field_value_for_update(field_index, is_create, requester, update_data))
+                data.extend(values[start * 4:field_count * 4])
+                return pack('<B', factory.update_mask.block_count) + mask.tobytes() + data
             # Partial packets only care for fields that had changes, plus dynamic fields which are always sent.
-            field_indexes = range(field_count) if is_create else \
-                sorted(index for index in set(mask.search(1)) | factory.dynamic_fields if index < field_count)
+            field_indexes = sorted(index for index in set(mask.search(1)) | factory.dynamic_fields if index < field_count)
             for field_index in field_indexes:
                 # Check for encapsulation, turn off the bit if the requester has no read access.
                 if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
