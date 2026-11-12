@@ -584,7 +584,15 @@ class EffectTargets:
 
     @staticmethod
     def resolve_single_party(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        # The caster or one of its party members (paladin seals).
+        caster = casting_spell.spell_caster
+        target = casting_spell.initial_target
+        if not casting_spell.initial_target_is_unit_or_player() or target is caster:
+            return [caster]
+        # Creatures have no party, scripts cast these on friendly units (Twilight Bodyguard).
+        if not caster.is_player():
+            return EffectTargets.get_friends_from_unit_list([target], caster)
+        return EffectTargets.get_party_members_from_unit_list([target], caster)
 
     @staticmethod
     def resolve_aoe_party(casting_spell, target_effect):
