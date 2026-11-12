@@ -4,6 +4,7 @@ from struct import unpack
 from game.world.managers.objects.units.creature.utils.VendorUtils import VendorUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Formulas import Distances
+from utils.constants.MiscCodes import NpcFlags
 
 
 class ListInventoryHandler:
@@ -27,7 +28,8 @@ class ListInventoryHandler:
             return 0
 
         vendor: CreatureManager = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, npc_guid)
-        if not vendor:
+        # The client only asks vendors.
+        if not vendor or not vendor.get_npc_flags() & NpcFlags.NPC_FLAG_VENDOR:
             return 0
         if not Distances.is_within_shop_distance(player_mgr, vendor):
             return 0
