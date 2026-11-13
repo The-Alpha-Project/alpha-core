@@ -387,11 +387,10 @@ class ConditionChecker:
         # Condition_value1 = patch id.
         # Condition_value2 = 0 equal, 1 equal and higher, 2 equal and lower.
 
-        # Allow patch 0 (1.2 VMaNGOS) equal or greater condition to evaluate true.
-        if condition.value1 == 0:
+        # Treated as VMaNGOS' oldest patch (0, 1.2), the closest one to 0.5.3.
+        if condition.value2 == 2:
             return True
-
-        return False
+        return condition.value1 == 0
 
     @staticmethod
     def check_condition_escort(condition, source, target):
