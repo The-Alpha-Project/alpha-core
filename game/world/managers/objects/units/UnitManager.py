@@ -31,7 +31,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState, AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
-    AIReactionStates
+    AIReactionStates, ChrRaceFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -2195,6 +2195,16 @@ class UnitManager(ObjectManager):
             self.mount(mount_display_id)
         elif self.is_mounted():
             self.unmount()
+
+    # Like VMaNGOS, transformed units can only mount if the model is a player race one (disguises), a rider on other
+    # models (Furbolg Form) shows a placeholder model.
+    def can_mount_with_current_display(self):
+        if self.current_display_id == self.native_display_id:
+            return True
+        display = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.current_display_id)
+        extra = display and DbcDatabaseManager.creature_display_info_extra_get_by_id(display.ExtendedDisplayInfoID)
+        race = extra and DbcDatabaseManager.chr_races_get_by_race(extra.DisplayRaceID)
+        return bool(race and race.Flags & ChrRaceFlags.CAN_MOUNT)
 
     # override
     def set_display_id(self, display_id):

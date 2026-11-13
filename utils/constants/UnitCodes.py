@@ -24,6 +24,11 @@ class Races(IntEnum):
     RACE_TROLL = 8
 
 
+# ChrRaces.dbc Flags.
+class ChrRaceFlags(IntEnum):
+    CAN_MOUNT = 0x4
+
+
 class CreatureTypes(IntEnum):
     BEAST = 1
     DRAGON = 2

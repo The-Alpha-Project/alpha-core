@@ -1402,6 +1402,11 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_ABOVEWATER)
                     return False
 
+                # Mount while transformed.
+                if casting_spell.is_mount_spell() and not self.caster.can_mount_with_current_display():
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_SHAPESHIFT)
+                    return False
+
             # Requires stealth.
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():

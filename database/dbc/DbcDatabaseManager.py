@@ -40,6 +40,16 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return res
 
+    # CreatureDisplayInfoExtra
+
+    @staticmethod
+    @lru_cache(maxsize=LOOKUP_CACHE_SIZE)
+    def creature_display_info_extra_get_by_id(extra_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(CreatureDisplayInfoExtra).filter_by(ID=extra_id).first()
+        dbc_db_session.close()
+        return res
+
     # CharBaseInfo
 
     class CharBaseInfoHolder:

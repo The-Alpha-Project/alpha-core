@@ -85,6 +85,10 @@ class ActivateTaxiHandler:
 
     @staticmethod
     def _is_blocked_by_shapeshift(player_mgr):
+        # Transformed into a model that can't carry a rider (Furbolg Form).
+        if not player_mgr.can_mount_with_current_display():
+            return True
+
         if not player_mgr.shapeshift_form:
             return False
 
