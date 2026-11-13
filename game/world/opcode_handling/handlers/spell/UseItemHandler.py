@@ -12,7 +12,8 @@ class UseItemHandler:
         bag, slot, spell_slot, target_mask = unpack('<3BH', reader.data[:5])
 
         item = world_session.player_mgr.inventory.get_item(bag, slot)
-        if not item:
+        # The spell slot comes from the client, an item has len(spell_stats) slots.
+        if not item or spell_slot >= len(item.spell_stats):
             return 0
 
         target_bytes = reader.data[5:]
