@@ -772,6 +772,18 @@ class MapManager:
         failed, in_place, _ = MapManager.calculate_path(src_object.map_id, src_object.location, dst_object.location)
         return not failed
 
+    # Both ends have navigation loaded, a failed path between them means there is no route (not missing data).
+    @staticmethod
+    def has_navigation_between(map_id, src_loc, dst_loc):
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED or map_id not in MAPS_NAMIGATOR:
+            return False
+        for location in (src_loc, dst_loc):
+            adt_x, adt_y = MapUtils.get_tile(location.x, location.y)
+            tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
+            if not tile or not tile.has_navigation:
+                return False
+        return True
+
     @staticmethod
     def find_point_in_between_vectors(map_id, offset, start_location, end_location):
         # If nav tiles disabled or unable to load Namigator, return None..

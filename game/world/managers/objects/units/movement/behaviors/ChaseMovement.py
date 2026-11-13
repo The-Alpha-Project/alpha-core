@@ -16,6 +16,8 @@ from utils.constants.CustomCodes import RelativeChaseState
 #   - Most humanoids NPCs have gained the ability to swim.
 #  This might only refer to creatures not having swimming animations.
 class ChaseMovement(BaseMovement):
+    UNREACHABLE_EVADE_SECONDS = 5
+
     def __init__(self, spline_callback):
         super().__init__(move_type=MoveType.CHASE, spline_callback=spline_callback)
         self.unit = None
@@ -28,6 +30,7 @@ class ChaseMovement(BaseMovement):
         self._last_target_distance = None
         self._relative_speed = 0.0
         self._relative_state = RelativeChaseState.NEUTRAL
+        self._unreachable_time = 0.0
 
     # override
     def update(self, now, elapsed):
@@ -49,6 +52,7 @@ class ChaseMovement(BaseMovement):
             self._relative_state = RelativeChaseState.NEUTRAL
             self._last_path_target_location = None
             self._force_repath = False
+            self._unreachable_time = 0.0
 
         current_distance = self.unit.location.distance(self.combat_target.location)
         if elapsed > 0:
@@ -58,6 +62,7 @@ class ChaseMovement(BaseMovement):
             self._relative_state = self._resolve_relative_state(self._relative_speed)
 
         if self._is_within_combat_distance():
+            self._unreachable_time = 0.0
             if self.spline:
                 self.stop()
             # Face the target if necessary.
@@ -69,7 +74,7 @@ class ChaseMovement(BaseMovement):
                 self.unit.set_current_target(0)
 
             if self._should_regenerate_path():
-                self.waypoints = self._regenerate_path()
+                self.waypoints = self._regenerate_path(elapsed)
                 if self.waypoints:
                     self._last_path_endpoint = self.waypoints[-1]
                     # Track target location used for this path to refresh if the target moves significantly.
@@ -134,7 +139,7 @@ class ChaseMovement(BaseMovement):
         )
 
     # Build a fresh chase path with evade/swim checks and optional nav pathing.
-    def _regenerate_path(self):
+    def _regenerate_path(self, elapsed=0):
         if not self.combat_target:
             return None
 
@@ -184,13 +189,22 @@ class ChaseMovement(BaseMovement):
         final_path = [target_location]
         # Use direct combat location if target is over water.
         if not target_swimming:
-            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, final_path[0],
-                                                                        smooth=True, clamp_endpoint=True)
+            map_ = self.unit.get_map()
+            failed, in_place, path = map_.calculate_path(self.unit.location, final_path[0],
+                                                         smooth=True, clamp_endpoint=True)
             if not failed and not in_place:
                 final_path = path
             elif in_place:
                 return None
+            # No route to the target (roof, ledge, bridge deck), don't run straight through the geometry, wait in place
+            # and evade if it stays unreachable, like VMaNGOS.
+            elif map_.has_navigation_between(self.unit.location, final_path[0]):
+                self._unreachable_time += elapsed
+                if self._unreachable_time >= ChaseMovement.UNREACHABLE_EVADE_SECONDS and not self.unit.is_pet():
+                    self.unit.threat_manager.remove_unit_threat(self.combat_target)
+                return None
 
+        self._unreachable_time = 0.0
         return final_path
 
     def _is_within_combat_distance(self, source_vector=None):

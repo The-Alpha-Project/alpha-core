@@ -232,6 +232,9 @@ class Map:
     def calculate_path(self, start_vector, end_vector, los=False, smooth=False, clamp_endpoint=False) -> tuple:  # bool failed, in_place, path list.
         return self.map_manager.calculate_path(self.map_id, start_vector, end_vector, los, smooth, clamp_endpoint)
 
+    def has_navigation_between(self, start_vector, end_vector):
+        return self.map_manager.has_navigation_between(self.map_id, start_vector, end_vector)
+
     def find_random_point_around_circle(self, vector, radius):
         return self.map_manager.find_random_point_around_circle(self.map_id, vector, radius)
 
