@@ -37,6 +37,10 @@ from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
+# Channels damage cancels instead of pushing back, as in VMaNGOS (ChannelInterruptFlags with DAMAGE_CANCELS).
+CHANNELS_CANCELLED_BY_DAMAGE = {698}  # Ritual of Summoning.
+
+
 class SpellManager:
 
     def __init__(self, caster):
@@ -756,21 +760,19 @@ class SpellManager:
                     effective_moved = False
                     effective_turned = False
 
-                if (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE) and received_damage:
-                    interrupt = True
-                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and effective_moved:
+                if (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and effective_moved:
                     interrupt = True
                 elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING) and effective_turned:
                     interrupt = True
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE) and received_damage:
+                    # Like VMaNGOS, damage only pushes channels back (Blizzard, Dominate, Mind Vision...) except the ones
+                    # it cancels there, crushing blows still interrupt (0.5.3).
+                    if not crushing_interrupt and casting_spell.spell_entry.ID not in CHANNELS_CANCELLED_BY_DAMAGE:
+                        casting_spell.handle_partial_interrupt()
+                        continue
+                    interrupt = True
 
                 if interrupt:
-                    full_interrupt = channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT
-                    if not full_interrupt and not crushing_interrupt:
-                        # Only damage triggers partial interrupts for channels.
-                        if received_damage:
-                            casting_spell.handle_partial_interrupt()
-                            continue
-
                     self.remove_cast(casting_spell, interrupted=True)
                     interrupted_any = True
                 continue
