@@ -186,7 +186,8 @@ class ConditionChecker:
         # Quest_id = condition_value1.
         if not ConditionChecker.is_player(target):
             return False
-        return target.quest_manager.get_quest_state(condition.value1) == QuestState.QUEST_REWARD
+        # Not get_quest_state(), it also returns QUEST_REWARD for a complete quest still in the log.
+        return condition.value1 in target.quest_manager.completed_quests
 
     @staticmethod
     def check_condition_quest_taken(condition, _source, target):
