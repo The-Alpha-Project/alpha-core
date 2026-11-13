@@ -9,7 +9,7 @@ from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import MoveType
 from utils.constants.PetCodes import PetCommandState, PetMoveState
 from utils.constants.SpellCodes import SpellTargetMask, SpellEffects
-from utils.constants.UnitCodes import CreatureReactStates
+from utils.constants.UnitCodes import CreatureReactStates, UnitFlags
 
 
 class PetAI(CreatureAI):
@@ -68,7 +68,8 @@ class PetAI(CreatureAI):
         if self.creature.combat_target != owner.combat_target:
             if owner.combat_target:
                 self.creature.attack(owner.combat_target)
-            else:
+            # Fear and confusion clear the owner's target while it runs (Murloc Hunter flee script), keep fighting.
+            elif not owner.unit_flags & (UnitFlags.UNIT_FLAG_FLEEING | UnitFlags.UNIT_FLAG_CONFUSED):
                 self.creature.attack_stop()
 
     # override
