@@ -650,6 +650,9 @@ class MapManager:
     # calculate_z, it doesn't stay within a tolerance of current_z.
     @staticmethod
     def _get_surface_z(map_id, x, y, current_z):
+        # Map without tiles, skip the check (it would log a warning).
+        if map_id not in MAPS_TILES:
+            return None, False
         adt_x, adt_y = MapUtils.get_tile(x, y)
         state = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
         if state != MapTileStates.READY:
