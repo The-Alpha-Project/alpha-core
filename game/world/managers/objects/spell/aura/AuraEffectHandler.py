@@ -179,9 +179,12 @@ class AuraEffectHandler:
     def handle_periodic_leech(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
-        damage = aura.get_effect_points()
-        aura.caster.receive_healing(damage, aura.caster)
-        aura.caster.apply_spell_damage(effect_target, damage, aura.spell_effect)
+        health = effect_target.health
+        damage_info = aura.caster.apply_spell_damage(effect_target, aura.get_effect_points(), aura.spell_effect)
+        # Like VMaNGOS, heal for the damage dealt (after misses and absorbs, up to the target's health).
+        heal = min(damage_info.total_damage, health) if damage_info else 0
+        if heal:
+            aura.caster.receive_healing(heal, aura.caster)
 
     @staticmethod
     def handle_channel_death_item(aura, effect_target, _remove):

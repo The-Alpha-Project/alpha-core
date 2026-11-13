@@ -25,7 +25,8 @@ from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClas
 from utils.constants.MiscCodes import AttackTypes, GameObjectStates, DynamicObjectTypes, ScriptTypes, TempSummonType
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetSlot
-from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
+from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType, \
+    SpellMissReason
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 
 
@@ -225,9 +226,13 @@ class SpellEffectHandler:
         if not target.is_unit(by_mask=True):
             return
 
-        amount = effect.get_effect_points()
-        caster.apply_spell_damage(target, amount, effect)
-        caster.receive_healing(amount, caster)
+        health = target.health
+        damage_info = caster.apply_spell_damage(target, effect.get_effect_points(), effect)
+        # Like VMaNGOS, heal for the damage of a hit (before absorbs, up to the target's health).
+        hit = damage_info and damage_info.spell_miss_reason == SpellMissReason.MISS_REASON_NONE
+        heal = min(damage_info.base_damage, health) if hit else 0
+        if heal:
+            caster.receive_healing(heal, caster)
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):

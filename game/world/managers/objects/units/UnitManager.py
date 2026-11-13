@@ -1163,10 +1163,11 @@ class UnitManager(ObjectManager):
         self.set_power_value(self.get_power_value() + amount)
         return True
 
+    # Returns the damage info, None if the target was invalid.
     def apply_spell_damage(self, target, damage, spell_effect):
         # Skip if target is invalid or already dead.
         if not target or not target.is_alive:
-            return False
+            return None
 
         spell = spell_effect.casting_spell
 
@@ -1203,7 +1204,7 @@ class UnitManager(ObjectManager):
 
         self.send_spell_cast_debug_info(damage_info, spell)
         self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic(), casting_spell=spell)
-        return True
+        return damage_info
 
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):
         # Heals can't critically hit in 0.5.3: SMSG_HEALSPELL_ON_PLAYER only carries the amount (no flags field, unlike
