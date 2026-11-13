@@ -31,7 +31,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState, AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
-    AIReactionStates, ChrRaceFlags
+    AIReactionStates, ChrRaceFlags, Races
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -2203,8 +2203,12 @@ class UnitManager(ObjectManager):
             return True
         display = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.current_display_id)
         extra = display and DbcDatabaseManager.creature_display_info_extra_get_by_id(display.ExtendedDisplayInfoID)
-        race = extra and DbcDatabaseManager.chr_races_get_by_race(extra.DisplayRaceID)
-        return bool(race and race.Flags & ChrRaceFlags.CAN_MOUNT)
+        if extra:
+            races = [DbcDatabaseManager.chr_races_get_by_race(extra.DisplayRaceID)]
+        else:  # Playable race base models have no extra info.
+            races = [race for race in map(DbcDatabaseManager.chr_races_get_by_race, Races)
+                     if race and self.current_display_id in (race.MaleDisplayId, race.FemaleDisplayId)]
+        return any(race and race.Flags & ChrRaceFlags.CAN_MOUNT for race in races)
 
     # override
     def set_display_id(self, display_id):
