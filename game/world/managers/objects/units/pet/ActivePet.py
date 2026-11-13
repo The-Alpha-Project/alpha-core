@@ -121,8 +121,9 @@ class ActivePet:
         if self.is_permanent():
             pet_data.save(self.creature)
 
-        # Flush ThreatManager before releasing this creature in order to avoid evade trigger.
-        self.creature.leave_combat()
+        # Flush ThreatManager before releasing this creature, without evading (it is no longer controlled here), a released
+        # charm attacks its former owner like VMaNGOS.
+        self.creature.leave_combat(evade=False)
 
         if self.is_controlled():
             self._pet_manager.send_pet_spell_info(reset=True)
@@ -149,3 +150,7 @@ class ActivePet:
 
         # Notify about owner proximity.
         self.creature.object_ai.move_in_line_of_sight(self._pet_manager.owner)
+
+        # Nothing to fight (not hostile to its former owner), go back home.
+        if not self.creature.threat_manager.has_aggro():
+            self.creature.evade()

@@ -603,11 +603,12 @@ class CreatureManager(UnitManager):
         return True
 
     # override
-    def leave_combat(self):
+    def leave_combat(self, evade=True):
         was_in_combat = super().leave_combat()
 
         if not self.is_controlled() and not self.is_guardian():
-            self.evade()
+            if evade:
+                self.evade()
             if self.object_ai and was_in_combat and self.is_alive:
                 self.object_ai.on_combat_stop()
                 self.object_ai.on_leave_combat()

@@ -85,6 +85,8 @@ class PetManager:
 
         active_pet.attach()
         creature.movement_manager.initialize_or_reset()
+        # Taken over while running home (charm, possess), the flushed evade would leave it flagged as evading for good.
+        creature.is_evading = False
         creature.leave_combat()
 
         self.send_pet_spell_info()
@@ -192,6 +194,8 @@ class PetManager:
                 # If this pet is being detached on logout, don't overwrite its activity status.
                 pet.get_pet_data().set_active(False)
 
+            # Leave combat while still controlled, threat removal would make a released creature evade.
+            pet.creature.leave_combat()
             self.active_pets.pop(index)
             pet.detach()
 
@@ -223,6 +227,8 @@ class PetManager:
         active_pet = self.active_pets.get(pet_slot)
         if active_pet:
             active_pet.get_pet_data().set_active(False)
+            # Leave combat while still controlled, threat removal would make a released creature evade.
+            active_pet.creature.leave_combat()
             self.active_pets.pop(pet_slot)
             active_pet.detach()
 
