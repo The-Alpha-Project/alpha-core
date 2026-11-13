@@ -315,7 +315,14 @@ class UnitSpellsValidator:
 
     @staticmethod
     def spell_has_valid_cast(casting_spell):
-        return casting_spell.spell_entry.ID not in UnitSpellsValidator._INVALID_PRECAST_SPELLS
+        if casting_spell.spell_entry.ID in UnitSpellsValidator._INVALID_PRECAST_SPELLS:
+            return False
+
+        # The client plays the precast kit animation on SMSG_SPELL_START, a kit without one (Anim 0) crashes it
+        # (Anim\Interp.h:166). All the crashes above share this trait, it also covers Sling Mud, Minions of Malathrom,
+        # Flame Lash, Acid Splash, Fireball 7387/7388, Poisoned Harpoon, Spirit Steal and others.
+        visual = casting_spell.spell_visual_entry
+        return not (visual and visual.precast_kit and visual.precast_kit.Anim == 0)
 
 
 class SpellEffectMechanics:

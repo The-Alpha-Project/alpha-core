@@ -1014,7 +1014,7 @@ class SpellManager:
         # Validate if this spell crashes the client.
         # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
         if not self.caster.is_player() and not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell):
-            Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid cast.')
+            Logger.debug(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid cast.')
             cast_flags |= SpellCastFlags.CAST_FLAG_PROC
 
         data = [source_guid, self.caster.guid,
