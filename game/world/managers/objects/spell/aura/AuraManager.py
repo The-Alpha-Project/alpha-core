@@ -59,7 +59,7 @@ class AuraManager:
             if aura.caster.is_unit(by_mask=True) and aura.source_spell.generates_threat():
                 self.unit_mgr.threat_manager.add_threat(aura.caster, abs(aura.get_effect_points()))
 
-            self.check_aura_interrupts(negative_aura_applied=True)
+            self.check_aura_interrupts(negative_aura_applied=True, hostile_spell=aura.source_spell)
 
         applied_similar_auras = self.get_similar_applied_auras(aura, accept_all_ranks=False, accept_all_sources=False)
         # Finishing moves depend on the combo points of the new cast, replace the old aura instead of refreshing it.
@@ -163,9 +163,12 @@ class AuraManager:
 
     def check_aura_interrupts(self, moved=False, turned=False, changed_stand_state=False, negative_aura_applied=False,
                               received_damage=False, enter_combat=False, attacked=False,
-                              cast_spell: Optional[CastingSpell] = None):
+                              cast_spell: Optional[CastingSpell] = None, hostile_spell: Optional[CastingSpell] = None):
         if not self.active_auras:
             return
+
+        # Like VMaNGOS, hostile spells flagged to be used while stealthed don't break the target's stealth (Distract).
+        hostile_spell_breaks_stealth = negative_aura_applied and (not hostile_spell or hostile_spell.cast_breaks_stealth())
 
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: enter_combat,
@@ -182,7 +185,7 @@ class AuraManager:
         for aura in list(self.active_auras.values()):
             # Like VMaNGOS, attacks and hostile spells remove stealth whatever its interrupt flags, some don't have
             # them (5916, 6408) and 5916 is passive. Creatures cast it again when back home.
-            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and (attacked or negative_aura_applied):
+            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and (attacked or hostile_spell_breaks_stealth):
                 self.remove_aura(aura)
                 continue
 
@@ -210,6 +213,9 @@ class AuraManager:
                      aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
                         cast_spell and not cast_spell.cast_breaks_stealth():
                     continue  # Skip cast interrupt for stealth spells for flagged spells.
+                if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL and \
+                        aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and not hostile_spell_breaks_stealth:
+                    continue
 
                 # Mount casts must not interrupt existing mount auras; otherwise the aura is removed before
                 # mount-toggle logic runs, which re-applies the mount and stacks speed on repeated item use.
