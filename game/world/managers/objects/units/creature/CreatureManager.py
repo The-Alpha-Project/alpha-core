@@ -131,7 +131,10 @@ class CreatureManager(UnitManager):
         if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_PLAYER:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_IMMUNE_TO_PLAYER, active=True)
 
-        # Innate school and mechanic immunities.
+        # Innate school and mechanic immunities. Drop the previous template's first (update entry).
+        for immunity_type in (SpellImmunity.IMMUNITY_MECHANIC, SpellImmunity.IMMUNITY_SCHOOL,
+                              SpellImmunity.IMMUNITY_AURA, SpellImmunity.IMMUNITY_EFFECT):
+            self.remove_immunity(immunity_type, -1)
         if self.creature_template.mechanic_immune_mask:
             # The DB mask (from VMaNGOS) uses bit (mechanic - 1), immunity checks use bit mechanic.
             self.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, self.creature_template.mechanic_immune_mask << 1)
