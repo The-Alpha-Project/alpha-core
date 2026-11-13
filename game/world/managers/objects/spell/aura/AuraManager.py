@@ -180,6 +180,12 @@ class AuraManager:
         }
 
         for aura in list(self.active_auras.values()):
+            # Like VMaNGOS, attacks and hostile spells remove stealth whatever its interrupt flags, some don't have
+            # them (5916, 6408) and 5916 is passive. Creatures cast it again when back home.
+            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and (attacked or negative_aura_applied):
+                self.remove_aura(aura)
+                continue
+
             if aura.passive:
                 continue  # Skip secondary components of active auras. No passive spells have aura interrupts.
 
@@ -188,11 +194,6 @@ class AuraManager:
             # In later versions an aura interrupt exists for this purpose.
             if aura.source_spell.is_refreshment_spell() and changed_stand_state and \
                     self.unit_mgr.stand_state != StandState.UNIT_SITTING:
-                self.remove_aura(aura)
-                continue
-
-            # Some stealth auras don't have correct interrupt flags set (5916, 6408), but should be removed on attack.
-            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and attacked:
                 self.remove_aura(aura)
                 continue
 
