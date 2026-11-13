@@ -871,5 +871,4 @@ class RealmDatabaseManager:
         realm_db_session.delete(petition)
         realm_db_session.flush()
         realm_db_session.commit()
-        realm_db_session.refresh(petition)
         realm_db_session.close()
