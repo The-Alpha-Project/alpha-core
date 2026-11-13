@@ -541,6 +541,11 @@ class CreatureAI:
                 and (not target or not target.is_alive)
                 and not self.get_react_state() == CreatureReactStates.REACT_PASSIVE)
 
+    # Only aggressive creatures start a fight on sight, defensive ones (flags_extra NO_AGGRO, e.g. flight masters)
+    # only fight back.
+    def can_initiate_attack(self):
+        return self.get_react_state() == CreatureReactStates.REACT_AGGRESSIVE and self.is_ready_for_new_attack()
+
     def assist_unit(self, target):
         if not self.creature.is_alive:
             return

@@ -64,7 +64,7 @@ class BasicCreatureAI(CreatureAI):
             self.summon_guard(unit)
             return
 
-        if not self.is_ready_for_new_attack():
+        if not self.can_initiate_attack():
             return
 
         self.creature.attack(unit)

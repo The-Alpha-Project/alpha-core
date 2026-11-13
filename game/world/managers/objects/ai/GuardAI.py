@@ -31,7 +31,7 @@ class GuardAI(CreatureAI):
     # override
     def move_in_line_of_sight(self, unit, ai_event=False):
         super().move_in_line_of_sight(unit, ai_event=ai_event)
-        if ai_event or not self.is_ready_for_new_attack():
+        if ai_event or not self.can_initiate_attack():
             return
         self.creature.attack(unit)
 
