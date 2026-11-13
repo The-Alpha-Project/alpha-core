@@ -198,7 +198,9 @@ class ChaseMovement(BaseMovement):
                 return None
             # No route to the target (roof, ledge, bridge deck), don't run straight through the geometry, wait in place
             # and evade if it stays unreachable, like VMaNGOS.
-            elif map_.has_navigation_between(self.unit.location, final_path[0]):
+            # Targets on transports are off the navmesh, keep moving straight.
+            elif not self.combat_target.transport_id and map_.has_navigation_between(self.unit.location,
+                                                                                    final_path[0]):
                 self._unreachable_time += elapsed
                 if self._unreachable_time >= ChaseMovement.UNREACHABLE_EVADE_SECONDS and not self.unit.is_pet():
                     self.unit.threat_manager.remove_unit_threat(self.combat_target)
