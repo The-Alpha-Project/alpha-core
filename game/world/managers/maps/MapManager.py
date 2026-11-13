@@ -51,6 +51,8 @@ ADT_INSTANCE_REFS = {}
 # noinspection PyBroadException
 class MapManager:
     NAMIGATOR_LOADED = False
+    GROUND_SAMPLE_STEP = 4.0
+    GROUND_MAX_DEVIATION = 1.0
     NAMIGATOR_FAILED = False
     TILE_LOADER_FAILED = False
     TILE_LOAD_WORKERS = max(1, min(4, (os.cpu_count() or 2) - 1))  # Cap worker count to limit memory usage.
@@ -579,6 +581,76 @@ class MapManager:
         return MapManager.calculate_z(w_object.map_id, w_object.location.x, w_object.location.y, w_object.location.z)
 
     # noinspection PyBroadException
+    # Points for a move along the ground, the client moves creatures in a straight line between spline points, so a
+    # long route leg floats above or cuts into hills (Kodo hopping). Navmesh path if loaded, else the terrain heights
+    # under the leg, only where the straight line leaves the ground. Legs off the ground (flying, swimming) and maps
+    # without data stay straight.
+    @staticmethod
+    def get_ground_points(map_id, start, end):
+        distance = start.distance(end)
+        if distance <= MapManager.GROUND_SAMPLE_STEP:
+            return [end]
+
+        if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED and map_id in MAPS_NAMIGATOR:
+            failed, in_place, path_ = MapManager.calculate_path(map_id, start, end)
+            if not failed and not in_place and path_:
+                return path_
+
+        if not config.Server.Settings.use_map_tiles:
+            return [end]
+
+        # Both ends on the ground.
+        for point in (start, end):
+            z = MapManager._get_surface_z(map_id, point.x, point.y, point.z)
+            if z is None or abs(z - point.z) > MapManager.GROUND_MAX_DEVIATION * 1.5:
+                return [end]
+
+        from game.world.managers.abstractions.Vector import Vector
+        count = int(distance / MapManager.GROUND_SAMPLE_STEP)
+        points = [start]
+        for i in range(1, count):
+            f = i / count
+            line_z = start.z + (end.z - start.z) * f
+            x, y = start.x + (end.x - start.x) * f, start.y + (end.y - start.y) * f
+            z = MapManager._get_surface_z(map_id, x, y, line_z)
+            # No data or another level (bridge, cave), keep the straight line.
+            if z is None or abs(z - line_z) > 10:
+                return [end]
+            points.append(Vector(x, y, z))
+        points.append(end)
+
+        # Keep only the points needed to stay within GROUND_MAX_DEVIATION of the ground.
+        keep = {0, len(points) - 1}
+
+        def split(i, j):
+            if j - i < 2:
+                return
+            worst, worst_k = 0, 0
+            for k in range(i + 1, j):
+                line_z = points[i].z + (points[j].z - points[i].z) * (k - i) / (j - i)
+                deviation = abs(points[k].z - line_z)
+                if deviation > worst:
+                    worst, worst_k = deviation, k
+            if worst > MapManager.GROUND_MAX_DEVIATION:
+                keep.add(worst_k)
+                split(i, worst_k)
+                split(worst_k, j)
+
+        split(0, len(points) - 1)
+        return [points[k] for k in sorted(keep) if k]
+
+    # Terrain or WMO height closest to current_z, None without loaded map data. Unlike calculate_z, it doesn't stay
+    # within a tolerance of current_z.
+    @staticmethod
+    def _get_surface_z(map_id, x, y, current_z):
+        adt_x, adt_y = MapUtils.get_tile(x, y)
+        if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
+            return None
+        tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
+        if not tile or not tile.has_maps:
+            return None
+        return tile.get_best_height_at_world(x, y, current_z)[0]
+
     @staticmethod
     def calculate_z(map_id, x, y, current_z, is_rand_point=False) -> tuple: # float, ZSource
 

@@ -232,6 +232,9 @@ class Map:
     def calculate_path(self, start_vector, end_vector, los=False, smooth=False, clamp_endpoint=False) -> tuple:  # bool failed, in_place, path list.
         return self.map_manager.calculate_path(self.map_id, start_vector, end_vector, los, smooth, clamp_endpoint)
 
+    def get_ground_points(self, start_vector, end_vector):
+        return self.map_manager.get_ground_points(self.map_id, start_vector, end_vector)
+
     def has_navigation_between(self, start_vector, end_vector):
         return self.map_manager.has_navigation_between(self.map_id, start_vector, end_vector)
 

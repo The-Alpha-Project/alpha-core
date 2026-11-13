@@ -11,6 +11,15 @@ class MovementWaypoint:
         self.total_wait_time_seconds = 0  # Spline travel time plus waypoint wait time.
         self.initialized = False
         self.completed = False
+        # Ground following points of the leg to this waypoint, routes are fixed so they are computed once.
+        self.leg_start = None
+        self.leg_points = None
+
+    def get_leg_points(self, unit):
+        if not self.leg_points or self.leg_start.distance(unit.location) > 1.0:
+            self.leg_start = unit.location.copy()
+            self.leg_points = unit.get_map().get_ground_points(unit.location, self.location)
+        return self.leg_points
 
     def set_total_wait_time_seconds(self, wait_time_seconds):
         self.total_wait_time_seconds = wait_time_seconds

@@ -88,7 +88,8 @@ class WaypointMovement(BaseMovement):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update tmp home position.
         self.unit.tmp_home_position = new_position.copy()
-        if not waypoint_completed:
+        # Ground following points in between don't complete the waypoint.
+        if not waypoint_completed or remaining_waypoints:
             return
 
         current_wp = self._get_waypoint()
@@ -142,7 +143,7 @@ class WaypointMovement(BaseMovement):
         waypoint = self._get_waypoint()
         waypoint.initialized = True
         speed = self._get_speed()
-        spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint.location], speed=speed,
+        spline = SplineBuilder.build_normal_spline(self.unit, points=waypoint.get_leg_points(self.unit), speed=speed,
                                                    extra_time_seconds=waypoint.wait_time_seconds)
         self.spline_callback(spline, movement_behavior=self)
         waypoint.set_total_wait_time_seconds(self.get_total_time_secs())
