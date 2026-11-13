@@ -1025,8 +1025,10 @@ class QuestManager:
 
         # If not an instant complete quest, validate it.
         if not QuestHelpers.is_instant_complete_quest(quest):
-            if quest_id not in self.active_quests and quest_id not in self.completed_quests:
-                self.send_quest_giver_quest_details(quest, quest_giver_guid, activate_accept=True)
+            if quest_id not in self.active_quests:
+                # Already rewarded quests (complete button spammed) have nothing to complete.
+                if quest_id not in self.completed_quests:
+                    self.send_quest_giver_quest_details(quest, quest_giver_guid, activate_accept=True)
                 return
 
             active_quest = self.active_quests[quest_id]
