@@ -429,7 +429,7 @@ class CreatureAI:
 
         # Roll chance to cast from script after all checks have passed.
         if chance and chance != 100:
-            if not chance > randint(0, 100):
+            if randint(1, 100) > chance:
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
 
         # Return as succeeded.
