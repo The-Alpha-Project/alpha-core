@@ -46,9 +46,9 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlag
     AttackTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SaveCodes import SaveReason
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, SpellMissReason
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, \
-    RegenStatsFlags, CreatureTypes, UnitStates
+    RegenStatsFlags, CreatureTypes, UnitStates, StandState
 from utils.constants.UpdateFields import *
 from utils.constants.MiscCodes import UpdateFlags
 
@@ -1658,6 +1658,10 @@ class PlayerManager(UnitManager):
         # Set damage to 0 but still continue, else threat system will fail to link units.
         # Causing leave_combat to fail using god mode, affecting also Beastmaster.
         damage_info.total_damage = 0 if self.is_god else damage_info.total_damage
+        # Like VMaNGOS, direct hits (melee misses too) stand up a sitting player, which ends food and drink.
+        if (self.is_alive and not is_periodic and not self.is_standing() and not self.is_mounted()
+                and damage_info.spell_miss_reason == SpellMissReason.MISS_REASON_NONE):
+            self.set_stand_state(StandState.UNIT_STANDING)
         return super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic)
 
     # override
