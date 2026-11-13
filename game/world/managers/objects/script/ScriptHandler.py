@@ -646,6 +646,7 @@ class ScriptHandler:
         if not creature_manager:
             return command.should_abort()
 
+        creature_manager.keeps_cells_active = bool(command.dataint & SummonCreatureFlags.SF_SUMMON_CREATURE_ACTIVE)
         map_.spawn_object(instance=creature_manager)
 
         # Generic script.

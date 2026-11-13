@@ -69,6 +69,9 @@ class ObjectManager:
         self.initialized = False
         self.is_spawned = True
         self.is_dynamic_spawn = False
+        # Active spawns (spawn_flags) and summons (SF_SUMMON_CREATURE_ACTIVE) keep their cells updated with no players
+        # near, so long patrols and scripted walks are not frozen.
+        self.keeps_cells_active = False
         self.is_default = True
         self.summoner = None
         self.charmer = None

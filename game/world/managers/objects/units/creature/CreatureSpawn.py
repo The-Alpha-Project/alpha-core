@@ -8,6 +8,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import PoolType
+from utils.constants.UnitCodes import ObjectSpawnFlags
 
 
 class CreatureSpawn:
@@ -89,6 +90,9 @@ class CreatureSpawn:
             self.respawn_timer = 0
             self.tmp_respawn_time = respawn_secs
 
+    def is_active(self):
+        return bool(self.creature_spawn.spawn_flags & ObjectSpawnFlags.SPAWN_FLAG_ACTIVE)
+
     def is_spawned(self):
         return self.creature_instance and self.creature_instance.is_spawned
 
@@ -125,6 +129,7 @@ class CreatureSpawn:
                                                         movement_type=self.creature_spawn.movement_type,
                                                         spawn_id=self.spawn_id)
 
+        self.creature_instance.keeps_cells_active = self.is_active()
         self.creature_instance.spawn(owner=self)
         return True
 

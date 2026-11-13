@@ -232,4 +232,9 @@ class Cell:
             camera.broadcast_packet(packet, exclude=players_reached)
 
     def can_deactivate(self):
-        return not self.has_players() and not self.has_cameras()
+        return not self.has_players() and not self.has_cameras() and not self.has_active_objects()
+
+    # Active creatures, and active spawns so their respawn timer keeps running.
+    def has_active_objects(self):
+        return (any(creature.keeps_cells_active for creature in list(self.creatures.values()))
+                or any(spawn.is_active() for spawn in list(self.creatures_spawns.values())))

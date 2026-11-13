@@ -698,7 +698,7 @@ class CreatureManager(UnitManager):
         
         return self.is_evading or len(self.known_players) > 0 or self.has_waypoints_type() or self.creature_group \
             or FarSightManager.object_is_camera_view_point(self) \
-            or self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
+            or self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON or self.keeps_cells_active
 
     # override
     def has_player_observers(self):
@@ -720,6 +720,11 @@ class CreatureManager(UnitManager):
             return
 
         elapsed = now - self.last_tick
+
+        # Active creatures move with no player near, initialize the ones nobody has seen yet (not while loading the map,
+        # its tiles are not built yet).
+        if self.keeps_cells_active and not self.initialized:
+            self.initialize_field_values()
 
         # Check for despawn logic for standalone instances.
         if self._should_despawn(elapsed):

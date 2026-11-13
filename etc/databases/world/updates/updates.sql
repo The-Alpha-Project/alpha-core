@@ -24463,5 +24463,13 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('121120261');
     end if;
 
+    -- 13/11/2026 1
+    -- Summon Stitches as an active creature, his walk to Darkshire froze when no player was near his cell.
+    if (select count(*) from applied_updates where id='131120261') = 0 then
+        UPDATE `quest_end_scripts` SET `dataint` = `dataint` | 2 WHERE `id` = 252 AND `command` = 10 AND `datalong` = 412;
+
+        INSERT INTO applied_updates VALUES ('131120261');
+    end if;
+
 end $
 delimiter ;

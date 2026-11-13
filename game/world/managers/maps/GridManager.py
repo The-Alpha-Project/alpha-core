@@ -176,7 +176,8 @@ class GridManager:
         cell: Cell = self._get_create_cell(world_object.location, world_object.map_id, world_object.instance_id)
         cell.add_world_object(world_object)
 
-        if world_object.is_player() or world_object.is_temp_summon_or_pet_or_guardian():
+        if (world_object.is_player() or world_object.is_temp_summon_or_pet_or_guardian()
+                or world_object.keeps_cells_active):
             self.activate_cell_by_world_object(world_object, load_tile_data=True)
 
         # Lazy-initialize temp summons, pets and guardians once they are registered in the
