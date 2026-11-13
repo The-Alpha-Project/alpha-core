@@ -952,6 +952,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_INVISIBILITY: AuraEffectHandler.handle_mod_invisibility,
     AuraTypes.SPELL_AURA_MOD_INVISIBILITY_DETECTION: AuraEffectHandler.handle_mod_invisibility_detection,
     AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
+    # TODO: Possess (Dominate) should give the caster direct control of the target, handled as charm for now.
+    AuraTypes.SPELL_AURA_MOD_POSSESS: AuraEffectHandler.handle_mod_charm,
     AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
