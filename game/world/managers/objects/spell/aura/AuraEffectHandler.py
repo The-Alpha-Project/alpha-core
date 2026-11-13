@@ -439,8 +439,11 @@ class AuraEffectHandler:
         effect_target.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=False)
         effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=True)
         caster.possessed_unit = effect_target
-        # The possessed flag and charmer must reach the client before the far sight field.
+        # The possessed flag and charmer must reach the client before the far sight field, it only checks them when
+        # that field changes and leaves nothing to move otherwise. Self updates (far sight) are sent before the queued
+        # ones of other objects, so send this one now.
         effect_target.get_map().update_object(effect_target, update_flags=UpdateFlags.CHANGES)
+        caster.update_manager.process_object_updates_now()
         FarSightManager.add_camera(effect_target, caster)
 
     @staticmethod

@@ -89,6 +89,11 @@ class UpdateManager:
             self.update_builder.add_create_update_from_object(world_object)
             self.update_builder.process_update()  # Notify instantly.
 
+    # Send the queued updates of other objects now instead of at the end of the tick, after self updates.
+    def process_object_updates_now(self):
+        with self._lock:
+            self.update_builder.process_update()
+
     # Player update, packets are sent immediately.
     def _update_self(self, update_flags, update_data):
         with self._lock:
