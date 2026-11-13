@@ -398,9 +398,16 @@ class AuraEffectHandler:
 
         # Creature.
         if remove:
-            aura.caster.pet_manager.detach_pet_by_slot(PetSlot.PET_SLOT_CHARM)
+            AuraEffectHandler._release_charm(aura.caster, effect_target)
             return
         aura.caster.pet_manager.set_creature_as_pet(effect_target, aura.spell_id, PetSlot.PET_SLOT_CHARM)
+
+    # Only release the creature this aura took over, a failed take over (charm slot in use) must not release another.
+    @staticmethod
+    def _release_charm(caster, creature):
+        active_pet = caster.pet_manager.get_active_pet_by_guid(creature.guid)
+        if active_pet and active_pet.pet_slot == PetSlot.PET_SLOT_CHARM:
+            caster.pet_manager.detach_pet_by_slot(PetSlot.PET_SLOT_CHARM)
 
     # Dominate, the player steers the creature directly (camera and movement, like the Eye of Kilrogg) and uses its
     # pet bar. The client takes control when PLAYER_FARSIGHT points to a unit flagged possessed and charmed by it.
@@ -412,15 +419,17 @@ class AuraEffectHandler:
             return
 
         if remove:
-            if caster.possessed_unit is effect_target:
-                caster.possessed_unit = None
-                FarSightManager.remove_camera(effect_target)
-                caster.set_far_sight(0)
+            # Not taken over (charm slot in use), nothing to release.
+            if caster.possessed_unit is not effect_target:
+                return
+            caster.possessed_unit = None
+            FarSightManager.remove_camera(effect_target)
+            caster.set_far_sight(0)
             effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=False)
             # Drop the client driven movement state.
             effect_target.movement_flags &= ~MoveFlags.MOVEFLAG_MOTION_MASK
             effect_target.movement_manager.stop(force=True)
-            caster.pet_manager.detach_pet_by_slot(PetSlot.PET_SLOT_CHARM)
+            AuraEffectHandler._release_charm(caster, effect_target)
             return
 
         if not caster.pet_manager.set_creature_as_pet(effect_target, aura.spell_id, PetSlot.PET_SLOT_CHARM):
