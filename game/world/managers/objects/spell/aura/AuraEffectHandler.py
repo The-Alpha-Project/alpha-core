@@ -56,6 +56,9 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_scale(aura, effect_target, remove):
         if not remove:
+            # A refresh passes the new aura, which is never stored: applying it again would compound the scale.
+            if effect_target.aura_manager.active_auras.get(aura.index) is not aura:
+                return
             scale = effect_target.get_float(ObjectFields.OBJECT_FIELD_SCALE_X) * (100.0+aura.get_effect_points())/100.0
             effect_target.set_scale(scale)
         else:
