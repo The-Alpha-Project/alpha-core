@@ -2,7 +2,7 @@ import math
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.Formulas import Distances
-from utils.constants.MiscCodes import MoveType
+from utils.constants.MiscCodes import MoveType, ZSource
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import SplineFlags
 from utils.constants.CustomCodes import RelativeChaseState
@@ -16,7 +16,7 @@ from utils.constants.CustomCodes import RelativeChaseState
 #   - Most humanoids NPCs have gained the ability to swim.
 #  This might only refer to creatures not having swimming animations.
 class ChaseMovement(BaseMovement):
-    UNREACHABLE_EVADE_SECONDS = 5
+    UNREACHABLE_EVADE_SECONDS = 24  # VMaNGOS.
 
     def __init__(self, spline_callback):
         super().__init__(move_type=MoveType.CHASE, spline_callback=spline_callback)
@@ -198,9 +198,7 @@ class ChaseMovement(BaseMovement):
                 return None
             # No route to the target (roof, ledge, bridge deck), don't run straight through the geometry, wait in place
             # and evade if it stays unreachable, like VMaNGOS.
-            # Targets on transports are off the navmesh, keep moving straight.
-            elif not self.combat_target.transport_id and map_.has_navigation_between(self.unit.location,
-                                                                                    final_path[0]):
+            elif self._is_unreachable(map_, final_path[0]):
                 self._unreachable_time += elapsed
                 if self._unreachable_time >= ChaseMovement.UNREACHABLE_EVADE_SECONDS and not self.unit.is_pet():
                     self.unit.threat_manager.remove_unit_threat(self.combat_target)
@@ -208,6 +206,17 @@ class ChaseMovement(BaseMovement):
 
         self._unreachable_time = 0.0
         return final_path
+
+    # Targets on buildings, bridges or other WMO geometry (roofs) can't be reached running straight, the creature waits
+    # (casters still cast) and evades. On terrain only targets out of sight count (caves), creatures still climb steep
+    # slopes the navmesh leaves out. Targets on transports are off the navmesh.
+    def _is_unreachable(self, map_, target_location):
+        if self.combat_target.transport_id or not map_.has_navigation_between(self.unit.location, target_location):
+            return False
+        _, z_source = map_.calculate_z(target_location.x, target_location.y, target_location.z)
+        if z_source == ZSource.WMO:
+            return True
+        return not map_.los_check(self.unit.get_ray_position(), self.combat_target.get_ray_position())
 
     def _is_within_combat_distance(self, source_vector=None):
         if not self.combat_target:
