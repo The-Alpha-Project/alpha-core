@@ -597,7 +597,8 @@ class InventoryManager:
     def get_remaining_space(self, include_ammo=False):
         empty_slots = 0
         for container_slot, container in list(self.containers.items()):
-            if not container:
+            # Bank bags are containers too, but items are never stored there by add_item.
+            if not container or self.is_bank_slot(container_slot, 0):
                 continue
             if not include_ammo:
                 if not container.is_backpack and container.item_template.class_ != ItemClasses.ITEM_CLASS_CONTAINER:
@@ -607,7 +608,7 @@ class InventoryManager:
 
     def get_next_available_inventory_slot(self):
         for container_slot, container in list(self.containers.items()):
-            if not container:
+            if not container or self.is_bank_slot(container_slot, 0):
                 continue
             if not container.is_full():
                 return container_slot.value, container.next_available_slot()
