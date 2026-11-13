@@ -321,6 +321,7 @@ class UnitSpellsValidator:
 class SpellEffectMechanics:
     _MECHANIC_AURAS = {
         AuraTypes.SPELL_AURA_MOD_CHARM: SpellMechanic.MECHANIC_CHARM,
+        AuraTypes.SPELL_AURA_MOD_POSSESS: SpellMechanic.MECHANIC_CHARM,
         AuraTypes.SPELL_AURA_MOD_DISARM: SpellMechanic.MECHANIC_DISARM,
         AuraTypes.SPELL_AURA_MOD_FEAR: SpellMechanic.MECHANIC_FEAR
     }
