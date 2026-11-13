@@ -49,7 +49,7 @@ class WaypointMovement(BaseMovement):
         self.creature_movement = movement_waypoints
 
         # Update should repeat.
-        self.should_repeat = self.is_default and self.command_move_info.repeat
+        self.should_repeat = self.command_move_info.repeat
 
         # Set initial delay if needed.
         if self.command_move_info.initial_delay:
