@@ -419,12 +419,13 @@ class AuraEffectHandler:
             return
 
         if remove:
-            # Not taken over (charm slot in use), nothing to release.
-            if caster.possessed_unit is not effect_target:
+            if caster.possessed_unit is effect_target:
+                caster.possessed_unit = None
+                FarSightManager.remove_camera(effect_target)
+                caster.set_far_sight(0)
+            # Not taken over (charm slot in use), nothing else of ours to release.
+            if not effect_target.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED:
                 return
-            caster.possessed_unit = None
-            FarSightManager.remove_camera(effect_target)
-            caster.set_far_sight(0)
             effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=False)
             # Drop the client driven movement state.
             effect_target.movement_flags &= ~MoveFlags.MOVEFLAG_MOTION_MASK
