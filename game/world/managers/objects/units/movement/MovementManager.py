@@ -68,6 +68,9 @@ class MovementManager:
 
     # Broadcast a new spline from an active movement behavior.
     def spline_callback(self, spline, movement_behavior=None):
+        # Possessed units are moved by the player's client.
+        if self.unit.unit_state & UnitStates.POSSESSED:
+            return
         # Update to the latest position if necessary.
         current_spline = self.unit.movement_spline
         if current_spline and current_spline is not spline and not current_spline.is_complete():
@@ -330,6 +333,8 @@ class MovementManager:
         if not self.movement_behaviors:
             return False
         if not self.unit.is_alive:
+            return False
+        if self.unit.unit_state & UnitStates.POSSESSED:
             return False
         if self.unit.unit_state & UnitStates.STUNNED or self.unit.movement_flags & MoveFlags.MOVEFLAG_ROOTED:
             return False

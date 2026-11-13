@@ -7,7 +7,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.units.player.SkillManager import get_riding_spell_ids
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses
-from utils.constants.MiscCodes import UnitDynamicTypes
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags, UpdateFlags
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
@@ -401,6 +401,37 @@ class AuraEffectHandler:
             aura.caster.pet_manager.detach_pet_by_slot(PetSlot.PET_SLOT_CHARM)
             return
         aura.caster.pet_manager.set_creature_as_pet(effect_target, aura.spell_id, PetSlot.PET_SLOT_CHARM)
+
+    # Dominate, the player steers the creature directly (camera and movement, like the Eye of Kilrogg) and uses its
+    # pet bar. The client takes control when PLAYER_FARSIGHT points to a unit flagged possessed and charmed by it.
+    @staticmethod
+    def handle_mod_possess(aura, effect_target, remove):
+        caster = aura.caster
+        if effect_target.is_player() or not caster.is_player():
+            AuraEffectHandler.handle_mod_charm(aura, effect_target, remove)
+            return
+
+        if remove:
+            if caster.possessed_unit is effect_target:
+                caster.possessed_unit = None
+                FarSightManager.remove_camera(effect_target)
+                caster.set_far_sight(0)
+            effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=False)
+            # Drop the client driven movement state.
+            effect_target.movement_flags &= ~MoveFlags.MOVEFLAG_MOTION_MASK
+            effect_target.movement_manager.stop(force=True)
+            caster.pet_manager.detach_pet_by_slot(PetSlot.PET_SLOT_CHARM)
+            return
+
+        if not caster.pet_manager.set_creature_as_pet(effect_target, aura.spell_id, PetSlot.PET_SLOT_CHARM):
+            return
+        effect_target.movement_manager.stop(force=True)
+        effect_target.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=False)
+        effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_POSSESSED, active=True)
+        caster.possessed_unit = effect_target
+        # The possessed flag and charmer must reach the client before the far sight field.
+        effect_target.get_map().update_object(effect_target, update_flags=UpdateFlags.CHANGES)
+        FarSightManager.add_camera(effect_target, caster)
 
     @staticmethod
     def handle_taunt(aura, effect_target, remove):
@@ -952,8 +983,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_INVISIBILITY: AuraEffectHandler.handle_mod_invisibility,
     AuraTypes.SPELL_AURA_MOD_INVISIBILITY_DETECTION: AuraEffectHandler.handle_mod_invisibility_detection,
     AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
-    # TODO: Possess (Dominate) should give the caster direct control of the target, handled as charm for now.
-    AuraTypes.SPELL_AURA_MOD_POSSESS: AuraEffectHandler.handle_mod_charm,
+    AuraTypes.SPELL_AURA_MOD_POSSESS: AuraEffectHandler.handle_mod_possess,
     AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
