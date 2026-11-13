@@ -273,6 +273,9 @@ class AuraManager:
                     if aura.proc_charges == 0:
                         self.remove_aura(aura)
 
+                    # Like VMaNGOS, one event procs an aura once even if several of its proc flags match.
+                    break
+
     def _has_required_weapon_for_proc(self, aura, damage_info):
         spell_entry = aura.source_spell.spell_entry
         if spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON or not self.unit_mgr.is_player():
