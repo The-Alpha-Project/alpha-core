@@ -311,7 +311,9 @@ class ChaseMovement(BaseMovement):
         # Already in close combat.
         if self._is_within_combat_distance():
             return False
+        # Ranged attackers (main ranged spell) don't chase, an unreachable target doesn't make them evade.
         if self.unit.object_ai and not self.unit.object_ai.is_combat_movement_enabled():
+            self._unreachable_time = 0.0
             return False
         if self.speed_dirty:
             return True
