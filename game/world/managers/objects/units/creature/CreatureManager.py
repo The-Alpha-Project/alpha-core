@@ -318,7 +318,10 @@ class CreatureManager(UnitManager):
 
         # Movement.
         self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=self.static_flags & CreatureStaticFlags.AQUATIC != 0)
-        self.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.should_always_run_ooc())
+        # Possessed creatures (Eye of Kilrogg) are moved by the player's client, with the walk flag it moves them at
+        # walk speed.
+        walk = not self.should_always_run_ooc() and not self.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED
+        self.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=walk)
         self.movement_manager.initialize_or_reset()
 
         self.loading = False
