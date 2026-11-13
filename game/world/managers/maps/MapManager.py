@@ -53,6 +53,7 @@ class MapManager:
     NAMIGATOR_LOADED = False
     GROUND_SAMPLE_STEP = 4.0
     GROUND_MAX_DEVIATION = 1.0
+    GROUND_MAX_SAMPLES = 100
     NAMIGATOR_FAILED = False
     TILE_LOADER_FAILED = False
     TILE_LOAD_WORKERS = max(1, min(4, (os.cpu_count() or 2) - 1))  # Cap worker count to limit memory usage.
@@ -585,11 +586,22 @@ class MapManager:
     # long route leg floats above or cuts into hills (Kodo hopping). Navmesh path if loaded, else the terrain heights
     # under the leg, only where the straight line leaves the ground. Legs off the ground (flying, swimming) and maps
     # without data stay straight.
+    # Returns None while a needed map tile is still loading (try again later).
     @staticmethod
     def get_ground_points(map_id, start, end):
         distance = start.distance(end)
-        if distance <= MapManager.GROUND_SAMPLE_STEP:
+        count = int(distance / MapManager.GROUND_SAMPLE_STEP)
+        if count < 2 or count > MapManager.GROUND_MAX_SAMPLES:
             return [end]
+
+        # Both ends on the ground (not flying or swimming), when maps are available.
+        if config.Server.Settings.use_map_tiles:
+            for point in (start, end):
+                z, loading = MapManager._get_surface_z(map_id, point.x, point.y, point.z)
+                if loading:
+                    return None
+                if z is None or abs(z - point.z) > MapManager.GROUND_MAX_DEVIATION * 1.5:
+                    return [end]
 
         if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED and map_id in MAPS_NAMIGATOR:
             failed, in_place, path_ = MapManager.calculate_path(map_id, start, end)
@@ -599,20 +611,15 @@ class MapManager:
         if not config.Server.Settings.use_map_tiles:
             return [end]
 
-        # Both ends on the ground.
-        for point in (start, end):
-            z = MapManager._get_surface_z(map_id, point.x, point.y, point.z)
-            if z is None or abs(z - point.z) > MapManager.GROUND_MAX_DEVIATION * 1.5:
-                return [end]
-
         from game.world.managers.abstractions.Vector import Vector
-        count = int(distance / MapManager.GROUND_SAMPLE_STEP)
         points = [start]
         for i in range(1, count):
             f = i / count
             line_z = start.z + (end.z - start.z) * f
             x, y = start.x + (end.x - start.x) * f, start.y + (end.y - start.y) * f
-            z = MapManager._get_surface_z(map_id, x, y, line_z)
+            z, loading = MapManager._get_surface_z(map_id, x, y, line_z)
+            if loading:
+                return None
             # No data or another level (bridge, cave), keep the straight line.
             if z is None or abs(z - line_z) > 10:
                 return [end]
@@ -639,17 +646,18 @@ class MapManager:
         split(0, len(points) - 1)
         return [points[k] for k in sorted(keep) if k]
 
-    # Terrain or WMO height closest to current_z, None without loaded map data. Unlike calculate_z, it doesn't stay
-    # within a tolerance of current_z.
+    # Terrain or WMO height closest to current_z (None without map data) and whether its tile is still loading. Unlike
+    # calculate_z, it doesn't stay within a tolerance of current_z.
     @staticmethod
     def _get_surface_z(map_id, x, y, current_z):
         adt_x, adt_y = MapUtils.get_tile(x, y)
-        if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
-            return None
+        state = MapManager._check_tile_load(map_id, x, y, adt_x, adt_y)
+        if state != MapTileStates.READY:
+            return None, state == MapTileStates.LOADING
         tile = MapManager.get_tile_at(map_id, adt_x, adt_y)
         if not tile or not tile.has_maps:
-            return None
-        return tile.get_best_height_at_world(x, y, current_z)[0]
+            return None, False
+        return tile.get_best_height_at_world(x, y, current_z)[0], False
 
     @staticmethod
     def calculate_z(map_id, x, y, current_z, is_rand_point=False) -> tuple: # float, ZSource

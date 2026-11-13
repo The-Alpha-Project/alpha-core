@@ -17,8 +17,13 @@ class MovementWaypoint:
 
     def get_leg_points(self, unit):
         if not self.leg_points or self.leg_start.distance(unit.location) > 1.0:
+            points = unit.get_map().get_ground_points(unit.location, self.location)
+            # Map tile still loading, go straight this time.
+            if not points:
+                self.leg_points = None
+                return [self.location]
             self.leg_start = unit.location.copy()
-            self.leg_points = unit.get_map().get_ground_points(unit.location, self.location)
+            self.leg_points = points
         return self.leg_points
 
     def set_total_wait_time_seconds(self, wait_time_seconds):
