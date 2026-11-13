@@ -166,7 +166,9 @@ class ThreatManager:
 
         # Threat target switching.
         if threat_holder != self.current_holder:
-            if not self.current_holder or self._is_exceeded_current_threat_melee_range(threat_holder.get_total_threat()):
+            # Like VMaNGOS, a current target that can't be attacked anymore is dropped without the 110% rule.
+            if (not self.current_holder or not self._can_resolve_holder(self.current_holder)
+                    or self._is_exceeded_current_threat_melee_range(threat_holder.get_total_threat())):
                 self.current_holder = threat_holder
 
         return None if not self.current_holder else self.current_holder.unit
