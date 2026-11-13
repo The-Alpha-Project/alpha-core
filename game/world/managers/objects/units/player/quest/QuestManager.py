@@ -1115,7 +1115,9 @@ class QuestManager:
             reward_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(reward_entry)
             if not reward_template:
                 continue
-            store_error = self.player_mgr.inventory.can_store_item(reward_template, reward_count)
+            # Required items are removed before the rewards are given, don't count them for the unique limit.
+            store_error = self.player_mgr.inventory.can_store_item(reward_template, reward_count,
+                                                                   check_max_count=reward_entry not in required_items)
             if store_error != InventoryError.BAG_OK:
                 self.player_mgr.inventory.send_equip_error(store_error)
                 return
