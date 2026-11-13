@@ -133,7 +133,8 @@ class CreatureManager(UnitManager):
 
         # Innate school and mechanic immunities.
         if self.creature_template.mechanic_immune_mask:
-            self.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, self.creature_template.mechanic_immune_mask)
+            # The DB mask (from VMaNGOS) uses bit (mechanic - 1), immunity checks use bit mechanic.
+            self.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, self.creature_template.mechanic_immune_mask << 1)
         if self.creature_template.school_immune_mask:
             self.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.creature_template.school_immune_mask)
         # CREATURE_FLAG_EXTRA_NOT_TAUNTABLE maps to taunt immunity (aura + threat effect).
