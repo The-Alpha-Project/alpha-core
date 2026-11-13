@@ -760,7 +760,11 @@ class SpellManager:
                     effective_moved = False
                     effective_turned = False
 
-                if (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and effective_moved:
+                # A crushing blow comes with the auto attack check (receive_damage doesn't pass the hit info).
+                if (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE) and crushing_interrupt \
+                        and received_auto_attack:
+                    interrupt = True
+                elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT) and effective_moved:
                     interrupt = True
                 elif (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING) and effective_turned:
                     interrupt = True
