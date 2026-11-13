@@ -1109,6 +1109,17 @@ class QuestManager:
             self.player_mgr.inventory.send_equip_error(InventoryError.BAG_INV_FULL)
             return
 
+        # Every reward must be storable (unique limit, stack sizes), otherwise the quest would be completed without the
+        # item and could not be turned in again.
+        for reward_entry, reward_count in reward_items.items():
+            reward_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(reward_entry)
+            if not reward_template:
+                continue
+            store_error = self.player_mgr.inventory.can_store_item(reward_template, reward_count)
+            if store_error != InventoryError.BAG_OK:
+                self.player_mgr.inventory.send_equip_error(store_error)
+                return
+
         # Negative money is a fee required to complete the quest.
         # TODO: Send the 0.5.3 'not enough money' reason, its value is unknown (1.12 uses 23).
         if quest.RewOrReqMoney < 0 and self.player_mgr.coinage < -quest.RewOrReqMoney:
