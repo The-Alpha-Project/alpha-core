@@ -24471,5 +24471,109 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('131120261');
     end if;
 
+    -- 14/11/2026 1
+    if (select count(*) from applied_updates where id='141120261') = 0 then
+        -- Quests whose PrevQuestId can't be completed (an ignored quest, or Neltharion 1156 for 1159, which nobody
+        -- starts or finishes) could never be accepted. 1093, 1011 and 1275 have none in VMaNGOS, the others start
+        -- their chain here.
+        UPDATE `quest_template` SET `PrevQuestId` = 0 WHERE `entry` IN (2, 17, 23, 24, 434, 908, 1011, 1093, 1159, 1247, 1275);
+
+        -- The Monogrammed Sash: restore the original quest 620 (the 1.12 remake 8552 is ignored), it leads to
+        -- The Captain's Cutlass (615). Same row as 8552 but its original level 45, like VMaNGOS.
+        INSERT INTO `quest_template` (
+            `entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, 
+            `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, 
+            `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, 
+            `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, 
+            `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, 
+            `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, 
+            `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, 
+            `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, 
+            `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, 
+            `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, 
+            `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, 
+            `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, 
+            `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, 
+            `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, 
+            `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, 
+            `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, 
+            `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, 
+            `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, 
+            `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, 
+            `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, 
+            `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, 
+            `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, 
+            `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, 
+            `CompleteScript`, `ignored`, `parse_timestamp`)
+        SELECT
+            620, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, 45, `Type`, `RequiredClasses`, `RequiredRaces`, 
+            `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, 
+            `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, 
+            `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, 
+            `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, 
+            `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, 
+            `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, 
+            `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, 
+            `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, 
+            `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, 
+            `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, 
+            `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, 
+            `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, 
+            `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, 
+            `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, 
+            `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, 
+            `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, 
+            `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, 
+            `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, 
+            `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, 
+            `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, 
+            `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, 
+            `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, 
+            `CompleteScript`, 0, `parse_timestamp`
+        FROM `quest_template` WHERE `entry` = 8552;
+        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES (2500, 620);
+        UPDATE `item_template` SET `start_quest` = 620 WHERE `entry` = 3985;
+        UPDATE `quest_template` SET `PrevQuestId` = 620 WHERE `entry` = 615;
+
+        -- Waypoint typos that sent NPCs walking 1,000-13,000 yards away (not in VMaNGOS).
+        -- Bloodsail Sea Dog.
+        UPDATE `creature_movement` SET `position_x` = -14973.2 WHERE `id` = 2633 AND `point` = 8;
+        -- Felika.
+        UPDATE `creature_movement` SET `position_y` = -4340.05 WHERE `id` = 4683 AND `point` IN (2, 30);
+        -- Apothecary Katrina.
+        UPDATE `creature_movement` SET `position_x` = 1476.277 WHERE `id` = 31872 AND `point` = 19;
+        -- Flesh Golem.
+        UPDATE `creature_movement` SET `position_y` = -1571 WHERE `id` = 52473 AND `point` = 66;
+        -- Blackrock Tracker.
+        UPDATE `creature_movement` SET `position_x` = -8692 WHERE `id` = 17316 AND `point` = 9;
+
+        -- Profession trainers without trainer data, use the template of the trainers with the same profession.
+        -- Tailors: Eldrin, Bowen Brisboise, Mahani, Grondal Moonbreeze, Josephine Lister.
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` IN (1103, 3523, 3704, 4193, 4578);
+        -- Blacksmiths: Brikk Keencraft, Guillaume Sorouy.
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` IN (2836, 3557);
+        -- Leatherworker: Krulmoo Fullmoon.
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3703;
+        -- Enchanters: Taladan, Vance Undergloom.
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` IN (4213, 5695);
+        -- Cook: Slagg (Superior Butcher, teaches cooking in VMaNGOS).
+        UPDATE `creature_template` SET `trainer_id` = 501 WHERE `entry` = 2818;
+        -- Kar Stormsinger, Bird Trainer: hunter pet trainer like Frank Ward (template 1001 has no rows).
+        UPDATE `creature_template` SET `trainer_id` = 281, `trainer_type` = 3, `trainer_class` = 3, `trainer_race` = 0 WHERE `entry` = 3690;
+
+        -- Spawns stacked on another spawn of the same creature (VMaNGOS places them apart), hide the extra copy.
+        -- Witherbark Headhunter, Burning Blade Felsworn, Mirkfallon Dryad, Cursed Atal'ai, Rotting Behemoth,
+        -- Zukk'ash Tunneler and two Hatecrest Serpent Guards.
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` IN (11737, 27720, 32267, 38679, 46754, 50377, 51510, 51652);
+
+        -- Dalinda Malem, loot_id without loot rows (0 in VMaNGOS).
+        UPDATE `creature_template` SET `loot_id` = 0 WHERE `entry` = 5644;
+
+        -- Sinister Strike rank 5 was free (ranks 1-4: 10, 200, 2200, 8100).
+        UPDATE `trainer_template` SET `spellcost` = 20000 WHERE `template_entry` = 26 AND `playerspell` = 1760;
+
+        INSERT INTO applied_updates VALUES ('141120261');
+    end if;
+
 end $
 delimiter ;
