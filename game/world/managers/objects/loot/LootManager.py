@@ -29,14 +29,14 @@ class LootManager:
     # noinspection PyMethodMayBeStatic
     def generate_loot_groups(self, loot_template):
         loot_groups = {}
-        max_groupid = max(loot_item.groupid for loot_item in loot_template) if loot_template else 0
+        max_groupid = max((loot_item.groupid for loot_item in loot_template
+                           if not isinstance(loot_item, SkinningLootTemplate)), default=0)
         for loot_item in loot_template:
-            # Group skinning loot templates separately.
-            if isinstance(loot_item, SkinningLootTemplate):
-                loot_item.groupid = max_groupid + 1
-            if loot_item.groupid not in loot_groups:
-                loot_groups[loot_item.groupid] = []
-            loot_groups[loot_item.groupid].append(loot_item)
+            group_id = loot_item.groupid
+            # Keep skinning groups apart from the creature's own, ungrouped skinning rows still roll independently.
+            if isinstance(loot_item, SkinningLootTemplate) and group_id:
+                group_id += max_groupid
+            loot_groups.setdefault(group_id, []).append(loot_item)
 
         return loot_groups
 
