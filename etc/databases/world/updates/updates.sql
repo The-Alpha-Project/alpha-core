@@ -24779,5 +24779,125 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('141120266');
     end if;
 
+    -- 14/11/2026 7
+    if (select count(*) from applied_updates where id='141120267') = 0 then
+        -- Beasts without a skinning table while their siblings have one (0.5.3 merges skinning into the corpse loot).
+        INSERT INTO `skinning_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES
+            (100008, 2934, 100, 1, 1, 1, 0),
+            (3854, 783, 8, 1, 1, 1, 0),
+            (3854, 2318, 65, 1, 1, 2, 0),
+            (3854, 2319, 25, 1, 1, 2, 0),
+            (3854, 4232, 2, 1, 1, 1, 0);
+        UPDATE `creature_template` SET `skinning_loot_id` = 100008 WHERE `entry` IN (708, 1512, 1984, 1985, 2032, 2955, 2961, 2966, 3098, 3124);
+        UPDATE `creature_template` SET `skinning_loot_id` = 3854 WHERE `entry` = 3854;  -- Shadowfang Wolfguard
+
+        -- Recipes nobody sold: Tari'qa sells them like VMaNGOS (next to her trade supplies template).
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES
+            (3482, 5486, 0, 0, 0, 0),  -- Recipe: Strider Stew
+            (3482, 5488, 0, 0, 0, 1);  -- Recipe: Crispy Lizard Tail
+
+        -- Tomb Rot (Deadly Poison II reagent) had no source, poison vendors sold it with Tomb Dust (beta screenshot).
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`)
+            SELECT c.`entry`, 2929, 0, 0, 0, (SELECT COALESCE(MAX(v.`slot`), -1) + 1 FROM `npc_vendor` v WHERE v.`entry` = c.`entry`)
+            FROM `creature_template` c WHERE c.`entry` IN (1326, 3090, 3135, 3334, 3542, 3551, 3561, 4585, 5169, 6779);
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`)
+            SELECT c.`entry`, 5529, 0, 0, 0, (SELECT COALESCE(MAX(v.`slot`), -1) + 1 FROM `npc_vendor` v WHERE v.`entry` = c.`entry`)
+            FROM `creature_template` c WHERE c.`entry` IN (1326, 3090, 3135, 3334, 3542, 3551, 3561, 4585, 5169, 6779);
+        -- Seasoned Wolf Kabob's reagent had no source, sold next to Stormwind Seasoning Herbs.
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES (1303, 2693, 0, 0, 0, 7);
+
+        -- Beast families the 0.5.3 client doesn't have (tamed ones had no pet abilities), closest 0.5.3 family. All of
+        -- them so the same beasts still answer each other's call for help.
+        UPDATE `creature_template` SET `beast_family` = 7 WHERE `beast_family` = 24;  -- Bats: Carrion Bird
+        UPDATE `creature_template` SET `beast_family` = 1 WHERE `beast_family` = 25;  -- Hyenas, hounds: Wolf
+        UPDATE `creature_template` SET `beast_family` = 11 WHERE `beast_family` = 27;  -- Wind serpents, thunderhawks: Raptor
+        UPDATE `creature_template` SET `beast_family` = 4 WHERE `entry` = 2927;  -- Vicious Owlbeast: Bear
+
+        -- Timer abilities of their VMaNGOS EventAI that alpha never cast (all spells exist in 0.5.3).
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000667,'Skullsplitter Warrior',3148,100,1,32,5,7,23,26);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000669,'Skullsplitter Hunter',3148,100,1,32,5,7,23,26);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000670,'Skullsplitter Witch Doctor',5605,100,6,0,6,15,13,21);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000680,'Mosh''Ogg Lord',7093,100,1,32,3,6,20,25);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000702,'Bloodscalp Scavenger',744,100,1,0,7,14,120,125);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000730,'Tethis',3604,100,1,0,0,5,11,14);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1,spellId_2,probability_2,castTarget_2,castFlags_2,delayInitialMin_2,delayInitialMax_2,delayRepeatMin_2,delayRepeatMax_2) VALUES (5000781,'Skullsplitter Headhunter',3148,100,1,32,5,7,23,26,6533,100,4,0,1,10,18,29);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000782,'Skullsplitter Scout',3148,100,1,32,5,7,23,26);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000784,'Skullsplitter Beastmaster',3148,100,1,32,5,7,23,26);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000947,'Rohh the Silent',744,100,1,32,0,10,2,100);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5001094,'Venture Co. Miner',6016,100,1,32,0,10,45,45);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5001674,'Rot Hide Gnoll',3237,100,1,32,7,21,30,45);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5001772,'Rot Hide Gladerunner',3237,100,1,32,21,34,10,45);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5002246,'Syndicate Assassin',744,100,1,0,0,30,30,40);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5002635,'Elder Saltwater Crocilisk',3604,100,1,0,3,8,13,24);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5003276,'Witchwing Harpy',7098,100,1,32,4,9,18,25);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5003384,'Southsea Privateer',3011,100,1,0,4,6,9,13);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5003398,'Gesharahan',3583,100,1,32,10,20,60,120);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1,spellId_2,probability_2,castTarget_2,castFlags_2,delayInitialMin_2,delayInitialMax_2,delayRepeatMin_2,delayRepeatMax_2) VALUES (5003974,'Houndmaster Loksey',6192,100,6,0,9,9,30,38,6742,100,6,0,2,5,30,38);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5004278,'Commander Springvale',5588,100,1,0,10,17,61,63);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5004723,'Foreman Cozzle',184,100,6,32,5,9,24,37);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5005400,'Zekkis',7102,100,1,32,5,12,120,120);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5000729,'Sin''Dall',5164,100,1,0,3,4,10,10);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5001062,'Nezzliok the Dire',421,100,1,0,0,4,5,10);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5001492,'Gorlash',5568,100,6,0,2,3,6,10);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5001558,'Silverback Patriarch',6253,100,1,0,1,3,6,10);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5001998,'Webwood Lurker',4167,100,1,0,0,10,40,45);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5002656,'Jade Ooze',6907,100,1,32,6,8,37,46);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5003244,'Greater Plainstrider',7272,100,6,0,7,9,17,21);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5003270,'Elder Mystic Razorsnout',3599,100,6,0,5,20,30,45);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5004377,'Darkmist Lurker',744,100,1,0,9,20,30,40);
+        INSERT INTO `creature_spells` (entry,name,spellId_1,probability_1,castTarget_1,castFlags_1,delayInitialMin_1,delayInitialMax_1,delayRepeatMin_1,delayRepeatMax_1) VALUES (5004411,'Darkfang Lurker',744,100,1,0,8,20,30,40);
+        UPDATE `creature_template` SET `spell_list_id` = 5000000 + `entry` WHERE `entry` IN (667, 669, 670, 680, 702, 730, 781, 782, 784, 947, 1094, 1674, 1772, 2246, 2635, 3276, 3384, 3398, 3974, 4278, 4723, 5400, 729, 1062, 1492, 1558, 1998, 2656, 3244, 3270, 4377, 4411);
+
+        -- VanCleef and Thalnos yells, the scripts existed without their VMaNGOS events.
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`,
+            `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+            (63902, 639, 0, 4, 0, 100, 0, 0, 0, 0, 0, 63902, 0, 0, 'Edwin VanCleef - Yell on Aggro'),
+            (63903, 639, 0, 2, 0, 100, 0, 75, 51, 0, 0, 63903, 0, 0, 'Edwin VanCleef - Yell at 75% HP'),
+            (63905, 639, 0, 2, 0, 100, 0, 35, 11, 0, 0, 63905, 0, 0, 'Edwin VanCleef - Yell at 35% HP'),
+            (63906, 639, 0, 2, 0, 100, 0, 10, 0, 0, 0, 63906, 0, 0, 'Edwin VanCleef - Yell at 10% HP'),
+            (63907, 639, 0, 5, 0, 100, 1, 5000, 5000, 1, 0, 63907, 0, 0, 'Edwin VanCleef - Yell on Player Kill'),
+            (454304, 4543, 0, 4, 0, 100, 0, 0, 0, 0, 0, 454304, 0, 0, 'Bloodmage Thalnos - Yell on Aggro');
+
+        -- Defeat Private Hendel couldn't be completed (C++ in 1.12), minimal port of the VMaNGOS database script: he
+        -- attacks, surrenders at 30% and the quest completes, it fails if he resets or the player dies or runs away.
+        UPDATE `creature_template` SET `ai_name` = 'EventAI' WHERE `entry` = 4966;
+        UPDATE `quest_template` SET `StartScript` = 1324 WHERE `entry` = 1324;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1324, 0, 0, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Remove Quest Giver Flag'),
+        (1324, 0, 0, 22, 17, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Set Faction to Defias Brotherhood'),
+        (1324, 0, 0, 52, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Set Invincibility'),
+        (1324, 0, 0, 44, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Set Phase to 1'),
+        (1324, 0, 0, 61, 1324, 300, 0, 0, 0, 0, 0, 8, 0, 132401, 6304, 132400, 0, 0, 0, 0, 0, 'The Missing Diplomat: Start Scripted Map Event'),
+        (1324, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Start Attack');
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (132400, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Set Phase to 0'),
+        (132400, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Reset Faction'),
+        (132400, 0, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Add Quest Giver Flag'),
+        (132400, 0, 0, 70, 1324, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Player - Fail Quest'),
+        (132401, 0, 0, 73, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Combat Stop'),
+        (132401, 0, 0, 4, 46, 256, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Add Immune to Player Flag'),
+        (132401, 0, 0, 22, 35, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Set Faction to Friendly'),
+        (132401, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Set Phase to 0'),
+        (132401, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8224, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Say Text'),
+        (132401, 1, 0, 7, 1324, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Complete Quest The Missing Diplomat'),
+        (132401, 21, 0, 18, 0, 280, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Missing Diplomat: Private Hendel - Despawn Creature');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`,
+            `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
+            (496601, 4966, 0, 7, 1, 100, 0, 0, 0, 0, 0, 496601, 0, 0, 'Private Hendel - End Scripted Map Event on Evade (Phase 1)'),
+            (496602, 4966, 0, 2, 1, 100, 0, 30, 0, 0, 0, 496602, 0, 0, 'Private Hendel - End Scripted Map Event at 30% HP'),
+            (496603, 4966, 0, 11, 0, 100, 0, 0, 0, 0, 0, 496603, 0, 0, 'Private Hendel - Reset on Respawn');
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (496601, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - Set Phase to 0'),
+        (496601, 0, 0, 62, 1324, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - End Scripted Map Event (Failure)'),
+        (496602, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - Set Phase to 0'),
+        (496602, 0, 0, 62, 1324, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - End Scripted Map Event (Success)'),
+        (496603, 0, 0, 4, 46, 256, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - Remove Immune to Player Flag'),
+        (496603, 0, 0, 4, 147, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - Add Quest Giver Flag'),
+        (496603, 0, 0, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - Remove Invincibility'),
+        (496603, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Private Hendel - Set Phase to 0');
+
+        INSERT INTO applied_updates VALUES ('141120267');
+    end if;
+
 end $
 delimiter ;
