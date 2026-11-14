@@ -24628,5 +24628,24 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('141120262');
     end if;
 
+    -- 14/11/2026 3
+    if (select count(*) from applied_updates where id='141120263') = 0 then
+        -- Cenarion Druid patrol (spawn 32221): z typo on points 7 and 11 (535.511, neighbours 350.7 and 355.1).
+        UPDATE `creature_movement` SET `position_z` = 353.511 WHERE `id` = 32221 AND `point` IN (7, 11);
+
+        -- Down the Scarlet Path: the Shriveled Eye item id (2477) was a kill objective (Orc Horde Runner), so the eyes
+        -- never dropped and the quest asked for 12 runners instead of 12 eyes.
+        UPDATE `quest_template` SET `ReqItemId1` = 2477, `ReqItemCount1` = 12, `ReqCreatureOrGOId1` = 0,
+            `ReqCreatureOrGOCount1` = 0 WHERE `entry` = 261;
+
+        -- Wild Buck and Rabbits on GM Island, which has no terrain in 0.5.3.
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` IN (301267, 301767, 301768, 301769);
+
+        -- The Barrens Oases was started by Pawe Mistrunner, not by Hamuul Runetotem (hidden).
+        UPDATE `creature_quest_starter` SET `entry` = 3447 WHERE `entry` = 5769 AND `quest` = 886;
+
+        INSERT INTO applied_updates VALUES ('141120263');
+    end if;
+
 end $
 delimiter ;
