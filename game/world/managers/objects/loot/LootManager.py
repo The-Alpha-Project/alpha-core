@@ -130,6 +130,9 @@ class LootManager:
         # The loot source is the condition source, like vmangos.
         if not ConditionChecker.validate(loot_item.condition_id, self.world_object, requester):
             return False
+        # A reference row holds the reference id, not an item, its items are checked when it's rolled.
+        if loot_item.mincountOrRef < 0:
+            return True
         return requester.player_or_group_require_quest_item(loot_item.item)
 
     def add_loot(self, loot_item, requester):
