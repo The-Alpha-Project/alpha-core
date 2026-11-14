@@ -67,10 +67,10 @@ class DamageInfoHolder:
         self.spell_miss_reason = spell_miss_reason
 
     def cap_unkillable_damage(self, target) -> bool:
-        if not target.is_unkillable_target():
+        if not target.invincibility_hp_level:
             return False
 
-        max_damage = max(0, target.health - 1)
+        max_damage = max(0, int(target.health - target.invincibility_hp_level))
         if self.total_damage <= max_damage:
             return False
 

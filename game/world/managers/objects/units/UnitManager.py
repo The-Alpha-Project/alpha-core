@@ -711,15 +711,7 @@ class UnitManager(ObjectManager):
             damage_info.target_state = VictimStates.VS_WOUND  # Normal hit.
             damage_info.total_damage = damage_info.base_damage
 
-        # Invincibility.
-        invincibility_hp_level = victim.invincibility_hp_level
-        if invincibility_hp_level and victim.health < invincibility_hp_level + damage_info.total_damage:
-            if victim.health <= invincibility_hp_level:
-                damage_info.total_damage = 0
-            else:
-                damage_info.total_damage = int(victim.health - invincibility_hp_level)
-
-        # Check if the target is unkillable and cap damage.
+        # Check if the target is invincible below some health and cap damage.
         damage_info.cap_unkillable_damage(victim)
 
         # Generate rage (if needed).
@@ -2171,10 +2163,6 @@ class UnitManager(ObjectManager):
     # Implemented by CreatureManager
     def has_melee(self):
         return not self.melee_disabled
-
-    # Implemented by CreatureManager
-    def is_unkillable_target(self) -> bool:
-        return False
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form

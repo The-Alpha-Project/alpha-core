@@ -24575,5 +24575,58 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('141120261');
     end if;
 
+    -- 14/11/2026 2
+    -- Scarlet Commander Mograine stopped at 1 hp forever (UNKILLABLE), so Whitemane's door never opened. Like VMaNGOS,
+    -- he fakes death at 1 hp, Whitemane comes and revives him (Lay on Hands, the VMaNGOS spells are not in 0.5.3),
+    -- then both can be killed. An evade resets both and closes the door again.
+    if (select count(*) from applied_updates where id='141120262') = 0 then
+        -- The door opened on death, now on the fake death (opening it again would close it).
+        UPDATE `creature_ai_events` SET `event_type` = 2, `event_inverse_phase_mask` = 6, `event_param1` = 1,
+            `action2_script` = 397065,
+            `comment` = 'Mograine - Open Door and Fake Death at 1% HP (Phase 0) (0.5.3)'
+            WHERE `id` = 397061;
+        INSERT INTO `creature_ai_events` (
+            `id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`,
+            `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`,
+            `comment`
+        ) VALUES
+        (397066, 3976, 0, 7, 0, 100, 0, 0, 0, 0, 0, 397066, 0, 0, 'Mograine - Reset on Evade (0.5.3)');
+
+        INSERT INTO `creature_ai_scripts` (
+            `id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`,
+            `target_param1`, `target_param2`, `target_type`, `data_flags`,
+            `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`,
+            `condition_id`, `comments`
+        ) VALUES
+        (397065, 0, 0, 44, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Phase to 1'),
+        (397065, 0, 1, 55, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Remove Spell List'),
+        (397065, 0, 2, 4, 46, 768, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Add Immune To Player and NPC Flags'),
+        (397065, 0, 3, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Disable Melee Attack'),
+        (397065, 0, 4, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Disable Combat Movement'),
+        (397065, 0, 5, 28, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Stand State to Dead'),
+        (397065, 0, 6, 3, 2, 10000, 0, 0, 3977, 60, 8, 18, 0, 0, 0, 0, 3, 0, 0, 0, 0, 'High Inquisitor Whitemane - Move to Mograine'),
+        (397065, 11, 0, 32, 119, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Terminate Script if not in Combat'),
+        (397065, 11, 1, 4, 46, 768, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Remove Immune To Player and NPC Flags'),
+        (397065, 11, 2, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Stand State to Stand'),
+        (397065, 11, 3, 15, 633, 2, 0, 0, 3977, 60, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'High Inquisitor Whitemane - Cast Lay on Hands on Mograine'),
+        (397065, 11, 4, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Disable Invincibility'),
+        (397065, 11, 5, 42, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Enable Melee Attack'),
+        (397065, 11, 6, 43, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Enable Combat Movement'),
+        (397065, 11, 7, 55, 397600, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Spell List'),
+        (397065, 11, 8, 44, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Phase to 2'),
+        (397065, 11, 9, 72, 0, 0, 0, 0, 3977, 60, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'High Inquisitor Whitemane - Assist Mograine'),
+        (397066, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Phase to 0'),
+        (397066, 0, 1, 4, 46, 768, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Remove Immune To Player and NPC Flags'),
+        (397066, 0, 2, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Stand State to Stand'),
+        (397066, 0, 3, 42, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Enable Melee Attack'),
+        (397066, 0, 4, 43, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Enable Combat Movement'),
+        (397066, 0, 5, 55, 397600, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Spell List'),
+        (397066, 0, 6, 52, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Set Invincibility at 1 HP'),
+        (397066, 0, 7, 33, 0, 0, 0, 0, 3977, 60, 8, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'High Inquisitor Whitemane - Evade'),
+        (397066, 0, 8, 12, 400006, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mograine - Close Door');
+
+        INSERT INTO applied_updates VALUES ('141120262');
+    end if;
+
 end $
 delimiter ;

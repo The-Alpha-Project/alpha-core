@@ -106,6 +106,8 @@ class CreatureManager(UnitManager):
         self.class_ = self.creature_template.unit_class
         self.npc_flags = self.creature_template.npc_flags
         self.static_flags = self.creature_template.static_flags
+        # Like VMaNGOS, unkillable creatures start invincible at 1 hp and scripts can lift it.
+        self.invincibility_hp_level = 1 if self.static_flags & CreatureStaticFlags.UNKILLABLE else 0
         self.spawned_in_water = None  # Unknown until the spawn tile is loaded, see can_swim().
         self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
@@ -444,9 +446,6 @@ class CreatureManager(UnitManager):
     def has_melee(self):
         return super().has_melee() and (self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE) == 0
 
-    def is_unkillable_target(self):
-        return (self.static_flags & CreatureStaticFlags.UNKILLABLE) != 0
-
     def is_pet(self):
         owner = self.get_charmer_or_summoner()
         if not owner:
@@ -611,11 +610,13 @@ class CreatureManager(UnitManager):
         was_in_combat = super().leave_combat()
 
         if not self.is_controlled() and not self.is_guardian():
-            if evade:
-                self.evade()
+            at_home = evade and self.evade()
             if self.object_ai and was_in_combat and self.is_alive:
                 self.object_ai.on_combat_stop()
                 self.object_ai.on_leave_combat()
+            # Evading at home still reaches home like VMaNGOS, after the evade events so the reset also unlocks them.
+            if at_home and was_in_combat:
+                self.on_at_home()
         else:
             if self.is_player_controlled_pet() or self.is_guardian():
                 self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
@@ -650,7 +651,7 @@ class CreatureManager(UnitManager):
             self.movement_manager.face_angle(return_position.o)
             self.is_evading = False
             self.tmp_home_position = None
-            return
+            return True
 
         # If Namigator fails, in water and heading to land, try to locate a near
         # land point in the direction of home position.
