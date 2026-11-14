@@ -228,10 +228,14 @@ class CreatureGroupManager:
         off_y = (math.sin(off_angle) * distance) + leader_location.y
         off_z = leader_location.z + (group_member.creature.location.z - leader_location.z) * 0.5
 
-        # Try to find precise Z.
-        z, z_source = leader_creature.get_map().calculate_z(off_x, off_y, off_z, is_rand_point=True)
-        if z_source != ZSource.CURRENT_Z:
-            off_z = z
+        # The ground at the formation point, which can be far above or below the guess on slopes (calculate_z only
+        # looks within 2 yd of it and kept the guess, followers floated and sank).
+        z = leader_creature.get_map().get_surface_z(off_x, off_y, off_z)
+        if z is None:
+            z, z_source = leader_creature.get_map().calculate_z(off_x, off_y, off_z, is_rand_point=True)
+            if z_source == ZSource.CURRENT_Z:
+                z = off_z
+        off_z = z
         return Vector(off_x, off_y, off_z)
 
     def _get_sorted_waypoints_by_distance(self, movement_waypoints) -> list[MovementWaypoint]:

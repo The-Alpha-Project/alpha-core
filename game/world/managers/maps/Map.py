@@ -235,6 +235,10 @@ class Map:
     def get_ground_points(self, start_vector, end_vector):
         return self.map_manager.get_ground_points(self.map_id, start_vector, end_vector)
 
+    # Terrain or WMO height closest to current_z, None without map data.
+    def get_surface_z(self, x, y, current_z):
+        return self.map_manager._get_surface_z(self.map_id, x, y, current_z)[0]
+
     def has_navigation_between(self, start_vector, end_vector):
         return self.map_manager.has_navigation_between(self.map_id, start_vector, end_vector)
 

@@ -24747,5 +24747,18 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('141120264');
     end if;
 
+    -- 14/11/2026 5
+    if (select count(*) from applied_updates where id='141120265') = 0 then
+        -- Kodo Matriarch (spawn 26210) path kept the VMaNGOS heights over a dip that is up to 4.7 yd lower in 0.5.3.
+        UPDATE `creature_movement` SET `position_z` = 2.495 WHERE `id` = 26210 AND `point` = 78;
+        UPDATE `creature_movement` SET `position_z` = -2.638 WHERE `id` = 26210 AND `point` = 79;
+        UPDATE `creature_movement` SET `position_z` = -2.905 WHERE `id` = 26210 AND `point` = 80;
+        UPDATE `creature_movement` SET `position_z` = -2.734 WHERE `id` = 26210 AND `point` = 81;
+        UPDATE `creature_movement` SET `position_z` = -4.937 WHERE `id` = 26210 AND `point` = 82;
+        UPDATE `creature_movement` SET `position_z` = -6.275 WHERE `id` = 26210 AND `point` = 83;
+
+        INSERT INTO applied_updates VALUES ('141120265');
+    end if;
+
 end $
 delimiter ;
