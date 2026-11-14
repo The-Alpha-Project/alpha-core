@@ -24647,5 +24647,105 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('141120263');
     end if;
 
+    -- 14/11/2026 4
+    if (select count(*) from applied_updates where id='141120264') = 0 then
+        -- Bloodroar the Stalker, Antilus the Soarer and Sludge Beast only fought faction 28 (32), hostile like VMaNGOS.
+        UPDATE `creature_template` SET `faction` = 16 WHERE `entry` IN (5346, 5347);
+        UPDATE `creature_template` SET `faction` = 14 WHERE `entry` = 3295;
+
+        -- Captain Thalo'thas Brightsun used a display the client doesn't have (invisible), male high elf instead (#1582).
+        UPDATE `creature_template` SET `display_id1` = 1643 WHERE `entry` = 3339;
+
+        -- Quest objects with a display the client doesn't have (invisible), closest existing models.
+        UPDATE `gameobject_template` SET `displayId` = 219 WHERE `entry` IN (2701, 138492);  -- Iridescent Shards, Shards of Myzrael
+        UPDATE `gameobject_template` SET `displayId` = 10 WHERE `entry` = 126260;  -- Ancient Chest (quest 709)
+
+        -- Race vendors were level 1 non-vendors, they sold the race tickets (#1435).
+        UPDATE `creature_template` SET `level_min` = 35, `level_max` = 35, `npc_flags` = 1 WHERE `entry` IN (4445, 4446);
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES
+            (4445, 5769, 0, 0, 0, 0),  -- Griznak: Goblin Race Ticket
+            (4446, 5768, 0, 0, 0, 0);  -- Mazzer Stripscrew: Gnome Race Ticket
+
+        -- Plains of Snow Battleguards were level 1 without a faction (#1457).
+        UPDATE `creature_template` SET `level_min` = 55, `level_max` = 55, `faction` = 11 WHERE `entry` = 2279;
+        UPDATE `creature_template` SET `level_min` = 55, `level_max` = 55, `faction` = 85 WHERE `entry` = 2280;
+
+        -- Hostile mobs without any loot (none in VMaNGOS either): loot of a sibling of the same family, zone and level,
+        -- without its quest drops or ignored items.
+        UPDATE `creature_template` SET `loot_id` = `entry` WHERE `entry` IN (2609, 2889, 2890, 2891, 3990, 4069, 4071, 601, 2689);
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 2609, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 2573 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Geomancer Flintdagger <- Drywhisker Surveyor
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 2889, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 2892 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Stonevault Trogg <- Stonevault Seer
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 2890, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 2892 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Stonevault Scout <- Stonevault Seer
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 2891, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 2893 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Stonevault Skullthumper <- Stonevault Bonesnapper
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 3990, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 3989 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Venture Co. Cutter <- Venture Co. Logger
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 4069, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 3992 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Venture Co. Planner <- Venture Co. Engineer
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 4071, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 3988 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Venture Co. Grinder <- Venture Co. Operator
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 601, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 636 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Capo the Mean <- Defias Blackguard
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`)
+            SELECT 2689, l.`item`, l.`ChanceOrQuestChance`, l.`groupid`, l.`mincountOrRef`, l.`maxcount`, l.`condition_id` FROM `creature_loot_template` l
+            LEFT JOIN `item_template` i ON i.`entry` = l.`item`
+            WHERE l.`entry` = 2754 AND l.`ChanceOrQuestChance` >= 0 AND (l.`mincountOrRef` < 0 OR i.`ignored` = 0);  -- Hill Giant <- Anathemus
+        UPDATE `creature_template` SET `gold_min` = 225, `gold_max` = 298 WHERE `entry` IN (2889, 2890);
+        UPDATE `creature_template` SET `gold_min` = 56, `gold_max` = 334 WHERE `entry` = 2891;
+        UPDATE `creature_template` SET `gold_min` = 8, `gold_max` = 59 WHERE `entry` = 3990;
+        UPDATE `creature_template` SET `gold_min` = 17, `gold_max` = 65 WHERE `entry` = 4069;
+        UPDATE `creature_template` SET `gold_min` = 14, `gold_max` = 59 WHERE `entry` = 4071;
+        UPDATE `creature_template` SET `gold_min` = 49, `gold_max` = 121 WHERE `entry` = 601;
+
+        -- Required counts didn't match the objective text.
+        UPDATE `quest_template` SET `ReqItemCount1` = 5, `ReqItemCount2` = 6 WHERE `entry` = 385;  -- Crocilisk Hunting
+        UPDATE `quest_template` SET `ReqItemCount1` = 12 WHERE `entry` = 1104;  -- Salt Flat Venom
+
+        -- Scarlet Sentry and Gordunni Battlemaster spawns were moved to fit the 0.5.3 terrain but their paths weren't,
+        -- move the paths with them (heights from the 0.5.3 terrain).
+        UPDATE `creature_movement` SET `position_x` = 2805.21, `position_y` = -682.461, `position_z` = 136.933 WHERE `id` = 45154 AND `point` = 1;
+        UPDATE `creature_movement` SET `position_x` = 2816.29, `position_y` = -707.815, `position_z` = 136.899 WHERE `id` = 45154 AND `point` = 2;
+        UPDATE `creature_movement` SET `position_x` = 2798.45, `position_y` = -664.665, `position_z` = 147.726 WHERE `id` = 45154 AND `point` = 3;
+        UPDATE `creature_movement` SET `position_x` = 2806.92, `position_y` = -686.035, `position_z` = 136.632 WHERE `id` = 45154 AND `point` = 4;
+        UPDATE `creature_movement` SET `position_x` = -5570.86, `position_y` = 1314.88, `position_z` = 29.958 WHERE `id` = 50275 AND `point` = 1;
+        UPDATE `creature_movement` SET `position_x` = -5576.1, `position_y` = 1315.0, `position_z` = 31.738 WHERE `id` = 50275 AND `point` = 2;
+        UPDATE `creature_movement` SET `position_x` = -5587.12, `position_y` = 1315.38, `position_z` = 33.237 WHERE `id` = 50275 AND `point` = 3;
+        UPDATE `creature_movement` SET `position_x` = -5589.08, `position_y` = 1315.45, `position_z` = 33.104 WHERE `id` = 50275 AND `point` = 4;
+        UPDATE `creature_movement` SET `position_x` = -5589.08, `position_y` = 1315.45, `position_z` = 33.104 WHERE `id` = 50275 AND `point` = 5;
+        UPDATE `creature_movement` SET `position_x` = -5613.56, `position_y` = 1316.48, `position_z` = 35.31 WHERE `id` = 50275 AND `point` = 6;
+        UPDATE `creature_movement` SET `position_x` = -5624.42, `position_y` = 1316.94, `position_z` = 35.478 WHERE `id` = 50275 AND `point` = 7;
+        UPDATE `creature_movement` SET `position_x` = -5624.42, `position_y` = 1316.94, `position_z` = 35.478 WHERE `id` = 50275 AND `point` = 8;
+        UPDATE `creature_movement` SET `position_x` = -5604.48, `position_y` = 1313.81, `position_z` = 34.762 WHERE `id` = 50275 AND `point` = 9;
+        UPDATE `creature_movement` SET `position_x` = -5588.22, `position_y` = 1314.4, `position_z` = 33.291 WHERE `id` = 50275 AND `point` = 10;
+        UPDATE `creature_movement` SET `position_x` = -5585.6, `position_y` = 1314.37, `position_z` = 33.386 WHERE `id` = 50275 AND `point` = 11;
+        UPDATE `creature_movement` SET `position_x` = -5585.6, `position_y` = 1314.37, `position_z` = 33.386 WHERE `id` = 50275 AND `point` = 12;
+        UPDATE `creature_movement` SET `position_x` = -5561.11, `position_y` = 1313.56, `position_z` = 27.88 WHERE `id` = 50275 AND `point` = 13;
+        UPDATE `creature_movement` SET `position_x` = -5549.71, `position_y` = 1313.01, `position_z` = 22.52 WHERE `id` = 50275 AND `point` = 14;
+        UPDATE `creature_movement` SET `position_x` = -5545.8, `position_y` = 1312.74, `position_z` = 20.825 WHERE `id` = 50275 AND `point` = 15;
+        UPDATE `creature_movement` SET `position_x` = -5554.83, `position_y` = 1314.24, `position_z` = 25.876 WHERE `id` = 50275 AND `point` = 16;
+        UPDATE `creature_movement` SET `position_x` = -5554.83, `position_y` = 1314.24, `position_z` = 25.876 WHERE `id` = 50275 AND `point` = 17;
+
+        INSERT INTO applied_updates VALUES ('141120264');
+    end if;
+
 end $
 delimiter ;
