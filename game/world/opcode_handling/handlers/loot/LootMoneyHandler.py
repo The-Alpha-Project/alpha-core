@@ -23,6 +23,8 @@ class LootMoneyHandler:
             elif high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PET:
                 world_object = player_mgr.get_map().get_surrounding_unit_by_guid(
                     player_mgr, player_mgr.loot_selection.object_guid)
+            elif high_guid == HighGuid.HIGHGUID_ITEM:
+                world_object = player_mgr.inventory.get_item_by_guid(player_mgr.loot_selection.object_guid)
             else:
                 Logger.error(f'Tried to loot money from an unknown object type: ({high_guid}).')
                 return
