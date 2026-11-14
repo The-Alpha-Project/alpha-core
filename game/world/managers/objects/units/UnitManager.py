@@ -548,21 +548,23 @@ class UnitManager(ObjectManager):
     def calculate_melee_damage(self, victim, attack_type):
         dual_wield_miss_penalty, dual_wield_miss_floor = self.stat_manager.get_dual_wield_miss_profile(attack_type)
 
+        attack_school = self.get_melee_damage_school()
         damage_info = DamageInfoHolder(attacker=self, target=victim,
                                        attack_type=attack_type,
-                                       damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
+                                       damage_school_mask=1 << attack_school)
 
         roll_info = AttackRollInfo()
         damage_info.attack_round_hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
                                                                                   dual_wield_miss_penalty=dual_wield_miss_penalty,
                                                                                   dual_wield_miss_floor=dual_wield_miss_floor,
-                                                                                  roll_info=roll_info)
+                                                                                  roll_info=roll_info,
+                                                                                  attack_school=attack_school)
         damage_info.advanced_logging = AttackRoundAdvancedLogging(roll_info=roll_info)
         if attack_type == AttackTypes.OFFHAND_ATTACK:
             damage_info.dual_wield_hit_roll = roll_info.miss_roll
             damage_info.dual_wield_hit_roll_needed = roll_info.miss_roll_needed
 
-        min_damage, max_damage = self.calculate_min_max_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
+        min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, victim)
         if min_damage > max_damage:
             min_damage, max_damage = max_damage, min_damage
 
@@ -572,7 +574,6 @@ class UnitManager(ObjectManager):
         equipped_weapon = self.get_current_weapon_for_attack_type(attack_type)
         subclass = equipped_weapon.item_template.subclass if equipped_weapon else -1
         weapon_type = 1 << subclass if subclass != -1 else 0
-        attack_school = SpellSchools.SPELL_SCHOOL_NORMAL
         spell_school_mask = 1 << attack_school
         target_creature_type = victim.creature_type
 
@@ -948,6 +949,10 @@ class UnitManager(ObjectManager):
     # Implemented by PlayerManager
     def handle_spell_cast_skill_gain(self, casting_spell):
         return False
+
+    # School of the unit's melee attacks.
+    def get_melee_damage_school(self):
+        return SpellSchools.SPELL_SCHOOL_NORMAL
 
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))

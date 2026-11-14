@@ -854,14 +854,15 @@ class StatManager:
     def get_attack_result_against_self(self, attacker, attack_type,
                                        dual_wield_miss_penalty=0.0, dual_wield_miss_floor=0.0,
                                        invalid_result_mask: HitInfo = 0,
-                                       combat_rating=-1, roll_info: AttackRollInfo = None) -> HitInfo:
+                                       combat_rating=-1, roll_info: AttackRollInfo = None,
+                                       attack_school=SpellSchools.SPELL_SCHOOL_NORMAL) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading/Sanctuary.
         if self.unit_mgr.is_evading or self.unit_mgr.unit_state & UnitStates.SANCTUARY:
             return HitInfo.MISS
 
         # Immunity.
-        if self.unit_mgr.has_damage_immunity(SpellSchools.SPELL_SCHOOL_NORMAL):
+        if self.unit_mgr.has_damage_immunity(attack_school):
             return HitInfo.ABSORBED
 
         if combat_rating == -1:

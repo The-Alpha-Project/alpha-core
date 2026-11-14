@@ -28,7 +28,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetCommandState
 from utils.constants.ScriptCodes import TemporaryFactionFlags
-from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity, AuraTypes, SpellEffects
+from utils.constants.SpellCodes import SpellTargetMask, SpellImmunity, AuraTypes, SpellEffects, SpellSchools
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -503,6 +503,12 @@ class CreatureManager(UnitManager):
     # override
     def is_tameable(self):
         return (self.static_flags & CreatureStaticFlags.TAMEABLE) != 0
+
+    # override
+    def get_melee_damage_school(self):
+        # Like VMaNGOS, elementals and some others melee in a magic school (0.5.3 has no arcane, physical then).
+        school = self.creature_template.damage_school
+        return school if school < SpellSchools.SPELL_SCHOOL_END else SpellSchools.SPELL_SCHOOL_NORMAL
 
     # override
     def is_sessile(self):
