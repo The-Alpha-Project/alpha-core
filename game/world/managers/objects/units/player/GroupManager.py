@@ -397,7 +397,8 @@ class GroupManager:
 
         # Calculate XP for each player, then sum it together.
         for player_mgr in close_members:
-            base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, player_mgr.level, is_elite)
+            base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, player_mgr.level, is_elite,
+                                                           creature.creature_template.xp_multiplier)
             if base_xp:
                 xp_awards.append(player_mgr)
                 total_xp += base_xp

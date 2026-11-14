@@ -1018,7 +1018,8 @@ class CreatureManager(UnitManager):
         if player.group_manager:
             player.group_manager.reward_group_xp(player, self, is_elite)
         else:
-            player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
+            player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite,
+                                                                 self.creature_template.xp_multiplier)], self)
 
     # override
     def set_melee_damage(self, min_dmg, max_dmg):

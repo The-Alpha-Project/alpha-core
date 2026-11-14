@@ -122,7 +122,7 @@ class CreatureFormulas:
         return int(damage_average - damage_variance), round(damage_average + damage_variance)
 
     @staticmethod
-    def xp_reward(creature_level, player_level, is_elite=False):
+    def xp_reward(creature_level, player_level, is_elite=False, xp_multiplier=1.0):
         if player_level >= 60:
             return 0
 
@@ -140,7 +140,8 @@ class CreatureFormulas:
             base_xp = int(base_xp * (1 - (player_level - creature_level) /
                                      PlayerFormulas.zero_difference_value(player_level)))
 
-        return base_xp * multiplier
+        # The creature template's multiplier applies on top, like VMaNGOS.
+        return round(base_xp * multiplier * xp_multiplier)
 
 
 class UnitFormulas:
