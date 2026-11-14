@@ -610,12 +610,12 @@ class CreatureManager(UnitManager):
         was_in_combat = super().leave_combat()
 
         if not self.is_controlled() and not self.is_guardian():
-            at_home = evade and self.evade()
+            at_home = evade and self.evade(defer_at_home=was_in_combat)
             if self.object_ai and was_in_combat and self.is_alive:
                 self.object_ai.on_combat_stop()
                 self.object_ai.on_leave_combat()
-            # Evading at home still reaches home like VMaNGOS, after the evade events so the reset also unlocks them.
-            if at_home and was_in_combat:
+            # Reaching home resets the AI events, after the evade events like VMaNGOS so the reset also unlocks them.
+            if at_home and self.is_alive:
                 self.on_at_home()
         else:
             if self.is_player_controlled_pet() or self.is_guardian():
@@ -628,7 +628,8 @@ class CreatureManager(UnitManager):
         if self.creature_group and self.is_evading and self.is_alive and was_in_combat:
             self.creature_group.on_leave_combat(self)
 
-    def evade(self):
+    # With defer_at_home, returns True instead of calling on_at_home() if it ended at home right away.
+    def evade(self, defer_at_home=False):
         # Already evading or dead, ignore.
         if self.is_evading or not self.is_alive:
             return
@@ -651,7 +652,7 @@ class CreatureManager(UnitManager):
             self.movement_manager.face_angle(return_position.o)
             self.is_evading = False
             self.tmp_home_position = None
-            return True
+            return defer_at_home
 
         # If Namigator fails, in water and heading to land, try to locate a near
         # land point in the direction of home position.
@@ -673,9 +674,11 @@ class CreatureManager(UnitManager):
                 Logger.warning(f'Unit: {self.get_name()}, Namigator was unable to provide a valid return home path:')
                 Logger.warning(f'Start: {self.location}')
                 Logger.warning(f'End: {return_position}')
-            self.near_teleport(return_position)
+            self.near_teleport(return_position, reach_home=not defer_at_home)
+            at_home = self.is_at_home()
             self.is_evading = False
             self.tmp_home_position = None
+            return defer_at_home and at_home
         else:
             self.movement_manager.move_home(waypoints)
 
@@ -1032,7 +1035,7 @@ class CreatureManager(UnitManager):
     def set_lootable(self, flag=True):
         self.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE, active=flag)
 
-    def near_teleport(self, location):
+    def near_teleport(self, location, reach_home=True):
         map_ = self.get_map()
         if not map_.validate_teleport_destination(location.x, location.y):
             return False
@@ -1044,7 +1047,7 @@ class CreatureManager(UnitManager):
         self.set_has_moved(has_moved=True, has_turned=True)
         self.get_map().send_surrounding(self.get_heartbeat_packet(), self, False)
 
-        if self.is_at_home():
+        if reach_home and self.is_at_home():
             self.on_at_home()
 
         self.get_map().update_object(self, update_flags=UpdateFlags.CHANGES)
