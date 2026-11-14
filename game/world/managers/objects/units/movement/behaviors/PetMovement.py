@@ -3,7 +3,6 @@ import math
 from game.world.managers.maps.helpers import CellUtils
 from game.world.managers.objects.units.movement.helpers.PetRangeMove import PetRangeMove
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
-from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType, MoveFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.PetCodes import PetMoveState
@@ -112,9 +111,10 @@ class PetMovement(BaseMovement):
             return
 
         if charmer_or_summoner.is_player():
-            speed = self.unit.running_speed
+            # Like VMaNGOS, a pet following its owner keeps up with it.
+            speed = max(self.unit.running_speed, charmer_or_summoner.running_speed)
         else:
-            speed = config.Unit.Defaults.walk_speed if (self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK
+            speed = self.unit.walk_speed if (self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK
                                                         and not self._is_lagging) else self.unit.running_speed
 
         spline = SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed)

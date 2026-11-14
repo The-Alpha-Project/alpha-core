@@ -1,5 +1,4 @@
 from game.world.managers.maps.helpers import CellUtils
-from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
@@ -116,7 +115,7 @@ class GroupMovement(BaseMovement):
         # If the leader is running, use running for group members.
         if force_running:
             return self.unit.running_speed
-        return config.Unit.Defaults.walk_speed if \
+        return self.unit.walk_speed if \
             self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK else self.unit.running_speed
 
     def _get_follow_position_and_speed(self, creature_mgr, elapsed, now):

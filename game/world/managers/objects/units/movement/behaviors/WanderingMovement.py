@@ -72,7 +72,7 @@ class WanderingMovement(BaseMovement):
         if not success:
             return False
 
-        speed = config.Unit.Defaults.walk_speed
+        speed = self.unit.walk_speed
         spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
         self.spline_callback(spline, movement_behavior=self)
 

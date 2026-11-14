@@ -3,7 +3,6 @@ import time
 
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
-from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType
 from utils.constants.UnitCodes import UnitStates, UnitFlags
 
@@ -54,7 +53,7 @@ class ConfusedMovement(BaseMovement):
         if not success:
             return False
 
-        speed = config.Unit.Defaults.walk_speed
+        speed = self.unit.walk_speed
         spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
         position.face_angle(self.unit.location.o)
         self.spline_callback(spline, movement_behavior=self)

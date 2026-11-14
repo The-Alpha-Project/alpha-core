@@ -1,4 +1,3 @@
-from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -153,7 +152,7 @@ class WaypointMovement(BaseMovement):
     #  VMaNGOS - SetWalk() / UnitStates.
     #  Probably all speeds should go through StatsManager.
     def _get_speed(self):
-        return self.speed if self.speed else config.Unit.Defaults.walk_speed if \
+        return self.speed if self.speed else self.unit.walk_speed if \
             self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK else self.unit.running_speed
 
     # noinspection PyMethodMayBeStatic

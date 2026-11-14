@@ -229,6 +229,10 @@ class StatManager:
         self.base_stats[UnitStats.RESISTANCE_FROST] = creature_template.frost_res
         self.base_stats[UnitStats.RESISTANCE_SHADOW] = creature_template.shadow_res
 
+        # Like VMaNGOS, the template speed rates scale the base run and walk speeds.
+        self.base_stats[UnitStats.SPEED_RUNNING] = config.Unit.Defaults.run_speed * creature_template.speed_run
+        creature.walk_speed = config.Unit.Defaults.walk_speed * creature_template.speed_walk
+
         # Get specific base stats for this creature: a distinction must be made for pets.
         base_stats, base_dmg, base_ranged_dmg = self._get_creature_base_stats()
         for base_stat, value in base_stats.items():

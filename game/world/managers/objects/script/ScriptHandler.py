@@ -34,7 +34,6 @@ from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.EnumUtils import EnumUtils
 from utils.Logger import Logger
 from collections import namedtuple
-from utils.ConfigManager import config
 from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
 
 MAX_3368_SPELL_ID = 7913
@@ -304,7 +303,7 @@ class ScriptHandler:
 
         if location:
             distance = command.source.location.distance(location)
-            speed = round((distance / (time_ * 0.001) if time_ > 0 else config.Unit.Defaults.walk_speed), 4)
+            speed = round((distance / (time_ * 0.001) if time_ > 0 else command.source.walk_speed), 4)
             command.source.movement_manager.move_to_point(location, speed, command.datalong3)
         else:
             return command.should_abort()

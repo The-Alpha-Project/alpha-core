@@ -2,7 +2,6 @@ import math
 from game.world.managers.maps.helpers import CellUtils
 from game.world.managers.objects.units.movement.behaviors.PetMovement import PET_FOLLOW_ANGLE
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
-from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType, MoveFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
@@ -76,7 +75,7 @@ class FollowMovement(BaseMovement):
         if follow_target.is_player():
             speed = self.unit.running_speed
         else:
-            speed = config.Unit.Defaults.walk_speed if (self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK
+            speed = self.unit.walk_speed if (self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK
                                                         and not self._is_lagging) else self.unit.running_speed
 
         spline = SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed)

@@ -2,7 +2,6 @@ import math
 from typing import Optional
 
 from game.world.managers.objects.units.movement.behaviors.FollowMovement import FollowMovement
-from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import MoveType, MoveFlags
@@ -191,13 +190,14 @@ class MovementManager:
     def move_automatic_waypoints_from_script(self, command_move_info=None):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, command_move_info=command_move_info))
 
-    def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed, move_options=0):
+    def move_to_point(self, location, speed=0.0, move_options=0):
+        speed = speed or self.unit.walk_speed
         # TODO: Handle more move options.
         if move_options:
             if move_options & MoveOptions.MOVE_RUN_MODE:
-                speed = config.Unit.Defaults.run_speed
+                speed = self.unit.running_speed
             if move_options & MoveOptions.MOVE_WALK_MODE:
-                speed = config.Unit.Defaults.walk_speed
+                speed = self.unit.walk_speed
 
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed,
                                            is_single=True))
