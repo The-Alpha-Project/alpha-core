@@ -24760,5 +24760,24 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('141120265');
     end if;
 
+    -- 14/11/2026 6
+    if (select count(*) from applied_updates where id='141120266') = 0 then
+        -- Herod's 0.5.3 spell list from the Monastery rework was never linked (the Mograine, Whitemane and Thalnos ones are).
+        UPDATE `creature_template` SET `spell_list_id` = 43030 WHERE `entry` = 3975;
+
+        -- Mor'Ladim and Buzzbox 827 were offered to the Horde, their givers are only neutral to them (Althea's other
+        -- quests already have the Alliance races).
+        UPDATE `quest_template` SET `RequiredRaces` = 77 WHERE `entry` IN (228, 983);
+
+        -- Private Hendel was hostile to everybody (invalid 1070 mapped to 14), so The Missing Diplomat couldn't be
+        -- turned in to him. Theramore like the other Theramore NPCs.
+        UPDATE `creature_template` SET `faction` = 150 WHERE `entry` = 4966;
+
+        -- Stonetalon Standstill needed an area trigger (2926) the 0.5.3 client doesn't have, only the kills are left.
+        UPDATE `quest_template` SET `QuestFlags` = 8, `SpecialFlags` = 0 WHERE `entry` = 25;
+
+        INSERT INTO applied_updates VALUES ('141120266');
+    end if;
+
 end $
 delimiter ;
