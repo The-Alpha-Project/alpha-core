@@ -24899,5 +24899,14 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('141120267');
     end if;
 
+    -- 15/11/2026 1
+    if (select count(*) from applied_updates where id='151120261') = 0 then
+        -- Captain Thalo'thas Brightsun got 1643, a female high elf. 0.5.3 has no male high elf display, use the
+        -- male night elf the Highvale and Dark Strand elves pair with 1643 (#1582).
+        UPDATE `creature_template` SET `display_id1` = 1642 WHERE `entry` = 3339;
+
+        INSERT INTO applied_updates VALUES ('151120261');
+    end if;
+
 end $
 delimiter ;
