@@ -1,4 +1,5 @@
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from math import isfinite
 from struct import unpack
 
 from game.world.managers.abstractions.Vector import Vector
@@ -45,6 +46,11 @@ class CastSpellHandler:
             # Destination vector is last in SpellPutCastTargets order.
             dest_location = Vector.from_bytes(target_bytes[offset:offset + 12])
             offset += 12
+
+        # NaN passes the range checks and fails later in the cell lookup.
+        for location in (source_location, dest_location):
+            if location and not isfinite(location.x + location.y + location.z):
+                return None
 
         if target_mask & SpellTargetMask.CAN_TARGET_TERRAIN:
             # Prefer destination for terrain casts, fallback to source if only one is sent.
