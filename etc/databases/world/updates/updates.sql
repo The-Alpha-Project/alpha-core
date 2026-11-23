@@ -25591,7 +25591,7 @@ begin not atomic
 
     -- 23/11/2026 8
     if (select count(*) from applied_updates where id='231120268') = 0 then
-        -- An alpha screenshot names Felslayer (3774) "Fel Slayer".
+        -- An beta screenshot names Felslayer (3774) "Fel Slayer".
         UPDATE `creature_template` SET `name` = 'Fel Slayer' WHERE `entry` = 3774;
         -- Wandering Dune Smasher and Raging Dune Smasher (Guess).
         UPDATE `creature_template` SET `display_id1` = 1918 WHERE `entry` IN (5468, 5470);
