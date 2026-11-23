@@ -25559,5 +25559,26 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('231120265');
     end if;
 
+    -- 23/11/2026 6
+    if (select count(*) from applied_updates where id='231120266') = 0 then
+        -- Elemental Bracers: the 0.5.3 quest has the Divining Scroll use broken bracers, not 5 intact ones (1.12 text).
+        -- Text from Allakhazam (April 2004).
+        UPDATE `quest_template` SET `Objectives` = 'Bring the Divined Scroll to Sentinel Velene Starstrike at the Silverwind Refuge.',
+            `Details` = 'Have you seen the Befouled Water Elementals in our lake? It is a sorry sight, but I do not know where they are coming from.$B$BYour name has been mentioned to me before, perhaps you could help me with this problem. Take this Divining Scroll, it can determine the creator of these Elementals, but you will need some bracers from them. Unfortunately, since you must destroy the bracers to kill the Elementals, it may take several bracers broken in different ways for the Divining Scroll to work properly.'
+            WHERE `entry` = 1016;
+        -- The Den (1089) and Test of Lore (1160) could be accepted but not completed, their quest items come only from
+        -- these hidden objects (0.5.3 displays).
+        UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_id` IN (47599, 11901);
+
+        -- Legends of the Earth (636, alpha data) had no starter or finisher: the book starts it, the Shards of Myzrael end it.
+        INSERT INTO `gameobject_quest_starter` (`entry`, `quest`) VALUES (2657, 636);
+        INSERT INTO `gameobject_quest_finisher` (`entry`, `quest`) VALUES (138492, 636);
+
+        -- The Lost Tablets of Will (1139, alpha data) could be accepted but not completed: show the Tablet of Will.
+        UPDATE `spawns_gameobjects` SET `ignored` = 0 WHERE `spawn_entry` = 142088;
+
+        INSERT INTO applied_updates VALUES ('231120266');
+    end if;
+
 end $
 delimiter ;
