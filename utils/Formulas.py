@@ -212,7 +212,7 @@ class PlayerFormulas:
             diff_level_rate = 0.2
 
         if reputation_source == ReputationSourceGain.REPUTATION_SOURCE_QUEST:
-            percent += diff_level_rate
+            percent *= diff_level_rate
 
         if rate != 1.0 and creature_or_quest_level <= PlayerFormulas.get_gray_level(player.level):
             percent *= rate
