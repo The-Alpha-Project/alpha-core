@@ -2,6 +2,7 @@ import time
 from struct import pack
 
 from game.world import WorldManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.units.movement.helpers.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
@@ -229,19 +230,22 @@ class Spline:
         total_time_remaining = max(int(self.total_time - self.elapsed), 0)
         payload_bytes = self.waypoints_bytes
         num_points = len(self.points)
+        points = self.points
         if flat:
             z = self.unit.location.z
-            payload_bytes = b''.join(pack('<3f', point.x, point.y, z) for point in self.points)
-        elif (self.use_packed_deltas
-                and not self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
-                and num_points > 1):
-            packed_bytes = self._get_packed_delta_bytes()
+            points = [Vector(point.x, point.y, z) for point in self.points]
+            payload_bytes = b''.join(pack('<3f', point.x, point.y, point.z) for point in points)
+        # Without SPLINEFLAG_FLYING the client (CGUnit_C::OnMonsterMove) reads the end point and then one packed delta
+        # per other point, full points were read as deltas: a garbage path ending at the first point, then a
+        # 'sync teleport' to the next leg's start.
+        if not self.spline_flags & SplineFlags.SPLINEFLAG_FLYING and num_points > 1:
+            packed_bytes = self._get_packed_delta_bytes(points)
             if packed_bytes is not None:
                 payload_bytes = packed_bytes
             else:
                 # Fallback to a single endpoint to avoid invalid packed data.
                 num_points = 1
-                payload_bytes = self.points[-1].to_bytes(include_orientation=False)
+                payload_bytes = points[-1].to_bytes(include_orientation=False)
         return pack(
             f'<3I{len(payload_bytes)}s',
             self.spline_flags,
@@ -280,15 +284,16 @@ class Spline:
             return False
         if not self.points or len(self.points) <= 1:
             return False
-        return self._get_packed_delta_bytes() is not None
+        return self._get_packed_delta_bytes(self.points) is not None
 
-    def _get_packed_delta_bytes(self):
+    @staticmethod
+    def _get_packed_delta_bytes(points):
         # Client expects: endpoint (x,y,z) then packed deltas to each previous point.
         # Each delta is relative to the endpoint and scaled by 1/8 (0.125).
         # Format: x:12-bit, y:12-bit, z:8-bit signed values.
-        end_point = self.points[-1]
+        end_point = points[-1]
         payload = pack('<3f', end_point.x, end_point.y, end_point.z)
-        for point in self.points[:-1]:
+        for point in points[:-1]:
             dx = int(round((end_point.x - point.x) * 8.0))
             dy = int(round((end_point.y - point.y) * 8.0))
             dz = int(round((end_point.z - point.z) * 8.0))
