@@ -34,7 +34,7 @@ class ActivateTaxiHandler:
         elif not Distances.is_within_shop_distance(player_mgr, flight_master):
             result = ActivateTaxiReplies.ERR_TAXITOOFARAWAY
         # "You are busy and can't use the taxi service now."
-        elif player_mgr.in_combat:
+        elif player_mgr.in_combat or not player_mgr.is_alive:
             result = ActivateTaxiReplies.ERR_TAXIPLAYERBUSY
         # "You are in shapeshift form."
         elif ActivateTaxiHandler._is_blocked_by_shapeshift(player_mgr):
