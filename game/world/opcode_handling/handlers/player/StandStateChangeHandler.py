@@ -18,6 +18,9 @@ class StandStateChangeHandler:
         if not HandlerValidator.validate_packet_length(reader, min_length=4):
             return 0
         state: int = unpack('<I', reader.data[:4])[0]
+        # The client never sends chair states or unknown values (CGUnit_C::ChangeStandState asserts on them).
+        if state > StandState.UNIT_KNEEL or StandState.UNIT_SITTINGCHAIRLOW <= state <= StandState.UNIT_SITTINGCHAIRHIGH:
+            return 0
         player_mgr.set_stand_state(StandState(state))
 
         return 0
