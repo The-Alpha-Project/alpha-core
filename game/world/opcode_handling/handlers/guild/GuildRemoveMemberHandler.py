@@ -42,6 +42,6 @@ class GuildRemoveMemberHandler:
             GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_QUIT_S, '',
                                                    GuildCommandResults.GUILD_LEADER_LEAVE)
         else:
-            player_mgr.guild_manager.remove_member(target_player_mgr.guid)
+            player_mgr.guild_manager.remove_member(target_player_mgr.guid, player_mgr.guid)
 
         return 0

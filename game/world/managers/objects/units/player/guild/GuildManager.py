@@ -164,9 +164,10 @@ class GuildManager:
         player_mgr.synchronize_db_player()
         RealmDatabaseManager.character_update(player_mgr.player)
 
-    def remove_member(self, player_guid):
+    def remove_member(self, player_guid, remover_guid):
         member = self.members[player_guid]
-        guild_master = self.guild_master
+        # Officers can kick too.
+        remover = self.members.get(remover_guid, self.guild_master)
 
         data = pack('<2B', GuildEvents.GUILD_EVENT_REMOVED, 2)
         target_name_bytes = PacketWriter.string_to_bytes(member.character.name)
@@ -175,7 +176,7 @@ class GuildManager:
             target_name_bytes
         )
 
-        remover_name_bytes = PacketWriter.string_to_bytes(guild_master.character.name)
+        remover_name_bytes = PacketWriter.string_to_bytes(remover.character.name)
         data += pack(
             f'<{len(remover_name_bytes)}s',
             remover_name_bytes
