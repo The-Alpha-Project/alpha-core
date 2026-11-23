@@ -25536,5 +25536,28 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('231120264');
     end if;
 
+    -- 23/11/2026 5
+    if (select count(*) from applied_updates where id='231120265') = 0 then
+        -- Creature AI casts of spells that don't exist in 0.5.3 (VMaNGOS data), they failed and logged an error every
+        -- time. Use the 0.5.3 spell where one exists: Healing Wave keeps its ids in 0.5.3 (331..959), the creature
+        -- enrage is Berserk 3019, 0.5.3 has no Flash Heal (priest Heal) and no Thorns Aura (Thorns), and the base data
+        -- already uses Knocked Down for Uppercut (Gordunni Brute) and Serpent Totem for Lava Spout Totem (Stonevault Oracle).
+        UPDATE `creature_ai_scripts` SET `datalong` = 939 WHERE `command` = 15 AND `datalong` = 12492;  -- Healing Wave rank 5
+        UPDATE `creature_ai_scripts` SET `datalong` = 913 WHERE `command` = 15 AND `datalong` = 11986;  -- Healing Wave rank 4
+        UPDATE `creature_ai_scripts` SET `datalong` = 2054 WHERE `command` = 15 AND `datalong` = 17843;  -- Heal rank 1
+        UPDATE `creature_ai_scripts` SET `datalong` = 1075 WHERE `command` = 15 AND `datalong` = 8148;  -- Thorns rank 3
+        UPDATE `creature_ai_scripts` SET `datalong` = 3019 WHERE `command` = 15 AND `datalong` = 8599;  -- Berserk
+        UPDATE `creature_ai_scripts` SET `datalong` = 6580 WHERE `command` = 15 AND `datalong` = 10966;  -- Knocked Down
+        UPDATE `creature_ai_scripts` SET `datalong` = 6364 WHERE `command` = 15 AND `datalong` = 8264;  -- Serpent Totem
+        -- No 0.5.3 counterpart: drop the cast, and the event when it did nothing else.
+        DELETE FROM `creature_ai_scripts` WHERE `command` = 15 AND `datalong` IN
+            (8817, 8398, 8809, 18969, 8832, 9576, 18172, 18377, 18362, 12479, 13540);
+        DELETE FROM `creature_ai_events` WHERE `id` IN (81802, 106004, 275101, 571501);
+        -- Zanzil picked Ward of Zanzil or Lava Spout Totem, only the totem is left.
+        UPDATE `creature_ai_events` SET `action1_script` = 253402, `action2_script` = 0 WHERE `id` = 253401;
+
+        INSERT INTO applied_updates VALUES ('231120265');
+    end if;
+
 end $
 delimiter ;
