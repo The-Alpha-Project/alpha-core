@@ -69,6 +69,11 @@ class ChatManager:
         if channel.is_addon():
             ChatAddonManager.process_addon_request(channel, sender, message)
         else:
+            # Only the owner and moderators can talk in a moderated channel.
+            if channel.is_moderated() and not channel.is_moderator(sender) and not channel.is_owner(sender):
+                packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.SELF_MUTED)
+                ChannelManager.send_to_player(sender, packet)
+                return False
             packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, ChatMsgs.CHAT_MSG_CHANNEL,
                                                      lang, channel=channel_name)
             channel.broadcast_to_channel(sender, packet)
