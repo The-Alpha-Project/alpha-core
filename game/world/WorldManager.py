@@ -26,6 +26,11 @@ from utils.constants.SaveCodes import SaveReason
 STARTUP_TIME = time()
 WORLD_ON = True
 MAX_PACKET_BYTES = 4096
+# The only opcodes the client sends from the character screen (CGlueMgr), plus the connection's ping.
+PRE_LOGIN_OPCODES = {OpCode.CMSG_CHAR_ENUM, OpCode.CMSG_CHAR_CREATE, OpCode.CMSG_CHAR_DELETE, OpCode.CMSG_PLAYER_LOGIN,
+                     OpCode.CMSG_PING}
+# A handler error no longer ends the session, a broken client or state still does after this many.
+MAX_HANDLER_ERRORS = 20
 MAX_SEND_BATCH_BYTES = 65536
 MAX_PENDING_OUTGOING_PACKETS = 32768
 MAX_PENDING_INCOMING_PACKETS = 4096
@@ -168,6 +173,7 @@ class WorldServerSessionHandler:
 
     # noinspection PyBroadException
     def process_incoming(self):
+        handler_errors = 0
         try:
             while self.keep_alive:
                 packet = self.incoming_pending.get(block=True, timeout=None)
@@ -180,8 +186,21 @@ class WorldServerSessionHandler:
                     continue
                 handler, found = Definitions.get_handler_from_packet(self, packet.opcode)
                 if handler:
-                    res = handler(self, packet)
-                    if res == 0:
+                    # World packets need a player in the world, they can arrive before the login or after a logout.
+                    player_mgr = self.player_mgr
+                    if packet.opcode not in PRE_LOGIN_OPCODES and (not player_mgr or player_mgr.logout_in_progress):
+                        Logger.debug(f'[WorldServer] {self.client_address[0]} Ignoring {packet.opcode_str()}, no player.')
+                        continue
+                    try:
+                        res = handler(self, packet)
+                    except Exception:
+                        handler_errors += 1
+                        Logger.error(f'[WorldServer] {self.client_address[0]} Error while handling '
+                                     f'{packet.opcode_str()}:\n{traceback.format_exc()}')
+                        if handler_errors >= MAX_HANDLER_ERRORS:
+                            break
+                        continue
+                    if res is None or res == 0:
                         Logger.debug(f'[WorldServer] {self.client_address[0]} Handling {packet.opcode_str()}')
                     elif res == 1:
                         Logger.debug(f'[WorldServer] {self.client_address[0]} Ignoring {packet.opcode_str()}')
