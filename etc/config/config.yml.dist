@@ -1,5 +1,5 @@
 Version:
-    current: 28
+    current: 29
 
 Database:
     Auth:
@@ -59,6 +59,7 @@ Server:
         load_creatures: True
         load_pools: True  # If False, creatures and gameobject spawns will ignore pooling.
         supported_client: 3368
+        max_connections_per_ip: 0  # Sessions per IP on each server (login, world, update), 0 means no cap.
         realm_saving_interval_seconds: 60
         view_distance: 100  # Define the maximum distance to determine if an object should be considered visible.
         console_mode: True  # Set it to False if you intend to run the server on background.

@@ -3,10 +3,15 @@ import threading
 import time
 import traceback
 
+from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
 class SocketBuilder:
+    # Sessions per IP and server (Settings.max_connections_per_ip, 0 = no cap), slow or idle connections hold a thread
+    # each.
+    _connections_lock = threading.Lock()
+    _connections = {}  # (server name, ip) -> open sessions
 
     @staticmethod
     def build_socket(address, port, timeout):
@@ -36,11 +41,22 @@ class SocketBuilder:
     # which would end the process, and the main process then stops the whole server.
     @staticmethod
     def start_session(handler_class, client_socket, client_address, server_name):
+        key = (server_name, client_address[0])
+        max_connections = config.Server.Settings.max_connections_per_ip
+        with SocketBuilder._connections_lock:
+            if max_connections and SocketBuilder._connections.get(key, 0) >= max_connections:
+                Logger.warning(f'[{server_name}] Refusing {client_address[0]}, too many connections.')
+                client_socket.close()
+                return
+            SocketBuilder._connections[key] = SocketBuilder._connections.get(key, 0) + 1
+
+        started = False
         try:
             server_handler = handler_class(client_socket, client_address)
-            session_thread = threading.Thread(target=server_handler.handle)
+            session_thread = threading.Thread(target=SocketBuilder._run_session, args=(server_handler, key))
             session_thread.daemon = True
             session_thread.start()
+            started = True
         except OSError:
             client_socket.close()  # The client reset the connection.
         except RuntimeError as ex:
@@ -49,3 +65,22 @@ class SocketBuilder:
         except Exception:
             Logger.error(traceback.format_exc())
             client_socket.close()
+        finally:
+            if not started:
+                SocketBuilder._release(key)
+
+    @staticmethod
+    def _run_session(server_handler, key):
+        try:
+            server_handler.handle()
+        finally:
+            SocketBuilder._release(key)
+
+    @staticmethod
+    def _release(key):
+        with SocketBuilder._connections_lock:
+            left = SocketBuilder._connections.get(key, 1) - 1
+            if left > 0:
+                SocketBuilder._connections[key] = left
+            else:
+                SocketBuilder._connections.pop(key, None)
