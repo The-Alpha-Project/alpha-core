@@ -302,7 +302,7 @@ class ChaseMovement(BaseMovement):
 
         # Fallback to orientation if moving but no spline waypoint.
         orientation = self.combat_target.location.o
-        return math.sin(orientation), math.cos(orientation)
+        return math.cos(orientation), math.sin(orientation)
 
     # Decide if we should rebuild the chase path to avoid overshooting stale endpoints.
     def _should_regenerate_path(self):
