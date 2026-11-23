@@ -324,9 +324,10 @@ class ActiveQuest:
             if item_template.max_count and current_items < item_template.max_count:
                 return True
 
-            # Allows custom amount drop when not 0.
-            if required_items and current_items < required_items:
-                return True
+            # Allows custom amount drop when not 0, a full stack otherwise (like VMaNGOS).
+            if required_items:
+                if current_items < required_items:
+                    return True
             elif current_items < item_template.stackable:
                 return True
 
