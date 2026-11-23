@@ -2,7 +2,7 @@ from struct import unpack
 
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
-from utils.constants.ItemCodes import InventorySlots
+from utils.constants.ItemCodes import InventorySlots, InventoryError
 
 
 class SetTradeItemHandler:
@@ -36,6 +36,11 @@ class SetTradeItemHandler:
 
         item = player_mgr.inventory.get_item(bag, slot)
         if not item:
+            return 0
+
+        # The receiver gets a new bag from the template, the items inside would be lost.
+        if item.is_container() and not item.is_empty():
+            player_mgr.inventory.send_equip_error(InventoryError.BAG_NOT_EMPTY, item)
             return 0
 
         # Guard against placing the same item in multiple trade slots.

@@ -20,6 +20,9 @@ class AcceptTradeHandler:
             bag, slot = item.item_instance.bag, item.current_slot
             if trade_owner.inventory.get_item(bag, slot) is not item or trade_owner.inventory.is_bank_slot(bag, slot):
                 return False
+            # Bags can be filled after they were placed.
+            if item.is_container() and not item.is_empty():
+                return False
         return True
 
     @staticmethod
