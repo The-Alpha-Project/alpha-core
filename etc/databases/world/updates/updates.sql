@@ -24908,5 +24908,36 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('151120261');
     end if;
 
+    -- 23/11/2026 1
+    if (select count(*) from applied_updates where id='231120261') = 0 then
+        -- 0.5.5 notes: Bewitching Shriek was replaced with Curse of Mending on the Witchwing Harpies (self area cast).
+        UPDATE `creature_spells` SET `spellId_1` = 6532, `castTarget_1` = 0, `castFlags_1` = 0 WHERE `entry` = 5003276;
+
+        -- 0.5.5 notes: Sunscale Screechers got a long distance call for help instead of Terrifying Screech.
+        -- Timers as the other Terrifying Screech lists (Plaguebat).
+        DELETE FROM `creature_ai_events` WHERE `id` = 325501;
+        DELETE FROM `creature_ai_scripts` WHERE `id` = 325501;
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `castFlags_1`,
+            `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`) VALUES
+            (5003255, 'Sunscale Screecher', 6605, 100, 0, 0, 7, 10, 14, 16);
+        UPDATE `creature_template` SET `spell_list_id` = 5003255 WHERE `entry` = 3255;
+
+        -- 0.5.3 notes: the northern Loch Modan mine crates respawn like the mine's kobolds (300 s).
+        UPDATE `spawns_gameobjects` SET `spawn_spawntimemin` = 300, `spawn_spawntimemax` = 300 WHERE `spawn_id` IN
+            (10362, 10363, 13017, 13019, 13247, 13286, 13287, 13288, 13291, 13478, 13603, 13610, 65935, 65936);
+
+        -- 0.5.3 notes list Rethban Ore as level 24.
+        UPDATE `quest_template` SET `QuestLevel` = 24 WHERE `entry` = 347;
+
+        -- 0.10 notes: Lost Ones became pickpocketable.
+        UPDATE `creature_template` SET `pickpocket_loot_id` = 0 WHERE `entry` IN (755, 757, 759, 760, 761, 762);
+
+        -- 1.2 notes: Decrepit Darkhounds became skinnable and Wolfmane Wristguards Uncommon.
+        UPDATE `creature_template` SET `skinning_loot_id` = 0 WHERE `entry` = 1547;
+        UPDATE `item_template` SET `quality` = 1 WHERE `entry` = 1306;
+
+        INSERT INTO applied_updates VALUES ('231120261');
+    end if;
+
 end $
 delimiter ;
