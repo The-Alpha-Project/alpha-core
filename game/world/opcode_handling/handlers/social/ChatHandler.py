@@ -6,6 +6,9 @@ from network.packet.PacketReader import *
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ChatMsgs, Languages
 
+# The chat edit box of later clients takes 255 characters (0.5.3 unconfirmed), longer text comes from crafted packets.
+MAX_CHAT_MESSAGE_LENGTH = 255
+
 
 class ChatHandler:
 
@@ -31,13 +34,13 @@ class ChatHandler:
         # Channel.
         if chat_type == ChatMsgs.CHAT_MSG_CHANNEL:
             channel_name = PacketReader.read_string(reader.data, 8).strip()
-            message = PacketReader.read_string(reader.data, 8 + len(channel_name)+1)
+            message = PacketReader.read_string(reader.data, 8 + len(channel_name)+1)[:MAX_CHAT_MESSAGE_LENGTH]
             ChatManager.send_channel_message(player_mgr, channel_name, message, lang)
         # Say, Yell, Emote.
         elif chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \
                 or chat_type == ChatMsgs.CHAT_MSG_YELL:
-            message = PacketReader.read_string(reader.data, 8)
+            message = PacketReader.read_string(reader.data, 8)[:MAX_CHAT_MESSAGE_LENGTH]
             guid = player_mgr.guid
             chat_flags = player_mgr.chat_flags
 
@@ -52,7 +55,7 @@ class ChatHandler:
             if not target_player_mgr:
                 ChatManager.send_system_message(world_session, f'No player named \'{target_name.capitalize()}\' is currently playing.')
                 return 0
-            message = PacketReader.read_string(reader.data, 8 + len(target_name)+1)
+            message = PacketReader.read_string(reader.data, 8 + len(target_name)+1)[:MAX_CHAT_MESSAGE_LENGTH]
             if not ChatHandler.check_if_command(world_session, message):
                 # Always whisper in universal language when speaking with a GM.
                 if target_player_mgr.session.account_mgr.is_gm():
@@ -62,19 +65,19 @@ class ChatHandler:
         # Party.
         elif chat_type == ChatMsgs.CHAT_MSG_PARTY:
             if not ChatHandler.check_if_command(world_session, message):
-                message = PacketReader.read_string(reader.data, 8)
+                message = PacketReader.read_string(reader.data, 8)[:MAX_CHAT_MESSAGE_LENGTH]
                 ChatManager.send_party(player_mgr, message, lang)
             return 0
         # Guild.
         elif chat_type == ChatMsgs.CHAT_MSG_GUILD or chat_type == ChatMsgs.CHAT_MSG_OFFICER:
             if not ChatHandler.check_if_command(world_session, message):
-                message = PacketReader.read_string(reader.data, 8)
+                message = PacketReader.read_string(reader.data, 8)[:MAX_CHAT_MESSAGE_LENGTH]
                 ChatManager.send_guild(player_mgr, message, lang, chat_type)
             return 0
         # AFK.
         elif chat_type == ChatMsgs.CHAT_MSG_AFK:
             if not ChatHandler.check_if_command(world_session, message):
-                message = PacketReader.read_string(reader.data, 8)
+                message = PacketReader.read_string(reader.data, 8)[:MAX_CHAT_MESSAGE_LENGTH]
                 if message and message != player_mgr.afk_message:
                     player_mgr.afk_message = message
 
@@ -86,7 +89,7 @@ class ChatHandler:
         # DND.
         elif chat_type == ChatMsgs.CHAT_MSG_DND:
             if not ChatHandler.check_if_command(world_session, message):
-                message = PacketReader.read_string(reader.data, 8)
+                message = PacketReader.read_string(reader.data, 8)[:MAX_CHAT_MESSAGE_LENGTH]
                 if message or not player_mgr.is_dnd():
                     player_mgr.dnd_message = message
 
