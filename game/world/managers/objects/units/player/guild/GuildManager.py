@@ -429,6 +429,9 @@ class GuildManager:
 
         if petition:
             for member_signer in petition.characters:
+                # Signers can join another guild between signing and the charter turn in.
+                if any(guild.has_member(member_signer.guid) for guild in list(GuildManager.GUILDS.values())):
+                    continue
                 member = WorldSessionStateHandler.find_player_by_guid(member_signer.guid)
                 if member:
                     player_mgr.guild_manager.add_new_member(member, False)
