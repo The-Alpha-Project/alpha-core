@@ -1,13 +1,15 @@
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
-from utils.constants.ItemCodes import ItemClasses, ItemFlags
+from utils.constants.ItemCodes import ItemFlags
 
 
 class LootHolder:
-    def __init__(self, item: ItemManager, quantity: int, requester: PlayerManager):
+    def __init__(self, item: ItemManager, quantity: int, requester: PlayerManager, quest_only=False):
         self.item = item
         self.quantity = quantity
+        # From a quest only loot row (negative chance), only players with a quest asking for it can see it.
+        self.quest_only = quest_only
         if self.is_multi_drop():
             # Used to keep track of who can loot an item with multi-drop flag and who has looted it already or not.
             self.shared_with = set()
@@ -20,14 +22,14 @@ class LootHolder:
                     player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
                     if requester.group_manager.is_close_member(requester, player_mgr):
                         # Quest item but this player no longer needs it, skip.
-                        if self.is_quest_item() and not player_mgr.quest_manager.item_needed_by_quests(self.item.entry):
+                        if self.is_quest_item() and not player_mgr.quest_manager.has_quest_for_item(self.item.entry):
                             continue
                         self.shared_with.add(player_mgr.guid)
             else:
                 self.shared_with.add(requester.guid)
 
     def is_quest_item(self):
-        return self.item.item_template.class_ == ItemClasses.ITEM_CLASS_QUEST
+        return self.quest_only
 
     def is_multi_drop(self):
         return (self.item.item_template.flags & ItemFlags.ITEM_FLAG_MULTI_DROP) != 0

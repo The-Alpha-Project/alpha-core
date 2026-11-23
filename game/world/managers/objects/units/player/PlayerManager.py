@@ -1051,10 +1051,10 @@ class PlayerManager(UnitManager):
             for loot in loot_manager.current_loot:
                 if loot:
                     # Skip conditions:
-                    # - It's a quest item and player does not have the involved quest.
+                    # - It's a quest only drop and player does not have the involved quest.
                     # - It's a quest multi-drop item and is no longer visible to this player.
                     if not from_item_container and loot.is_quest_item() and \
-                            not self.quest_manager.item_needed_by_quests(loot.item.item_template.entry) or \
+                            not self.quest_manager.has_quest_for_item(loot.item.item_template.entry) or \
                             not loot.is_visible_to_player(self):
                         slot += 1
                         continue
@@ -1221,13 +1221,13 @@ class PlayerManager(UnitManager):
                 self.friends_manager.send_update_to_friends()
                 self.persist_character_state(SaveReason.LEVEL_CHANGE)
 
-    def player_or_group_require_quest_item(self, item_entry):
+    def player_or_group_has_quest_for_item(self, item_entry):
         if not self.group_manager or not self.group_manager.is_active_member(self):
-            return self.quest_manager.item_needed_by_quests(item_entry)
+            return self.quest_manager.has_quest_for_item(item_entry)
         else:
             for member in list(self.group_manager.members.values()):
                 player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
-                if player_mgr and player_mgr.quest_manager.item_needed_by_quests(item_entry):
+                if player_mgr and player_mgr.quest_manager.has_quest_for_item(item_entry):
                     return True
         return False
 

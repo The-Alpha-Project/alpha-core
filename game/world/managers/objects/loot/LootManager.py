@@ -133,14 +133,19 @@ class LootManager:
         # A reference row holds the reference id, not an item, its items are checked when it's rolled.
         if loot_item.mincountOrRef < 0:
             return True
-        return requester.player_or_group_require_quest_item(loot_item.item)
+        # Like VMaNGOS, a quest only row (negative chance) needs a quest asking for the item, whatever its class, any
+        # other row drops for everyone except quest starting items of quests already taken.
+        if loot_item.ChanceOrQuestChance < 0:
+            return requester.player_or_group_has_quest_for_item(loot_item.item)
+        return requester.quest_manager.can_loot_quest_starter(loot_item.item)
 
     def add_loot(self, loot_item, requester):
         from game.world.managers.objects.loot.LootHolder import LootHolder
         from game.world.managers.objects.item.ItemManager import ItemManager
         item = ItemManager.generate_item_from_entry(loot_item.item)
         if item:
-            self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount), requester))
+            self.current_loot.append(LootHolder(item, randint(loot_item.mincountOrRef, loot_item.maxcount), requester,
+                                                quest_only=loot_item.ChanceOrQuestChance < 0))
 
     # Needs overriding
     def populate_loot_template(self):

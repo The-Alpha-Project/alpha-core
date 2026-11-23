@@ -1301,7 +1301,7 @@ class CreatureManager(UnitManager):
 
             # Check if loot is a quest item and needed by quests.
             is_quest_item = loot.is_quest_item()
-            item_needed = requester.quest_manager.item_needed_by_quests(loot.item.item_template.entry)
+            item_needed = requester.quest_manager.has_quest_for_item(loot.item.item_template.entry)
             is_visible_to_player = loot.is_visible_to_player(requester)
 
             # Continue if loot is a quest item not needed or not visible.

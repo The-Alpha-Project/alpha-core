@@ -25580,5 +25580,14 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('231120266');
     end if;
 
+    -- 23/11/2026 7
+    if (select count(*) from applied_updates where id='231120267') = 0 then
+        -- Loot is gated by the row like VMaNGOS now (negative chance = quest only). Stolen Silver is an alpha only raptor
+        -- drop for quest 869 (bound quest item in the 0.6 item cache), keep it quest only.
+        UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -11 WHERE `item` = 5061 AND `entry` IN (3254, 3255, 3256) AND `ChanceOrQuestChance` = 11;
+
+        INSERT INTO applied_updates VALUES ('231120267');
+    end if;
+
 end $
 delimiter ;

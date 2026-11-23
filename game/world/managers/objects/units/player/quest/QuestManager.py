@@ -14,7 +14,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.ObjectQueryUtils import ObjectQueryUtils
 from utils.constants import UnitCodes
-from utils.constants.ItemCodes import InventoryError, ItemClasses
+from utils.constants.ItemCodes import InventoryError
 from utils.constants.OpCodes import OpCode
 from utils.constants.SaveCodes import SaveReason
 from utils.constants.SpellCodes import SpellTargetMask
@@ -1396,32 +1396,31 @@ class QuestManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
         self.player_mgr.enqueue_packet(packet)
 
-    def item_needed_by_quests(self, item_entry):
+    # Like VMaNGOS HasQuestForItem, an active quest still asks for this item (any item class).
+    def has_quest_for_item(self, item_entry):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
         if not item_template:
             return False
-
-        # If this item is not marked as a quest item, then below checks shouldn't apply to it.
-        if item_template.class_ != ItemClasses.ITEM_CLASS_QUEST:
-            return True
-
-        # Always allow items that are quest starters (if we are not on that quest, and it's not done).
-        start_quest_entry = item_template.start_quest
-        if start_quest_entry > 0:
-            quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(start_quest_entry)
-            if not quest_template:
-                return False
-
-            if (start_quest_entry in self.active_quests or
-                    (start_quest_entry in self.completed_quests and
-                    not QuestHelpers.is_quest_repeatable(quest_template))):
-                return False
-            return True
-
         for active_quest in list(self.active_quests.values()):
             if active_quest.still_needs_item(item_template):
                 return True
         return False
+
+    # Like VMaNGOS, a quest starting item doesn't drop once its (non repeatable) quest was taken, unless a quest still
+    # asks for it. Unlike VMaNGOS, it doesn't drop either when its quest isn't loaded (ignored), it would start nothing.
+    def can_loot_quest_starter(self, item_entry):
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
+        if not item_template or not item_template.start_quest:
+            return True
+        start_quest_entry = item_template.start_quest
+        quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(start_quest_entry)
+        if not quest_template:
+            return False
+        if QuestHelpers.is_quest_repeatable(quest_template):
+            return True
+        if start_quest_entry in self.active_quests or start_quest_entry in self.completed_quests:
+            return self.has_quest_for_item(item_entry)
+        return True
 
     def has_timed_quest(self):
         for active_quest in list(self.active_quests.values()):
