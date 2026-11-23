@@ -3,6 +3,7 @@ import time
 from random import randint
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
+from utils.constants.UnitCodes import SplineFlags
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType, ZSource
 from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP, UNIT_SIZE
@@ -73,7 +74,9 @@ class WanderingMovement(BaseMovement):
             return False
 
         speed = self.unit.walk_speed
-        spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
+        # The client picks the run or walk animation from SPLINEFLAG_RUNMODE (CMovement::OnSpline).
+        flags = SplineFlags.SPLINEFLAG_RUNMODE if speed >= self.unit.running_speed else SplineFlags.SPLINEFLAG_NONE
+        spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed, spline_flags=flags)
         self.spline_callback(spline, movement_behavior=self)
 
         return True

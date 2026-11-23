@@ -3,6 +3,7 @@ from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
+from utils.constants.UnitCodes import SplineFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 
@@ -142,8 +143,10 @@ class WaypointMovement(BaseMovement):
         waypoint = self._get_waypoint()
         waypoint.initialized = True
         speed = self._get_speed()
+        # The client picks the run or walk animation from SPLINEFLAG_RUNMODE (CMovement::OnSpline).
+        flags = SplineFlags.SPLINEFLAG_RUNMODE if speed >= self.unit.running_speed else SplineFlags.SPLINEFLAG_NONE
         spline = SplineBuilder.build_normal_spline(self.unit, points=waypoint.get_leg_points(self.unit), speed=speed,
-                                                   extra_time_seconds=waypoint.wait_time_seconds)
+                                                   spline_flags=flags, extra_time_seconds=waypoint.wait_time_seconds)
         self.spline_callback(spline, movement_behavior=self)
         waypoint.set_total_wait_time_seconds(self.get_total_time_secs())
 
