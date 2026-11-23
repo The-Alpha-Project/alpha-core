@@ -1,4 +1,5 @@
 from struct import unpack
+from game.world.managers.objects.units.player.quest.QuestManager import QuestManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter
 from utils.GuidUtils import GuidUtils
@@ -47,6 +48,9 @@ class QuestGiverAcceptQuestHandler:
             return 0
         elif not is_item and not player_mgr.quest_manager.can_interact_with_quest_giver(quest_giver):
             return 0
+        # The quest giver must offer this quest, the client could send any quest id.
+        elif not QuestGiverAcceptQuestHandler._offers_quest(quest_giver, quest_id, is_item):
+            return 0
         elif player_mgr.quest_manager.is_quest_log_full():
             player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTLOG_FULL))
         elif is_item or quest_giver.is_within_interactable_distance(player_mgr):
@@ -54,3 +58,9 @@ class QuestGiverAcceptQuestHandler:
                                                          is_item=is_item)
 
         return 0
+
+    @staticmethod
+    def _offers_quest(quest_giver, quest_id, is_item):
+        if is_item:
+            return quest_giver.item_template.start_quest == quest_id
+        return QuestManager.check_quest_giver_npc_is_related(quest_giver, quest_id)
