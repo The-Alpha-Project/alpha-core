@@ -22,14 +22,19 @@ class LootHolder:
                     player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
                     if requester.group_manager.is_close_member(requester, player_mgr):
                         # Quest item but this player no longer needs it, skip.
-                        if self.is_quest_item() and not player_mgr.quest_manager.has_quest_for_item(self.item.entry):
+                        if not self.allowed_for_player(player_mgr):
                             continue
                         self.shared_with.add(player_mgr.guid)
             else:
                 self.shared_with.add(requester.guid)
 
-    def is_quest_item(self):
-        return self.quest_only
+    # Like VMaNGOS AllowedForPlayer, per looter: a quest only drop needs a quest asking for it, a quest starting item
+    # isn't for players that already took its quest.
+    def allowed_for_player(self, player_mgr):
+        entry = self.item.item_template.entry
+        if self.quest_only:
+            return player_mgr.quest_manager.has_quest_for_item(entry)
+        return player_mgr.quest_manager.can_loot_quest_starter(entry)
 
     def is_multi_drop(self):
         return (self.item.item_template.flags & ItemFlags.ITEM_FLAG_MULTI_DROP) != 0

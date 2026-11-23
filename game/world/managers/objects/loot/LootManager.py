@@ -137,7 +137,7 @@ class LootManager:
         # other row drops for everyone except quest starting items of quests already taken.
         if loot_item.ChanceOrQuestChance < 0:
             return requester.player_or_group_has_quest_for_item(loot_item.item)
-        return requester.quest_manager.can_loot_quest_starter(loot_item.item)
+        return requester.player_or_group_can_loot_quest_starter(loot_item.item)
 
     def add_loot(self, loot_item, requester):
         from game.world.managers.objects.loot.LootHolder import LootHolder
@@ -161,6 +161,10 @@ class LootManager:
             # Multi-drop items are only lootable once by each of their recipients.
             if not loot or not loot.item or not loot.is_visible_to_player(requester):
                 return
+            # Hidden from this player's loot window (item containers show everything).
+            from game.world.managers.objects.item.ItemLootManager import ItemLootManager
+            if not isinstance(self, ItemLootManager) and not loot.allowed_for_player(requester):
+                return
             if not requester.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity,
                                                 looted=True):
                 return
@@ -178,7 +182,6 @@ class LootManager:
                 [looter.enqueue_packet(removed_packet) for looter in self.get_active_looters()]
 
             # Flag as depleted if this is an Item loot container and is empty, destroy will happen on loot release.
-            from game.world.managers.objects.item.ItemLootManager import ItemLootManager
             if isinstance(self, ItemLootManager) and not self.has_loot():
                 # noinspection PyAttributeOutsideInit
                 self.depleted = True

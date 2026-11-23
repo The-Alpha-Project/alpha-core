@@ -1407,16 +1407,14 @@ class QuestManager:
         return False
 
     # Like VMaNGOS, a quest starting item doesn't drop once its (non repeatable) quest was taken, unless a quest still
-    # asks for it. Unlike VMaNGOS, it doesn't drop either when its quest isn't loaded (ignored), it would start nothing.
+    # asks for it.
     def can_loot_quest_starter(self, item_entry):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
         if not item_template or not item_template.start_quest:
             return True
         start_quest_entry = item_template.start_quest
         quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(start_quest_entry)
-        if not quest_template:
-            return False
-        if QuestHelpers.is_quest_repeatable(quest_template):
+        if not quest_template or QuestHelpers.is_quest_repeatable(quest_template):
             return True
         if start_quest_entry in self.active_quests or start_quest_entry in self.completed_quests:
             return self.has_quest_for_item(item_entry)
