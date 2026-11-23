@@ -130,7 +130,9 @@ class Spline:
     def _apply_creature_group_leader_z(self, location):
         if not self.unit.creature_group:
             return location
-        if not self.unit.movement_manager.get_current_behavior().move_type == MoveType.GROUP:
+        # No behavior left while one is being removed.
+        behavior = self.unit.movement_manager.get_current_behavior()
+        if not behavior or behavior.move_type != MoveType.GROUP:
             return location
         if not self.unit.creature_group.is_leader(self.unit):
             return location
