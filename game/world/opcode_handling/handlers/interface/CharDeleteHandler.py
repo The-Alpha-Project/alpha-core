@@ -3,6 +3,7 @@ from struct import unpack
 
 from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
+from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.constants.CharCodes import *
@@ -51,6 +52,13 @@ class CharDeleteHandler:
                 online_party_members = player_mgr
                 disbanded = online_party_members.group_manager.leave_party(guid)
                 break
+
+        # The database cascade removes the guild member row, the loaded guild must drop the member too.
+        if res != CharDelete.CHAR_DELETE_FAILED:
+            for guild_manager in list(GuildManager.GUILDS.values()):
+                if guild_manager.has_member(guid):
+                    guild_manager.leave(guid)
+                    break
 
         # Try to delete the character.
         if res != CharDelete.CHAR_DELETE_FAILED and (guid == 0 or RealmDatabaseManager.character_delete(guid) != 0):
