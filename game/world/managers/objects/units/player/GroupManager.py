@@ -372,9 +372,11 @@ class GroupManager:
 
         # Append div remainder to the player who killed the creature for now.
         remainder = int(creature.loot_manager.current_money % len(close_members))
+        # The killer can be out of range or offline, the remainder would be lost.
+        remainder_receiver = creature.killed_by if creature.killed_by in close_members else looter
 
         for player_mgr in close_members:
-            player_share = share if player_mgr != creature.killed_by else share + remainder
+            player_share = share if player_mgr != remainder_receiver else share + remainder
             data = pack('<I', player_share)
             player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
             player_mgr.mod_money(player_share)
