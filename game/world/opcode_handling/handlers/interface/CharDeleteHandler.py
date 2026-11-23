@@ -38,12 +38,21 @@ class CharDeleteHandler:
         if RealmDatabaseManager.character_is_guild_master(guid):
             res = CharDelete.CHAR_DELETE_FAILED
 
-        # If this character has a party, and it has online members, handle removing/disbanding.
+        # Read before the delete, the database cascade removes the group member rows.
         party_group = RealmDatabaseManager.group_get_by_character_guid(guid)
+        party_members = RealmDatabaseManager.group_get_members(party_group) if party_group else []
+
+        # Try to delete the character.
+        if res != CharDelete.CHAR_DELETE_FAILED and (guid == 0 or RealmDatabaseManager.character_delete(guid) != 0):
+            res = CharDelete.CHAR_DELETE_FAILED
+            Logger.error(f'Error deleting character with guid {guid}.')
+
+        # Only once the character is gone, a failed delete must keep its party and guild.
+        # If this character has a party, and it has online members, handle removing/disbanding.
         online_party_members = None
         disbanded = False
-        if party_group:
-            for group_member in RealmDatabaseManager.group_get_members(party_group):
+        if res != CharDelete.CHAR_DELETE_FAILED:
+            for group_member in party_members:
                 if group_member.guid == guid:
                     continue
                 player_mgr = WorldSessionStateHandler.find_player_by_guid(group_member.guid)
@@ -53,17 +62,11 @@ class CharDeleteHandler:
                 disbanded = online_party_members.group_manager.leave_party(guid)
                 break
 
-        # The database cascade removes the guild member row, the loaded guild must drop the member too.
-        if res != CharDelete.CHAR_DELETE_FAILED:
+            # The cascade removed the guild member row, the loaded guild must drop the member too.
             for guild_manager in list(GuildManager.GUILDS.values()):
                 if guild_manager.has_member(guid):
                     guild_manager.leave(guid)
                     break
-
-        # Try to delete the character.
-        if res != CharDelete.CHAR_DELETE_FAILED and (guid == 0 or RealmDatabaseManager.character_delete(guid) != 0):
-            res = CharDelete.CHAR_DELETE_FAILED
-            Logger.error(f'Error deleting character with guid {guid}.')
 
         # Check if the whole group needs to be erased while all members were offline.
         if res != CharDelete.CHAR_DELETE_FAILED:

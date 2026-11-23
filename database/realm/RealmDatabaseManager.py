@@ -704,7 +704,8 @@ class RealmDatabaseManager:
     @staticmethod
     def group_remove_member(group_member):
         realm_db_session = SessionHolder()
-        realm_db_session.delete(group_member)
+        # By key, the row is already gone when a deleted character cascaded it.
+        realm_db_session.query(GroupMember).filter_by(group_id=group_member.group_id, guid=group_member.guid).delete()
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.close()
@@ -778,7 +779,8 @@ class RealmDatabaseManager:
     @staticmethod
     def guild_remove_member(guild_member):
         realm_db_session = SessionHolder()
-        realm_db_session.delete(guild_member)
+        # By key, the row is already gone when a deleted character cascaded it.
+        realm_db_session.query(GuildMember).filter_by(guild_id=guild_member.guild_id, guid=guild_member.guid).delete()
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.close()
