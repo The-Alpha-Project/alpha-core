@@ -1272,7 +1272,7 @@ class CommandManager:
                                                                       old_password, new_password)
             if not success:
                 return -1, 'something went wrong, make sure the current password is correct and the new ' \
-                           'password has 16 characters maximum'
+                           'password has 6 to 16 characters'
             return 0, 'Password updated successfully, remember to update it in your wow.ses file'
         except ValueError:
             return -1, 'please use it like: .pwdchange current_password new_password new_password'

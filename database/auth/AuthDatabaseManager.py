@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -76,7 +77,8 @@ class AuthDatabaseManager:
         status = -1
         account_mgr = None
         if account:
-            if (password and account.password == password) or (client_digest and client_digest == server_digest):
+            if (password and hmac.compare_digest(account.password, password)) or \
+                    (client_digest and hmac.compare_digest(client_digest, server_digest)):
                 status = 1
                 account.ip = ip
                 account_mgr = AccountManager(account)
@@ -143,12 +145,12 @@ class AuthDatabaseManager:
             if not account:
                 return False
 
-            # Client limitation.
-            if len(new_password) > 16:
+            # Client limitation, and a minimum against trivial passwords.
+            if not 6 <= len(new_password) <= 16:
                 return False
 
             hashed_old_password = hashlib.sha256(old_password.encode('utf-8')).hexdigest()
-            if account.password != hashed_old_password:
+            if not hmac.compare_digest(account.password, hashed_old_password):
                 return False
 
             hashed_new_password = hashlib.sha256(new_password.encode('utf-8')).hexdigest()

@@ -19,6 +19,28 @@ class AuthSessionHandler:
     SRP6_RECODE_LEN = 64
     SRP6_RECODE_WINDOW_SECONDS = 30
     _srp6_recode_cache = {}
+    # Wrong passwords per IP, the plaintext wow.ses login would otherwise allow unlimited guesses.
+    LOGIN_FAILURE_LIMIT = 10
+    LOGIN_FAILURE_WINDOW_SECONDS = 600
+    _login_failures = {}  # ip -> [failures, window start]
+
+    @staticmethod
+    def _login_blocked(ip):
+        entry = AuthSessionHandler._login_failures.get(ip)
+        if not entry:
+            return False
+        if time.time() - entry[1] >= AuthSessionHandler.LOGIN_FAILURE_WINDOW_SECONDS:
+            AuthSessionHandler._login_failures.pop(ip, None)
+            return False
+        return entry[0] >= AuthSessionHandler.LOGIN_FAILURE_LIMIT
+
+    @staticmethod
+    def _login_failed(ip):
+        entry = AuthSessionHandler._login_failures.get(ip)
+        if not entry or time.time() - entry[1] >= AuthSessionHandler.LOGIN_FAILURE_WINDOW_SECONDS:
+            AuthSessionHandler._login_failures[ip] = [1, time.time()]
+        else:
+            entry[0] += 1
 
     @staticmethod
     def _store_recode_proof(username: str, proof: bytes, ip_address: str) -> None:
@@ -97,7 +119,8 @@ class AuthSessionHandler:
 
     @staticmethod
     def handle_srp6_proof(auth_session, reader):
-        if not auth_session.account_mgr:
+        ip = auth_session.client_socket.getpeername()[0]
+        if not auth_session.account_mgr or AuthSessionHandler._login_blocked(ip):
             data = pack('<2B', AuthCode.AUTH_FAILED, Srp6ResponseType.AuthProof)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             return -1
@@ -125,6 +148,7 @@ class AuthSessionHandler:
 
         # Invalid password.
         if not hmac.compare_digest(s_m1, c_m1):
+            AuthSessionHandler._login_failed(ip)
             data = pack('<2B', AuthCode.AUTH_INCORRECT_PASSWORD, Srp6ResponseType.AuthProof)
             auth_session.client_socket.sendall(PacketWriter.get_srp6_packet(data))
             auth_session.account_mgr.clear_srp_state()
@@ -200,6 +224,11 @@ class AuthSessionHandler:
             AuthSessionHandler.send_result(world_session, AuthCode.AUTH_VERSION_MISMATCH)
             return -1
 
+        ip = world_session.client_socket.getpeername()[0]
+        if AuthSessionHandler._login_blocked(ip):
+            AuthSessionHandler.send_result(world_session, AuthCode.AUTH_FAILED)
+            return -1
+
         username = ''
         password = ''
         client_digest = b''
@@ -258,10 +287,12 @@ class AuthSessionHandler:
             username, password, world_session.client_socket.getpeername()[0], client_digest, server_digest)
 
         if login_res == 0:
+            AuthSessionHandler._login_failed(ip)
             auth_code = AuthCode.AUTH_INCORRECT_PASSWORD
         elif login_res == -1:
             auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
         else:
+            AuthSessionHandler._login_failures.pop(ip, None)
             auth_code = AuthCode.AUTH_OK
 
         AuthSessionHandler.send_result(world_session, auth_code)
