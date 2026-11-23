@@ -86,8 +86,9 @@ services:
       - MYSQL_ROOT_PASSWORD=pwd
       - MYSQL_USER=${MYSQL_USERNAME}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    # Only reachable from this host (published ports bypass ufw), the game containers use the compose network.
     ports:
-      - "${MYSQL_HOST_PORT}:${MYSQL_PORT}"
+      - "127.0.0.1:${MYSQL_HOST_PORT}:${MYSQL_PORT}"
     volumes:
       - ./etc/databases/:/etc/databases/
     # A blocked row lock fails after 10 seconds instead of 50, and connections skip the reverse DNS lookup.
@@ -96,8 +97,9 @@ services:
 
   phpmyadmin:
     image: ${PHPAD_TAG}
+    # Logs in without a password prompt, only reachable from this host.
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     environment:
       - PMA_HOST=${MYSQL_HOST}
       - PMA_USER=${MYSQL_USERNAME}
