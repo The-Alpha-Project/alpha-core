@@ -26,9 +26,10 @@ from utils.constants.SaveCodes import SaveReason
 STARTUP_TIME = time()
 WORLD_ON = True
 MAX_PACKET_BYTES = 4096
-# The only opcodes the client sends from the character screen (CGlueMgr), plus the connection's ping.
+# The only opcodes the client sends from the character screen (CGlueMgr, CCharSelectInfo::GuildCallback asks the guild
+# cache for the tabards), plus the connection's ping.
 PRE_LOGIN_OPCODES = {OpCode.CMSG_CHAR_ENUM, OpCode.CMSG_CHAR_CREATE, OpCode.CMSG_CHAR_DELETE, OpCode.CMSG_PLAYER_LOGIN,
-                     OpCode.CMSG_PING}
+                     OpCode.CMSG_GUILD_QUERY, OpCode.CMSG_PING}
 # A handler error no longer ends the session, a broken client or state still does after this many.
 MAX_HANDLER_ERRORS = 20
 MAX_SEND_BATCH_BYTES = 65536
