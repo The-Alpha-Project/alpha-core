@@ -24955,5 +24955,15 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('231120262');
     end if;
 
+    -- 23/11/2026 3
+    if (select count(*) from applied_updates where id='231120263') = 0 then
+        -- 0.10 notes: Proof of Demise got its cloth reward (Quilted Mantle) in 0.10.
+        UPDATE `quest_template` SET `RewChoiceItemId3` = 0, `RewChoiceItemCount3` = 0 WHERE `entry` = 374;
+        -- Pretty Boy Duncan's display 4641 is not in 0.5.3, use the unused human pirate captain display.
+        UPDATE `creature_template` SET `display_id1` = 3493 WHERE `entry` = 2545;
+
+        INSERT INTO applied_updates VALUES ('231120263');
+    end if;
+
 end $
 delimiter ;
