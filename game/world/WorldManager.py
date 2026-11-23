@@ -25,7 +25,6 @@ from utils.constants.SaveCodes import SaveReason
 
 STARTUP_TIME = time()
 WORLD_ON = True
-SERVER_SEED = os.urandom(4)
 MAX_PACKET_BYTES = 4096
 MAX_SEND_BATCH_BYTES = 65536
 MAX_PENDING_OUTGOING_PACKETS = 32768
@@ -52,6 +51,8 @@ class WorldServerSessionHandler:
         self.last_bug_report_at = 0
         self.player_mgr: Optional[PlayerManager] = None
         self.keep_alive = False
+        # One seed per connection, a captured login proof can't be replayed on another connection.
+        self.server_seed = os.urandom(4)
 
         self.incoming_pending = _queue.SimpleQueue()
         self.outgoing_pending = _queue.SimpleQueue()
@@ -226,7 +227,7 @@ class WorldServerSessionHandler:
     def auth_challenge(self, sck):
         try:
             sck.settimeout(10)  # Set a 10-second timeout.
-            sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, SERVER_SEED))  # Request challenge
+            sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, self.server_seed))  # Request challenge
             reader = self.receive_client_message(sck)
             if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
                 handler, found = Definitions.get_handler_from_packet(self, reader.opcode)

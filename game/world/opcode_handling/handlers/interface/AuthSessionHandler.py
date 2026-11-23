@@ -5,7 +5,6 @@ import time
 
 from database.auth.AuthDatabaseManager import AuthDatabaseManager
 from database.realm.RealmDatabaseManager import *
-from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
@@ -243,9 +242,14 @@ class AuthSessionHandler:
             if not HandlerValidator.validate_packet_length(reader, min_length=digest_offset + 20):
                 AuthSessionHandler.send_result(world_session, AuthCode.AUTH_FAILED)
                 return -1
+            # No realm login stored a session key yet (wow.ses or console accounts), the proof would only need the
+            # account name.
+            if not account_mgr.account.sessionkey:
+                AuthSessionHandler.send_result(world_session, AuthCode.AUTH_FAILED)
+                return -1
             client_seed = reader.data[seed_offset:digest_offset]
             client_digest = reader.data[digest_offset:digest_offset + 20]
-            server_digest = Srp6.calculate_world_server_proof(username, client_seed, WorldManager.SERVER_SEED,
+            server_digest = Srp6.calculate_world_server_proof(username, client_seed, world_session.server_seed,
                                                               bytes.fromhex(account_mgr.account.sessionkey))
 
         # Attempt login.
