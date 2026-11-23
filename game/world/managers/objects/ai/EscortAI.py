@@ -14,6 +14,9 @@ class EscortAI(BasicCreatureAI):
     # override
     def update_ai(self, elapsed, now):
         super().update_ai(elapsed, now)
+        # The escorting player logged out, let a new one link (a relog creates a new player manager).
+        if self.player_mgr and not self.player_mgr.online:
+            self.detach_escort_link()
         if not self.creature or not self.player_mgr or not self.is_ready_for_new_attack():
             return
         self.assist_timer += elapsed
