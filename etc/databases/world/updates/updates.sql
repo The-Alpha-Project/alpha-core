@@ -24939,5 +24939,21 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('231120261');
     end if;
 
+    -- 23/11/2026 2
+    if (select count(*) from applied_updates where id='231120262') = 0 then
+        -- 0.9 notes: First Mate Hat could drop off any Stranglethorn pirate, before only from Pretty Boy Duncan.
+        DELETE FROM `creature_loot_template` WHERE `item` = 2955 AND `entry` IN (1561, 1562, 1564, 1565, 1653, 4505, 4506);
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES
+            (2545, 2955, 0.5, 0, 1, 1, 0);
+
+        -- Tameable serpents had no beast family, a tamed one had no abilities or diet. They use the 0.5.3 wind serpent
+        -- model like the Cloud Serpents and Deviate Dreadfang, give them the same family (Raptor). The riding stallions
+        -- were never tameable.
+        UPDATE `creature_template` SET `beast_family` = 11 WHERE `entry` IN (5048, 5224, 5225, 5755);
+        UPDATE `creature_template` SET `type_flags` = `type_flags` & ~1 WHERE `entry` IN (5403, 5404, 5405, 5406);
+
+        INSERT INTO applied_updates VALUES ('231120262');
+    end if;
+
 end $
 delimiter ;
