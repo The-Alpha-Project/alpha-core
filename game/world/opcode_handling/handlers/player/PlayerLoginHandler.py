@@ -27,6 +27,11 @@ class PlayerLoginHandler:
 
         guid = unpack('<Q', reader.data[:8])[0]
 
+        # A second login on the same session would leave the first character in the world, unsaved and unreachable.
+        if world_session.player_mgr:
+            Logger.anticheat(f'Account {world_session.account_mgr.account.id} sent a second login with guid {guid}.')
+            return 0
+
         character = RealmDatabaseManager.character_get_by_guid(guid)
         # Character must exist and belong to this account.
         if not character or character.account_id != world_session.account_mgr.account.id:
