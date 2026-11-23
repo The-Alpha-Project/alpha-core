@@ -43,10 +43,11 @@ class LiquidInformation:
         return self._liquid_type == WmoGroupLiquidType.SLIME
 
     def get_for_z(self, z):
-        if self._contains(z):
-            return self
-        elif self._liquid_information and self._liquid_information._contains(z):
-            return self._liquid_information
+        liquid = self
+        while liquid:
+            if liquid._contains(z):
+                return liquid
+            liquid = liquid._liquid_information
         return None
 
     def _contains(self, z):

@@ -505,7 +505,7 @@ class MapManager:
 
     @staticmethod
     def get_liquid_or_create(liquid_type, l_min, l_max, use_float_16, is_wmo):
-        key = f'{liquid_type}.{round(l_min, 4)}.{round(l_max, 4)}'
+        key = f'{liquid_type}.{is_wmo}.{round(l_min, 4)}.{round(l_max, 4)}'
         if key not in LIQUIDS_CACHE:
             LIQUIDS_CACHE[key] = LiquidInformation(liquid_type, l_min, l_max, use_float_16, is_wmo)
         return LIQUIDS_CACHE[key]

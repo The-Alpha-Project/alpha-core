@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.helpers.Constants import RESOLUTION_ZMAP, RESOLUTION_LIQUIDS, RESOLUTION_AREA_INFO, \
     ADT_SIZE, UNIT_SIZE, V8_GRID_SIZE, V9_GRID_SIZE
 from game.world.managers.maps.helpers.AreaInformation import AreaInformation
+from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.MapUtils import MapUtils
 from game.world.managers.maps.MapTileLoader import MapTileLoadError, load_map_tile_data
 from utils.ConfigManager import config
@@ -223,12 +224,16 @@ class MapTile:
             from game.world.managers.maps.MapManager import MapManager
             for cell_key, layers in liquid_cells.items():
                 liq_info = None
-                for liq_type, is_wmo, l_min, l_max in layers:
-                    current = MapManager.get_liquid_or_create(liq_type, l_min, l_max, use_float_16, is_wmo=is_wmo)
-                    if liq_info is None:
+                # Cached liquids are shared by every cell with the same values. Several layers are chained through
+                # their nested liquid, so they need objects of their own, or the chain leaks into other cells.
+                if len(layers) == 1:
+                    liq_type, is_wmo, l_min, l_max = layers[0]
+                    liq_info = MapManager.get_liquid_or_create(liq_type, l_min, l_max, use_float_16, is_wmo=is_wmo)
+                else:
+                    for liq_type, is_wmo, l_min, l_max in reversed(layers):
+                        current = LiquidInformation(liq_type, l_min, l_max, use_float_16, is_wmo)
+                        current.set_nested_liquid(liq_info)
                         liq_info = current
-                    else:
-                        liq_info.set_nested_liquid(current)
                 if liq_info:
                     self.liquid_information[cell_key] = liq_info
 
@@ -297,7 +302,7 @@ class MapTile:
                 if file.endswith('.map'):
                     map_file = file
                     break
-        except (FileNotFoundError, PermissionError, WindowsError):
+        except OSError:  # WindowsError only exists on Windows.
             return False
 
         if not map_file:
