@@ -25,6 +25,10 @@ class SetActionButtonHandler:
         button = RealmDatabaseManager.character_get_button(player_mgr.player.guid, index)
         if button:
             if action == 0:  # Delete
+                # The map change destroys the player's items and the client then clears every item button (they
+                # are negative, -item entry). Keep them, the client gets them again with the new world.
+                if button.action < 0 and player_mgr.update_lock:
+                    return 0
                 RealmDatabaseManager.character_delete_button(button)
             else:  # Update
                 button.action = action
